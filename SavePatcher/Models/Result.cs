@@ -27,11 +27,11 @@
             Message = message;
         }
 
-        public TValue? Value { get; set; }
+        public TValue? Value { get; private set; }
 
         public bool Success { get; private set; }
 
-        public string Message { get; set; }
+        public string Message { get; private set; }
 
         public static Result<TValue> Ok(TValue value)
         {
