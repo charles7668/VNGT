@@ -12,7 +12,7 @@
             return new Result(null, true, string.Empty);
         }
 
-        public new static Result Failure(string error)
+        public static new Result Failure(string error)
         {
             return new Result(null, false, error);
         }
