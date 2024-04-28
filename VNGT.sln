@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VNGT", "VNGT\VNGT.csproj", "{B9CA5A3C-7F8B-4248-9E92-27ECC1356DDE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VNGT", "VNGT\VNGT.csproj", "{B9CA5A3C-7F8B-4248-9E92-27ECC1356DDE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SavePatcher", "SavePatcher\SavePatcher.csproj", "{5A7DFD21-E33B-4095-87DB-CB89B37841B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SavePatcher", "SavePatcher\SavePatcher.csproj", "{5A7DFD21-E33B-4095-87DB-CB89B37841B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SavePatcherTest", "SavePatcherTest\SavePatcherTest.csproj", "{611B106E-112A-4EA6-8307-2D1B5EC3861D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{611B106E-112A-4EA6-8307-2D1B5EC3861D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{611B106E-112A-4EA6-8307-2D1B5EC3861D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{611B106E-112A-4EA6-8307-2D1B5EC3861D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{611B106E-112A-4EA6-8307-2D1B5EC3861D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
