@@ -51,6 +51,7 @@
             btnPatch.TabIndex = 1;
             btnPatch.Text = "Patch";
             btnPatch.UseVisualStyleBackColor = true;
+            btnPatch.Click += btnPatch_Click;
             // 
             // txtLog
             // 
