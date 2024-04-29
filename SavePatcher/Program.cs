@@ -13,6 +13,11 @@ namespace SavePatcher
         public static IServiceProvider ServiceProvider { get; private set; } = null!;
 
         /// <summary>
+        /// configs path
+        /// </summary>
+        public static string ConfigPath => "configs";
+
+        /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
@@ -24,6 +29,9 @@ namespace SavePatcher
             services.AddSingleton(typeof(IConfigReader<>), typeof(YamlConfigReader<>));
             ServiceProvider = services.BuildServiceProvider();
             Debug.Assert(ServiceProvider != null);
+
+            // Create necessary directories
+            Directory.CreateDirectory(ConfigPath);
 
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
