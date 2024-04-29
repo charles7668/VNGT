@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             cmbConfigList = new ComboBox();
+            btnPatch = new Button();
             SuspendLayout();
             // 
             // cmbConfigList
@@ -40,11 +41,22 @@
             cmbConfigList.Size = new Size(563, 49);
             cmbConfigList.TabIndex = 0;
             // 
+            // btnPatch
+            // 
+            btnPatch.Font = new Font("Microsoft JhengHei UI", 24F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            btnPatch.Location = new Point(611, 29);
+            btnPatch.Name = "btnPatch";
+            btnPatch.Size = new Size(155, 48);
+            btnPatch.TabIndex = 1;
+            btnPatch.Text = "Patch";
+            btnPatch.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(btnPatch);
             Controls.Add(cmbConfigList);
             Name = "Form1";
             Text = "Form1";
@@ -55,5 +67,6 @@
         #endregion
 
         private ComboBox cmbConfigList;
+        private Button btnPatch;
     }
 }
