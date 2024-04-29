@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using SavePatcher.Configs;
 using SavePatcher.Extractor;
 using System.Diagnostics;
 
@@ -20,6 +21,7 @@ namespace SavePatcher
             // register services
             ServiceCollection services = new();
             services.AddSingleton<ExtractorFactory>();
+            services.AddSingleton(typeof(IConfigReader<>), typeof(YamlConfigReader<>));
             ServiceProvider = services.BuildServiceProvider();
             Debug.Assert(ServiceProvider != null);
 
