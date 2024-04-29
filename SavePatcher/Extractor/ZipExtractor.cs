@@ -26,22 +26,19 @@ namespace SavePatcher.Extractor
                     {
                         foreach (string file in option.SpecificFiles)
                         {
-                            var zipEntry = zip.FirstOrDefault(entry => entry.FileName == file);
+                            var zipEntry = zip.FirstOrDefault(entry => entry.FileName.Replace('/', '\\') == file);
                             if (zipEntry == null)
                             {
                                 throw new ArgumentException($"File {file} not found in zip.");
                             }
 
-                            zipEntry.Extract(Path.Combine(destPath, file),
-                                ExtractExistingFileAction.OverwriteSilently);
+                            zipEntry.Extract(destPath, ExtractExistingFileAction.OverwriteSilently);
                         }
                     }
                     else
                     {
                         zip.ExtractAll(destPath, ExtractExistingFileAction.OverwriteSilently);
                     }
-
-                    zip.ExtractAll(destPath, ExtractExistingFileAction.OverwriteSilently);
                 });
                 await extractTask;
 
