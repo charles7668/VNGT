@@ -1,6 +1,6 @@
 ﻿namespace SavePatcher
 {
-    partial class Form1
+    partial class FrmMain
     {
         /// <summary>
         ///  Required designer variable.
@@ -51,15 +51,15 @@
             btnPatch.Text = "Patch";
             btnPatch.UseVisualStyleBackColor = true;
             // 
-            // Form1
+            // FrmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(btnPatch);
             Controls.Add(cmbConfigList);
-            Name = "Form1";
-            Text = "Form1";
+            Name = "FrmMain";
+            Text = "Save Patcher";
             Load += Form1_Load;
             ResumeLayout(false);
         }

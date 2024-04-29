@@ -4,9 +4,9 @@ using SavePatcher.Models;
 
 namespace SavePatcher
 {
-    public partial class Form1 : Form
+    public partial class FrmMain : Form
     {
-        public Form1()
+        public FrmMain()
         {
             InitializeComponent();
             _configReader = Program.ServiceProvider.GetRequiredService<IConfigReader<SavePatcherConfig>>();
