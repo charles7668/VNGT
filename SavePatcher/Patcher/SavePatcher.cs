@@ -1,4 +1,5 @@
 ﻿using Helper;
+using Helper.Web;
 using SavePatcher.Extractor;
 using SavePatcher.Logs;
 using SavePatcher.Models;
@@ -45,7 +46,29 @@ namespace SavePatcher.Patcher
         {
             string errMessage;
             LogCallbacks?.OnLogInfo(this, $"start check save file {FilePath} exist...");
-            if (!File.Exists(FilePath))
+            string filePath = FilePath;
+            if (filePath.IsHttpLink())
+            {
+                LogCallbacks?.OnLogInfo(this, "download file...");
+                var result = await FileDownloader.DownloadFileAsync(filePath,
+                    Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
+                if (!result.success)
+                {
+                    LogCallbacks?.OnLogError(this, result.message);
+                    return Result.Failure(result.message);
+                }
+
+                LogCallbacks?.OnLogInfo(this, "download complete");
+                filePath = result.message;
+            }
+            else if (!File.Exists(filePath))
+            {
+                errMessage = "file not exist";
+                LogCallbacks?.OnLogError(this, errMessage);
+                return Result.Failure(errMessage);
+            }
+
+            if (!File.Exists(filePath))
             {
                 errMessage = "file not exist";
                 LogCallbacks?.OnLogError(this, errMessage);
@@ -54,7 +77,7 @@ namespace SavePatcher.Patcher
 
             LogCallbacks?.OnLogInfo(this, "file check success");
             LogCallbacks?.OnLogInfo(this, "start extract file...");
-            string extension = Path.GetExtension(FilePath);
+            string extension = Path.GetExtension(filePath);
             var extractor = extractorFactory.GetExtractor(extension);
             if (extractor == null)
             {
@@ -63,7 +86,7 @@ namespace SavePatcher.Patcher
                 return Result.Failure(errMessage);
             }
 
-            Result<string> extractResult = await extractor.ExtractAsync(FilePath,
+            Result<string> extractResult = await extractor.ExtractAsync(filePath,
                 new ExtractOption { Password = ZipPassword, SpecificFiles = PatchFiles });
 
             if (!extractResult.Success || extractResult.Value == null)
