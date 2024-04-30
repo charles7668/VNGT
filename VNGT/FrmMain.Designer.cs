@@ -28,12 +28,33 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "Form1";
+            btnOpenSavePatcher = new Button();
+            SuspendLayout();
+            // 
+            // btnOpenSavePatcher
+            // 
+            btnOpenSavePatcher.Font = new Font("Microsoft JhengHei UI", 20.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            btnOpenSavePatcher.Location = new Point(29, 24);
+            btnOpenSavePatcher.Name = "btnOpenSavePatcher";
+            btnOpenSavePatcher.Size = new Size(213, 65);
+            btnOpenSavePatcher.TabIndex = 0;
+            btnOpenSavePatcher.Text = "Save Patcher";
+            btnOpenSavePatcher.UseVisualStyleBackColor = true;
+            btnOpenSavePatcher.Click += btnOpenSavePatcher_Click;
+            // 
+            // FrmMain
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(508, 136);
+            Controls.Add(btnOpenSavePatcher);
+            Name = "FrmMain";
+            Text = "Form1";
+            ResumeLayout(false);
         }
 
         #endregion
+
+        private Button btnOpenSavePatcher;
     }
 }
