@@ -45,6 +45,11 @@ namespace SavePatcherTest
                 Directory.CreateDirectory("test_patcher\\test_dest2");
             }
 
+            if (!Directory.Exists("test_patcher\\test_dest_web"))
+            {
+                Directory.CreateDirectory("test_patcher\\test_dest_web");
+            }
+
             // test patch all files
             IPatcher patcher = new SavePatcher.Patcher.SavePatcher(new ExtractorFactory())
             {
@@ -87,6 +92,15 @@ namespace SavePatcherTest
             Array.Sort(input);
             Array.Sort(destFiles);
             Assert.IsTrue(input.SequenceEqual(destFiles));
+
+            // test url files
+            patcher = new SavePatcher.Patcher.SavePatcher(new ExtractorFactory())
+            {
+                FilePath = "https://file-examples.com/storage/fe121d443b662e6a8a224ff/2017/02/zip_2MB.zip",
+                DestinationPath = "test_patcher\\test_dest_web"
+            };
+            patchResult = patcher.Patch();
+            Assert.IsTrue(patchResult.Success);
         }
     }
 }
