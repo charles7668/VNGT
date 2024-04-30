@@ -2,6 +2,16 @@
 
 visual novel game tools
 
-# Documents
+# User Guild
 
 - [Save Patcher](./Docs/SavePatcher.md)
+
+# Build
+
+## Requirement
+
+- [.net 8](https://dotnet.microsoft.com/en-us/download)
+
+Run the `build.bat` file to build the project.
+
+The build result will be in the `bin\publish` directory.
