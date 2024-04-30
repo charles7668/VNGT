@@ -4,18 +4,31 @@
     {
         private static readonly HttpClient _Client = new();
 
-        public static async Task<(bool success, string errorMessage)> DownloadFileAsync(string fileUrl,
+        /// <summary>
+        /// download file , is success then message return file path
+        /// </summary>
+        /// <param name="fileUrl">file url</param>
+        /// <param name="destinationPath">destination path</param>
+        /// <returns><see cref="Tuple" /> with success and message</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static async Task<(bool success, string message)> DownloadFileAsync(string fileUrl,
             string destinationPath)
         {
             try
             {
                 using var response = await _Client.GetAsync(fileUrl, HttpCompletionOption.ResponseHeadersRead);
                 await using var streamToReadFrom = await response.Content.ReadAsStreamAsync();
-                string fileToWriteTo = Path.GetFullPath(destinationPath);
+                string fileName = response.Content.Headers.ContentDisposition?.FileName ?? Path.GetFileName(fileUrl);
+                if(!Directory.Exists(destinationPath))
+                    Directory.CreateDirectory(destinationPath);
+                string fileToWriteTo =
+                    Path.Combine(
+                        Path.GetFullPath(destinationPath) ??
+                        throw new ArgumentException("destination is not valid"), fileName);
                 await using Stream streamToWriteTo = File.Open(fileToWriteTo, FileMode.Create);
                 await streamToReadFrom.CopyToAsync(streamToWriteTo);
 
-                return (true, string.Empty);
+                return (true, fileToWriteTo);
             }
             catch (Exception e)
             {
