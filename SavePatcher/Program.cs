@@ -27,6 +27,7 @@ namespace SavePatcher
             ServiceCollection services = new();
             services.AddSingleton<ExtractorFactory>();
             services.AddSingleton(typeof(IConfigReader<>), typeof(YamlConfigReader<>));
+            services.AddTransient<Patcher.SavePatcher, Patcher.SavePatcher>();
             ServiceProvider = services.BuildServiceProvider();
             Debug.Assert(ServiceProvider != null);
 
