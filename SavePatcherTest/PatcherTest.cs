@@ -7,8 +7,13 @@ namespace SavePatcherTest
     [TestClass]
     public class PatcherTest
     {
+        /// <summary>
+        /// Test save patcher
+        /// </summary>
+        /// <param name="enableDownloadTest">this setting need set true manually to test download</param>
         [TestMethod]
-        public void TestSavePatcher()
+        [DataRow(false)]
+        public void TestSavePatcher(bool enableDownloadTest)
         {
             string[] testFiles =
             [
@@ -92,6 +97,11 @@ namespace SavePatcherTest
             Array.Sort(input);
             Array.Sort(destFiles);
             Assert.IsTrue(input.SequenceEqual(destFiles));
+
+            if (!enableDownloadTest)
+            {
+                return;
+            }
 
             // test url files
             patcher = new SavePatcher.Patcher.SavePatcher(new ExtractorFactory())
