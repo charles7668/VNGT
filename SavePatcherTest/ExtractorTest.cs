@@ -16,9 +16,10 @@ namespace SavePatcherTest
             string[] testFiles = ["test1.txt", "test2.txt", "test\\test1.txt", "test\\test2.txt"];
             foreach (string file in testFiles)
             {
-                if (!Directory.Exists(Path.GetDirectoryName(Path.GetFullPath(file))))
+                string dir = Path.GetDirectoryName(Path.GetFullPath(file))!;
+                if (!Directory.Exists(dir))
                 {
-                    Directory.CreateDirectory(file);
+                    Directory.CreateDirectory(dir);
                 }
 
                 File.Create(file).Close();
@@ -63,9 +64,10 @@ namespace SavePatcherTest
                 ["test1_password.txt", "test2_password.txt", "test\\test1_password.txt", "test\\test2_password.txt"];
             foreach (string file in testFiles)
             {
-                if (!Directory.Exists(Path.GetDirectoryName(Path.GetFullPath(file))))
+                string dir = Path.GetDirectoryName(Path.GetFullPath(file))!;
+                if (!Directory.Exists(dir))
                 {
-                    Directory.CreateDirectory(file);
+                    Directory.CreateDirectory(dir);
                 }
 
                 File.Create(file).Close();
@@ -110,9 +112,10 @@ namespace SavePatcherTest
                 ["test1.txt", "test2.txt", "test\\test1.txt", "test\\test2.txt"];
             foreach (string file in testFiles)
             {
-                if (!Directory.Exists(Path.GetDirectoryName(Path.GetFullPath(file))))
+                string dir = Path.GetDirectoryName(Path.GetFullPath(file))!;
+                if (!Directory.Exists(dir))
                 {
-                    Directory.CreateDirectory(file);
+                    Directory.CreateDirectory(dir);
                 }
 
                 File.Create(file).Close();
@@ -161,9 +164,10 @@ namespace SavePatcherTest
                 ["test1_password.txt", "test2_password.txt", "test\\test1_password.txt", "test\\test2_password.txt"];
             foreach (string file in testFiles)
             {
-                if (!Directory.Exists(Path.GetDirectoryName(Path.GetFullPath(file))))
+                string dir = Path.GetDirectoryName(Path.GetFullPath(file))!;
+                if (!Directory.Exists(dir))
                 {
-                    Directory.CreateDirectory(file);
+                    Directory.CreateDirectory(dir);
                 }
 
                 File.Create(file).Close();
