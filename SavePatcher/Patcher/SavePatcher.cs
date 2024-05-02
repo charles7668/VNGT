@@ -3,6 +3,7 @@ using Helper.Web;
 using SavePatcher.Extractor;
 using SavePatcher.Logs;
 using SavePatcher.Models;
+using System.Text.RegularExpressions;
 
 namespace SavePatcher.Patcher
 {
@@ -120,6 +121,17 @@ namespace SavePatcher.Patcher
                     errMessage = "patch canceled";
                     LogCallbacks?.OnLogError(this, errMessage);
                     return Result.Failure(errMessage);
+                }
+            }
+            else
+            {
+                string pattern = @"%([^%]+)%"; 
+                var matches = Regex.Matches(destinationPath, pattern);
+
+                foreach (Match match in matches)
+                {
+                    var realPath = Environment.GetEnvironmentVariable(match.Groups[1].Value);
+                    destinationPath = destinationPath.Replace(match.Value, realPath);
                 }
             }
 
