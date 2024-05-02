@@ -80,12 +80,12 @@ namespace SavePatcherTest
             {
                 FilePath = "test_patcher\\test.7z",
                 DestinationPath = "test_patcher\\test_dest2",
-                PatchFiles = [testFiles[0], testFiles[2]]
+                PatchFiles = [testFiles[0], testFiles[3]]
             };
             patchResult = patcher.Patch();
             Assert.IsTrue(patchResult.Success);
-            input = Array.ConvertAll([testFiles[0], testFiles[2]],
-                s => Path.Combine(Directory.GetCurrentDirectory(), "test_patcher", s));
+            input = Array.ConvertAll([testFiles[0], testFiles[3]],
+                s => Path.Combine(Directory.GetCurrentDirectory(), "test_patcher", Path.GetFileName(s)));
             input = Array.ConvertAll(input, Path.GetFullPath);
             input = Array.ConvertAll(input,
                 s => Path.GetRelativePath(Path.Combine(Directory.GetCurrentDirectory(), "test_patcher"), s));

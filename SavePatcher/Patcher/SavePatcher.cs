@@ -133,7 +133,18 @@ namespace SavePatcher.Patcher
             LogCallbacks?.OnLogInfo(this, $"start copy to {destinationPath}");
             try
             {
-                FileHelper.CopyDirectory(extractResult.Value, destinationPath);
+                if (PatchFiles.Length > 0)
+                {
+                    foreach (string configPatchFile in PatchFiles)
+                    {
+                        File.Copy(Path.Combine(extractResult.Value, configPatchFile),
+                            Path.Combine(destinationPath, Path.GetFileName(configPatchFile)), true);
+                    }
+                }
+                else
+                {
+                    FileHelper.CopyDirectory(extractResult.Value, destinationPath);
+                }
             }
             catch (Exception ex)
             {
