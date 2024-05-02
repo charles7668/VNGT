@@ -17,7 +17,7 @@ ZipPassword: password # If the zip file requires a password, enter the password 
 PatchFiles: # Specify which files in the zip file will be copied to the DestinationPath. If all files should be copied, leave this setting as an empty list.
   - file1
   - file2
-DestinationPath: destinationPath # Destination path. Specify the path to save the data folder. If set to an empty string (''), a window will prompt for selection.
+DestinationPath: destinationPath # Destination path. Specify the path to save the data folder. If set to an empty string (''), a window will prompt for selection. this setting can use environment path by using %variable_name%
 ```
 
 Store configuration files in the "config" folder with arbitrary filenames. You can also place them in subdirectories.
