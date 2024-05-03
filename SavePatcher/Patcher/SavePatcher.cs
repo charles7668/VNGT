@@ -1,5 +1,6 @@
 ﻿using Helper;
 using Helper.Web;
+using Microsoft.Extensions.Caching.Memory;
 using SavePatcher.Extractor;
 using SavePatcher.Logs;
 using SavePatcher.Models;
@@ -9,6 +10,11 @@ namespace SavePatcher.Patcher
 {
     public class SavePatcher(ExtractorFactory extractorFactory) : IPatcher
     {
+        /// <summary>
+        /// cache url file
+        /// </summary>
+        private readonly MemoryCache _cache = new(new MemoryCacheOptions { SizeLimit = 100 });
+
         /// <summary>
         /// save file path , can use http or local file path
         /// </summary>
@@ -51,16 +57,30 @@ namespace SavePatcher.Patcher
             if (filePath.IsHttpLink())
             {
                 LogCallbacks?.OnLogInfo(this, "download file...");
-                var result = await FileDownloader.DownloadFileAsync(filePath,
-                    Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
-                if (!result.success)
+                if (_cache.TryGetValue(filePath, out string? cachePath)
+                    && !string.IsNullOrEmpty(cachePath)
+                    && File.Exists(cachePath))
                 {
-                    LogCallbacks?.OnLogError(this, result.message);
-                    return Result.Failure(result.message);
+                    filePath = cachePath;
+                }
+                else
+                {
+                    var result = await FileDownloader.DownloadFileAsync(filePath,
+                        Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
+                    if (!result.success)
+                    {
+                        LogCallbacks?.OnLogError(this, result.message);
+                        return Result.Failure(result.message);
+                    }
+
+                    _cache.Set(filePath, result.message, new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(TimeSpan.FromMinutes(30))
+                        .SetSize(1));
+
+                    filePath = result.message;
                 }
 
                 LogCallbacks?.OnLogInfo(this, "download complete");
-                filePath = result.message;
             }
             else if (!File.Exists(filePath))
             {
