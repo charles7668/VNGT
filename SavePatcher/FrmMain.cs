@@ -10,7 +10,7 @@ namespace SavePatcher
         public FrmMain()
         {
             InitializeComponent();
-            _configReader = Program.ServiceProvider.GetRequiredService<IConfigReader<SavePatcherConfig>>();
+            _configReader = Program.ServiceProvider.GetRequiredService<IConfigReader<SavePatcherConfig[]>>();
         }
 
         private const string CHANGE_LINE = "\r\n";
@@ -19,7 +19,7 @@ namespace SavePatcher
         private readonly Dictionary<string, string> _configNameCache = new();
 
         // config reader
-        private readonly IConfigReader<SavePatcherConfig> _configReader;
+        private readonly IConfigReader<SavePatcherConfig[]> _configReader;
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -34,19 +34,38 @@ namespace SavePatcher
             string[] files = Directory.GetFiles(Program.ConfigPath, "*.yaml", SearchOption.AllDirectories);
             foreach (string file in files)
             {
-                Result<SavePatcherConfig> configResult = _configReader.Read(File.ReadAllText(file));
-                if (!configResult.Success || configResult.Value == null)
+                string content = File.ReadAllText(file);
+                var tempReader = Program.ServiceProvider.GetRequiredService<IConfigReader<SavePatcherConfig>>();
+                Result<SavePatcherConfig> tempConfigResult = tempReader.Read(content);
+                Result<SavePatcherConfig[]> configResult;
+                if (!tempConfigResult.Success)
+                {
+                    configResult = _configReader.Read(content);
+                }
+                else
+                {
+                    if (tempConfigResult.Value == null)
+                    {
+                        continue;
+                    }
+
+                    configResult = Result<SavePatcherConfig[]>.Ok([tempConfigResult.Value]);
+                }
+
+                if (!configResult.Success 
+                    || configResult.Value == null 
+                    || configResult.Value.Length == 0)
                 {
                     continue;
                 }
 
-                string configName = configResult.Value.ConfigName;
+                string configName = configResult.Value![0].ConfigName;
                 if (_configNameCache.ContainsKey(configName) || string.IsNullOrEmpty(configName.Trim()))
                 {
                     continue;
                 }
 
-                cmbConfigList.Items.Add(configResult.Value.ConfigName);
+                cmbConfigList.Items.Add(configResult.Value[0].ConfigName);
                 _configNameCache[configName] = file;
             }
         }
@@ -64,7 +83,7 @@ namespace SavePatcher
 
             InfoMessage("start load config file...");
             string content = await File.ReadAllTextAsync(configFilePath);
-            Result<SavePatcherConfig> configResult = _configReader.Read(content);
+            Result<SavePatcherConfig[]> configResult = _configReader.Read(content);
             if (!configResult.Success)
             {
                 ErrorMessage(configResult.Message);
@@ -72,16 +91,19 @@ namespace SavePatcher
             }
 
             InfoMessage("end log config file");
-            var config = configResult.Value!;
-            var savePatcher = Program.ServiceProvider.GetRequiredService<Patcher.SavePatcher>();
-            savePatcher.FilePath = config.FilePath;
-            savePatcher.DestinationPath = config.DestinationPath;
-            savePatcher.PatchFiles = config.PatchFiles;
-            savePatcher.ZipPassword = config.ZipPassword;
-            savePatcher.LogCallbacks = new LogCallbacks();
-            savePatcher.LogCallbacks.LogInfoEvent += (_, args) => InfoMessage(args.Message);
-            savePatcher.LogCallbacks.LogErrorEvent += (_, args) => ErrorMessage(args.Message);
-            await savePatcher.PatchAsync();
+            SavePatcherConfig[] configs = configResult.Value!;
+            foreach (var config in configs)
+            {
+                var savePatcher = Program.ServiceProvider.GetRequiredService<Patcher.SavePatcher>();
+                savePatcher.FilePath = config.FilePath;
+                savePatcher.DestinationPath = config.DestinationPath;
+                savePatcher.PatchFiles = config.PatchFiles;
+                savePatcher.ZipPassword = config.ZipPassword;
+                savePatcher.LogCallbacks = new LogCallbacks();
+                savePatcher.LogCallbacks.LogInfoEvent += (_, args) => InfoMessage(args.Message);
+                savePatcher.LogCallbacks.LogErrorEvent += (_, args) => ErrorMessage(args.Message);
+                await savePatcher.PatchAsync();
+            }
         }
 
         /// <summary>
