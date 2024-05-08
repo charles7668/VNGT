@@ -1,13 +1,20 @@
-﻿@inherits MudComponentBase
+﻿@using GameManager.Models
+@inherits MudComponentBase
 
 <MudCard Class="@Class" Style="@Style">
     <MudCardContent>
-        <MudText>Test</MudText>
+        <MudText>@GameInfo?.GameName</MudText>
     </MudCardContent>
 </MudCard>
 
 @code
 {
     [Parameter]
-    public string Title { get; set; } = "Card Title";
+    public bool Display { get; set; } = true;
+
+    [Parameter]
+    public GameInfo? GameInfo { get; set; }
 }
+
+<style>
+</style>

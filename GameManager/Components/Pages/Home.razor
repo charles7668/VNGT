@@ -1,17 +1,44 @@
 ﻿@page "/"
 @using GameManager.Components.Pages.components
+@using GameManager.Models
 
 <MudLayout Class="@("main-mud-layout")">
-    <ActionBar id="main-toolbar" Class="@("main-toolbar")"></ActionBar>
+    <ActionBar id="main-toolbar" Class="@("main-toolbar")" AddNewGameEvent="AddNewGame" SearchEvent="FilterInfo"></ActionBar>
     <MudGrid>
-        @for (var i = 0; i < 100; i++)
+        @foreach (var info in GameInfos.Where(i => i.Display))
         {
-            <Card Class="card"></Card>
+            <Card GameInfo="info" Class="card"></Card>
         }
     </MudGrid>
 </MudLayout>
 
 @code {
+    private List<GameInfo> GameInfos { get; } = [];
+
+    private int _counter;
+
+    private void AddNewGame(string exePath)
+    {
+        var gameInfo = new GameInfo
+        {
+            GameName = _counter.ToString(),
+            ExePath = exePath
+        };
+        GameInfos.Add(gameInfo);
+        _counter++;
+        StateHasChanged();
+    }
+
+    private void FilterInfo(string pattern)
+    {
+        foreach (var info in GameInfos)
+        {
+            info.Display = info.GameName.Contains(pattern) || string.IsNullOrEmpty(pattern);
+        }
+
+        StateHasChanged();
+    }
+
 }
 
 <style>

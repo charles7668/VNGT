@@ -3,11 +3,35 @@
 <MudPaper @attributes="UserAttributes!" Class="@Class">
     <MudToolBar>
         <MudTextField T="string" @bind-Value="SearchText" Label="Search"></MudTextField>
+        <MudButton OnClick="OnSearch">Search</MudButton>
         <MudSpacer></MudSpacer>
-        <MudButton>Test</MudButton>
+        <MudButton OnClick="OnAddNewGame">Add</MudButton>
     </MudToolBar>
 </MudPaper>
 
 @code {
     private string? SearchText { get; set; }
+
+    [Parameter]
+    public EventCallback<string> AddNewGameEvent { get; set; }
+
+    [Parameter]
+    public EventCallback<string> SearchEvent { get; set; }
+
+    private async Task OnAddNewGame()
+    {
+        if (AddNewGameEvent.HasDelegate)
+        {
+            await AddNewGameEvent.InvokeAsync("test-exe");
+        }
+    }
+
+    private async Task OnSearch()
+    {
+        if (SearchEvent.HasDelegate)
+        {
+            await SearchEvent.InvokeAsync(SearchText);
+        }
+    }
+
 }
