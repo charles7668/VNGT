@@ -1,0 +1,13 @@
+﻿@inherits MudComponentBase
+
+<MudCard Class="@Class" Style="@Style">
+    <MudCardContent>
+        <MudText>Test</MudText>
+    </MudCardContent>
+</MudCard>
+
+@code
+{
+    [Parameter]
+    public string Title { get; set; } = "Card Title";
+}

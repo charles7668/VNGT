@@ -1,5 +1,25 @@
 ﻿@page "/"
+@using GameManager.Components.Pages.components
 
-<h1>Hello, world!</h1>
+<MudLayout Class="@("main-mud-layout")">
+    <MudGrid>
+        @for (var i = 0; i < 100; i++)
+        {
+            <Card Class="card"></Card>
+        }
+    </MudGrid>
+</MudLayout>
 
-Welcome to your new app.
+@code {
+}
+
+<style>
+    .main-mud-layout {
+        padding: 20px;
+    }
+    .card {
+        width: 150px;
+        height: 200px;
+        margin: 5px;
+    }
+</style>
