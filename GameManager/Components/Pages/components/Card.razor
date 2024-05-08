@@ -1,9 +1,16 @@
 ﻿@using GameManager.Models
 @inherits MudComponentBase
 
-<MudCard Class="@Class" Style="@Style">
-    <MudCardContent>
-        <MudText>@GameInfo?.GameName</MudText>
+<MudCard @attributes="UserAttributes!" Style="@Style" Class="@Class">
+    <MudCardContent Class="d-flex flex-column">
+        <img src="@ImageSrc" loading="lazy" alt="No Image">
+        <MudSpacer></MudSpacer>
+        <MudText Typo="Typo.caption">@GameInfo?.GameName</MudText>
+        <MudToolBar Class="pa-0">
+            <MudButton StartIcon="@Icons.Material.Filled.ArrowRight">Run</MudButton>
+            <MudSpacer></MudSpacer>
+            <MudIconButton Icon="@Icons.Material.Filled.MoreVert"></MudIconButton>
+        </MudToolBar>
     </MudCardContent>
 </MudCard>
 
@@ -14,7 +21,32 @@
 
     [Parameter]
     public GameInfo? GameInfo { get; set; }
+
+    private string ImageSrc
+    {
+        get
+        {
+            if (GameInfo == null || string.IsNullOrEmpty(GameInfo.CoverPath))
+                return "";
+            return "data:image/png;base64, " + Convert.ToBase64String(File.ReadAllBytes(GameInfo.CoverPath));
+        }
+    }
 }
 
 <style>
+    .mud-card {
+        overflow: hidden;
+        max-height: 100%;
+    }
+    .mud-card .mud-card-content {
+        height: 100%;
+        max-height: 100%;
+    }
+    .mud-card .mud-card-content img {
+        max-height: 80%;
+        object-fit: cover;
+    }
+    .mud-card .mud-card-content .mud-text {
+        height: 50px;
+    }
 </style>
