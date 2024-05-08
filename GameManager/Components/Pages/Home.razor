@@ -2,6 +2,7 @@
 @using GameManager.Components.Pages.components
 
 <MudLayout Class="@("main-mud-layout")">
+    <ActionBar id="main-toolbar" Class="@("main-toolbar")"></ActionBar>
     <MudGrid>
         @for (var i = 0; i < 100; i++)
         {
@@ -15,7 +16,18 @@
 
 <style>
     .main-mud-layout {
-        padding: 20px;
+        padding: 0px;
+    }
+    .main-mud-layout > .mud-grid {
+        max-width: 100%;
+        padding-left: 15px;
+    }
+    #main-toolbar{
+        position: sticky; 
+        top: 0;
+        margin-bottom: 20px;
+        margin-top: 0px;
+        z-index: 999;
     }
     .card {
         width: 150px;

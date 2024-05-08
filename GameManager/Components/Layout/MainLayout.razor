@@ -1,14 +1,22 @@
-﻿@inherits LayoutComponentBase
+﻿@using GameManager.Components.Pages.components
+@inherits LayoutComponentBase
 
-<MudThemeProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
 
 <MudLayout>
     <MudDrawer Open="true">
         <NavMenu></NavMenu>
     </MudDrawer>
-    <MudMainContent Style="padding:0px;">
+    <MudMainContent>
         @Body
     </MudMainContent>
 </MudLayout>
+
+<style>
+    .mud-main-content{
+        padding: 0px;
+        margin: 0px;
+    }
+</style>

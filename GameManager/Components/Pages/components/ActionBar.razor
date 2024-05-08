@@ -1,0 +1,13 @@
+﻿@inherits MudComponentBase
+
+<MudPaper @attributes="UserAttributes!" Class="@Class">
+    <MudToolBar>
+        <MudTextField T="string" @bind-Value="SearchText" Label="Search"></MudTextField>
+        <MudSpacer></MudSpacer>
+        <MudButton>Test</MudButton>
+    </MudToolBar>
+</MudPaper>
+
+@code {
+    private string? SearchText { get; set; }
+}
