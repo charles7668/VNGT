@@ -1,11 +1,11 @@
 ﻿@inherits MudComponentBase
 
 <MudPaper @attributes="UserAttributes!" Class="@Class">
-    <MudToolBar>
-        <MudTextField T="string" @bind-Value="SearchText" Label="Search"></MudTextField>
-        <MudButton OnClick="OnSearch">Search</MudButton>
+    <MudToolBar Class="align-center">
+        <MudTextField T="string" @bind-Value="SearchText" Placeholder="Search"></MudTextField>
+        <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Search" OnClick="OnSearch">Search</MudButton>
         <MudSpacer></MudSpacer>
-        <MudButton OnClick="OnAddNewGame">Add</MudButton>
+        <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add" OnClick="OnAddNewGame">Add</MudButton>
     </MudToolBar>
 </MudPaper>
 
@@ -34,4 +34,8 @@
         }
     }
 
+<style>
+    .mud-text-field {
+        padding: 0px;
 }
+</style>
