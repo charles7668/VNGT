@@ -15,17 +15,15 @@
 @code {
     private List<GameInfo> GameInfos { get; } = [];
 
-    private int _counter;
 
     private void AddNewGame(string exePath)
     {
         var gameInfo = new GameInfo
         {
-            GameName = _counter.ToString(),
+            GameName = Path.GetFileName(Path.GetDirectoryName(exePath)) ?? "null",
             ExePath = exePath
         };
         GameInfos.Add(gameInfo);
-        _counter++;
         StateHasChanged();
     }
 
