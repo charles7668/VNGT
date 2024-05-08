@@ -8,7 +8,7 @@ namespace SavePatcher.Configs
         /// <inheritdoc />
         public Result<TResult> Read(string content)
         {
-            var deserializer = new DeserializerBuilder()
+            IDeserializer deserializer = new DeserializerBuilder()
                 .Build();
             TResult? result;
             try

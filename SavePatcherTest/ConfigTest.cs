@@ -18,13 +18,13 @@ namespace SavePatcherTest
                 PatchFiles = ["file1", "file2"],
                 ZipPassword = "password"
             };
-            var serializer = new SerializerBuilder()
+            ISerializer serializer = new SerializerBuilder()
                 .Build();
             string serialized = serializer.Serialize(testConfig1);
             IConfigReader<SavePatcherConfig> reader = new YamlConfigReader<SavePatcherConfig>();
             Result<SavePatcherConfig> readResult = reader.Read(serialized);
             Assert.IsTrue(readResult.Success);
-            var readConfig1 = readResult.Value;
+            SavePatcherConfig? readConfig1 = readResult.Value;
             Assert.IsFalse(readConfig1 == null);
             Assert.AreEqual(testConfig1.ConfigName, readConfig1.ConfigName);
             Assert.AreEqual(testConfig1.DestinationPath, readConfig1.DestinationPath);

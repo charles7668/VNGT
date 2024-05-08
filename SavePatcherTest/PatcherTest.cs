@@ -1,4 +1,5 @@
 ﻿using SavePatcher.Extractor;
+using SavePatcher.Models;
 using SavePatcher.Patcher;
 using SevenZip;
 
@@ -58,9 +59,10 @@ namespace SavePatcherTest
             // test patch all files
             IPatcher patcher = new SavePatcher.Patcher.SavePatcher(new ExtractorFactory())
             {
-                FilePath = "test_patcher\\test.7z", DestinationPath = "test_patcher\\test_dest"
+                FilePath = "test_patcher\\test.7z",
+                DestinationPath = "test_patcher\\test_dest"
             };
-            var patchResult = patcher.Patch();
+            Result patchResult = patcher.Patch();
             Assert.IsTrue(patchResult.Success);
             string[] input = Array.ConvertAll(testFiles,
                 s => Path.Combine(Directory.GetCurrentDirectory(), "test_patcher", s));

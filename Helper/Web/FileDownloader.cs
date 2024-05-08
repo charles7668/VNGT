@@ -16,10 +16,11 @@
         {
             try
             {
-                using var response = await _Client.GetAsync(fileUrl, HttpCompletionOption.ResponseHeadersRead);
-                await using var streamToReadFrom = await response.Content.ReadAsStreamAsync();
+                using HttpResponseMessage response =
+                    await _Client.GetAsync(fileUrl, HttpCompletionOption.ResponseHeadersRead);
+                await using Stream streamToReadFrom = await response.Content.ReadAsStreamAsync();
                 string fileName = response.Content.Headers.ContentDisposition?.FileName ?? Path.GetFileName(fileUrl);
-                if(!Directory.Exists(destinationPath))
+                if (!Directory.Exists(destinationPath))
                     Directory.CreateDirectory(destinationPath);
                 string fileToWriteTo =
                     Path.Combine(

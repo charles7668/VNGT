@@ -23,7 +23,7 @@ namespace SavePatcher.Extractor
                 string destPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
                 var extractTask = Task.Run(() =>
                 {
-                    var extractor = string.IsNullOrEmpty(option.Password)
+                    SevenZip.SevenZipExtractor extractor = string.IsNullOrEmpty(option.Password)
                         ? new SevenZip.SevenZipExtractor(filePath)
                         : new SevenZip.SevenZipExtractor(filePath, option.Password);
                     if (option.SpecificFiles.Length > 0)

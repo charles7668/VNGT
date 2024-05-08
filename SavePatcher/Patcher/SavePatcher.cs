@@ -13,7 +13,10 @@ namespace SavePatcher.Patcher
         /// <summary>
         /// cache url file
         /// </summary>
-        private readonly MemoryCache _cache = new(new MemoryCacheOptions { SizeLimit = 100 });
+        private readonly MemoryCache _cache = new(new MemoryCacheOptions
+        {
+            SizeLimit = 100
+        });
 
         /// <summary>
         /// save file path , can use http or local file path
@@ -65,7 +68,7 @@ namespace SavePatcher.Patcher
                 }
                 else
                 {
-                    var result = await FileDownloader.DownloadFileAsync(filePath,
+                    (bool success, string message) result = await FileDownloader.DownloadFileAsync(filePath,
                         Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
                     if (!result.success)
                     {
@@ -99,7 +102,7 @@ namespace SavePatcher.Patcher
             LogCallbacks?.OnLogInfo(this, "file check success");
             LogCallbacks?.OnLogInfo(this, "start extract file...");
             string extension = Path.GetExtension(filePath);
-            var extractor = extractorFactory.GetExtractor(extension);
+            IExtractor? extractor = extractorFactory.GetExtractor(extension);
             if (extractor == null)
             {
                 errMessage = $"extractor for extension : '{extension}' not found";
@@ -108,7 +111,11 @@ namespace SavePatcher.Patcher
             }
 
             Result<string> extractResult = await extractor.ExtractAsync(filePath,
-                new ExtractOption { Password = ZipPassword, SpecificFiles = PatchFiles });
+                new ExtractOption
+                {
+                    Password = ZipPassword,
+                    SpecificFiles = PatchFiles
+                });
 
             if (!extractResult.Success || extractResult.Value == null)
             {
@@ -145,12 +152,12 @@ namespace SavePatcher.Patcher
             }
             else
             {
-                string pattern = @"%([^%]+)%"; 
-                var matches = Regex.Matches(destinationPath, pattern);
+                string pattern = @"%([^%]+)%";
+                MatchCollection matches = Regex.Matches(destinationPath, pattern);
 
                 foreach (Match match in matches)
                 {
-                    var realPath = Environment.GetEnvironmentVariable(match.Groups[1].Value);
+                    string? realPath = Environment.GetEnvironmentVariable(match.Groups[1].Value);
                     destinationPath = destinationPath.Replace(match.Value, realPath);
                 }
             }

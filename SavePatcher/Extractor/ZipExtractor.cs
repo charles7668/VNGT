@@ -26,7 +26,7 @@ namespace SavePatcher.Extractor
                     {
                         foreach (string file in option.SpecificFiles)
                         {
-                            var zipEntry = zip.FirstOrDefault(entry => entry.FileName.Replace('/', '\\') == file);
+                            ZipEntry? zipEntry = zip.FirstOrDefault(entry => entry.FileName.Replace('/', '\\') == file);
                             if (zipEntry == null)
                             {
                                 throw new ArgumentException($"File {file} not found in zip.");

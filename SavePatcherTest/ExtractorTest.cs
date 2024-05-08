@@ -43,7 +43,10 @@ namespace SavePatcherTest
             // test extract specific files
             string[] originFile = [testFiles[0], testFiles[2]];
             testTask = extractor.ExtractAsync("test.zip",
-                new ExtractOption { SpecificFiles = originFile });
+                new ExtractOption
+                {
+                    SpecificFiles = originFile
+                });
             testTask.Wait();
             resultPath = testTask.Result;
             Assert.IsTrue(resultPath.Success);
@@ -73,12 +76,18 @@ namespace SavePatcherTest
                 File.Create(file).Close();
             }
 
-            var zip = new ZipFile { Password = "test_password" };
+            var zip = new ZipFile
+            {
+                Password = "test_password"
+            };
             zip.AddFiles(testFiles);
             zip.Save("test_password.zip");
             IExtractor extractor = new ZipExtractor();
             Task<Result<string>> testTask =
-                extractor.ExtractAsync("test_password.zip", new ExtractOption { Password = "test_password" });
+                extractor.ExtractAsync("test_password.zip", new ExtractOption
+                {
+                    Password = "test_password"
+                });
             testTask.Wait();
             Result<string> resultPath = testTask.Result;
             Assert.IsTrue(resultPath.Success);
@@ -92,7 +101,11 @@ namespace SavePatcherTest
             // test extract specific files
             string[] originFile = [testFiles[0], testFiles[2]];
             testTask = extractor.ExtractAsync("test_password.zip",
-                new ExtractOption { SpecificFiles = originFile, Password = "test_password" });
+                new ExtractOption
+                {
+                    SpecificFiles = originFile,
+                    Password = "test_password"
+                });
             testTask.Wait();
             resultPath = testTask.Result;
             Assert.IsTrue(resultPath.Success);
@@ -144,7 +157,11 @@ namespace SavePatcherTest
             // test extract specific files
             string[] originFile = [testFiles[0], testFiles[2]];
             testTask = extractor.ExtractAsync("test.7z",
-                new ExtractOption { SpecificFiles = originFile, Password = "test" });
+                new ExtractOption
+                {
+                    SpecificFiles = originFile,
+                    Password = "test"
+                });
             testTask.Wait();
             resultPath = testTask.Result;
             Assert.IsTrue(resultPath.Success);
@@ -184,7 +201,10 @@ namespace SavePatcherTest
             compressor.CompressFilesEncrypted("test_password.7z", "test_password", testFiles);
             IExtractor extractor = new SevenZipExtractor();
             Task<Result<string>> testTask =
-                extractor.ExtractAsync("test_password.7z", new ExtractOption { Password = "test_password" });
+                extractor.ExtractAsync("test_password.7z", new ExtractOption
+                {
+                    Password = "test_password"
+                });
             testTask.Wait();
             Result<string> resultPath = testTask.Result;
             Assert.IsTrue(resultPath.Success);
@@ -198,7 +218,11 @@ namespace SavePatcherTest
             // test extract specific files
             string[] originFile = [testFiles[0], testFiles[2]];
             testTask = extractor.ExtractAsync("test_password.7z",
-                new ExtractOption { SpecificFiles = originFile, Password = "test_password" });
+                new ExtractOption
+                {
+                    SpecificFiles = originFile,
+                    Password = "test_password"
+                });
             testTask.Wait();
             resultPath = testTask.Result;
             Assert.IsTrue(resultPath.Success);

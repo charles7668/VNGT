@@ -16,7 +16,7 @@ namespace SavePatcher.Extractor
             CompositionContainer container = new(catalog);
             container.ComposeParts(this);
 
-            foreach (var extractor in _extractors)
+            foreach (IExtractor extractor in _extractors)
             {
                 foreach (string extension in extractor.SupportExtensions)
                 {
@@ -27,8 +27,7 @@ namespace SavePatcher.Extractor
 
         private readonly Dictionary<string, IExtractor> _extractorTable = [];
 
-        [ImportMany]
-        private IExtractor[] _extractors = [];
+        [ImportMany] private IExtractor[] _extractors = [];
 
         public IExtractor? GetExtractor(string extension)
         {

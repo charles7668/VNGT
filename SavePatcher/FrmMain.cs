@@ -35,7 +35,8 @@ namespace SavePatcher
             foreach (string file in files)
             {
                 string content = File.ReadAllText(file);
-                var tempReader = Program.ServiceProvider.GetRequiredService<IConfigReader<SavePatcherConfig>>();
+                IConfigReader<SavePatcherConfig> tempReader =
+                    Program.ServiceProvider.GetRequiredService<IConfigReader<SavePatcherConfig>>();
                 Result<SavePatcherConfig> tempConfigResult = tempReader.Read(content);
                 Result<SavePatcherConfig[]> configResult;
                 if (!tempConfigResult.Success)
@@ -52,8 +53,8 @@ namespace SavePatcher
                     configResult = Result<SavePatcherConfig[]>.Ok([tempConfigResult.Value]);
                 }
 
-                if (!configResult.Success 
-                    || configResult.Value == null 
+                if (!configResult.Success
+                    || configResult.Value == null
                     || configResult.Value.Length == 0)
                 {
                     continue;
@@ -92,9 +93,9 @@ namespace SavePatcher
 
             InfoMessage("end log config file");
             SavePatcherConfig[] configs = configResult.Value!;
-            foreach (var config in configs)
+            foreach (SavePatcherConfig config in configs)
             {
-                var savePatcher = Program.ServiceProvider.GetRequiredService<Patcher.SavePatcher>();
+                Patcher.SavePatcher savePatcher = Program.ServiceProvider.GetRequiredService<Patcher.SavePatcher>();
                 savePatcher.FilePath = config.FilePath;
                 savePatcher.DestinationPath = config.DestinationPath;
                 savePatcher.PatchFiles = config.PatchFiles;
