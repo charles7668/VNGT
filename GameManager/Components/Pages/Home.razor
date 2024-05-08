@@ -27,11 +27,11 @@
         StateHasChanged();
     }
 
-    private void FilterInfo(string pattern)
+    private void FilterInfo(string? pattern)
     {
         foreach (var info in GameInfos)
         {
-            info.Display = info.GameName.Contains(pattern) || string.IsNullOrEmpty(pattern);
+            info.Display = string.IsNullOrEmpty(pattern) || info.GameName.ToLower().Contains(pattern.ToLower());
         }
 
         StateHasChanged();
