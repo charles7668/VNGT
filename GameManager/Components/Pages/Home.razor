@@ -5,7 +5,7 @@
     <MudGrid>
         @foreach (var info in GameInfos.Where(i => i.Display))
         {
-            <Card GameInfo="info" Class="card"></Card>
+            <Card GameInfo="info" Class="card" Width="250px" Height="350px"></Card>
         }
     </MudGrid>
 </MudLayout>
@@ -53,8 +53,6 @@
         z-index: 999;
     }
     .card {
-        width: 300px;
-        height: 500px;
         margin: 5px;
     }
 </style>

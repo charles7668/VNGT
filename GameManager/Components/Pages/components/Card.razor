@@ -21,6 +21,12 @@
     [Parameter]
     public GameInfo? GameInfo { get; set; }
 
+    [Parameter]
+    public string? Width { get; set; }
+
+    [Parameter]
+    public string? Height { get; set; }
+
     private string ImageSrc
     {
         get
@@ -34,6 +40,8 @@
 
 <style>
     .mud-card {
+        width: @Width;
+        height: @Height;
         overflow: hidden;
         max-height: 100%;
     }
