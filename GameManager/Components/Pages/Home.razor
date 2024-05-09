@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using System.Diagnostics
 
 <MudLayout Class="@("main-mud-layout")">
     <ActionBar id="main-toolbar" Class="@("main-toolbar")" AddNewGameEvent="AddNewGame" SearchEvent="FilterInfo"></ActionBar>
@@ -13,9 +14,18 @@
 @code {
     private List<GameInfo> GameInfos { get; } = [];
 
+    [Inject]
+    private IDialogService? DialogService { get; set; }
 
-    private void AddNewGame(string exePath)
+    private async Task AddNewGame(string exePath)
     {
+        Debug.Assert(DialogService is not null);
+
+        var dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>("Add new game", new DialogOptions
+            { BackdropClick = false });
+        var dialogResult = await dialogReference.Result;
+        if (dialogResult.Canceled)
+            return;
         var gameInfo = new GameInfo
         {
             GameName = Path.GetFileName(Path.GetDirectoryName(exePath)) ?? "null",

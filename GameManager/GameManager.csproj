@@ -65,4 +65,8 @@
         <PackageReference Include="MudBlazor" Version="7.0.0-preview.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Helper\Helper.csproj" />
+    </ItemGroup>
+
 </Project>
