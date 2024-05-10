@@ -1,10 +1,15 @@
 ﻿<MudNavMenu>
-    <MudNavLink Href="/" Style="font-size:x-large">Game</MudNavLink>
+    <MudNavLink Class="d-flex align-center" Icon="@Icons.Material.Filled.GridView" Href="/">Game</MudNavLink>
+    <MudDivider/>
+    <MudNavLink Class="d-flex align-center" Icon="@Icons.Material.Filled.Folder" Href="/library">Library</MudNavLink>
 </MudNavMenu>
 
 <style>
-    .mud-nav.menu {
-        height: 100%;
-        padding-top: 20px;
+    .mud-nav-link .mud-nav-link-text {
+        font-size: 24px;
+    }
+
+    .mud-nav-link {
+        margin-bottom: 5px;
     }
 </style>
