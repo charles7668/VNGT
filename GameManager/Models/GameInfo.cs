@@ -2,11 +2,13 @@
 {
     public class GameInfo
     {
-        public string? GameName { get; set; } = string.Empty;
+        public string? GameName { get; set; }
 
-        public string? ExePath { get; set; } = string.Empty;
+        public string? Vendor { get; set; }
 
-        public string? CoverPath { get; set; } = string.Empty;
+        public string? ExePath { get; set; }
+
+        public string? CoverPath { get; set; }
 
         public DateTime? DateTime { get; set; }
     }

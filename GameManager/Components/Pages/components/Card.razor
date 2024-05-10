@@ -8,13 +8,18 @@
         <MudToolBar Class="pa-0">
             <MudButton StartIcon="@Icons.Material.Filled.ArrowRight">Run</MudButton>
             <MudSpacer></MudSpacer>
-            <MudIconButton Icon="@Icons.Material.Filled.MoreVert"></MudIconButton>
+            <MudMenu Icon="@Icons.Material.Filled.MoreVert">
+                <MudMenuItem OnClick="OnEdit">Edit</MudMenuItem>
+            </MudMenu>
         </MudToolBar>
     </MudCardContent>
 </MudCard>
 
 @code
 {
+    [Inject]
+    private IDialogService? DialogService { get; set; }
+
     [Parameter]
     public GameInfo? GameInfo { get; set; }
 
@@ -32,6 +37,29 @@
                 return "";
             return "data:image/png;base64, " + Convert.ToBase64String(File.ReadAllBytes(GameInfo.CoverPath));
         }
+    }
+
+    private async Task OnEdit()
+    {
+        if (GameInfo == null || DialogService == null)
+            return;
+        var inputModel = new DialogGameInfoEdit.FormModel();
+        DataMapService.Map(GameInfo, inputModel);
+        var parameters = new DialogParameters<DialogGameInfoEdit>
+        {
+            { x => x.Model, inputModel }
+        };
+        var dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>("Edit Game Info", parameters, new DialogOptions
+        {
+            BackdropClick = false
+        });
+        var dialogResult = await dialogReference.Result;
+        if (dialogResult.Canceled)
+            return;
+        if (dialogResult.Data is not DialogGameInfoEdit.FormModel resultModel)
+            return;
+        DataMapService.Map(resultModel, GameInfo);
+        StateHasChanged();
     }
 }
 
