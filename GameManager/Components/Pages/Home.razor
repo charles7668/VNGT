@@ -4,15 +4,15 @@
 <MudLayout Class="@("main-mud-layout")">
     <ActionBar id="main-toolbar" Class="@("main-toolbar")" AddNewGameEvent="AddNewGame" SearchEvent="FilterInfo"></ActionBar>
     <MudGrid>
-        @foreach (var info in GameInfos.Where(i => i.Display))
+        @foreach (var viewInfo in ViewGameInfos.Where(i => i.display))
         {
-            <Card GameInfo="info" Class="card" Width="250px" Height="350px"></Card>
+            <Card GameInfo="viewInfo.info" Class="card" Width="250px" Height="350px"></Card>
         }
     </MudGrid>
 </MudLayout>
 
 @code {
-    private List<GameInfo> GameInfos { get; } = [];
+    private List<(GameInfo info, bool display)> ViewGameInfos { get; } = [];
 
     [Inject]
     private IDialogService? DialogService { get; set; }
@@ -27,9 +27,14 @@
             ExePath = exePath
         };
         var parameters = new DialogParameters<DialogGameInfoEdit>
-            { { x => x.Model, inputModel } };
-        var dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>("Add new game", parameters, new DialogOptions
-            { BackdropClick = false });
+        {
+            { x => x.Model, inputModel }
+        };
+        var dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>("Add new game", parameters,
+            new DialogOptions
+            {
+                BackdropClick = false
+            });
         var dialogResult = await dialogReference.Result;
         if (dialogResult.Canceled)
             return;
@@ -37,15 +42,18 @@
             return;
         var gameInfo = new GameInfo();
         DataMapService.Map(resultModel, gameInfo);
-        GameInfos.Add(gameInfo);
+        ViewGameInfos.Add((gameInfo, true));
         StateHasChanged();
     }
 
     private void FilterInfo(string? pattern)
     {
-        foreach (var info in GameInfos)
+        for (var i = 0; i < ViewGameInfos.Count; i++)
         {
-            info.Display = string.IsNullOrEmpty(pattern) || (info.GameName ?? "").ToLower().Contains(pattern.ToLower());
+            var viewInfo = ViewGameInfos[i];
+            viewInfo.display = string.IsNullOrEmpty(pattern) ||
+                               (viewInfo.info.GameName ?? "").ToLower().Contains(pattern.ToLower());
+            ViewGameInfos[i] = viewInfo;
         }
 
         StateHasChanged();

@@ -6,8 +6,6 @@
 
         public string? ExePath { get; set; } = string.Empty;
 
-        public bool Display { get; set; } = true;
-
         public string? CoverPath { get; set; } = string.Empty;
 
         public DateTime? DateTime { get; set; }
