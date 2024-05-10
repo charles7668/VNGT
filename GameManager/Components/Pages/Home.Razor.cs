@@ -1,6 +1,7 @@
 ﻿using GameManager.Components.Pages.components;
 using GameManager.Models;
 using GameManager.Services;
+using Helper;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using System.Diagnostics;
@@ -47,7 +48,8 @@ namespace GameManager.Components.Pages
             {
                 try
                 {
-                    resultModel.Cover = await ConfigService.AddCoverImage(resultModel.Cover);
+                    if (!resultModel.Cover.IsHttpLink())
+                        resultModel.Cover = await ConfigService.AddCoverImage(resultModel.Cover);
                 }
                 catch (Exception e)
                 {

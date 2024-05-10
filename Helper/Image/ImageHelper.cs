@@ -2,6 +2,15 @@
 {
     public static class ImageHelper
     {
+        public static string GetDisplayUrl(string? imageLink)
+        {
+            if (imageLink == null)
+                return "";
+            if (imageLink.IsHttpLink())
+                return imageLink;
+            return ImageFileToBase64(imageLink) ?? "";
+        }
+
         public static string? ImageFileToBase64(string? filePath)
         {
             if (string.IsNullOrEmpty(filePath))

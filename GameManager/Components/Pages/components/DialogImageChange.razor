@@ -1,0 +1,20 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudStack Row="true">
+            <MudPaper MaxWidth="250" MaxHeight="300">
+                <MudImage Width="250" Height="300" Src="@DisplayUrl" ObjectFit="ObjectFit.Contain"></MudImage>
+            </MudPaper>
+            <MudStack>
+                <MudPaper>
+                    <MudTextField T="string" @bind-Value="InputUrl" Label="InputUrl"></MudTextField>
+                </MudPaper>
+                <MudButton OnClick="OnApplyUrlClick">Apply Url</MudButton>
+                <MudButton OnClick="OnUploadClick">Upload</MudButton>
+            </MudStack>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="OnOk">Ok</MudButton>
+        <MudButton OnClick="OnCancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

@@ -1,4 +1,5 @@
-﻿@using System.Globalization
+﻿@using System.Diagnostics
+@using System.Globalization
 @using Helper.Image
 <MudDialog>
     <DialogContent>
@@ -13,7 +14,9 @@
                 <MudPaper Outlined="true" id="cover-container">
                     <MudImage Height="130" Width="100" ObjectFit="ObjectFit.Contain" Src="@CoverPath"></MudImage>
                 </MudPaper>
-                <MudButton OnClick="UploadCover">Upload</MudButton>
+                <MudStack Justify="Justify.Center">
+                    <MudButton OnClick="UploadByUrl">Change</MudButton>
+                </MudStack>
             </MudStack>
         </MudPaper>
     </DialogContent>
@@ -29,9 +32,12 @@
     [Parameter]
     public FormModel Model { get; set; } = new();
 
+    [Inject]
+    private IDialogService? DialogService { get; set; }
+
     private string? _bound = "not set";
 
-    private string? CoverPath => ImageHelper.ImageFileToBase64(Model.Cover);
+    private string CoverPath => ImageHelper.GetDisplayUrl(Model.Cover);
 
     [CascadingParameter]
     public MudDialogInstance? MudDialog { get; set; }
@@ -88,22 +94,18 @@
         _bound = Model.DateTime.HasValue ? Model.DateTime.Value.ToString("yyyy/MM") : "not set";
     }
 
-    private async Task UploadCover()
+    private async Task UploadByUrl()
     {
-        var options = new PickOptions
+        Debug.Assert(DialogService != null);
+        var dialogReference = await DialogService.ShowAsync<DialogImageChange>("Change Cover", new DialogOptions()
         {
-            PickerTitle = "Please select cover image file",
-            FileTypes = FilePickerFileType.Images
-        };
-
-        var result = await FilePicker.PickAsync(options);
-        if (result == null)
-        {
+            BackdropClick = false
+        });
+        var dialogResult = await dialogReference.Result;
+        if (dialogResult.Canceled)
             return;
-        }
-
-        Model.Cover = result.FullPath;
-        StateHasChanged();
+        var cover = dialogResult.Data as string;
+        Model.Cover = cover;
     }
 
 }

@@ -1,5 +1,7 @@
 ﻿using GameManager.Models;
 using GameManager.Services;
+using Helper;
+using Helper.Image;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using System.Diagnostics;
@@ -32,9 +34,9 @@ namespace GameManager.Components.Pages.components
             {
                 if (GameInfo == null || string.IsNullOrEmpty(GameInfo.CoverPath))
                     return "";
-                return "data:image/png;base64, " +
-                       Convert.ToBase64String(
-                           File.ReadAllBytes(ConfigService?.GetCoverFullPath(GameInfo.CoverPath).Result!));
+                return GameInfo.CoverPath.IsHttpLink()
+                    ? GameInfo.CoverPath
+                    : ImageHelper.GetDisplayUrl(ConfigService?.GetCoverFullPath(GameInfo.CoverPath).Result!);
             }
         }
 
@@ -45,7 +47,11 @@ namespace GameManager.Components.Pages.components
                 return;
             var inputModel = new DialogGameInfoEdit.FormModel();
             DataMapService.Map(GameInfo, inputModel);
-            inputModel.Cover = await ConfigService.GetCoverFullPath(GameInfo.CoverPath);
+            if (GameInfo.CoverPath != null && GameInfo.CoverPath.IsHttpLink())
+                inputModel.Cover = GameInfo.CoverPath;
+            else
+                inputModel.Cover = ConfigService.GetCoverFullPath(GameInfo.CoverPath).Result;
+
             var parameters = new DialogParameters<DialogGameInfoEdit>
             {
                 { x => x.Model, inputModel }
@@ -61,23 +67,26 @@ namespace GameManager.Components.Pages.components
                 return;
             if (dialogResult.Data is not DialogGameInfoEdit.FormModel resultModel)
                 return;
-            if (resultModel.Cover != null)
+            try
             {
-                try
+                if ((resultModel.Cover == null && GameInfo.CoverPath != null)
+                    || (resultModel.Cover.IsHttpLink() && !GameInfo.CoverPath.IsHttpLink()))
                 {
-                    if (GameInfo.CoverPath != null)
-                        await ConfigService.ReplaceCoverImage(resultModel.Cover, GameInfo.CoverPath);
-                    else
-                        resultModel.Cover = await ConfigService.AddCoverImage(resultModel.Cover);
+                    await ConfigService.DeleteCoverImage(GameInfo.CoverPath);
                 }
-                catch (Exception e)
+                else if (resultModel.Cover != null && GameInfo.CoverPath.IsHttpLink() &&
+                         !resultModel.Cover.IsHttpLink())
                 {
-                    await DialogService.ShowMessageBox("Error", $"{e.Message}", cancelText: "Cancel");
+                    resultModel.Cover = await ConfigService.AddCoverImage(resultModel.Cover);
+                }
+                else if (resultModel.Cover != null && !resultModel.Cover.IsHttpLink())
+                {
+                    await ConfigService.ReplaceCoverImage(resultModel.Cover, GameInfo.CoverPath);
                 }
             }
-            else if (GameInfo.CoverPath != null)
+            catch (Exception e)
             {
-                await ConfigService.DeleteCoverImage(GameInfo.CoverPath);
+                await DialogService.ShowMessageBox("Error", $"{e.Message}", cancelText: "Cancel");
             }
 
             DataMapService.Map(resultModel, GameInfo);

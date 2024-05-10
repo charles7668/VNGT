@@ -7,8 +7,10 @@
         /// </summary>
         /// <param name="input"></param>
         /// <returns>true if input is http link</returns>
-        public static bool IsHttpLink(this string input)
+        public static bool IsHttpLink(this string? input)
         {
+            if (input == null)
+                return false;
             return input.StartsWith("http://") || input.StartsWith("https://");
         }
     }
