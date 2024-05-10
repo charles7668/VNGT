@@ -2,23 +2,19 @@
 @using Helper.Image
 <MudDialog>
     <DialogContent>
-        <MudCard Elevation="0">
-            <MudForm>
-                <MudCardContent>
-                    <MudTextField @bind-Value="Model.GameName" For="@(() => Model.GameName)"/>
-                    <MudTextField @bind-Value="Model.Vendor" For="@(() => Model.Vendor)"/>
-                    <MudTextField @bind-Value="Model.ExePath" For="@(() => Model.ExePath)"/>
-                    <MudDatePicker @bind-Value="Model.DateTime" For="@(() => Model.DateTime)" Editable="true" ImmediateText="true" Placeholder="yyyy/MM" DateFormat="yyyy/MM" TextChanged="DatePickerTextChanged" HelperText="@_bound" Clearable="true"/>
-                    <MudStack Row="true">
-                        <MudInputLabel Class="d-flex align-center">Color:</MudInputLabel>
-                        <MudPaper Outlined="true" id="cover-container">
-                            <MudImage Height="130" Width="100" ObjectFit="ObjectFit.Fill" Src="@CoverPath"></MudImage>
-                        </MudPaper>
-                        <MudButton OnClick="UploadCover">Upload</MudButton>
-                    </MudStack>
-                </MudCardContent>
-            </MudForm>
-        </MudCard>
+        <MudPaper Elevation="0">
+            <MudTextField @bind-Value="Model.GameName" For="@(() => Model.GameName)"/>
+            <MudTextField @bind-Value="Model.Vendor" For="@(() => Model.Vendor)"/>
+            <MudTextField @bind-Value="Model.ExePath" For="@(() => Model.ExePath)"/>
+            <MudDatePicker @bind-Value="Model.DateTime" For="@(() => Model.DateTime)" Editable="true" ImmediateText="true" Placeholder="yyyy/MM" DateFormat="yyyy/MM" TextChanged="DatePickerTextChanged" HelperText="@_bound" Clearable="true"/>
+            <MudStack Row="true">
+                <MudInputLabel Class="d-flex align-center">Color:</MudInputLabel>
+                <MudPaper Outlined="true" id="cover-container">
+                    <MudImage Height="130" Width="100" ObjectFit="ObjectFit.Fill" Src="@CoverPath"></MudImage>
+                </MudPaper>
+                <MudButton OnClick="UploadCover">Upload</MudButton>
+            </MudStack>
+        </MudPaper>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="OnSave">Save</MudButton>
