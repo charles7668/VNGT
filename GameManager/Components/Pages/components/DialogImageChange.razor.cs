@@ -1,4 +1,5 @@
-﻿using Helper.Image;
+﻿using Helper;
+using Helper.Image;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -7,6 +8,8 @@ namespace GameManager.Components.Pages.components
     public partial class DialogImageChange
     {
         private string _displayImageLink = string.Empty;
+
+        private string? InputUrlError { get; set; } = null;
 
         [CascadingParameter]
         public MudDialogInstance? MudDialog { get; set; }
@@ -21,6 +24,14 @@ namespace GameManager.Components.Pages.components
 
         private void OnApplyUrlClick()
         {
+            if (!InputUrl.IsValidUrl())
+            {
+                InputUrlError = "Invalid URL";
+                return;
+            }
+
+            InputUrlError = null;
+
             DisplayUrl = InputUrl;
             StateHasChanged();
         }

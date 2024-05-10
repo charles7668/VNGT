@@ -6,7 +6,7 @@
             </MudPaper>
             <MudStack>
                 <MudPaper>
-                    <MudTextField T="string" @bind-Value="InputUrl" Label="InputUrl"></MudTextField>
+                    <MudTextField T="string" @bind-Value="InputUrl" Label="Image Url" Error="@(InputUrlError != null)" ErrorText="@InputUrlError"></MudTextField>
                 </MudPaper>
                 <MudButton OnClick="OnApplyUrlClick">Apply Url</MudButton>
                 <MudButton OnClick="OnUploadClick">Upload</MudButton>
