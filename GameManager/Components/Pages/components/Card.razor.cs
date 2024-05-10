@@ -23,6 +23,9 @@ namespace GameManager.Components.Pages.components
         [Parameter]
         public string? Height { get; set; }
 
+        [Parameter]
+        public EventCallback<GameInfo> OnDeleteEventCallback { get; set; }
+
         private string ImageSrc
         {
             get
@@ -79,6 +82,12 @@ namespace GameManager.Components.Pages.components
 
             DataMapService.Map(resultModel, GameInfo);
             StateHasChanged();
+        }
+
+        private async Task OnDelete()
+        {
+            if (OnDeleteEventCallback.HasDelegate)
+                await OnDeleteEventCallback.InvokeAsync(GameInfo);
         }
     }
 }
