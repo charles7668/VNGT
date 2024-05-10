@@ -21,16 +21,22 @@
     {
         Debug.Assert(DialogService is not null);
 
-        var dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>("Add new game", new DialogOptions
-            { BackdropClick = false });
-        var dialogResult = await dialogReference.Result;
-        if (dialogResult.Canceled)
-            return;
-        var gameInfo = new GameInfo
+        var inputModel = new DialogGameInfoEdit.FormModel
         {
             GameName = Path.GetFileName(Path.GetDirectoryName(exePath)) ?? "null",
             ExePath = exePath
         };
+        var parameters = new DialogParameters<DialogGameInfoEdit>
+            { { x => x.Model, inputModel } };
+        var dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>("Add new game", parameters, new DialogOptions
+            { BackdropClick = false });
+        var dialogResult = await dialogReference.Result;
+        if (dialogResult.Canceled)
+            return;
+        if (dialogResult.Data is not DialogGameInfoEdit.FormModel resultModel)
+            return;
+        var gameInfo = new GameInfo();
+        DataMapService.Map(resultModel, gameInfo);
         GameInfos.Add(gameInfo);
         StateHasChanged();
     }
@@ -39,7 +45,7 @@
     {
         foreach (var info in GameInfos)
         {
-            info.Display = string.IsNullOrEmpty(pattern) || info.GameName.ToLower().Contains(pattern.ToLower());
+            info.Display = string.IsNullOrEmpty(pattern) || (info.GameName ?? "").ToLower().Contains(pattern.ToLower());
         }
 
         StateHasChanged();
