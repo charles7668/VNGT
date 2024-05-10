@@ -1,7 +1,7 @@
 ﻿using GameManager.Components.Pages.components;
 using GameManager.Models;
 
-namespace GameManager
+namespace GameManager.Services
 {
     public static class DataMapService
     {
