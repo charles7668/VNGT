@@ -7,6 +7,7 @@
             <MudTextField @bind-Value="Model.Vendor" For="@(() => Model.Vendor)"/>
             <MudTextField @bind-Value="Model.ExePath" For="@(() => Model.ExePath)"/>
             <MudDatePicker @bind-Value="Model.DateTime" For="@(() => Model.DateTime)" Editable="true" ImmediateText="true" Placeholder="yyyy/MM" DateFormat="yyyy/MM" TextChanged="DatePickerTextChanged" HelperText="@_bound" Clearable="true"/>
+            <MudTextField T="string?" Lines="5" MaxLines="8" @bind-Value="Model.Description" For="@(() => Model.Description)"></MudTextField>
             <MudStack Row="true">
                 <MudInputLabel Class="d-flex align-center">Color:</MudInputLabel>
                 <MudPaper Outlined="true" id="cover-container">
@@ -23,6 +24,7 @@
 </MudDialog>
 
 @code {
+    private readonly string? _dialogWidth = "500px";
 
     [Parameter]
     public FormModel Model { get; set; } = new();
@@ -59,6 +61,9 @@
         public DateTime? DateTime { get; set; }
 
         public string? Cover { get; set; }
+
+        [Label("Description")]
+        public string? Description { get; set; }
     }
 
     private void DatePickerTextChanged(string? value)
@@ -104,6 +109,9 @@
 }
 
 <style>
+    .mud-dialog {
+        width: @_dialogWidth;
+    }
     .mud-card {
         width: 400px;
     }

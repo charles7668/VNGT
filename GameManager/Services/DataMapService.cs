@@ -10,6 +10,7 @@ namespace GameManager.Services
             dest.CoverPath = src.Cover;
             dest.GameName = src.GameName;
             dest.Vendor = src.Vendor;
+            dest.Description = src.Description;
             dest.ExePath = src.ExePath;
             dest.DateTime = src.DateTime;
         }
@@ -19,6 +20,7 @@ namespace GameManager.Services
             dest.Cover = src.CoverPath;
             dest.GameName = src.GameName;
             dest.Vendor = src.Vendor;
+            dest.Description = src.Description;
             dest.ExePath = src.ExePath;
             dest.DateTime = src.DateTime;
         }
