@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using GameManager.Services;
+using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 
 namespace GameManager
@@ -7,7 +8,7 @@ namespace GameManager
     {
         public static MauiApp CreateMauiApp()
         {
-            var builder = MauiApp.CreateBuilder();
+            MauiAppBuilder builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
@@ -18,10 +19,15 @@ namespace GameManager
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices();
 
+
 #if DEBUG
-    		builder.Services.AddBlazorWebViewDeveloperTools();
-    		builder.Logging.AddDebug();
+            builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Logging.AddDebug();
 #endif
+
+            IConfigService configService = new ConfigService();
+            configService.CreateConfigFolderIfNotExistAsync();
+            builder.Services.AddSingleton(configService);
 
             return builder.Build();
         }
