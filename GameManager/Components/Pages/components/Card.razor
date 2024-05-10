@@ -2,7 +2,7 @@
 
 <MudCard @attributes="UserAttributes!" Style="@Style" Class="@Class">
     <MudCardContent Class="d-flex flex-column">
-        <img src="@ImageSrc" loading="lazy" alt="No Image">
+        <MudImage Src="@ImageSrc" loading="lazy" Alt="No Image" ObjectFit="ObjectFit.Contain"/>
         <MudSpacer></MudSpacer>
         <MudText Typo="Typo.caption">@GameInfo?.GameName</MudText>
         <MudToolBar Class="pa-0">
