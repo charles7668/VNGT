@@ -93,6 +93,23 @@ namespace GameManager.Components.Pages.components
             StateHasChanged();
         }
 
+        private void OnOpenInExplorer()
+        {
+            Debug.Assert(GameInfo != null);
+            string? path = Path.GetDirectoryName(GameInfo.ExePath);
+            if (path == null)
+                return;
+            try
+            {
+                // using "explorer.exe" and send path
+                Process.Start("explorer.exe", path);
+            }
+            catch (Exception ex)
+            {
+                DialogService?.ShowMessageBox("Error", ex.Message, cancelText: "Cancel");
+            }
+        }
+
         private async Task OnDelete()
         {
             if (OnDeleteEventCallback.HasDelegate)

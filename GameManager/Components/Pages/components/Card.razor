@@ -9,8 +9,16 @@
             <MudButton StartIcon="@Icons.Material.Filled.ArrowRight">Run</MudButton>
             <MudSpacer></MudSpacer>
             <MudMenu Icon="@Icons.Material.Filled.MoreVert">
-                <MudMenuItem OnClick="OnEdit">Edit</MudMenuItem>
-                <MudMenuItem OnClick="OnDelete">Delete</MudMenuItem>
+                <MudMenuItem>
+                    <MudButton OnClick="OnEdit" Variant="Variant.Text" Color="Color.Primary" FullWidth="true">Edit</MudButton>
+                </MudMenuItem>
+                <MudMenuItem>
+                    <MudButton OnClick="OnOpenInExplorer" Variant="Variant.Text" Color="Color.Primary" FullWidth="true">Open in Explorer</MudButton>
+                </MudMenuItem>
+                <MudDivider/>
+                <MudMenuItem>
+                    <MudButton OnClick="OnDelete" Variant="Variant.Text" Color="Color.Secondary" FullWidth="true">Delete</MudButton>
+                </MudMenuItem>
             </MudMenu>
         </MudToolBar>
     </MudCardContent>
