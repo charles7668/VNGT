@@ -1,0 +1,30 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudPaper Elevation="0" MaxHeight="300" Height="300">
+            <MudList @bind-SelectedValue="_selectedIndex">
+                @if (DisplayInfos != null)
+                {
+                    @for (var i = 0; i < DisplayInfos.Count; i++)
+                    {
+                        <MudListItem Value="@i" Text="@DisplayInfos[i].GameName"/>
+                    }
+                }
+            </MudList>
+            <MudToolBar WrapContent="false" Class="justify-center">
+                <MudButton OnClick="OnPrevPage" Variant="Variant.Filled" Disabled="PrevBtnDisabled" StartIcon="@Icons.Material.Filled.ArrowLeft"></MudButton>
+                <MudButton OnClick="OnNextPage" Variant="Variant.Filled" Disabled="NextBtnDisabled" StartIcon="@Icons.Material.Filled.ArrowRight"></MudButton>
+            </MudToolBar>
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="OnOk">Save</MudButton>
+        <MudButton OnClick="OnCancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    div.mud-paper .mud-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+</style>

@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helper", "Helper\Helper.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameManager", "GameManager\GameManager.csproj", "{8FAFCC2E-13E3-42DB-89E2-BBFAD3E433C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameManager.DB", "GameManager.DB\GameManager.DB.csproj", "{C69AC4D8-71AA-4EC2-9B5D-57D76E7C1790}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameManager.DB", "GameManager.DB\GameManager.DB.csproj", "{C69AC4D8-71AA-4EC2-9B5D-57D76E7C1790}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

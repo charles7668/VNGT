@@ -77,6 +77,50 @@ namespace GameManager.Components.Pages.components
             Model.Cover = cover;
         }
 
+        private async Task OnInfoFetch()
+        {
+            if (string.IsNullOrEmpty(Model.GameName))
+                return;
+            try
+            {
+                (List<GameInfo>? infoList, bool hasMore) =
+                    await Provider.FetchGameSearchListAsync(Model.GameName, 10, 1);
+                if (infoList == null || infoList.Count == 0)
+                    return;
+                string gameId = infoList[0].GameInfoId ?? "";
+                if (infoList.Count > 1)
+                {
+                    var parameters = new DialogParameters<DialogFetchSelection>
+                    {
+                        { x => x.DisplayInfos, infoList },
+                        { x => x.HasMore, hasMore },
+                        { x => x.SearchName, Model.GameName }
+                    };
+                    IDialogReference? dialogReference = await DialogService.ShowAsync<DialogFetchSelection>("",
+                        parameters,
+                        options: new DialogOptions
+                        {
+                            BackdropClick = false
+                        });
+                    DialogResult? dialogResult = await dialogReference.Result;
+                    if (dialogResult.Canceled)
+                        return;
+                    gameId = dialogResult.Data as string ?? "";
+                }
+
+                GameInfo? info = await Provider.FetchGameDetailByIdAsync(gameId);
+                if (info == null)
+                    return;
+                info.ExePath = Model.ExePath;
+                DataMapService.Map(info, Model);
+                StateHasChanged();
+            }
+            catch (Exception e)
+            {
+                await DialogService.ShowMessageBox("Error", e.Message, "Cancel");
+            }
+        }
+
         public class FormModel
         {
             [Label("Game name")]
@@ -95,32 +139,6 @@ namespace GameManager.Components.Pages.components
 
             [Label("Description")]
             public string? Description { get; set; }
-        }
-
-        private async Task OnInfoFetch()
-        {
-            if (string.IsNullOrEmpty(Model.GameName))
-                return;
-            try
-            {
-                (List<GameInfo>? infoList, bool hasMore) =
-                    await Provider.FetchGameSearchListAsync(Model.GameName, 10, 1);
-                if (infoList == null || infoList.Count == 0)
-                    return;
-                if (infoList.Count > 0)
-                {
-                    GameInfo? info = await Provider.FetchGameDetailByIdAsync(infoList[0].GameInfoId!);
-                    if (info == null)
-                        return;
-                    info.ExePath = Model.ExePath;
-                    DataMapService.Map(info, Model);
-                    StateHasChanged();
-                }
-            }
-            catch (Exception e)
-            {
-                await DialogService.ShowMessageBox("Error", e.Message, "Cancel");
-            }
         }
     }
 }
