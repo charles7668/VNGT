@@ -4,7 +4,9 @@
     <MudCardContent Class="d-flex flex-column">
         <MudImage Src="@ImageSrc" loading="lazy" Alt="No Image" ObjectFit="ObjectFit.Contain"/>
         <MudSpacer></MudSpacer>
-        <MudText Typo="Typo.caption">@GameInfo?.GameName</MudText>
+        <MudTooltip Text="@GameInfo?.ExePath">
+            <MudText Typo="Typo.caption">@GameInfo?.GameName</MudText>
+        </MudTooltip>
         <MudToolBar Class="pa-0">
             <MudButton StartIcon="@Icons.Material.Filled.ArrowRight">Run</MudButton>
             <MudSpacer></MudSpacer>
