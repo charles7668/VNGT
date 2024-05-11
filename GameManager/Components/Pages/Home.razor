@@ -5,7 +5,7 @@
     <MudGrid>
         @foreach (var viewInfo in ViewGameInfos.Where(i => i.display))
         {
-            <Card GameInfo="viewInfo.info" Class="card" Width="250px" Height="350px" OnDeleteEventCallback="DeleteGameCard"></Card>
+            <Card GameInfo="viewInfo.info" Class="card" Width="250px" Height="400px" OnDeleteEventCallback="DeleteGameCard"></Card>
         }
     </MudGrid>
 </MudLayout>

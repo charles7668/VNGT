@@ -1,9 +1,8 @@
 ﻿@inherits MudComponentBase
 
-<MudCard @attributes="UserAttributes!" Style="@Style" Class="@Class">
-    <MudCardContent Class="d-flex flex-column">
+<MudPaper Elevation="0" id="card-item" @attributes="UserAttributes!" Style="@Style" Class="@Class">
+    <MudPaper Elevation="0" Class="d-flex flex-column">
         <MudImage Src="@ImageSrc" loading="lazy" Alt="No Image" ObjectFit="ObjectFit.Contain"/>
-        <MudSpacer></MudSpacer>
         <MudTooltip Text="@GameInfo?.ExePath">
             <MudText Typo="Typo.caption">@GameInfo?.GameName</MudText>
         </MudTooltip>
@@ -17,25 +16,27 @@
                 <MudButton OnClick="OnDelete" Variant="Variant.Text" Color="Color.Secondary" FullWidth="true">Delete</MudButton>
             </MudMenu>
         </MudToolBar>
-    </MudCardContent>
-</MudCard>
+    </MudPaper>
+</MudPaper>
 
 <style>
-    .mud-card {
+    #card-item .mud-paper {
         width: @Width;
         height: @Height;
+        overflow`: hidden;
+        max-height: @Height;
+        max-width: @Width;
+    }
+    #card-item img {
+        height: 75%;
+        min-height: 75%;
+        max-height: 75%;
+    }
+
+    #card-item .mud-tooltip-inline {
+        display: block;
+        height: 10%;
+        min-height: 10%;
         overflow: hidden;
-        max-height: 100%;
-    }
-    .mud-card .mud-card-content {
-        height: 100%;
-        max-height: 100%;
-    }
-    .mud-card .mud-card-content img {
-        max-height: 80%;
-        object-fit: cover;
-    }
-    .mud-card .mud-card-content .mud-text {
-        height: 50px;
     }
 </style>
