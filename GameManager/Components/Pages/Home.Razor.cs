@@ -1,4 +1,5 @@
 ﻿using GameManager.Components.Pages.components;
+using GameManager.Database;
 using GameManager.DB.Models;
 using GameManager.Services;
 using Helper;
@@ -10,13 +11,28 @@ namespace GameManager.Components.Pages
 {
     public partial class Home
     {
+        [Inject]
+        private IUnitOfWork? UnitOfWork { get; set; }
+
         private List<(GameInfo info, bool display)> ViewGameInfos { get; } = [];
 
         [Inject]
-        private IDialogService? DialogService { get; set; }
+        private IDialogService DialogService { get; set; } = null!;
 
         [Inject]
-        private IConfigService? ConfigService { get; set; }
+        private IConfigService ConfigService { get; set; } = null!;
+
+        protected override async Task OnInitializedAsync()
+        {
+            Debug.Assert(UnitOfWork != null);
+            List<GameInfo> infos = await UnitOfWork.GameInfoRepository.GetGameInfos();
+            foreach (GameInfo info in infos)
+            {
+                ViewGameInfos.Add((info, true));
+            }
+
+            await base.OnInitializedAsync();
+        }
 
         private async Task AddNewGame(string exePath)
         {
@@ -61,21 +77,47 @@ namespace GameManager.Components.Pages
             }
 
             DataMapService.Map(resultModel, gameInfo);
+            try
+            {
+                await ConfigService.AddGameInfo(gameInfo);
+            }
+            catch (Exception e)
+            {
+                await DialogService.ShowMessageBox(
+                    "Error",
+                    $"{e.Message}"
+                    , cancelText: "Cancel");
+                return;
+            }
+
             ViewGameInfos.Add((gameInfo, true));
             StateHasChanged();
         }
 
-        private void DeleteGameCard(GameInfo info)
+        private async Task DeleteGameCard(int id)
         {
+            bool hasChane = false;
             for (int i = 0; i < ViewGameInfos.Count; i++)
             {
-                if (ViewGameInfos[i].info != info)
+                if (ViewGameInfos[i].info.Id != id)
                     continue;
+                hasChane = true;
+                try
+                {
+                    await ConfigService.DeleteGameById(id);
+                }
+                catch (Exception e)
+                {
+                    await DialogService.ShowMessageBox("Error", $"{e.Message}", cancelText: "Cancel");
+                    return;
+                }
+
                 ViewGameInfos.RemoveAt(i);
                 break;
             }
 
-            StateHasChanged();
+            if (hasChane)
+                StateHasChanged();
         }
 
         private void FilterInfo(string? pattern)

@@ -1,4 +1,7 @@
 ﻿using GameManager.Attributes;
+using GameManager.Database;
+using GameManager.DB.Models;
+using Helper;
 using System.Reflection;
 
 namespace GameManager.Services
@@ -8,7 +11,19 @@ namespace GameManager.Services
     /// </summary>
     public class ConfigService : IConfigService
     {
+        public ConfigService()
+        {
+        }
+
+        public ConfigService(IUnitOfWork unitOfWork)
+        {
+            CreateConfigFolderIfNotExistAsync();
+            _unitOfWork = unitOfWork;
+        }
+
         private const string DB_FILE = "game.db";
+
+        private readonly IUnitOfWork _unitOfWork = null!;
 
         [NeedCreate]
         private string CoverFolder => Path.Combine(ConfigFolder, "covers");
@@ -53,6 +68,8 @@ namespace GameManager.Services
             string? coverPath = await GetCoverFullPath(coverName);
             if (coverPath == null)
                 return;
+            if (srcFile == coverPath)
+                return;
             File.Copy(srcFile, coverPath, true);
         }
 
@@ -71,12 +88,34 @@ namespace GameManager.Services
             string? fullPath = await GetCoverFullPath(coverName);
             if (fullPath == null || !File.Exists(fullPath))
                 return;
-            File.Delete(Path.Combine(CoverFolder, coverName));
+            File.Delete(fullPath);
+        }
+
+        public async Task DeleteGameById(int id)
+        {
+            IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
+            string? cover = await gameInfoRepo.GetCoverById(id);
+            if (cover == null)
+                return;
+            await DeleteCoverImage(cover);
+            await gameInfoRepo.DeleteByIdAsync(id);
+        }
+
+        public async Task AddGameInfo(GameInfo info)
+        {
+            IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
+            await gameInfoRepo.AddAsync(info);
         }
 
         public string GetDbPath()
         {
             return Path.Combine(ConfigFolder, DB_FILE);
+        }
+
+        public Task EditGameInfo(GameInfo info)
+        {
+            IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
+            return gameInfoRepo.EditAsync(info);
         }
     }
 }

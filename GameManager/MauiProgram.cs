@@ -1,4 +1,5 @@
-﻿using GameManager.DB;
+﻿using GameManager.Database;
+using GameManager.DB;
 using GameManager.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -27,17 +28,19 @@ namespace GameManager
             builder.Logging.AddDebug();
 #endif
 
-            IConfigService configService = new ConfigService();
-            configService.CreateConfigFolderIfNotExistAsync();
-            builder.Services.AddSingleton(configService);
+            builder.Services.AddSingleton<IConfigService, ConfigService>();
 
-            // Add Database
-            var dbContext = new AppDbContext($"Data Source={configService.GetDbPath()}");
-            dbContext.Database.EnsureCreated();
+            // just for get db path
+            IConfigService config = new ConfigService();
+            var dbContext = new AppDbContext($"Data Source={config.GetDbPath()}");
             if (dbContext.Database.GetPendingMigrations().Any())
                 dbContext.Database.Migrate();
-            dbContext.SaveChanges();
+            dbContext.Database.EnsureCreated();
             builder.Services.AddSingleton(dbContext);
+
+
+            builder.Services.AddScoped<IGameInfoRepository, GameInfoRepository>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return builder.Build();
         }

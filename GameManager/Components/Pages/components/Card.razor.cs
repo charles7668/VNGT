@@ -14,7 +14,7 @@ namespace GameManager.Components.Pages.components
         private IDialogService? DialogService { get; set; }
 
         [Inject]
-        private IConfigService? ConfigService { get; set; }
+        private IConfigService ConfigService { get; set; } = null!;
 
         [Parameter]
         public GameInfo? GameInfo { get; set; }
@@ -26,7 +26,7 @@ namespace GameManager.Components.Pages.components
         public string? Height { get; set; }
 
         [Parameter]
-        public EventCallback<GameInfo> OnDeleteEventCallback { get; set; }
+        public EventCallback<int> OnDeleteEventCallback { get; set; }
 
         private string ImageSrc
         {
@@ -36,13 +36,12 @@ namespace GameManager.Components.Pages.components
                     return "";
                 return GameInfo.CoverPath.IsHttpLink()
                     ? GameInfo.CoverPath
-                    : ImageHelper.GetDisplayUrl(ConfigService?.GetCoverFullPath(GameInfo.CoverPath).Result!);
+                    : ImageHelper.GetDisplayUrl(ConfigService.GetCoverFullPath(GameInfo.CoverPath).Result!);
             }
         }
 
         private async Task OnEdit()
         {
-            Debug.Assert(ConfigService != null);
             if (GameInfo == null || DialogService == null)
                 return;
             var inputModel = new DialogGameInfoEdit.FormModel();
@@ -74,12 +73,13 @@ namespace GameManager.Components.Pages.components
                 {
                     await ConfigService.DeleteCoverImage(GameInfo.CoverPath);
                 }
-                else if (resultModel.Cover != null && GameInfo.CoverPath.IsHttpLink() &&
+                else if (resultModel.Cover != null && (GameInfo.CoverPath.IsHttpLink() || GameInfo.CoverPath == null) &&
                          !resultModel.Cover.IsHttpLink())
                 {
                     resultModel.Cover = await ConfigService.AddCoverImage(resultModel.Cover);
                 }
-                else if (resultModel.Cover != null && !resultModel.Cover.IsHttpLink())
+                else if (resultModel.Cover != null &&
+                         !resultModel.Cover.IsHttpLink())
                 {
                     await ConfigService.ReplaceCoverImage(resultModel.Cover, GameInfo.CoverPath);
                 }
@@ -90,6 +90,7 @@ namespace GameManager.Components.Pages.components
             }
 
             DataMapService.Map(resultModel, GameInfo);
+            await ConfigService.EditGameInfo(GameInfo);
             StateHasChanged();
         }
 
@@ -112,8 +113,10 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnDelete()
         {
+            if (GameInfo == null)
+                return;
             if (OnDeleteEventCallback.HasDelegate)
-                await OnDeleteEventCallback.InvokeAsync(GameInfo);
+                await OnDeleteEventCallback.InvokeAsync(GameInfo.Id);
         }
     }
 }

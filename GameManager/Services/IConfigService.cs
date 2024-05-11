@@ -1,4 +1,6 @@
-﻿namespace GameManager.Services
+﻿using GameManager.DB.Models;
+
+namespace GameManager.Services
 {
     public interface IConfigService
     {
@@ -14,6 +16,12 @@
 
         Task DeleteCoverImage(string? coverName);
 
+        Task DeleteGameById(int id);
+
+        Task AddGameInfo(GameInfo info);
+
         string GetDbPath();
+
+        Task EditGameInfo(GameInfo info);
     }
 }
