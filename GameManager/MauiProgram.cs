@@ -1,5 +1,6 @@
 ﻿using GameManager.Database;
 using GameManager.DB;
+using GameManager.GameInfoProvider;
 using GameManager.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -41,6 +42,8 @@ namespace GameManager
 
             builder.Services.AddScoped<IGameInfoRepository, GameInfoRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IHttpService, HttpService>();
+            builder.Services.AddScoped<IProvider, VndbProvider>();
 
             return builder.Build();
         }
