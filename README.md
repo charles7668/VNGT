@@ -2,13 +2,14 @@
 
 visual novel game tools
 
-# User Guild
+## User Guild
 
 - [Save Patcher](./Docs/SavePatcher.md)
+- [Game Manager](./Docs/GameManager.md)
 
-# Build
+## Build
 
-## Requirement
+### Requirement
 
 - [.net 8](https://dotnet.microsoft.com/en-us/download)
 
