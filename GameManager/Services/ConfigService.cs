@@ -8,6 +8,8 @@ namespace GameManager.Services
     /// </summary>
     public class ConfigService : IConfigService
     {
+        private const string DB_FILE = "game.db";
+
         [NeedCreate]
         private string CoverFolder => Path.Combine(ConfigFolder, "covers");
 
@@ -70,6 +72,11 @@ namespace GameManager.Services
             if (fullPath == null || !File.Exists(fullPath))
                 return;
             File.Delete(Path.Combine(CoverFolder, coverName));
+        }
+
+        public string GetDbPath()
+        {
+            return Path.Combine(ConfigFolder, DB_FILE);
         }
     }
 }

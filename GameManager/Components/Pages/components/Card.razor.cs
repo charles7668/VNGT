@@ -1,4 +1,4 @@
-﻿using GameManager.Models;
+﻿using GameManager.DB.Models;
 using GameManager.Services;
 using Helper;
 using Helper.Image;

@@ -13,5 +13,7 @@
         Task<string?> GetCoverFullPath(string? coverName);
 
         Task DeleteCoverImage(string? coverName);
+
+        string GetDbPath();
     }
 }

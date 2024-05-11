@@ -1,5 +1,5 @@
 ﻿using GameManager.Components.Pages.components;
-using GameManager.Models;
+using GameManager.DB.Models;
 
 namespace GameManager.Services
 {

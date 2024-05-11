@@ -1,7 +1,9 @@
-﻿namespace GameManager.Models
+﻿namespace GameManager.DB.Models
 {
     public class GameInfo
     {
+        public int Id { get; set; }
+
         public string? GameName { get; set; }
 
         public string? Vendor { get; set; }

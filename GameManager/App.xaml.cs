@@ -1,4 +1,9 @@
-﻿namespace GameManager
+﻿using GameManager.DB;
+using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+
+namespace GameManager
 {
     public partial class App : Application
     {
