@@ -1,4 +1,5 @@
-﻿using GameManager.Database;
+﻿using GameManager.Components.Pages.components;
+using GameManager.Database;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Windows.Storage;
@@ -64,22 +65,34 @@ namespace GameManager.Components.Pages
             StateHasChanged();
         }
 
-        private Task OnDelete()
+        private async Task OnDelete()
         {
+            DialogParameters<DialogConfirm> parameters = new()
+            {
+                { x => x.Content, "Are you sure you want to delete?" }
+            };
+            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogConfirm>("Warning", parameters,
+                new DialogOptions
+                {
+                    BackdropClick = false
+                });
+            DialogResult? dialogResult = await dialogReference.Result;
+            if (dialogResult.Canceled)
+                return;
+
             int id = Libraries[SelectionIndex].Id;
             try
             {
-                UnitOfWork.LibraryRepository.DeleteByIdAsync(id);
+                await UnitOfWork.LibraryRepository.DeleteByIdAsync(id);
             }
             catch (Exception e)
             {
-                DialogService.ShowMessageBox("Error", e.Message, "cancel");
-                return Task.CompletedTask;
+                await DialogService.ShowMessageBox("Error", e.Message, "cancel");
+                return;
             }
 
             Libraries.RemoveAt(SelectionIndex);
             StateHasChanged();
-            return Task.CompletedTask;
         }
     }
 }

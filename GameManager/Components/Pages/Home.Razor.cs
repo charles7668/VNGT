@@ -96,6 +96,19 @@ namespace GameManager.Components.Pages
 
         private async Task DeleteGameCard(int id)
         {
+            DialogParameters<DialogConfirm> parameters = new()
+            {
+                { x => x.Content, "Are you sure you want to delete?" }
+            };
+            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogConfirm>("Warning", parameters,
+                new DialogOptions
+                {
+                    BackdropClick = false
+                });
+            DialogResult? dialogResult = await dialogReference.Result;
+            if (dialogResult.Canceled)
+                return;
+
             bool hasChane = false;
             for (int i = 0; i < ViewGameInfos.Count; i++)
             {
