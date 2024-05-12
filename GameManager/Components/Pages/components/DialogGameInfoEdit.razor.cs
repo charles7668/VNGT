@@ -47,7 +47,7 @@ namespace GameManager.Components.Pages.components
             }
             else
             {
-                string[] formats = ["yyyy/MM"];
+                string[] formats = ["yyyy/MM/dd"];
                 if (DateTime.TryParseExact(value, formats, CultureInfo.InvariantCulture, DateTimeStyles.None,
                         out DateTime validDate))
                 {
@@ -132,7 +132,7 @@ namespace GameManager.Components.Pages.components
             [Label("Executable path")]
             public string? ExePath { get; set; }
 
-            [Label("Date")]
+            [Label("Release Date")]
             public DateTime? DateTime { get; set; }
 
             public string? Cover { get; set; }
