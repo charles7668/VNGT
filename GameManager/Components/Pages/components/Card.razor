@@ -7,10 +7,10 @@
             <MudText Typo="Typo.caption">@GameInfo?.GameName</MudText>
         </MudTooltip>
         <MudToolBar Class="pa-0">
-            <MudButton StartIcon="@Icons.Material.Filled.ArrowRight">Run</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.ArrowRight" Variant="Variant.Outlined">Run</MudButton>
+            <MudButton OnClick="OnEdit" StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined">Edit</MudButton>
             <MudSpacer></MudSpacer>
-            <MudMenu Icon="@Icons.Material.Filled.MoreVert">
-                <MudButton OnClick="OnEdit" Variant="Variant.Text" Color="Color.Primary" FullWidth="true">Edit</MudButton>
+            <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
                 <MudButton OnClick="OnOpenInExplorer" Variant="Variant.Text" Color="Color.Primary" FullWidth="true">Open in Explorer</MudButton>
                 <MudDivider/>
                 <MudButton OnClick="OnDelete" Variant="Variant.Text" Color="Color.Secondary" FullWidth="true">Delete</MudButton>
