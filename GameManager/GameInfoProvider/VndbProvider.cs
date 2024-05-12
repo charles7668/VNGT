@@ -82,7 +82,7 @@ namespace GameManager.GameInfoProvider
                     gameInfo.CoverPath = image;
                     gameInfo.GameName = title;
                     gameInfo.GameInfoId = id;
-                    gameInfo.Vendor = develop;
+                    gameInfo.Developer = develop;
                     gameInfo.Description = description;
                     gameInfo.DateTime = released;
                 }

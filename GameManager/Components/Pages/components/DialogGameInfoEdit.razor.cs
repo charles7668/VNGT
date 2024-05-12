@@ -126,7 +126,7 @@ namespace GameManager.Components.Pages.components
             [Label("Game name")]
             public string? GameName { get; set; }
 
-            [Label("Vendor")]
+            [Label("Developer")]
             public string? Vendor { get; set; }
 
             [Label("Executable path")]

@@ -8,7 +8,7 @@
 
         public string? GameName { get; set; }
 
-        public string? Vendor { get; set; }
+        public string? Developer { get; set; }
 
         public string? ExePath { get; set; }
 
