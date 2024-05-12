@@ -139,6 +139,8 @@ namespace GameManager.Components.Pages.components
 
             [Label("Description")]
             public string? Description { get; set; }
+
+            public bool RunAsAdmin { get; set; }
         }
     }
 }

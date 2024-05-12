@@ -135,6 +135,12 @@ namespace GameManager.Components.Pages.components
                 var proc = new Process();
                 proc.StartInfo.FileName = GameInfo.ExePath;
                 proc.StartInfo.UseShellExecute = true;
+                bool runAsAdmin = GameInfo.LaunchOption is { RunAsAdmin: true };
+                if (runAsAdmin)
+                {
+                    proc.StartInfo.Verb = "runas";
+                }
+
                 proc.Start();
             }
             catch (Exception e)

@@ -13,6 +13,8 @@ namespace GameManager.Services
             dest.Description = src.Description;
             dest.ExePath = src.ExePath;
             dest.DateTime = src.DateTime;
+            dest.LaunchOption ??= new LaunchOption();
+            dest.LaunchOption.RunAsAdmin = src.RunAsAdmin;
         }
 
         public static void Map(GameInfo src, DialogGameInfoEdit.FormModel dest)
@@ -23,6 +25,7 @@ namespace GameManager.Services
             dest.Description = src.Description;
             dest.ExePath = src.ExePath;
             dest.DateTime = src.DateTime;
+            dest.RunAsAdmin = src.LaunchOption?.RunAsAdmin ?? false;
         }
     }
 }

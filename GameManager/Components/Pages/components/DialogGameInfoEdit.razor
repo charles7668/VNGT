@@ -16,6 +16,11 @@
                     <MudButton OnClick="UploadByUrl">Change</MudButton>
                 </MudStack>
             </MudStack>
+            <MudDivider/>
+            <MudStack Row="true">
+                <MudText Typo="Typo.caption">Launch Option:</MudText>
+                <MudCheckBox T="bool" @bind-Value="@Model.RunAsAdmin">RunAsAdmin</MudCheckBox>
+            </MudStack>
         </MudPaper>
     </DialogContent>
     <DialogActions>
@@ -31,5 +36,9 @@
     }
     .mud-card {
         width: 400px;
+    }
+
+    .mud-typography {
+        align-content: center;
     }
 </style>

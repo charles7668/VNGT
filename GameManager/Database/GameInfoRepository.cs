@@ -8,7 +8,7 @@ namespace GameManager.Database
     {
         public Task<List<GameInfo>> GetGameInfos()
         {
-            return context.GameInfos.ToListAsync();
+            return context.GameInfos.Include(info => info.LaunchOption).ToListAsync();
         }
 
         public Task<string?> GetCoverById(int id)

@@ -17,5 +17,9 @@
         public string? Description { get; set; }
 
         public DateTime? DateTime { get; set; }
+
+        public int? LaunchOptionId { get; set; }
+
+        public LaunchOption? LaunchOption { get; set; }
     }
 }

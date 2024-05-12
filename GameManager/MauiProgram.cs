@@ -34,9 +34,11 @@ namespace GameManager
             // just for get db path
             IConfigService config = new ConfigService();
             var dbContext = new AppDbContext($"Data Source={config.GetDbPath()}");
+            dbContext.Database.ExecuteSql($"PRAGMA foreign_keys=OFF;");
             if (dbContext.Database.GetPendingMigrations().Any())
                 dbContext.Database.Migrate();
             dbContext.Database.EnsureCreated();
+            dbContext.Database.ExecuteSql($"PRAGMA foreign_keys=ON;");
             builder.Services.AddSingleton(dbContext);
 
 
