@@ -5,7 +5,7 @@
             <MudTextField @bind-Value="Model.GameName" For="@(() => Model.GameName)"/>
             <MudTextField @bind-Value="Model.Vendor" For="@(() => Model.Vendor)"/>
             <MudTextField @bind-Value="Model.ExePath" For="@(() => Model.ExePath)"/>
-            <MudDatePicker @bind-Date="Model.DateTime" For="@(() => Model.DateTime)" Editable="true" ImmediateText="true" Placeholder="yyyy/MM" DateFormat="yyyy/MM/dd" TextChanged="DatePickerTextChanged" HelperText="@_bound" Clearable="true"/>
+            <MudDatePicker @bind-Date="Model.DateTime" For="@(() => Model.DateTime)" Editable="true" ImmediateText="true" Placeholder="yyyy/MM/dd" DateFormat="yyyy/MM/dd" TextChanged="DatePickerTextChanged" HelperText="@_bound" Clearable="true"/>
             <MudTextField Lines="5" MaxLines="8" @bind-Value="Model.Description" For="@(() => Model.Description)"></MudTextField>
             <MudStack Row="true">
                 <MudInputLabel Class="d-flex align-center">Color:</MudInputLabel>
