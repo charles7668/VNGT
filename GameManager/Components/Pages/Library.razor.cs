@@ -21,10 +21,18 @@ namespace GameManager.Components.Pages
 
         private int SelectionIndex { get; set; }
 
+        private readonly HashSet<string> _patHashSet = new();
+
         protected override async Task OnInitializedAsync()
         {
             Libraries = await UnitOfWork.LibraryRepository.GetLibrariesAsync();
             await base.OnInitializedAsync();
+            foreach (DBLibraryModel library in Libraries)
+            {
+                if (library.FolderPath == null)
+                    continue;
+                _patHashSet.Add(library.FolderPath);
+            }
         }
 
         private async Task OnLibraryAdd()
@@ -46,6 +54,12 @@ namespace GameManager.Components.Pages
                 return;
             }
 
+            if (_patHashSet.Contains(folder.Path))
+            {
+                await DialogService.ShowMessageBox("Error", "This folder has been added", "cancel");
+                return;
+            }
+
             try
             {
                 await UnitOfWork.LibraryRepository.AddAsync(new DBLibraryModel
@@ -56,12 +70,14 @@ namespace GameManager.Components.Pages
             catch (Exception e)
             {
                 await DialogService.ShowMessageBox("Error", e.Message, "cancel");
+                return;
             }
 
             Libraries.Add(new DBLibraryModel
             {
                 FolderPath = folder.Path
             });
+            _patHashSet.Add(folder.Path);
             StateHasChanged();
         }
 
@@ -91,6 +107,7 @@ namespace GameManager.Components.Pages
                 return;
             }
 
+            _patHashSet.Remove(Libraries[SelectionIndex].FolderPath);
             Libraries.RemoveAt(SelectionIndex);
             StateHasChanged();
         }
