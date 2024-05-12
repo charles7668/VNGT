@@ -1,9 +1,10 @@
 ﻿@inherits LayoutComponentBase
+@inject ISnackbar Snackbar
 
-<MudThemeProvider IsDarkMode="true"/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
-<MudPopoverProvider/>
+<MudThemeProvider IsDarkMode="true" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudPopoverProvider />
 
 <MudLayout>
     <MudDrawer Open="true">
@@ -14,8 +15,16 @@
     </MudMainContent>
 </MudLayout>
 
+@code
+{
+    protected override void OnInitialized()
+    {
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomLeft;
+    }
+}
+
 <style>
-    .mud-main-content{
+    .mud-main-content {
         padding: 0px;
         margin: 0px;
     }

@@ -14,6 +14,9 @@ namespace GameManager.Components.Pages.components
         private IDialogService? DialogService { get; set; }
 
         [Inject]
+        private ISnackbar Snackbar { get; set; } = null!;
+
+        [Inject]
         private IConfigService ConfigService { get; set; } = null!;
 
         [Parameter]
@@ -117,6 +120,29 @@ namespace GameManager.Components.Pages.components
                 return;
             if (OnDeleteEventCallback.HasDelegate)
                 await OnDeleteEventCallback.InvokeAsync(GameInfo.Id);
+        }
+
+        private Task OnLaunch()
+        {
+            if (GameInfo == null || string.IsNullOrEmpty(GameInfo.ExePath) || !File.Exists(GameInfo.ExePath))
+            {
+                Snackbar.Add("No executable file can launch", Severity.Warning);
+                return Task.CompletedTask;
+            }
+
+            try
+            {
+                var proc = new Process();
+                proc.StartInfo.FileName = GameInfo.ExePath;
+                proc.StartInfo.UseShellExecute = true;
+                proc.Start();
+            }
+            catch (Exception e)
+            {
+                Snackbar.Add($"Error: {e.Message}", Severity.Error);
+            }
+
+            return Task.CompletedTask;
         }
     }
 }
