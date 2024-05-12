@@ -3,6 +3,14 @@ div {
     max-height: 100vh;
 }
 
+    div ::deep .mud-button {
+        margin-right: 15px;
+    }
+
+    div ::deep .mud-divider {
+        flex-grow: 0;
+    }
+
     div ::deep .mud-toolbar {
         position: sticky;
         flex-shrink: 0;

@@ -18,6 +18,8 @@ namespace GameManager.DB
 
         public DbSet<GameInfo> GameInfos { get; set; }
 
+        public DbSet<Library> Libraries { get; set; }
+
 
         // The following configures EF to create a Sqlite database file in the
         // special "local" folder for your platform.

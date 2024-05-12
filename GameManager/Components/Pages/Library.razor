@@ -3,11 +3,17 @@
 <div class="d-flex flex-column">
     <MudToolBar>
         <MudSpacer/>
-        <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.Add">Add Folder</MudButton>
+        <MudButton OnClick="OnLibraryAdd" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">Add Folder</MudButton>
+        <MudButton OnClick="OnDelete" Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Close">Delete Selection</MudButton>
     </MudToolBar>
     <MudDivider/>
     <MudPaper class="flex-grow-1">
-        <MudList T="string">
+        <MudList T="int" @bind-SelectedValue="SelectionIndex">
+            @for (var i = 0; i < Libraries.Count; i++)
+            {
+                var folder = Libraries[i].FolderPath;
+                <MudListItem Value="@i">@folder</MudListItem>
+            }
         </MudList>
     </MudPaper>
 </div>
