@@ -1,7 +1,13 @@
 ﻿@page "/library"
 
-<h3>Library</h3>
-
-@code {
-
-}
+<div class="d-flex flex-column">
+    <MudToolBar>
+        <MudSpacer/>
+        <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.Add">Add Folder</MudButton>
+    </MudToolBar>
+    <MudDivider/>
+    <MudPaper class="flex-grow-1">
+        <MudList T="string">
+        </MudList>
+    </MudPaper>
+</div>
