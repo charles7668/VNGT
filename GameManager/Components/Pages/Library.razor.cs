@@ -117,6 +117,11 @@ namespace GameManager.Components.Pages
 
         private Task OnScan()
         {
+            if (ScanTask is { IsCompleted: false })
+            {
+                return Task.CompletedTask;
+            }
+
             ScanTask = Task.Run(() =>
             {
                 const int searchLevel = 3;
