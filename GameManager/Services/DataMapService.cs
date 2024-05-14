@@ -15,6 +15,7 @@ namespace GameManager.Services
             dest.DateTime = src.DateTime;
             dest.LaunchOption ??= new LaunchOption();
             dest.LaunchOption.RunAsAdmin = src.RunAsAdmin;
+            dest.LaunchOption.LaunchWithLocaleEmulator = src.LeConfig;
         }
 
         public static void Map(GameInfo src, DialogGameInfoEdit.FormModel dest)
@@ -26,6 +27,7 @@ namespace GameManager.Services
             dest.ExePath = src.ExePath;
             dest.DateTime = src.DateTime;
             dest.RunAsAdmin = src.LaunchOption?.RunAsAdmin ?? false;
+            dest.LeConfig = src.LaunchOption?.LaunchWithLocaleEmulator ?? "None";
         }
     }
 }

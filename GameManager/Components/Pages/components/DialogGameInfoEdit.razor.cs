@@ -1,4 +1,5 @@
-﻿using GameManager.DB.Models;
+﻿using GameManager.Database;
+using GameManager.DB.Models;
 using GameManager.GameInfoProvider;
 using GameManager.Services;
 using Helper.Image;
@@ -6,6 +7,8 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using System.Diagnostics;
 using System.Globalization;
+using System.Xml.Linq;
+using System.Xml.XPath;
 
 namespace GameManager.Components.Pages.components
 {
@@ -28,6 +31,37 @@ namespace GameManager.Components.Pages.components
 
         [CascadingParameter]
         public MudDialogInstance? MudDialog { get; set; }
+
+        private List<string> LeConfigs { get; set; } = [];
+
+        private AppSetting AppSetting { get; set; } = null!;
+
+        [Inject]
+        private IUnitOfWork UnitOfWork { get; set; } = null!;
+
+        protected override async Task OnInitializedAsync()
+        {
+            LeConfigs = ["None"];
+            AppSetting = await UnitOfWork.AppSettingRepository.GetAppSettingAsync();
+            if (!string.IsNullOrEmpty(AppSetting.LocaleEmulatorPath)
+                && File.Exists(Path.Combine(AppSetting.LocaleEmulatorPath, "LEConfig.xml")))
+            {
+                string configPath = Path.Combine(AppSetting.LocaleEmulatorPath, "LEConfig.xml");
+                var xmlDoc = XDocument.Load(configPath);
+                IEnumerable<XElement> nodes = xmlDoc.XPathSelectElements("//Profiles/Profile");
+                foreach (XElement node in nodes)
+                {
+                    XAttribute? attr = node.Attribute("Name");
+                    if (attr == null || string.IsNullOrEmpty(attr.Value))
+                        continue;
+                    LeConfigs.Add(attr.Value);
+                }
+            }
+
+            Model.LeConfig ??= "None";
+
+            await base.OnInitializedAsync();
+        }
 
         private void OnCancel()
         {
@@ -98,7 +132,7 @@ namespace GameManager.Components.Pages.components
                     };
                     IDialogReference? dialogReference = await DialogService.ShowAsync<DialogFetchSelection>("",
                         parameters,
-                        options: new DialogOptions
+                        new DialogOptions
                         {
                             BackdropClick = false
                         });
@@ -141,6 +175,8 @@ namespace GameManager.Components.Pages.components
             public string? Description { get; set; }
 
             public bool RunAsAdmin { get; set; }
+
+            public string? LeConfig { get; set; }
         }
     }
 }
