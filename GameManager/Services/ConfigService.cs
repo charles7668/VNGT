@@ -1,7 +1,6 @@
 ﻿using GameManager.Attributes;
 using GameManager.Database;
 using GameManager.DB.Models;
-using Helper;
 using System.Reflection;
 
 namespace GameManager.Services
@@ -13,11 +12,11 @@ namespace GameManager.Services
     {
         public ConfigService()
         {
+            CreateConfigFolderIfNotExistAsync();
         }
 
-        public ConfigService(IUnitOfWork unitOfWork)
+        public ConfigService(IUnitOfWork unitOfWork) : this()
         {
-            CreateConfigFolderIfNotExistAsync();
             _unitOfWork = unitOfWork;
         }
 
