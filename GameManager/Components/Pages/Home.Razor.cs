@@ -36,12 +36,10 @@ namespace GameManager.Components.Pages
 
         private async Task AddNewGame(string exePath)
         {
-            Debug.Assert(DialogService is not null);
-
             var inputModel = new DialogGameInfoEdit.FormModel
             {
                 GameName = Path.GetFileName(Path.GetDirectoryName(exePath)) ?? "null",
-                ExePath = exePath
+                ExePath = Path.GetDirectoryName(exePath),
             };
             var parameters = new DialogParameters<DialogGameInfoEdit>
             {

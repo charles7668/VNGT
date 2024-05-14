@@ -4,7 +4,16 @@
             <MudButton OnClick="OnInfoFetch" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Download">Fetch</MudButton>
             <MudTextField @bind-Value="Model.GameName" For="@(() => Model.GameName)" />
             <MudTextField @bind-Value="Model.Vendor" For="@(() => Model.Vendor)" />
-            <MudTextField @bind-Value="Model.ExePath" For="@(() => Model.ExePath)" />
+            <MudTextField ReadOnly="true" @bind-Value="Model.ExePath" For="@(() => Model.ExePath)" />
+            <MudSelect Class="mt-2 mb-2"
+                       @bind-Value="Model.ExeFile"
+                       AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined"
+                       Label="Execution File">
+                @foreach (var file in ExeFiles)
+                {
+                    <MudSelectItem Value="file"></MudSelectItem>
+                }
+            </MudSelect>
             <MudDatePicker @bind-Date="Model.DateTime" For="@(() => Model.DateTime)" Editable="true" ImmediateText="true" Placeholder="yyyy/MM/dd" DateFormat="yyyy/MM/dd" TextChanged="DatePickerTextChanged" HelperText="@_bound" Clearable="true" />
             <MudTextField Lines="5" MaxLines="8" @bind-Value="Model.Description" For="@(() => Model.Description)"></MudTextField>
             <MudStack Row="true">

@@ -12,6 +12,8 @@
 
         public string? ExePath { get; set; }
 
+        public string? ExeFile { get; set; }
+
         public string? CoverPath { get; set; }
 
         public string? Description { get; set; }

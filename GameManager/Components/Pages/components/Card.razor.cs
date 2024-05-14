@@ -130,18 +130,26 @@ namespace GameManager.Components.Pages.components
 
         private Task OnLaunch()
         {
-            if (GameInfo == null || string.IsNullOrEmpty(GameInfo.ExePath) || !File.Exists(GameInfo.ExePath))
+            if (GameInfo == null || string.IsNullOrEmpty(GameInfo.ExePath) || !Directory.Exists(GameInfo.ExePath))
             {
                 Snackbar.Add("No executable file can launch", Severity.Warning);
                 return Task.CompletedTask;
             }
+
+            if (GameInfo.ExeFile is null or "Not Set")
+            {
+                Snackbar.Add("please set execution file first", Severity.Warning);
+                return Task.CompletedTask;
+            }
+
+            string executionFile = Path.Combine(GameInfo.ExePath, GameInfo.ExeFile);
 
             if (GameInfo.LaunchOption == null || GameInfo.LaunchOption?.LaunchWithLocaleEmulator == "None")
             {
                 try
                 {
                     var proc = new Process();
-                    proc.StartInfo.FileName = GameInfo.ExePath;
+                    proc.StartInfo.FileName = executionFile;
                     proc.StartInfo.UseShellExecute = true;
                     bool runAsAdmin = GameInfo.LaunchOption is { RunAsAdmin: true };
                     if (runAsAdmin)
@@ -185,7 +193,7 @@ namespace GameManager.Components.Pages.components
             {
                 var proc = new Process();
                 proc.StartInfo.FileName = leExePath;
-                proc.StartInfo.Arguments = $"--runas \"{guid}\" \"{GameInfo.ExePath}\"";
+                proc.StartInfo.Arguments = $"--runas \"{guid}\" \"{executionFile}\"";
                 proc.StartInfo.UseShellExecute = true;
                 bool runAsAdmin = GameInfo.LaunchOption is { RunAsAdmin: true };
                 if (runAsAdmin)

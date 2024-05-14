@@ -11,8 +11,8 @@ namespace GameManager.Services
             dest.GameName = src.GameName;
             dest.Developer = src.Vendor;
             dest.Description = src.Description;
-            dest.ExePath = src.ExePath;
             dest.DateTime = src.DateTime;
+            dest.ExeFile = src.ExeFile;
             dest.LaunchOption ??= new LaunchOption();
             dest.LaunchOption.RunAsAdmin = src.RunAsAdmin;
             dest.LaunchOption.LaunchWithLocaleEmulator = src.LeConfig;
@@ -25,6 +25,7 @@ namespace GameManager.Services
             dest.Vendor = src.Developer;
             dest.Description = src.Description;
             dest.ExePath = src.ExePath;
+            dest.ExeFile = string.IsNullOrEmpty(src.ExeFile) ? "Not Set" : src.ExeFile;
             dest.DateTime = src.DateTime;
             dest.RunAsAdmin = src.LaunchOption?.RunAsAdmin ?? false;
             dest.LeConfig = src.LaunchOption?.LaunchWithLocaleEmulator ?? "None";

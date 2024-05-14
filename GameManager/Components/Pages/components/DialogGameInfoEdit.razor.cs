@@ -39,6 +39,8 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private IUnitOfWork UnitOfWork { get; set; } = null!;
 
+        private List<string> ExeFiles { get; set; } = [];
+
         protected override async Task OnInitializedAsync()
         {
             LeConfigs = ["None"];
@@ -59,6 +61,13 @@ namespace GameManager.Components.Pages.components
             }
 
             Model.LeConfig ??= "None";
+
+            ExeFiles = ["Not Set"];
+            if (Directory.Exists(Model.ExePath))
+            {
+                string[] files = Directory.GetFiles(Model.ExePath, "*.exe", SearchOption.TopDirectoryOnly);
+                ExeFiles.AddRange(files.Select(Path.GetFileName)!);
+            }
 
             await base.OnInitializedAsync();
         }
@@ -165,6 +174,8 @@ namespace GameManager.Components.Pages.components
 
             [Label("Executable path")]
             public string? ExePath { get; set; }
+
+            public string? ExeFile { get; set; }
 
             [Label("Release Date")]
             public DateTime? DateTime { get; set; }
