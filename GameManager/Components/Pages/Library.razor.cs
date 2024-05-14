@@ -1,5 +1,6 @@
 ﻿using GameManager.Components.Pages.components;
 using GameManager.Database;
+using GameManager.DB.Models;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Windows.Storage;
@@ -11,6 +12,8 @@ namespace GameManager.Components.Pages
 {
     public partial class Library
     {
+        private readonly HashSet<string> _patHashSet = new();
+
         [Inject]
         private IUnitOfWork UnitOfWork { get; set; } = null!;
 
@@ -21,7 +24,7 @@ namespace GameManager.Components.Pages
 
         private int SelectionIndex { get; set; }
 
-        private readonly HashSet<string> _patHashSet = new();
+        private Task? ScanTask { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -110,6 +113,72 @@ namespace GameManager.Components.Pages
             _patHashSet.Remove(Libraries[SelectionIndex].FolderPath);
             Libraries.RemoveAt(SelectionIndex);
             StateHasChanged();
+        }
+
+        private Task OnScan()
+        {
+            ScanTask = Task.Run(() =>
+            {
+                const int searchLevel = 3;
+                Queue<string> queue = new();
+                foreach (DBLibraryModel library in Libraries)
+                {
+                    queue.Enqueue(library.FolderPath ??= "");
+                }
+
+                int curLevel = 1;
+                while (queue.Count > 0)
+                {
+                    if (curLevel > searchLevel)
+                        break;
+                    int count = queue.Count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        string folder = queue.Dequeue();
+                        if (string.IsNullOrEmpty(folder))
+                            continue;
+                        if (CheckExeFileExist(folder))
+                        {
+                            var info = new GameInfo
+                            {
+                                GameName = Path.GetFileName(folder),
+                                ExePath = folder
+                            };
+                            UnitOfWork.GameInfoRepository.AddAsync(info);
+                        }
+                        else
+                        {
+                            string[] folderInfos = Directory.GetDirectories(folder);
+                            foreach (string folderInfo in folderInfos)
+                            {
+                                queue.Enqueue(folderInfo);
+                            }
+                        }
+                    }
+
+                    curLevel++;
+                }
+
+                InvokeAsync(StateHasChanged);
+            });
+
+            StateHasChanged();
+
+            return Task.CompletedTask;
+
+            bool CheckExeFileExist(string folderPath)
+            {
+                try
+                {
+                    string[] exeFiles = Directory.GetFiles(folderPath, "*.exe", SearchOption.TopDirectoryOnly);
+
+                    return exeFiles.Length > 0;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
         }
     }
 }
