@@ -1,17 +1,20 @@
-﻿using GameManager.DB.Models;
+﻿using GameManager.Database;
+using GameManager.DB.Models;
 using GameManager.Services;
 using Helper;
 using Helper.Image;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using System.Diagnostics;
+using System.Xml.Linq;
+using System.Xml.XPath;
 
 namespace GameManager.Components.Pages.components
 {
     public partial class Card
     {
         [Inject]
-        private IDialogService? DialogService { get; set; }
+        private IDialogService DialogService { get; set; } = null!;
 
         [Inject]
         private ISnackbar Snackbar { get; set; } = null!;
@@ -31,6 +34,9 @@ namespace GameManager.Components.Pages.components
         [Parameter]
         public EventCallback<int> OnDeleteEventCallback { get; set; }
 
+        [Inject]
+        private IUnitOfWork UnitOfWork { get; set; } = null!;
+
         private string ImageSrc
         {
             get
@@ -45,7 +51,7 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnEdit()
         {
-            if (GameInfo == null || DialogService == null)
+            if (GameInfo == null)
                 return;
             var inputModel = new DialogGameInfoEdit.FormModel();
             DataMapService.Map(GameInfo, inputModel);
@@ -110,7 +116,7 @@ namespace GameManager.Components.Pages.components
             }
             catch (Exception ex)
             {
-                DialogService?.ShowMessageBox("Error", ex.Message, cancelText: "Cancel");
+                DialogService.ShowMessageBox("Error", ex.Message, cancelText: "Cancel");
             }
         }
 
@@ -130,10 +136,56 @@ namespace GameManager.Components.Pages.components
                 return Task.CompletedTask;
             }
 
+            if (GameInfo.LaunchOption == null || GameInfo.LaunchOption?.LaunchWithLocaleEmulator == "None")
+            {
+                try
+                {
+                    var proc = new Process();
+                    proc.StartInfo.FileName = GameInfo.ExePath;
+                    proc.StartInfo.UseShellExecute = true;
+                    bool runAsAdmin = GameInfo.LaunchOption is { RunAsAdmin: true };
+                    if (runAsAdmin)
+                    {
+                        proc.StartInfo.Verb = "runas";
+                    }
+
+                    proc.Start();
+                }
+                catch (Exception e)
+                {
+                    Snackbar.Add($"Error: {e.Message}", Severity.Error);
+                }
+
+                return Task.CompletedTask;
+            }
+
+            AppSetting appSetting = ConfigService.GetAppSetting();
+            string leConfigPath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEConfig.xml");
+            if (!File.Exists(leConfigPath))
+            {
+                Snackbar.Add("Locale Emulator Not Found", Severity.Error);
+                return Task.CompletedTask;
+            }
+
+            var xmlDoc = XDocument.Load(leConfigPath);
+            XElement? node =
+                xmlDoc.XPathSelectElement(
+                    $"//Profiles/Profile[@Name='{GameInfo.LaunchOption?.LaunchWithLocaleEmulator}']");
+            XAttribute? guidAttr = node?.Attribute("Guid");
+            if (guidAttr == null)
+            {
+                Snackbar.Add($"LE Config {GameInfo.LaunchOption!.LaunchWithLocaleEmulator} not exist",
+                    Severity.Error);
+                return Task.CompletedTask;
+            }
+
+            string guid = guidAttr.Value;
+            string leExePath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEProc.exe");
             try
             {
                 var proc = new Process();
-                proc.StartInfo.FileName = GameInfo.ExePath;
+                proc.StartInfo.FileName = leExePath;
+                proc.StartInfo.Arguments = $"--runas \"{guid}\" \"{GameInfo.ExePath}\"";
                 proc.StartInfo.UseShellExecute = true;
                 bool runAsAdmin = GameInfo.LaunchOption is { RunAsAdmin: true };
                 if (runAsAdmin)

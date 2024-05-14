@@ -18,11 +18,14 @@ namespace GameManager.Services
         public ConfigService(IUnitOfWork unitOfWork) : this()
         {
             _unitOfWork = unitOfWork;
+            AppSetting = _unitOfWork.AppSettingRepository.GetAppSettingAsync().Result;
         }
 
         private const string DB_FILE = "game.db";
 
         private readonly IUnitOfWork _unitOfWork = null!;
+
+        private AppSetting AppSetting { get; } = null!;
 
         [NeedCreate]
         private string CoverFolder => Path.Combine(ConfigFolder, "covers");
@@ -115,6 +118,11 @@ namespace GameManager.Services
         {
             IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
             return gameInfoRepo.EditAsync(info);
+        }
+
+        public AppSetting GetAppSetting()
+        {
+            return AppSetting;
         }
     }
 }
