@@ -5,5 +5,7 @@
         IGameInfoRepository GameInfoRepository { get; }
 
         ILibraryRepository LibraryRepository { get; }
+
+        IAppSettingRepository AppSettingRepository { get; }
     }
 }

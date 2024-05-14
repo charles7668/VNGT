@@ -1,7 +1,21 @@
 ﻿@page "/setting"
 
-<h3>Setting</h3>
-
-@code {
-
-}
+<div>
+    <MudForm Class="d-flex flex-column pa-2" Model="@AppSetting">
+        <MudText Typo="Typo.h6">Setting</MudText>
+        <MudDivider Class="flex-grow-0" />
+        <MudPaper Class="flex-grow-1" Elevation="0">
+            <MudPaper Class="d-flex" Elevation="0">
+                <MudTextField T="string"
+                              Label="Locale Emulator Path"
+                              For="() => AppSetting.LocaleEmulatorPath!"
+                              @bind-Value="AppSetting.LocaleEmulatorPath">
+                </MudTextField>
+                <MudButton OnClick="ScanLocaleEmulator" Variant="Variant.Outlined">Scan From Installed</MudButton>
+            </MudPaper>
+        </MudPaper>
+        <MudToolBar Class="flex-grow-0 justify-end">
+            <MudButton OnClick="UpdateSetting" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">Save</MudButton>
+        </MudToolBar>
+    </MudForm>
+</div>
