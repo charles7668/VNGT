@@ -18,6 +18,8 @@ namespace GameManager.Database
 
         public Task AddAsync(GameInfo info)
         {
+            if (context.GameInfos.Any(x => x.ExePath == info.ExePath))
+                return Task.CompletedTask;
             context.GameInfos.Add(info);
             return context.SaveChangesAsync();
         }
