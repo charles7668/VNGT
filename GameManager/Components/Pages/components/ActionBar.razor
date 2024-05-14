@@ -5,7 +5,8 @@
         <MudTextField T="string" @bind-Value="SearchText" Placeholder="Search"></MudTextField>
         <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Search" OnClick="OnSearch">Search</MudButton>
         <MudSpacer></MudSpacer>
-        <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add" OnClick="OnAddNewGame">Add</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OnAddNewGame">Add</MudButton>
+        <MudButton Class="ma-3" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Close" OnClick="OnDeleteClick">Delete</MudButton>
     </MudToolBar>
 </MudPaper>
 

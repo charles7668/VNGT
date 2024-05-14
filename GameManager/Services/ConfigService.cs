@@ -97,9 +97,11 @@ namespace GameManager.Services
         {
             IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
             string? cover = await gameInfoRepo.GetCoverById(id);
-            if (cover == null)
-                return;
-            await DeleteCoverImage(cover);
+            if (cover != null)
+            {
+                await DeleteCoverImage(cover);
+            }
+
             await gameInfoRepo.DeleteByIdAsync(id);
         }
 

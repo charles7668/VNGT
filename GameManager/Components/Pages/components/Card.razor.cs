@@ -4,7 +4,9 @@ using GameManager.Services;
 using Helper;
 using Helper.Image;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
+using MudBlazor.Utilities;
 using System.Diagnostics;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -15,6 +17,10 @@ namespace GameManager.Components.Pages.components
     {
         [Inject]
         private IDialogService DialogService { get; set; } = null!;
+
+        private string ClassName => new CssBuilder(Class)
+            .AddClass(IsSelected ? "selection" : "")
+            .Build();
 
         [Inject]
         private ISnackbar Snackbar { get; set; } = null!;
@@ -32,10 +38,16 @@ namespace GameManager.Components.Pages.components
         public string? Height { get; set; }
 
         [Parameter]
+        public bool IsSelected { get; set; }
+
+        [Parameter]
         public EventCallback<int> OnDeleteEventCallback { get; set; }
 
         [Inject]
         private IUnitOfWork UnitOfWork { get; set; } = null!;
+
+        [Parameter]
+        public EventCallback<int> OnClick { get; set; }
 
         private string ImageSrc
         {
@@ -209,6 +221,14 @@ namespace GameManager.Components.Pages.components
             }
 
             return Task.CompletedTask;
+        }
+
+        private void OnCardClick()
+        {
+            if (GameInfo == null)
+                return;
+            if (OnClick.HasDelegate)
+                OnClick.InvokeAsync(GameInfo.Id);
         }
     }
 }

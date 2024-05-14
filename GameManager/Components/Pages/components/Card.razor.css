@@ -1,0 +1,17 @@
+div ::deep .card.selection {
+    border-width: 3px;
+    border-color: red;
+}
+
+div ::deep .card img {
+    height: 75%;
+    min-height: 75%;
+    max-height: 75%;
+}
+
+div ::deep .card .mud-tooltip-inline {
+    display: block;
+    height: 10%;
+    min-height: 10%;
+    overflow: hidden;
+}

@@ -12,6 +12,9 @@ namespace GameManager.Components.Pages.components
         [Parameter]
         public EventCallback<string?> SearchEvent { get; set; }
 
+        [Parameter]
+        public EventCallback OnDeleteEvent { get; set; }
+
         private async Task OnAddNewGame()
         {
             var customFileType = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
@@ -35,6 +38,12 @@ namespace GameManager.Components.Pages.components
             {
                 await AddNewGameEvent.InvokeAsync(result.FullPath);
             }
+        }
+
+        private async Task OnDeleteClick()
+        {
+            if (OnDeleteEvent.HasDelegate)
+                await OnDeleteEvent.InvokeAsync();
         }
 
         private async Task OnSearch()

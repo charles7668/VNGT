@@ -14,7 +14,7 @@ namespace GameManager.Components.Pages
         [Inject]
         private IUnitOfWork? UnitOfWork { get; set; }
 
-        private List<(GameInfo info, bool display)> ViewGameInfos { get; } = [];
+        private List<ViewInfo> ViewGameInfos { get; } = [];
 
         [Inject]
         private IDialogService DialogService { get; set; } = null!;
@@ -28,7 +28,11 @@ namespace GameManager.Components.Pages
             List<GameInfo> infos = await UnitOfWork.GameInfoRepository.GetGameInfos();
             foreach (GameInfo info in infos)
             {
-                ViewGameInfos.Add((info, true));
+                ViewGameInfos.Add(new ViewInfo
+                {
+                    Info = info,
+                    Display = true
+                });
             }
 
             await base.OnInitializedAsync();
@@ -39,7 +43,7 @@ namespace GameManager.Components.Pages
             var inputModel = new DialogGameInfoEdit.FormModel
             {
                 GameName = Path.GetFileName(Path.GetDirectoryName(exePath)) ?? "null",
-                ExePath = Path.GetDirectoryName(exePath),
+                ExePath = Path.GetDirectoryName(exePath)
             };
             var parameters = new DialogParameters<DialogGameInfoEdit>
             {
@@ -88,7 +92,11 @@ namespace GameManager.Components.Pages
                 return;
             }
 
-            ViewGameInfos.Add((gameInfo, true));
+            ViewGameInfos.Add(new ViewInfo
+            {
+                Info = gameInfo,
+                Display = true
+            });
             StateHasChanged();
         }
 
@@ -110,7 +118,7 @@ namespace GameManager.Components.Pages
             bool hasChane = false;
             for (int i = 0; i < ViewGameInfos.Count; i++)
             {
-                if (ViewGameInfos[i].info.Id != id)
+                if (ViewGameInfos[i].Info.Id != id)
                     continue;
                 hasChane = true;
                 try
@@ -135,14 +143,41 @@ namespace GameManager.Components.Pages
         {
             for (int i = 0; i < ViewGameInfos.Count; i++)
             {
-                (GameInfo info, bool display) viewInfo = ViewGameInfos[i];
-                viewInfo.display = string.IsNullOrEmpty(pattern) ||
-                                   (viewInfo.info.GameName ?? "").Contains(pattern,
+                ViewInfo viewInfo = ViewGameInfos[i];
+                viewInfo.Display = string.IsNullOrEmpty(pattern) ||
+                                   (viewInfo.Info.GameName ?? "").Contains(pattern,
                                        StringComparison.CurrentCultureIgnoreCase);
                 ViewGameInfos[i] = viewInfo;
             }
 
             StateHasChanged();
+        }
+
+        private async Task OnDelete()
+        {
+            try
+            {
+                for (int i = 0; i < ViewGameInfos.Count; i++)
+                {
+                    if (!ViewGameInfos[i].IsSelected) continue;
+                    await ConfigService.DeleteGameById(ViewGameInfos[i].Info.Id);
+                    ViewGameInfos.RemoveAt(i);
+                    i--;
+                }
+            }
+            catch (Exception e)
+            {
+                await DialogService.ShowMessageBox("Error", e.Message, cancelText: "Cancel");
+                return;
+            }
+            StateHasChanged();
+        }
+
+        private class ViewInfo
+        {
+            public GameInfo Info { get; set; }
+            public bool Display { get; set; }
+            public bool IsSelected { get; set; }
         }
     }
 }

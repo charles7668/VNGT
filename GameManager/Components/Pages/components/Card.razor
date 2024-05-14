@@ -1,42 +1,22 @@
 ﻿@inherits MudComponentBase
 
-<MudPaper Elevation="0" id="card-item" @attributes="UserAttributes!" Style="@Style" Class="@Class">
-    <MudPaper Elevation="0" Class="d-flex flex-column">
-        <MudImage Src="@ImageSrc" loading="lazy" Alt="No Image" ObjectFit="ObjectFit.Contain"/>
-        <MudTooltip Text="@GameInfo?.ExePath">
-            <MudText Typo="Typo.caption">@GameInfo?.GameName</MudText>
-        </MudTooltip>
-        <MudToolBar Class="pa-0">
-            <MudButton OnClick="OnLaunch" StartIcon="@Icons.Material.Filled.ArrowRight" Variant="Variant.Outlined">Run</MudButton>
-            <MudButton OnClick="OnEdit" StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined">Edit</MudButton>
-            <MudSpacer></MudSpacer>
-            <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
-                <MudButton OnClick="OnOpenInExplorer" Variant="Variant.Text" Color="Color.Primary" FullWidth="true">Open in Explorer</MudButton>
-                <MudDivider/>
-                <MudButton OnClick="OnDelete" Variant="Variant.Text" Color="Color.Secondary" FullWidth="true">Delete</MudButton>
-            </MudMenu>
-        </MudToolBar>
+<div>
+    <MudPaper Elevation="0" @attributes="UserAttributes!" Style="@Style" Class="@ClassName" @onclick="OnCardClick">
+        <MudPaper Elevation="0" Class="d-flex flex-column" Width="@Width" Height="@Height" MaxWidth="@Width" MaxHeight="@Height">
+            <MudImage Src="@ImageSrc" loading="lazy" Alt="No Image" ObjectFit="ObjectFit.Contain" />
+            <MudTooltip Text="@GameInfo?.ExePath">
+                <MudText Typo="Typo.caption">@GameInfo?.GameName</MudText>
+            </MudTooltip>
+            <MudToolBar Class="pa-0">
+                <MudButton OnClick="OnLaunch" StartIcon="@Icons.Material.Filled.ArrowRight" Variant="Variant.Outlined">Run</MudButton>
+                <MudButton OnClick="OnEdit" StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined">Edit</MudButton>
+                <MudSpacer></MudSpacer>
+                <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+                    <MudButton OnClick="OnOpenInExplorer" Variant="Variant.Text" Color="Color.Primary" FullWidth="true">Open in Explorer</MudButton>
+                    <MudDivider/>
+                    <MudButton OnClick="OnDelete" Variant="Variant.Text" Color="Color.Secondary" FullWidth="true">Delete</MudButton>
+                </MudMenu>
+            </MudToolBar>
+        </MudPaper>
     </MudPaper>
-</MudPaper>
-
-<style>
-    #card-item .mud-paper {
-        width: @Width;
-        height: @Height;
-        overflow`: hidden;
-        max-height: @Height;
-        max-width: @Width;
-    }
-    #card-item img {
-        height: 75%;
-        min-height: 75%;
-        max-height: 75%;
-    }
-
-    #card-item .mud-tooltip-inline {
-        display: block;
-        height: 10%;
-        min-height: 10%;
-        overflow: hidden;
-    }
-</style>
+</div>
