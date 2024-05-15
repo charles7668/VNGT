@@ -13,7 +13,8 @@
             <Card OnClick="_ => { viewInfo.IsSelected = !viewInfo.IsSelected; StateHasChanged(); }"
                   IsSelected="viewInfo.IsSelected"
                   GameInfo="viewInfo.Info"
-                  Class="card" Width="250px" Height="400px" OnDeleteEventCallback="DeleteGameCard">
+                  Class="card" 
+                  OnDeleteEventCallback="DeleteGameCard">
             </Card>
         }
     </MudGrid>

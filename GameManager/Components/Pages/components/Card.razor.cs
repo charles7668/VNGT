@@ -31,12 +31,6 @@ namespace GameManager.Components.Pages.components
         public GameInfo? GameInfo { get; set; }
 
         [Parameter]
-        public string? Width { get; set; }
-
-        [Parameter]
-        public string? Height { get; set; }
-
-        [Parameter]
         public bool IsSelected { get; set; }
 
         [Parameter]
@@ -47,6 +41,8 @@ namespace GameManager.Components.Pages.components
 
         [Parameter]
         public EventCallback<int> OnClick { get; set; }
+
+        private List<string> DeveloperList => GameInfo?.Developer?.Split(',')?.ToList() ?? ["UnKnown"];
 
         private string ImageSrc
         {

@@ -2,8 +2,17 @@
 
 <div>
     <MudPaper Elevation="0" @attributes="UserAttributes!" Style="@Style" Class="@ClassName" @onclick="OnCardClick">
-        <MudPaper Elevation="0" Class="d-flex flex-column" Width="@Width" Height="@Height" MaxWidth="@Width" MaxHeight="@Height">
-            <MudImage Src="@ImageSrc" loading="lazy" Alt="No Image" ObjectFit="ObjectFit.Contain" />
+        <MudPaper Elevation="0" Class="d-flex flex-column">
+            <MudImage Height="300" Width="250"
+                      Src="@ImageSrc" loading="lazy"
+                      Alt="No Image" ObjectFit="ObjectFit.Contain" />
+            <MudPaper Width="250px" MaxWidth="250px" MaxHeight="50px"
+                      Elevation="0" Class="card-labels">
+                @foreach (var developer in DeveloperList)
+                {
+                    <MudChip T="string" Color="Color.Error">@developer</MudChip>
+                }
+            </MudPaper>
             <MudTooltip Text="@GameInfo?.ExePath">
                 <MudText Typo="Typo.caption">@GameInfo?.GameName</MudText>
             </MudTooltip>
@@ -13,7 +22,7 @@
                 <MudSpacer></MudSpacer>
                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
                     <MudButton OnClick="OnOpenInExplorer" Variant="Variant.Text" Color="Color.Primary" FullWidth="true">Open in Explorer</MudButton>
-                    <MudDivider/>
+                    <MudDivider />
                     <MudButton OnClick="OnDelete" Variant="Variant.Text" Color="Color.Secondary" FullWidth="true">Delete</MudButton>
                 </MudMenu>
             </MudToolBar>

@@ -3,15 +3,17 @@ div ::deep .card.selection {
     border-color: red;
 }
 
-div ::deep .card img {
-    height: 75%;
-    min-height: 75%;
-    max-height: 75%;
-}
-
 div ::deep .card .mud-tooltip-inline {
     display: block;
-    height: 10%;
-    min-height: 10%;
+    height: 50px;
+    min-height: 50px;
+    max-height: 50px;
     overflow: hidden;
+}
+
+div ::deep .card-labels {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
 }
