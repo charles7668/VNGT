@@ -1,17 +1,21 @@
 ﻿@page "/"
 
-<MudLayout Class="@("main-mud-layout")">
-    <ActionBar id="main-toolbar" Class="@("main-toolbar")"
+<MudLayout Class="main-mud-layout">
+    <ActionBar id="main-toolbar" Class="@("main-toolbar mb-0")"
                OnDeleteEvent="OnDelete"
                AddNewGameEvent="AddNewGame"
                OnSortByChangeEvent="OnSortByChange"
                SearchEvent="OnSearchInfo">
     </ActionBar>
+    <MudToolBar Class="mt-0">
+        <MudCheckBox T="bool" ValueChanged="OnSelectionModeChange" Class="ml-2 mr-2">Selection Mode</MudCheckBox>
+        <MudButton OnClick="OnSelectAllClick" Variant="Variant.Outlined">Select All</MudButton>
+    </MudToolBar>
     <MudGrid>
         @foreach (var viewInfo in ViewGameInfos)
         {
-            <Card OnClick="_ => { viewInfo.IsSelected = !viewInfo.IsSelected; StateHasChanged(); }"
-                  IsSelected="@(viewInfo is { Display: true, IsSelected: true })"
+            <Card OnClick="_ => OnCardClick(viewInfo)"
+                  IsSelected="@(viewInfo is { Display: true, IsSelected: true } && IsSelectionMode)"
                   GameInfo="viewInfo.Info"
                   Class="@(viewInfo.Display ? "card" : "card card-hidden")"
                   OnDeleteEventCallback="DeleteGameCard">

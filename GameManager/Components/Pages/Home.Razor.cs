@@ -26,6 +26,8 @@ namespace GameManager.Components.Pages
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;
 
+        private bool IsSelectionMode { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
             Debug.Assert(UnitOfWork != null);
@@ -199,6 +201,37 @@ namespace GameManager.Components.Pages
             }
 
             await InvokeAsync(StateHasChanged);
+        }
+
+        private void OnSelectionModeChange(bool value)
+        {
+            IsSelectionMode = value;
+            foreach (ViewInfo viewInfo in ViewGameInfos)
+            {
+                viewInfo.IsSelected = false;
+            }
+
+            StateHasChanged();
+        }
+
+        private void OnSelectAllClick()
+        {
+            if (!IsSelectionMode)
+                return;
+            foreach (ViewInfo viewInfo in ViewGameInfos)
+            {
+                viewInfo.IsSelected = true;
+            }
+
+            StateHasChanged();
+        }
+
+        private void OnCardClick(ViewInfo viewInfo)
+        {
+            if (!IsSelectionMode)
+                return;
+            viewInfo.IsSelected = !viewInfo.IsSelected;
+            StateHasChanged();
         }
 
         private class ViewInfo
