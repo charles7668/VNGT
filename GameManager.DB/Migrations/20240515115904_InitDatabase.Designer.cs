@@ -11,14 +11,28 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameManager.DB.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240512055633_AddRunasAdminOption")]
-    partial class AddRunasAdminOption
+    [Migration("20240515115904_InitDatabase")]
+    partial class InitDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.4");
+
+            modelBuilder.Entity("GameManager.DB.Models.AppSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("LocaleEmulatorPath")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AppSettings");
+                });
 
             modelBuilder.Entity("GameManager.DB.Models.GameInfo", b =>
                 {
@@ -38,6 +52,9 @@ namespace GameManager.DB.Migrations
                     b.Property<string>("Developer")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ExeFile")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ExePath")
                         .HasColumnType("TEXT");
 
@@ -50,9 +67,17 @@ namespace GameManager.DB.Migrations
                     b.Property<int?>("LaunchOptionId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime?>("UploadTime")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("ExePath")
+                        .IsUnique();
+
                     b.HasIndex("LaunchOptionId");
+
+                    b.HasIndex("UploadTime", "GameName");
 
                     b.ToTable("GameInfos");
                 });
@@ -63,12 +88,29 @@ namespace GameManager.DB.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("LaunchWithLocaleEmulator")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("RunAsAdmin")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.ToTable("LaunchOption");
+                });
+
+            modelBuilder.Entity("GameManager.DB.Models.Library", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FolderPath")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Libraries");
                 });
 
             modelBuilder.Entity("GameManager.DB.Models.GameInfo", b =>
