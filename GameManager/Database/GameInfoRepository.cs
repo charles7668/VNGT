@@ -25,7 +25,7 @@ namespace GameManager.Database
         public Task AddAsync(GameInfo info)
         {
             if (context.GameInfos.Any(x => x.ExePath == info.ExePath))
-                return Task.CompletedTask;
+                throw new InvalidOperationException("Game already exists");
             info.UploadTime = DateTime.Now;
             context.GameInfos.Add(info);
             return context.SaveChangesAsync();

@@ -13,6 +13,9 @@ namespace GameManager.Components.Pages
     public partial class Home
     {
         [Inject]
+        public ISnackbar SnakeBar { get; set; } = null!;
+
+        [Inject]
         private IUnitOfWork? UnitOfWork { get; set; }
 
         private List<ViewInfo> ViewGameInfos { get; } = [];
@@ -86,10 +89,7 @@ namespace GameManager.Components.Pages
             }
             catch (Exception e)
             {
-                await DialogService.ShowMessageBox(
-                    "Error",
-                    $"{e.Message}"
-                    , cancelText: "Cancel");
+                SnakeBar.Add(e.Message, Severity.Error);
                 return;
             }
 

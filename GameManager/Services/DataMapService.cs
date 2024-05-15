@@ -12,6 +12,7 @@ namespace GameManager.Services
             dest.Developer = src.Vendor;
             dest.Description = src.Description;
             dest.DateTime = src.DateTime;
+            dest.ExePath = src.ExePath;
             dest.ExeFile = src.ExeFile;
             dest.LaunchOption ??= new LaunchOption();
             dest.LaunchOption.RunAsAdmin = src.RunAsAdmin;
