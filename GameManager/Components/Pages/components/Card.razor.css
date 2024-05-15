@@ -5,9 +5,15 @@ div ::deep .card.selection {
 
 div ::deep .card .mud-tooltip-inline {
     display: block;
-    height: 50px;
-    min-height: 50px;
-    max-height: 50px;
+    height: 60px;
+    min-height: 60px;
+    max-height: 60px;
+    overflow: hidden;
+}
+
+div ::deep .mud-tooltip-root {
+    max-width: 100%;
+    text-overflow: ellipsis;
     overflow: hidden;
 }
 

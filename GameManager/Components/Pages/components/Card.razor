@@ -13,9 +13,11 @@
                     <MudChip T="string" Color="Color.Error">@developer</MudChip>
                 }
             </MudPaper>
-            <MudTooltip Text="@GameInfo?.ExePath">
-                <MudText Typo="Typo.caption">@GameInfo?.GameName</MudText>
-            </MudTooltip>
+            <MudPaper Elevation="0" MaxWidth="250px">
+                <MudTooltip Text="@GameInfo?.ExePath">
+                    <MudText Typo="Typo.h6" Class="card-game-name">@GameInfo?.GameName</MudText>
+                </MudTooltip>
+            </MudPaper>
             <MudToolBar Class="pa-0">
                 <MudButton OnClick="OnLaunch" StartIcon="@Icons.Material.Filled.ArrowRight" Variant="Variant.Outlined">Run</MudButton>
                 <MudButton OnClick="OnEdit" StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined">Edit</MudButton>
