@@ -34,11 +34,15 @@
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 
         <WindowsPackageType>None</WindowsPackageType>
+
+        <Platforms>AnyCPU;x64</Platforms>
+
+        <PackageIcon>app.jpg</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+        <MauiIcon Include="Resources\Icons\app.jpg" />
 
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
@@ -65,6 +69,17 @@
     <ItemGroup>
       <ProjectReference Include="..\GameManager.DB\GameManager.DB.csproj" />
       <ProjectReference Include="..\Helper\Helper.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Resources\Icons\app.ico">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
+      <None Update="Resources\Icons\app.jpg">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
     </ItemGroup>
 
 </Project>
