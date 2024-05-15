@@ -63,22 +63,36 @@ namespace GameManager.GameInfoProvider
                 if (!ok)
                     return null;
                 var gameInfo = new GameInfo();
+
                 foreach (JsonElement item in items.EnumerateArray())
                 {
-                    string? title = item.GetProperty("titles")[0].GetProperty("title").GetString();
-                    string? image = item.GetProperty("image").GetProperty("url").GetString();
-                    string? id = item.GetProperty("id").GetString();
+                    string? title = null, image = null, id = null, description = null;
+                    if (item.TryGetProperty("titles", out JsonElement titles))
+                        title = titles[0].GetProperty("title").GetString();
+                    if (item.TryGetProperty("image", out JsonElement imageProp))
+                        if (imageProp.TryGetProperty("url", out JsonElement urlProp))
+                            image = urlProp.GetString();
+                    if (item.TryGetProperty("id", out JsonElement idProp))
+                        id = idProp.GetString();
                     JsonElement develops = item.GetProperty("developers");
                     string develop = "";
                     foreach (JsonElement developElement in develops.EnumerateArray())
                     {
-                        develop += developElement.GetProperty("name").GetString() ?? "" + ",";
+                        if (developElement.TryGetProperty("name", out JsonElement nameProp))
+                            develop += nameProp.GetString() ?? "" + ",";
                     }
 
                     if (develop.Last() == ',')
                         develop = develop.Remove(develop.Length - 1);
-                    string? description = item.GetProperty("description").GetString();
-                    DateTime? released = item.GetProperty("released").GetDateTime();
+                    if (item.TryGetProperty("description", out JsonElement descProp))
+                        description = descProp.GetString();
+                    DateTime? released = null;
+                    if (item.TryGetProperty("released", out JsonElement prop))
+                    {
+                        string? dateString = prop.GetString();
+                        released = DateTime.Parse(dateString ?? "");
+                    }
+
                     gameInfo.CoverPath = image;
                     gameInfo.GameName = title;
                     gameInfo.GameInfoId = id;
