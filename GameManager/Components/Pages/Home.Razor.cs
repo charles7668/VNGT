@@ -1,6 +1,7 @@
 ﻿using GameManager.Components.Pages.components;
 using GameManager.Database;
 using GameManager.DB.Models;
+using GameManager.Enums;
 using GameManager.Services;
 using Helper;
 using Microsoft.AspNetCore.Components;
@@ -170,7 +171,19 @@ namespace GameManager.Components.Pages
                 await DialogService.ShowMessageBox("Error", e.Message, cancelText: "Cancel");
                 return;
             }
+
             StateHasChanged();
+        }
+
+        private async Task OnSortByChange(SortOrder order)
+        {
+            if (order == SortOrder.NAME)
+                ViewGameInfos.Sort((v1, v2) =>
+                    string.Compare(v1.Info.GameName, v2.Info.GameName, StringComparison.Ordinal));
+            else if (order == SortOrder.UPLOAD_TIME)
+                ViewGameInfos.Sort((v1, v2) =>
+                    DateTime.Compare((DateTime)v2.Info.UploadTime!, (DateTime)v1.Info.UploadTime!));
+            await InvokeAsync(StateHasChanged);
         }
 
         private class ViewInfo

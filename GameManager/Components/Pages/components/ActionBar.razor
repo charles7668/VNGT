@@ -1,10 +1,25 @@
-﻿@inherits MudComponentBase
+﻿@using GameManager.Enums
+@inherits MudComponentBase
 
 <MudPaper @attributes="UserAttributes!" Class="@Class">
     <MudToolBar Class="align-center">
         <MudTextField T="string" @bind-Value="SearchText" Placeholder="Search"></MudTextField>
         <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Search" OnClick="OnSearch">Search</MudButton>
         <MudSpacer></MudSpacer>
+        <MudPaper>
+            <MudSelect T="SortOrder"
+                       AdornmentIcon="@Icons.Material.Filled.FilterAlt"
+                       AdornmentColor="Color.Primary"
+                       AnchorOrigin="Origin.BottomCenter"
+                       Label="Sort By"
+                       SelectedValuesChanged="OnSortByChange"
+                       @bind-Value="SortBy">
+                @foreach (var item in SortOrderDict)
+                {
+                    <MudSelectItem Value="@item.Key">@item.Value</MudSelectItem>
+                }
+            </MudSelect>
+        </MudPaper>
         <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OnAddNewGame">Add</MudButton>
         <MudButton Class="ma-3" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Close" OnClick="OnDeleteClick">Delete</MudButton>
     </MudToolBar>
@@ -13,5 +28,9 @@
 <style>
     .mud-text-field {
         padding: 0px;
+    }
+
+    .mud-select {
+        width: 150px;
     }
 </style>

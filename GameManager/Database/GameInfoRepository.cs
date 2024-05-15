@@ -1,14 +1,20 @@
 ﻿using GameManager.DB;
 using GameManager.DB.Models;
+using GameManager.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameManager.Database
 {
     public class GameInfoRepository(AppDbContext context) : IGameInfoRepository
     {
-        public Task<List<GameInfo>> GetGameInfos()
+        public Task<List<GameInfo>> GetGameInfos(SortOrder order)
         {
-            return context.GameInfos.Include(info => info.LaunchOption).ToListAsync();
+            if (order == SortOrder.UPLOAD_TIME)
+                return context.GameInfos.Include(info => info.LaunchOption)
+                    .OrderByDescending(x => x.UploadTime)
+                    .ToListAsync();
+            return context.GameInfos.Include(info => info.LaunchOption)
+                .OrderBy(x => x.GameName).ToListAsync();
         }
 
         public Task<string?> GetCoverById(int id)

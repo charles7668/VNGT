@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using GameManager.Enums;
+using Microsoft.AspNetCore.Components;
 
 namespace GameManager.Components.Pages.components
 {
@@ -14,6 +15,28 @@ namespace GameManager.Components.Pages.components
 
         [Parameter]
         public EventCallback OnDeleteEvent { get; set; }
+
+        private Dictionary<SortOrder, string> SortOrderDict { get; set; } = new()
+        {
+            { SortOrder.NAME, "Name" },
+            { SortOrder.UPLOAD_TIME, "Upload Time" }
+        };
+
+        private SortOrder SortBy { get; set; } = SortOrder.UPLOAD_TIME;
+
+        [Parameter]
+        public EventCallback<SortOrder> OnSortByChangeEvent { get; set; }
+
+        protected override void OnInitialized()
+        {
+            SortOrderDict = new Dictionary<SortOrder, string>
+            {
+                { SortOrder.NAME, "Name" },
+                { SortOrder.UPLOAD_TIME, "Upload Time" }
+            };
+
+            base.OnInitialized();
+        }
 
         private async Task OnAddNewGame()
         {
@@ -52,6 +75,12 @@ namespace GameManager.Components.Pages.components
             {
                 await SearchEvent.InvokeAsync(SearchText);
             }
+        }
+
+        private async Task OnSortByChange()
+        {
+            if (OnSortByChangeEvent.HasDelegate)
+                await OnSortByChangeEvent.InvokeAsync(SortBy);
         }
     }
 }
