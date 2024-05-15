@@ -1,5 +1,8 @@
-﻿namespace GameManager.DB.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace GameManager.DB.Models
 {
+    [Index(nameof(ExePath), IsUnique = true)]
     public class GameInfo
     {
         public int Id { get; set; }
