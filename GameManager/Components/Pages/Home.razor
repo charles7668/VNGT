@@ -5,15 +5,15 @@
                OnDeleteEvent="OnDelete"
                AddNewGameEvent="AddNewGame"
                OnSortByChangeEvent="OnSortByChange"
-               SearchEvent="FilterInfo">
+               SearchEvent="OnSearchInfo">
     </ActionBar>
     <MudGrid>
         @foreach (var viewInfo in ViewGameInfos)
         {
             <Card OnClick="_ => { viewInfo.IsSelected = !viewInfo.IsSelected; StateHasChanged(); }"
-                  IsSelected="viewInfo.IsSelected"
+                  IsSelected="@(viewInfo is { Display: true, IsSelected: true })"
                   GameInfo="viewInfo.Info"
-                  Class="card" 
+                  Class="@(viewInfo.Display ? "card" : "card card-hidden")"
                   OnDeleteEventCallback="DeleteGameCard">
             </Card>
         }
@@ -24,18 +24,25 @@
     .main-mud-layout {
         padding: 0px;
     }
-    .main-mud-layout > .mud-grid {
-        max-width: 100%;
-        padding-left: 15px;
-    }
-    #main-toolbar{
-        position: sticky; 
+
+        .main-mud-layout > .mud-grid {
+            max-width: 100%;
+            padding-left: 15px;
+        }
+
+    #main-toolbar {
+        position: sticky;
         top: 0;
         margin-bottom: 20px;
         margin-top: 0px;
         z-index: 999;
     }
+
     .card {
         margin: 5px;
     }
+
+        .card.card-hidden {
+            display: none;
+        }
 </style>

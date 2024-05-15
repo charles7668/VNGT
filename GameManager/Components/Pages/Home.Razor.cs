@@ -140,14 +140,17 @@ namespace GameManager.Components.Pages
                 StateHasChanged();
         }
 
-        private void FilterInfo(string? pattern)
+        private void OnSearchInfo(string? pattern)
         {
             for (int i = 0; i < ViewGameInfos.Count; i++)
             {
                 ViewInfo viewInfo = ViewGameInfos[i];
+                string developer = viewInfo.Info.Developer ?? "UnKnown";
                 viewInfo.Display = string.IsNullOrEmpty(pattern) ||
                                    (viewInfo.Info.GameName ?? "").Contains(pattern,
-                                       StringComparison.CurrentCultureIgnoreCase);
+                                       StringComparison.CurrentCultureIgnoreCase)
+                                   || developer.Contains(pattern,
+                                       StringComparison.CurrentCulture);
                 ViewGameInfos[i] = viewInfo;
             }
 
