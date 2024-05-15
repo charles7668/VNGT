@@ -124,13 +124,12 @@ namespace GameManager.Components.Pages.components
         private void OnOpenInExplorer()
         {
             Debug.Assert(GameInfo != null);
-            string? path = Path.GetDirectoryName(GameInfo.ExePath);
-            if (path == null)
+            if (GameInfo.ExePath == null)
                 return;
             try
             {
                 // using "explorer.exe" and send path
-                Process.Start("explorer.exe", path);
+                Process.Start("explorer.exe", GameInfo.ExePath);
             }
             catch (Exception ex)
             {
