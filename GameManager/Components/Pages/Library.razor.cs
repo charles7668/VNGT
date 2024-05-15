@@ -24,7 +24,7 @@ namespace GameManager.Components.Pages
 
         private int SelectionIndex { get; set; }
 
-        private Task? ScanTask { get; set; }
+        private static Task? ScanTask { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -122,7 +122,7 @@ namespace GameManager.Components.Pages
                 return Task.CompletedTask;
             }
 
-            ScanTask = Task.Run(() =>
+            ScanTask = Task.Run(async () =>
             {
                 const int searchLevel = 3;
                 Queue<string> queue = new();
@@ -149,7 +149,7 @@ namespace GameManager.Components.Pages
                                 GameName = Path.GetFileName(folder),
                                 ExePath = folder
                             };
-                            UnitOfWork.GameInfoRepository.AddAsync(info);
+                            await UnitOfWork.GameInfoRepository.AddAsync(info);
                         }
                         else
                         {
@@ -164,7 +164,7 @@ namespace GameManager.Components.Pages
                     curLevel++;
                 }
 
-                InvokeAsync(StateHasChanged);
+                _ = InvokeAsync(StateHasChanged);
             });
 
             StateHasChanged();
