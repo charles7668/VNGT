@@ -57,6 +57,8 @@ namespace GameManager.Components.Pages
                 parameters,
                 new DialogOptions
                 {
+                    MaxWidth = MaxWidth.Large,
+                    FullWidth = true,
                     BackdropClick = false
                 });
             DialogResult? dialogResult = await dialogReference.Result;

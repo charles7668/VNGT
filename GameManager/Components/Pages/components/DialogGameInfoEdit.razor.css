@@ -1,0 +1,8 @@
+div ::deep .mud-typography {
+    align-content: center;
+}
+
+div ::deep .edit-zone {
+    width: 100%;
+    max-width: 100%;
+}
