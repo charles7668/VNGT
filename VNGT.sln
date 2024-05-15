@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VNGT", "VNGT\VNGT.csproj", "{B9CA5A3C-7F8B-4248-9E92-27ECC1356DDE}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SavePatcher", "SavePatcher\SavePatcher.csproj", "{5A7DFD21-E33B-4095-87DB-CB89B37841B6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SavePatcherTest", "SavePatcherTest\SavePatcherTest.csproj", "{611B106E-112A-4EA6-8307-2D1B5EC3861D}"
@@ -23,14 +21,6 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B9CA5A3C-7F8B-4248-9E92-27ECC1356DDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B9CA5A3C-7F8B-4248-9E92-27ECC1356DDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B9CA5A3C-7F8B-4248-9E92-27ECC1356DDE}.Debug|x64.ActiveCfg = Debug|x64
-		{B9CA5A3C-7F8B-4248-9E92-27ECC1356DDE}.Debug|x64.Build.0 = Debug|x64
-		{B9CA5A3C-7F8B-4248-9E92-27ECC1356DDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B9CA5A3C-7F8B-4248-9E92-27ECC1356DDE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B9CA5A3C-7F8B-4248-9E92-27ECC1356DDE}.Release|x64.ActiveCfg = Release|x64
-		{B9CA5A3C-7F8B-4248-9E92-27ECC1356DDE}.Release|x64.Build.0 = Release|x64
 		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Debug|x64.ActiveCfg = Debug|x64
