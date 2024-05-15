@@ -27,7 +27,9 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private IProvider Provider { get; set; } = null!;
 
-        private string CoverPath => ImageHelper.GetDisplayUrl(Model.Cover);
+        private string CoverPath => string.IsNullOrEmpty(Model.Cover)
+            ? "/images/no-image.webp"
+            : ImageHelper.GetDisplayUrl(Model.Cover);
 
         [CascadingParameter]
         public MudDialogInstance? MudDialog { get; set; }

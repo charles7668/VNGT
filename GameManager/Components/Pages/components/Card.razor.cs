@@ -4,7 +4,6 @@ using GameManager.Services;
 using Helper;
 using Helper.Image;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using MudBlazor.Utilities;
 using System.Diagnostics;
@@ -54,7 +53,7 @@ namespace GameManager.Components.Pages.components
             get
             {
                 if (GameInfo == null || string.IsNullOrEmpty(GameInfo.CoverPath))
-                    return "";
+                    return "/images/no-image.webp";
                 return GameInfo.CoverPath.IsHttpLink()
                     ? GameInfo.CoverPath
                     : ImageHelper.GetDisplayUrl(ConfigService.GetCoverFullPath(GameInfo.CoverPath).Result!);
