@@ -20,6 +20,7 @@ namespace GameManager.Database
         {
             if (context.GameInfos.Any(x => x.ExePath == info.ExePath))
                 return Task.CompletedTask;
+            info.UploadTime = DateTime.Now;
             context.GameInfos.Add(info);
             return context.SaveChangesAsync();
         }

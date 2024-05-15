@@ -3,6 +3,7 @@
 namespace GameManager.DB.Models
 {
     [Index(nameof(ExePath), IsUnique = true)]
+    [Index(nameof(UploadTime), nameof(GameName), IsUnique = false)]
     public class GameInfo
     {
         public int Id { get; set; }
@@ -26,5 +27,7 @@ namespace GameManager.DB.Models
         public int? LaunchOptionId { get; set; }
 
         public LaunchOption? LaunchOption { get; set; }
+
+        public DateTime? UploadTime { get; set; }
     }
 }
