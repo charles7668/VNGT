@@ -186,7 +186,7 @@ namespace GameManager.Components.Pages
             {
                 case SortOrder.NAME:
                     ViewGameInfos.Sort((v1, v2) =>
-                        string.Compare(v1.Info.GameName, v2.Info.GameName, StringComparison.Ordinal));
+                        string.Compare(v2.Info.GameName, v1.Info.GameName, StringComparison.Ordinal));
                     break;
                 case SortOrder.UPLOAD_TIME:
                     ViewGameInfos.Sort((v1, v2) =>
@@ -194,7 +194,7 @@ namespace GameManager.Components.Pages
                     break;
                 case SortOrder.DEVELOPER:
                     ViewGameInfos.Sort((v1, v2) =>
-                        string.Compare(v1.Info.Developer, v2.Info.Developer, StringComparison.Ordinal));
+                        string.Compare(v2.Info.Developer, v1.Info.Developer, StringComparison.Ordinal));
                     break;
             }
 
