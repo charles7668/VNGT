@@ -177,12 +177,32 @@ namespace GameManager.Components.Pages
 
         private async Task OnSortByChange(SortOrder order)
         {
-            if (order == SortOrder.NAME)
-                ViewGameInfos.Sort((v1, v2) =>
-                    string.Compare(v1.Info.GameName, v2.Info.GameName, StringComparison.Ordinal));
-            else if (order == SortOrder.UPLOAD_TIME)
-                ViewGameInfos.Sort((v1, v2) =>
-                    DateTime.Compare((DateTime)v2.Info.UploadTime!, (DateTime)v1.Info.UploadTime!));
+            switch (order)
+            {
+                case SortOrder.NAME:
+                    ViewGameInfos.Sort((v1, v2) =>
+                        string.Compare(v1.Info.GameName, v2.Info.GameName, StringComparison.Ordinal));
+                    break;
+                case SortOrder.UPLOAD_TIME:
+                    ViewGameInfos.Sort((v1, v2) =>
+                        DateTime.Compare((DateTime)v2.Info.UploadTime!, (DateTime)v1.Info.UploadTime!));
+                    break;
+                case SortOrder.DEVELOPER:
+                    ViewGameInfos.Sort((v1, v2) =>
+                    {
+                        var v1DevList = v1.Info.Developer?.Split(',').ToList();
+                        var v2DevList = v2.Info.Developer?.Split(',').ToList();
+                        if (v1DevList == null && v2DevList == null)
+                            return 0;
+                        if (v1DevList == null)
+                            return 1;
+                        if (v2DevList == null)
+                            return -1;
+                        return string.Compare(v2DevList[0], v1DevList[0], StringComparison.Ordinal);
+                    });
+                    break;
+            }
+
             await InvokeAsync(StateHasChanged);
         }
 

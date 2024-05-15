@@ -16,11 +16,7 @@ namespace GameManager.Components.Pages.components
         [Parameter]
         public EventCallback OnDeleteEvent { get; set; }
 
-        private Dictionary<SortOrder, string> SortOrderDict { get; set; } = new()
-        {
-            { SortOrder.NAME, "Name" },
-            { SortOrder.UPLOAD_TIME, "Upload Time" }
-        };
+        private Dictionary<SortOrder, string> SortOrderDict { get; set; } = null!;
 
         private SortOrder SortBy { get; set; } = SortOrder.UPLOAD_TIME;
 
@@ -32,7 +28,8 @@ namespace GameManager.Components.Pages.components
             SortOrderDict = new Dictionary<SortOrder, string>
             {
                 { SortOrder.NAME, "Name" },
-                { SortOrder.UPLOAD_TIME, "Upload Time" }
+                { SortOrder.UPLOAD_TIME, "Upload Time" },
+                { SortOrder.DEVELOPER, "Developer" }
             };
 
             base.OnInitialized();
