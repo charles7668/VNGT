@@ -14,10 +14,6 @@ namespace GameManager.Components.Pages.components
 {
     public partial class DialogGameInfoEdit
     {
-        private const string? DIALOG_WIDTH = "500px";
-
-        private string? _bound = "not set";
-
         [Parameter]
         public FormModel Model { get; set; } = new();
 
@@ -67,8 +63,9 @@ namespace GameManager.Components.Pages.components
             ExeFiles = ["Not Set"];
             if (Directory.Exists(Model.ExePath))
             {
-                string[] files = Directory.GetFiles(Model.ExePath, "*.exe", SearchOption.TopDirectoryOnly);
-                ExeFiles.AddRange(files.Select(Path.GetFileName)!);
+                string[] files = Directory.GetFiles(Model.ExePath, "*.exe", SearchOption.AllDirectories);
+                foreach (string file in files)
+                    ExeFiles.Add(Path.GetRelativePath(Model.ExePath, Path.GetFullPath(file)));
             }
 
             await base.OnInitializedAsync();
@@ -103,8 +100,6 @@ namespace GameManager.Components.Pages.components
                     Model.DateTime = null;
                 }
             }
-
-            _bound = Model.DateTime.HasValue ? Model.DateTime.Value.ToString("yyyy/MM") : "not set";
         }
 
         private async Task UploadByUrl()
