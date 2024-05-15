@@ -42,7 +42,17 @@ namespace GameManager.Components.Pages.components
         [Parameter]
         public EventCallback<int> OnClick { get; set; }
 
-        private List<string> DeveloperList => GameInfo?.Developer?.Split(',')?.ToList() ?? ["UnKnown"];
+        private List<string> DeveloperList
+        {
+            get
+            {
+                var list = GameInfo?.Developer?.Split(',').ToList();
+                if (list == null || list.Count == 0)
+                    return ["UnKnown"];
+                list.Sort();
+                return list;
+            }
+        }
 
         private string ImageSrc
         {

@@ -131,7 +131,11 @@ namespace GameManager.Components.Pages.components
                 (List<GameInfo>? infoList, bool hasMore) =
                     await Provider.FetchGameSearchListAsync(Model.GameName, 10, 1);
                 if (infoList == null || infoList.Count == 0)
+                {
+                    await DialogService.ShowMessageBox("Error", "Related game not found.", "Cancel");
                     return;
+                }
+
                 string gameId = infoList[0].GameInfoId ?? "";
                 if (infoList.Count > 1)
                 {
