@@ -75,12 +75,15 @@ namespace GameManager.GameInfoProvider
                     if (item.TryGetProperty("id", out JsonElement idProp))
                         id = idProp.GetString();
                     JsonElement develops = item.GetProperty("developers");
-                    string develop = "";
+                    List<string> developerList = [];
                     foreach (JsonElement developElement in develops.EnumerateArray())
                     {
                         if (developElement.TryGetProperty("name", out JsonElement nameProp))
-                            develop += nameProp.GetString() ?? "" + ",";
+                            developerList.Add(nameProp.GetString() ?? "" + ",");
                     }
+
+                    developerList.Sort();
+                    string develop = string.Join(",", developerList).Trim();
 
                     if (develop.Last() == ',')
                         develop = develop.Remove(develop.Length - 1);

@@ -189,17 +189,7 @@ namespace GameManager.Components.Pages
                     break;
                 case SortOrder.DEVELOPER:
                     ViewGameInfos.Sort((v1, v2) =>
-                    {
-                        var v1DevList = v1.Info.Developer?.Split(',').ToList();
-                        var v2DevList = v2.Info.Developer?.Split(',').ToList();
-                        if (v1DevList == null && v2DevList == null)
-                            return 0;
-                        if (v1DevList == null)
-                            return 1;
-                        if (v2DevList == null)
-                            return -1;
-                        return string.Compare(v2DevList[0], v1DevList[0], StringComparison.Ordinal);
-                    });
+                        string.Compare(v1.Info.Developer, v2.Info.Developer, StringComparison.Ordinal));
                     break;
             }
 

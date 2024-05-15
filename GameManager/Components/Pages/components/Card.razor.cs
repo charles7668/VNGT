@@ -49,7 +49,6 @@ namespace GameManager.Components.Pages.components
                 var list = GameInfo?.Developer?.Split(',').ToList();
                 if (list == null || list.Count == 0)
                     return ["UnKnown"];
-                list.Sort();
                 return list;
             }
         }
