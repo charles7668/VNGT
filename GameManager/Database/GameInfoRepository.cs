@@ -7,6 +7,16 @@ namespace GameManager.Database
 {
     public class GameInfoRepository(AppDbContext context) : IGameInfoRepository
     {
+        public Task GetGameInfoForEachAsync(Action<GameInfo> action, SortOrder order = SortOrder.UPLOAD_TIME)
+        {
+            if (order == SortOrder.UPLOAD_TIME)
+                return context.GameInfos.Include(info => info.LaunchOption)
+                    .OrderByDescending(x => x.UploadTime)
+                    .ForEachAsync(action);
+            return context.GameInfos.Include(info => info.LaunchOption)
+                .OrderBy(x => x.GameName).ForEachAsync(action);
+        }
+
         public Task<List<GameInfo>> GetGameInfos(SortOrder order)
         {
             if (order == SortOrder.UPLOAD_TIME)

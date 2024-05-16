@@ -28,20 +28,26 @@ namespace GameManager.Components.Pages
 
         private bool IsSelectionMode { get; set; }
 
-        protected override async Task OnInitializedAsync()
+        protected override Task OnInitializedAsync()
         {
             Debug.Assert(UnitOfWork != null);
-            List<GameInfo> infos = await UnitOfWork.GameInfoRepository.GetGameInfos();
-            foreach (GameInfo info in infos)
+            _ = Task.Run(async () =>
             {
-                ViewGameInfos.Add(new ViewInfo
+                Task loadTask = UnitOfWork.GameInfoRepository.GetGameInfoForEachAsync((info) =>
                 {
-                    Info = info,
-                    Display = true
+                    ViewGameInfos.Add(new ViewInfo
+                    {
+                        Info = info,
+                        Display = true
+                    });
                 });
-            }
 
-            await base.OnInitializedAsync();
+                await loadTask;
+                _ = InvokeAsync(StateHasChanged);
+            });
+
+            _ = base.OnInitializedAsync();
+            return Task.CompletedTask;
         }
 
         private async Task AddNewGame(string exePath)
@@ -154,6 +160,8 @@ namespace GameManager.Components.Pages
                                    (viewInfo.Info.GameName ?? "").Contains(pattern,
                                        StringComparison.CurrentCultureIgnoreCase)
                                    || developer.Contains(pattern,
+                                       StringComparison.CurrentCulture)
+                                   || (viewInfo.Info.ExePath ?? "").Contains(pattern,
                                        StringComparison.CurrentCulture);
                 ViewGameInfos[i] = viewInfo;
             }

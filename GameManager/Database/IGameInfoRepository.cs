@@ -5,6 +5,8 @@ namespace GameManager.Database
 {
     public interface IGameInfoRepository
     {
+        Task GetGameInfoForEachAsync(Action<GameInfo> action,SortOrder order = SortOrder.UPLOAD_TIME);
+
         Task<List<GameInfo>> GetGameInfos(SortOrder order = SortOrder.UPLOAD_TIME);
 
         Task<string?> GetCoverById(int id);
