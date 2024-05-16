@@ -3,7 +3,11 @@
 
 <MudPaper @attributes="UserAttributes!" Class="@Class">
     <MudToolBar Class="align-center">
-        <MudTextField T="string" @bind-Value="SearchText" Placeholder="Search"></MudTextField>
+        <MudTextField T="string"
+                      @bind-Value="SearchText"
+                      OnKeyDown="@(async key => { if (key.Key == "Enter") await OnSearch(); })"
+                      Placeholder="Search">
+        </MudTextField>
         <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Search" OnClick="OnSearch">Search</MudButton>
         <MudSpacer></MudSpacer>
         <MudButton Variant="Variant.Outlined"

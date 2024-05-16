@@ -152,16 +152,17 @@ namespace GameManager.Components.Pages
 
         private void OnSearchInfo(string? pattern)
         {
+            pattern = pattern?.Trim().ToLower();
             for (int i = 0; i < ViewGameInfos.Count; i++)
             {
                 ViewInfo viewInfo = ViewGameInfos[i];
                 string developer = viewInfo.Info.Developer ?? "UnKnown";
                 viewInfo.Display = string.IsNullOrEmpty(pattern) ||
-                                   (viewInfo.Info.GameName ?? "").Contains(pattern,
+                                   (viewInfo.Info.GameName ?? "").ToLower().Contains(pattern,
                                        StringComparison.CurrentCultureIgnoreCase)
-                                   || developer.Contains(pattern,
+                                   || developer.ToLower().Contains(pattern,
                                        StringComparison.CurrentCulture)
-                                   || (viewInfo.Info.ExePath ?? "").Contains(pattern,
+                                   || (viewInfo.Info.ExePath ?? "").ToLower().Contains(pattern,
                                        StringComparison.CurrentCulture);
                 ViewGameInfos[i] = viewInfo;
             }
