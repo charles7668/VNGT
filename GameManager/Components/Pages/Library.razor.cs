@@ -139,6 +139,7 @@ namespace GameManager.Components.Pages
                     queue.Enqueue(library.FolderPath ??= "");
                 }
 
+                await File.WriteAllTextAsync("test.txt", "");
                 int curLevel = 1;
                 while (queue.Count > 0)
                 {
@@ -162,18 +163,25 @@ namespace GameManager.Components.Pages
 
                             try
                             {
-                                (List<GameInfo>? infoList, bool hasMore) searchList =
-                                    await InfoProvider.FetchGameSearchListAsync(info.GameName, 1, 1);
-                                if (searchList.infoList?.Count > 0)
+                                try
                                 {
-                                    string? id = searchList.infoList[0].GameInfoId;
-                                    if (id == null)
-                                        continue;
-                                    GameInfo? tempInfo = await InfoProvider.FetchGameDetailByIdAsync(id);
-                                    if (tempInfo == null)
-                                        continue;
-                                    tempInfo.ExePath = folder;
-                                    info = tempInfo;
+                                    (List<GameInfo>? infoList, bool hasMore) searchList =
+                                        await InfoProvider.FetchGameSearchListAsync(info.GameName, 1, 1);
+                                    if (searchList.infoList?.Count > 0)
+                                    {
+                                        string? id = searchList.infoList[0].GameInfoId;
+                                        if (id == null)
+                                            continue;
+                                        GameInfo? tempInfo = await InfoProvider.FetchGameDetailByIdAsync(id);
+                                        if (tempInfo == null)
+                                            continue;
+                                        tempInfo.ExePath = folder;
+                                        info = tempInfo;
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    // ignore
                                 }
 
                                 await UnitOfWork.GameInfoRepository.AddAsync(info);
