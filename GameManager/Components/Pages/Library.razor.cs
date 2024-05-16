@@ -132,7 +132,7 @@ namespace GameManager.Components.Pages
             ScanTask = Task.Run(async () =>
             {
                 Snackbar.Add("Scan Start", Severity.Info);
-                const int searchLevel = 5;
+                const int searchLevel = 8;
                 Queue<string> queue = new();
                 foreach (DBLibraryModel library in Libraries)
                 {
@@ -174,8 +174,9 @@ namespace GameManager.Components.Pages
                                         continue;
                                     tempInfo.ExePath = folder;
                                     info = tempInfo;
-                                    await UnitOfWork.GameInfoRepository.AddAsync(info);
                                 }
+
+                                await UnitOfWork.GameInfoRepository.AddAsync(info);
                             }
                             catch (Exception)
                             {
