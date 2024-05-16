@@ -16,6 +16,9 @@ namespace GameManager.Components.Pages.components
         [Parameter]
         public EventCallback OnDeleteEvent { get; set; }
 
+        [Parameter]
+        public EventCallback OnRefreshEvent { get; set; }
+
         private Dictionary<SortOrder, string> SortOrderDict { get; set; } = null!;
 
         private SortOrder SortBy { get; set; } = SortOrder.UPLOAD_TIME;
@@ -72,6 +75,13 @@ namespace GameManager.Components.Pages.components
             {
                 await SearchEvent.InvokeAsync(SearchText);
             }
+        }
+
+        private Task OnRefresh()
+        {
+            if (OnRefreshEvent.HasDelegate)
+                return OnRefreshEvent.InvokeAsync();
+            return Task.CompletedTask;
         }
 
         private async Task OnSortByChange()

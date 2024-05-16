@@ -33,7 +33,7 @@ namespace GameManager.Components.Pages
             Debug.Assert(UnitOfWork != null);
             _ = Task.Run(async () =>
             {
-                Task loadTask = UnitOfWork.GameInfoRepository.GetGameInfoForEachAsync((info) =>
+                Task loadTask = UnitOfWork.GameInfoRepository.GetGameInfoForEachAsync(info =>
                 {
                     ViewGameInfos.Add(new ViewInfo
                     {
@@ -240,6 +240,27 @@ namespace GameManager.Components.Pages
                 return;
             viewInfo.IsSelected = !viewInfo.IsSelected;
             StateHasChanged();
+        }
+
+        private Task OnRefreshClick()
+        {
+            Debug.Assert(UnitOfWork != null);
+            ViewGameInfos.Clear();
+            StateHasChanged();
+            return Task.Run(async () =>
+            {
+                Task loadTask = UnitOfWork.GameInfoRepository.GetGameInfoForEachAsync(info =>
+                {
+                    ViewGameInfos.Add(new ViewInfo
+                    {
+                        Info = info,
+                        Display = true
+                    });
+                });
+
+                await loadTask;
+                _ = InvokeAsync(StateHasChanged);
+            });
         }
 
         private class ViewInfo

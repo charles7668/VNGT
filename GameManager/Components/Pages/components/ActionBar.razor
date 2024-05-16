@@ -6,15 +6,22 @@
         <MudTextField T="string" @bind-Value="SearchText" Placeholder="Search"></MudTextField>
         <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Search" OnClick="OnSearch">Search</MudButton>
         <MudSpacer></MudSpacer>
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Refresh"
+                   OnClick="OnRefresh">
+            Refresh
+        </MudButton>
         <MudPaper>
             <MudSelect T="SortOrder"
+                       Class="ml-2 mr-2"
                        AdornmentIcon="@Icons.Material.Filled.FilterAlt"
                        AdornmentColor="Color.Primary"
                        AnchorOrigin="Origin.BottomCenter"
                        Label="Sort By"
                        SelectedValuesChanged="OnSortByChange"
                        @bind-Value="SortBy">
-                @foreach (var item in SortOrderDict)
+                @foreach (KeyValuePair<SortOrder, string> item in SortOrderDict)
                 {
                     <MudSelectItem Value="@item.Key">@item.Value</MudSelectItem>
                 }
