@@ -1,6 +1,7 @@
 ﻿using GameManager.Components.Pages.components;
 using GameManager.Database;
 using GameManager.DB.Models;
+using GameManager.GameInfoProvider;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Windows.Storage;
@@ -25,6 +26,12 @@ namespace GameManager.Components.Pages
         private int SelectionIndex { get; set; }
 
         private static Task? ScanTask { get; set; }
+
+        [Inject]
+        private IProvider InfoProvider { get; set; } = null!;
+
+        [Inject]
+        public ISnackbar Snackbar { get; set; } = null!;
 
         protected override async Task OnInitializedAsync()
         {
@@ -124,6 +131,7 @@ namespace GameManager.Components.Pages
 
             ScanTask = Task.Run(async () =>
             {
+                Snackbar.Add("Scan Start", Severity.Info);
                 const int searchLevel = 5;
                 Queue<string> queue = new();
                 foreach (DBLibraryModel library in Libraries)
@@ -149,7 +157,30 @@ namespace GameManager.Components.Pages
                                 GameName = Path.GetFileName(folder),
                                 ExePath = folder
                             };
-                            await UnitOfWork.GameInfoRepository.AddAsync(info);
+                            if (await UnitOfWork.GameInfoRepository.CheckExePathExist(folder))
+                                continue;
+
+                            try
+                            {
+                                (List<GameInfo>? infoList, bool hasMore) searchList =
+                                    await InfoProvider.FetchGameSearchListAsync(info.GameName, 1, 1);
+                                if (searchList.infoList?.Count > 0)
+                                {
+                                    string? id = searchList.infoList[0].GameInfoId;
+                                    if (id == null)
+                                        continue;
+                                    GameInfo? tempInfo = await InfoProvider.FetchGameDetailByIdAsync(id);
+                                    if (tempInfo == null)
+                                        continue;
+                                    tempInfo.ExePath = folder;
+                                    info = tempInfo;
+                                    await UnitOfWork.GameInfoRepository.AddAsync(info);
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                // ignore
+                            }
                         }
                         else
                         {
@@ -164,6 +195,7 @@ namespace GameManager.Components.Pages
                     curLevel++;
                 }
 
+                Snackbar.Add("Scan Complete", Severity.Info);
                 _ = InvokeAsync(StateHasChanged);
             });
 

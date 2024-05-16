@@ -55,5 +55,10 @@ namespace GameManager.Database
             context.GameInfos.Remove(item);
             return context.SaveChangesAsync();
         }
+
+        public async Task<bool> CheckExePathExist(string path)
+        {
+            return await context.GameInfos.AnyAsync(x => x.ExePath == path);
+        }
     }
 }
