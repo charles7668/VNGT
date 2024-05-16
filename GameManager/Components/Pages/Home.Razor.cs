@@ -229,7 +229,8 @@ namespace GameManager.Components.Pages
                 return;
             foreach (ViewInfo viewInfo in ViewGameInfos)
             {
-                viewInfo.IsSelected = true;
+                if (viewInfo.Display)
+                    viewInfo.IsSelected = true;
             }
 
             StateHasChanged();
