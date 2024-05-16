@@ -124,7 +124,7 @@ namespace GameManager.Components.Pages
 
             ScanTask = Task.Run(async () =>
             {
-                const int searchLevel = 3;
+                const int searchLevel = 5;
                 Queue<string> queue = new();
                 foreach (DBLibraryModel library in Libraries)
                 {
