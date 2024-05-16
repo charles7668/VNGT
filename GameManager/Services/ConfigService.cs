@@ -31,7 +31,12 @@ namespace GameManager.Services
         private string CoverFolder => Path.Combine(ConfigFolder, "covers");
 
         [NeedCreate]
+#if DEBUG
         public string ConfigFolder { get; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "configs");
+#else
+        public string ConfigFolder { get; } =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VNGT", "configs");
+#endif
 
         public void CreateConfigFolderIfNotExistAsync()
         {
