@@ -2,7 +2,7 @@
 
 namespace GameManager.GameInfoProvider
 {
-    internal interface IProvider
+    internal interface IGameInfoProvider
     {
         Task<(List<GameInfo>? infoList, bool hasMore)> FetchGameSearchListAsync(string searchText, int itemPerPage,
             int pageNum);

@@ -267,8 +267,10 @@ namespace GameManager.Components.Pages
 
         private class ViewInfo
         {
-            public GameInfo Info { get; set; }
+            public GameInfo Info { get; init; } = null!;
+
             public bool Display { get; set; }
+
             public bool IsSelected { get; set; }
         }
     }

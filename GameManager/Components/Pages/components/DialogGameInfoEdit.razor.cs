@@ -21,7 +21,7 @@ namespace GameManager.Components.Pages.components
         private IDialogService DialogService { get; set; } = null!;
 
         [Inject]
-        private IProvider Provider { get; set; } = null!;
+        private IGameInfoProvider GameInfoProvider { get; set; } = null!;
 
         private string CoverPath => string.IsNullOrEmpty(Model.Cover)
             ? "/images/no-image.webp"
@@ -124,7 +124,7 @@ namespace GameManager.Components.Pages.components
             try
             {
                 (List<GameInfo>? infoList, bool hasMore) =
-                    await Provider.FetchGameSearchListAsync(Model.GameName, 10, 1);
+                    await GameInfoProvider.FetchGameSearchListAsync(Model.GameName, 10, 1);
                 if (infoList == null || infoList.Count == 0)
                 {
                     await DialogService.ShowMessageBox("Error", "Related game not found.", "Cancel");
@@ -152,7 +152,7 @@ namespace GameManager.Components.Pages.components
                     gameId = dialogResult.Data as string ?? "";
                 }
 
-                GameInfo? info = await Provider.FetchGameDetailByIdAsync(gameId);
+                GameInfo? info = await GameInfoProvider.FetchGameDetailByIdAsync(gameId);
                 if (info == null)
                     return;
                 info.ExePath = Model.ExePath;

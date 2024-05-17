@@ -28,7 +28,7 @@ namespace GameManager.Components.Pages
         private static Task? ScanTask { get; set; }
 
         [Inject]
-        private IProvider InfoProvider { get; set; } = null!;
+        private IGameInfoProvider InfoGameInfoProvider { get; set; } = null!;
 
         [Inject]
         public ISnackbar Snackbar { get; set; } = null!;
@@ -117,7 +117,8 @@ namespace GameManager.Components.Pages
                 return;
             }
 
-            _patHashSet.Remove(Libraries[SelectionIndex].FolderPath);
+            if (Libraries[SelectionIndex].FolderPath != null)
+                _patHashSet.Remove(Libraries[SelectionIndex].FolderPath!);
             Libraries.RemoveAt(SelectionIndex);
             StateHasChanged();
         }
@@ -166,13 +167,13 @@ namespace GameManager.Components.Pages
                                 try
                                 {
                                     (List<GameInfo>? infoList, bool hasMore) searchList =
-                                        await InfoProvider.FetchGameSearchListAsync(info.GameName, 1, 1);
+                                        await InfoGameInfoProvider.FetchGameSearchListAsync(info.GameName, 1, 1);
                                     if (searchList.infoList?.Count > 0)
                                     {
                                         string? id = searchList.infoList[0].GameInfoId;
                                         if (id == null)
                                             continue;
-                                        GameInfo? tempInfo = await InfoProvider.FetchGameDetailByIdAsync(id);
+                                        GameInfo? tempInfo = await InfoGameInfoProvider.FetchGameDetailByIdAsync(id);
                                         if (tempInfo == null)
                                             continue;
                                         tempInfo.ExePath = folder;

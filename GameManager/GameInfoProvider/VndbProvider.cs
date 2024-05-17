@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace GameManager.GameInfoProvider
 {
-    public class VndbProvider(IHttpService httpService) : IProvider
+    public class VndbProvider(IHttpService httpService) : IGameInfoProvider
     {
         private const string VN_REQUEST_URL = "https://api.vndb.org/kana/vn";
 
