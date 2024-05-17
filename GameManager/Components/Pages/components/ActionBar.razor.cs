@@ -1,5 +1,6 @@
 ﻿using GameManager.Enums;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace GameManager.Components.Pages.components
 {
@@ -67,6 +68,12 @@ namespace GameManager.Components.Pages.components
         {
             if (OnDeleteEvent.HasDelegate)
                 await OnDeleteEvent.InvokeAsync();
+        }
+
+        private async Task OnKeyDown(KeyboardEventArgs key)
+        {
+            if (key.Key == "Enter")
+                await OnSearch();
         }
 
         private async Task OnSearch()
