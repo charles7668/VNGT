@@ -12,7 +12,7 @@ namespace GameManager.Components.Pages.components
         public EventCallback<string> AddNewGameEvent { get; set; }
 
         [Parameter]
-        public EventCallback<string?> SearchEvent { get; set; }
+        public EventCallback<SearchParameter> SearchEvent { get; set; }
 
         [Parameter]
         public EventCallback OnDeleteEvent { get; set; }
@@ -26,6 +26,8 @@ namespace GameManager.Components.Pages.components
 
         [Parameter]
         public EventCallback<SortOrder> OnSortByChangeEvent { get; set; }
+
+        private SearchFilter SearchFilterModel { get; set; } = new();
 
         protected override void OnInitialized()
         {
@@ -80,7 +82,7 @@ namespace GameManager.Components.Pages.components
         {
             if (SearchEvent.HasDelegate)
             {
-                await SearchEvent.InvokeAsync(SearchText);
+                await SearchEvent.InvokeAsync(new SearchParameter(SearchText, SearchFilterModel));
             }
         }
 
@@ -95,6 +97,22 @@ namespace GameManager.Components.Pages.components
         {
             if (OnSortByChangeEvent.HasDelegate)
                 await OnSortByChangeEvent.InvokeAsync(SortBy);
+        }
+
+        public class SearchFilter
+        {
+            public bool SearchName { get; set; } = true;
+
+            public bool SearchDeveloper { get; set; } = true;
+
+            public bool SearchExePath { get; set; } = true;
+        }
+
+        public class SearchParameter(string? searchText, SearchFilter filter)
+        {
+            public string? SearchText { get; set; } = searchText;
+
+            public SearchFilter SearchFilter { get; set; } = filter;
         }
     }
 }

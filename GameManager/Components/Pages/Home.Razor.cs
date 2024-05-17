@@ -150,20 +150,27 @@ namespace GameManager.Components.Pages
                 StateHasChanged();
         }
 
-        private void OnSearchInfo(string? pattern)
+        private void OnSearchInfo(ActionBar.SearchParameter parameter)
         {
-            pattern = pattern?.Trim().ToLower();
+            string pattern = parameter.SearchText?.Trim().ToLower() ?? "";
             for (int i = 0; i < ViewGameInfos.Count; i++)
             {
                 ViewInfo viewInfo = ViewGameInfos[i];
-                string developer = viewInfo.Info.Developer ?? "UnKnown";
-                viewInfo.Display = string.IsNullOrEmpty(pattern) ||
-                                   (viewInfo.Info.GameName ?? "").ToLower().Contains(pattern,
-                                       StringComparison.CurrentCultureIgnoreCase)
-                                   || developer.ToLower().Contains(pattern,
-                                       StringComparison.CurrentCulture)
-                                   || (viewInfo.Info.ExePath ?? "").ToLower().Contains(pattern,
-                                       StringComparison.CurrentCulture);
+                bool display = string.IsNullOrEmpty(pattern);
+                if (!display)
+                {
+                    string developer = viewInfo.Info.Developer?.ToLower() ?? "unknown";
+                    string gameName = viewInfo.Info.GameName?.ToLower() ?? "";
+                    string exePath = viewInfo.Info.ExePath?.ToLower() ?? "";
+                    if (parameter.SearchFilter.SearchName)
+                        display = gameName.Contains(pattern);
+                    if (!display && parameter.SearchFilter.SearchDeveloper)
+                        display = developer.Contains(pattern);
+                    if (!display && parameter.SearchFilter.SearchExePath)
+                        display = exePath.Contains(pattern);
+                }
+
+                viewInfo.Display = display;
                 ViewGameInfos[i] = viewInfo;
             }
 
