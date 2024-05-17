@@ -3,6 +3,7 @@ using GameManager.Database;
 using GameManager.DB.Models;
 using GameManager.GameInfoProvider;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using MudBlazor;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -32,6 +33,9 @@ namespace GameManager.Components.Pages
 
         [Inject]
         public ISnackbar Snackbar { get; set; } = null!;
+
+        [Inject]
+        private ILogger<Library> Logger { get; set; } = null!;
 
         protected override async Task OnInitializedAsync()
         {
@@ -133,6 +137,7 @@ namespace GameManager.Components.Pages
             ScanTask = Task.Run(async () =>
             {
                 Snackbar.Add("Scan Start", Severity.Info);
+                Logger.LogInformation("Scan Start");
                 const int searchLevel = 8;
                 Queue<string> queue = new();
                 foreach (DBLibraryModel library in Libraries)
@@ -140,7 +145,6 @@ namespace GameManager.Components.Pages
                     queue.Enqueue(library.FolderPath ??= "");
                 }
 
-                await File.WriteAllTextAsync("test.txt", "");
                 int curLevel = 1;
                 while (queue.Count > 0)
                 {
@@ -150,50 +154,63 @@ namespace GameManager.Components.Pages
                     for (int i = 0; i < count; i++)
                     {
                         string folder = queue.Dequeue();
+                        Logger.LogInformation("Scanning {Folder}", folder);
                         if (string.IsNullOrEmpty(folder))
                             continue;
                         if (CheckExeFileExist(folder))
                         {
+                            Logger.LogInformation("{Folder} contain exe file", folder);
                             var info = new GameInfo
                             {
                                 GameName = Path.GetFileName(folder),
                                 ExePath = folder
                             };
                             if (await UnitOfWork.GameInfoRepository.CheckExePathExist(folder))
+                            {
+                                Logger.LogInformation("{Folder} already exist", folder);
                                 continue;
+                            }
 
                             try
                             {
                                 try
                                 {
+                                    Logger.LogInformation("Start fetch information");
                                     (List<GameInfo>? infoList, bool hasMore) searchList =
                                         await InfoGameInfoProvider.FetchGameSearchListAsync(info.GameName, 1, 1);
                                     if (searchList.infoList?.Count > 0)
                                     {
                                         string? id = searchList.infoList[0].GameInfoId;
+                                        Logger.LogInformation("Scan result id : {Id}", id);
                                         if (id == null)
                                             continue;
                                         GameInfo? tempInfo = await InfoGameInfoProvider.FetchGameDetailByIdAsync(id);
+                                        Logger.LogInformation("Scan result {Info}", tempInfo);
                                         if (tempInfo == null)
                                             continue;
                                         tempInfo.ExePath = folder;
                                         info = tempInfo;
                                     }
+                                    else
+                                    {
+                                        Logger.LogInformation("No result found");
+                                    }
                                 }
-                                catch (Exception)
+                                catch (Exception e)
                                 {
-                                    // ignore
+                                    Logger.LogError("Scan failed : {Err}", e.Message);
                                 }
 
                                 await UnitOfWork.GameInfoRepository.AddAsync(info);
                             }
-                            catch (Exception)
+                            catch (Exception e)
                             {
-                                // ignore
+                                Logger.LogError("{Err}", e.Message);
                             }
                         }
                         else
                         {
+                            Logger.LogInformation("Execution file not found");
                             string[] folderInfos = Directory.GetDirectories(folder);
                             foreach (string folderInfo in folderInfos)
                             {
@@ -205,12 +222,12 @@ namespace GameManager.Components.Pages
                     curLevel++;
                 }
 
+                Logger.LogInformation("Scan Complete");
                 Snackbar.Add("Scan Complete", Severity.Info);
                 _ = InvokeAsync(StateHasChanged);
             });
 
             StateHasChanged();
-
             return Task.CompletedTask;
 
             bool CheckExeFileExist(string folderPath)
