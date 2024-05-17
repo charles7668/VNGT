@@ -1,114 +1,143 @@
 ﻿using GameManager.DB.Models;
 using GameManager.Services;
+using Microsoft.Extensions.Logging;
 using System.IO.Compression;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
 namespace GameManager.GameInfoProvider
 {
-    public class VndbProvider(IHttpService httpService) : IGameInfoProvider
+    public class VndbProvider(IHttpService httpService, ILogger<VndbProvider> logger) : IGameInfoProvider
     {
         private const string VN_REQUEST_URL = "https://api.vndb.org/kana/vn";
 
         public async Task<(List<GameInfo>? infoList, bool hasMore)> FetchGameSearchListAsync(string searchText,
             int itemPerPage, int pageNum)
         {
-            string queryString = BuildQueryString(["search", "=", searchText], "id , image.url , titles.title",
-                itemPerPage, pageNum);
-            HttpResponseMessage response = await Request(queryString);
-            if (response.IsSuccessStatusCode)
+            int tryCount = 0;
+            while (tryCount < 3)
             {
-                var gameInfos = new List<GameInfo>();
-                string content = await UnzipAsync(response.Content);
-
-                using var document = JsonDocument.Parse(content);
-                JsonElement rootNode = document.RootElement;
-                bool ok = rootNode.TryGetProperty("results", out JsonElement items);
-                bool hasMore = rootNode.TryGetProperty("more", out JsonElement more) && more.GetBoolean();
-                if (!ok)
-                    return ([], false);
-                foreach (JsonElement item in items.EnumerateArray())
+                string queryString = BuildQueryString(["search", "=", searchText], "id , image.url , titles.title",
+                    itemPerPage, pageNum);
+                HttpResponseMessage response = await Request(queryString);
+                if (response.IsSuccessStatusCode)
                 {
-                    string? title = item.GetProperty("titles")[0].GetProperty("title").GetString();
-                    string? image = item.GetProperty("image").GetProperty("url").GetString();
-                    string? id = item.GetProperty("id").GetString();
-                    gameInfos.Add(new GameInfo
+                    var gameInfos = new List<GameInfo>();
+                    string content = await UnzipAsync(response.Content);
+
+                    using var document = JsonDocument.Parse(content);
+                    JsonElement rootNode = document.RootElement;
+                    bool ok = rootNode.TryGetProperty("results", out JsonElement items);
+                    bool hasMore = rootNode.TryGetProperty("more", out JsonElement more) && more.GetBoolean();
+                    if (!ok)
+                        return ([], false);
+                    foreach (JsonElement item in items.EnumerateArray())
                     {
-                        GameName = title,
-                        GameInfoId = id,
-                        CoverPath = image
-                    });
+                        string? title = item.GetProperty("titles")[0].GetProperty("title").GetString();
+                        string? image = item.GetProperty("image").GetProperty("url").GetString();
+                        string? id = item.GetProperty("id").GetString();
+                        gameInfos.Add(new GameInfo
+                        {
+                            GameName = title,
+                            GameInfoId = id,
+                            CoverPath = image
+                        });
+                    }
+
+                    return (gameInfos, hasMore);
                 }
 
-                return (gameInfos, hasMore);
+                if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
+                    tryCount++;
+                    await Task.Delay(1000);
+                    continue;
+                }
+
+                string message = await UnzipAsync(response.Content);
+
+                throw new Exception($"Failed to fetch data from VNDB with code : {response.StatusCode} \n{message}");
             }
 
-            string message = await UnzipAsync(response.Content);
-
-            throw new Exception(
-                $"Failed to fetch data from VNDB with code : {response.StatusCode} \n{message}");
+            throw new Exception("Failed to fetch data from VNDB");
         }
 
         public async Task<GameInfo?> FetchGameDetailByIdAsync(string gameId)
         {
-            string queryString = BuildQueryString(["id", "=", gameId],
-                "id , titles.title , developers.name , image.url , description , released", 1);
-            HttpResponseMessage response = await Request(queryString);
-            if (response.IsSuccessStatusCode)
+            int tryCount = 0;
+            while (tryCount < 3)
             {
-                string content = await UnzipAsync(response.Content);
-                using var document = JsonDocument.Parse(content);
-                JsonElement rootNode = document.RootElement;
-                bool ok = rootNode.TryGetProperty("results", out JsonElement items);
-                if (!ok)
-                    return null;
-                var gameInfo = new GameInfo();
-
-                foreach (JsonElement item in items.EnumerateArray())
+                string queryString = BuildQueryString(["id", "=", gameId],
+                    "id , titles.title , developers.name , image.url , description , released", 1);
+                HttpResponseMessage response = await Request(queryString);
+                logger.LogDebug("Status Code : {StatusCode}", response.StatusCode);
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    string? title = null, image = null, id = null, description = null;
-                    if (item.TryGetProperty("titles", out JsonElement titles))
-                        title = titles[0].GetProperty("title").GetString();
-                    if (item.TryGetProperty("image", out JsonElement imageProp))
-                        if (imageProp.TryGetProperty("url", out JsonElement urlProp))
-                            image = urlProp.GetString();
-                    if (item.TryGetProperty("id", out JsonElement idProp))
-                        id = idProp.GetString();
-                    JsonElement develops = item.GetProperty("developers");
-                    List<string> developerList = [];
-                    foreach (JsonElement developElement in develops.EnumerateArray())
+                    string content = await UnzipAsync(response.Content);
+                    using var document = JsonDocument.Parse(content);
+                    JsonElement rootNode = document.RootElement;
+                    bool ok = rootNode.TryGetProperty("results", out JsonElement items);
+                    if (!ok)
+                        return null;
+                    var gameInfo = new GameInfo();
+
+                    foreach (JsonElement item in items.EnumerateArray())
                     {
-                        if (developElement.TryGetProperty("name", out JsonElement nameProp))
-                            developerList.Add(nameProp.GetString() ?? "" + ",");
+                        string? title = null, image = null, id = null, description = null;
+                        if (item.TryGetProperty("titles", out JsonElement titles))
+                            title = titles[0].GetProperty("title").GetString();
+                        if (item.TryGetProperty("image", out JsonElement imageProp))
+                            if (imageProp.TryGetProperty("url", out JsonElement urlProp))
+                                image = urlProp.GetString();
+                        if (item.TryGetProperty("id", out JsonElement idProp))
+                            id = idProp.GetString();
+                        JsonElement develops = item.GetProperty("developers");
+                        List<string> developerList = [];
+                        foreach (JsonElement developElement in develops.EnumerateArray())
+                        {
+                            if (developElement.TryGetProperty("name", out JsonElement nameProp))
+                                developerList.Add(nameProp.GetString() ?? "" + ",");
+                        }
+
+                        developerList.Sort();
+                        string develop = string.Join(",", developerList).Trim();
+
+                        if (develop.Last() == ',')
+                            develop = develop.Remove(develop.Length - 1);
+                        if (item.TryGetProperty("description", out JsonElement descProp))
+                            description = descProp.GetString();
+                        DateTime? released = null;
+                        if (item.TryGetProperty("released", out JsonElement prop))
+                        {
+                            string? dateString = prop.GetString();
+                            released = DateTime.Parse(dateString ?? "");
+                        }
+
+                        gameInfo.CoverPath = image;
+                        gameInfo.GameName = title;
+                        gameInfo.GameInfoId = id;
+                        gameInfo.Developer = develop;
+                        gameInfo.Description = description;
+                        gameInfo.DateTime = released;
                     }
 
-                    developerList.Sort();
-                    string develop = string.Join(",", developerList).Trim();
-
-                    if (develop.Last() == ',')
-                        develop = develop.Remove(develop.Length - 1);
-                    if (item.TryGetProperty("description", out JsonElement descProp))
-                        description = descProp.GetString();
-                    DateTime? released = null;
-                    if (item.TryGetProperty("released", out JsonElement prop))
-                    {
-                        string? dateString = prop.GetString();
-                        released = DateTime.Parse(dateString ?? "");
-                    }
-
-                    gameInfo.CoverPath = image;
-                    gameInfo.GameName = title;
-                    gameInfo.GameInfoId = id;
-                    gameInfo.Developer = develop;
-                    gameInfo.Description = description;
-                    gameInfo.DateTime = released;
+                    return gameInfo;
                 }
 
-                return gameInfo;
+                if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
+                    tryCount++;
+                    await Task.Delay(1000);
+                    continue;
+                }
+
+                string errorMessage = await UnzipAsync(response.Content);
+                throw new Exception(
+                    $"Failed to fetch data from VNDB with code : {response.StatusCode} \n{errorMessage}");
             }
 
-            string errorMessage = await UnzipAsync(response.Content);
-            throw new Exception($"Failed to fetch data from VNDB with code : {response.StatusCode} \n{errorMessage}");
+            throw new Exception("Failed to fetch data from VNDB");
         }
 
         private async Task<HttpResponseMessage> Request(string queryString)
@@ -138,7 +167,7 @@ namespace GameManager.GameInfoProvider
                     decompressStream = new BrotliStream(stream, CompressionMode.Decompress);
                     break;
                 default:
-                    decompressStream = new GZipStream(stream, CompressionMode.Decompress);
+                    decompressStream = stream;
                     break;
             }
 
