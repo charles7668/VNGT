@@ -5,6 +5,9 @@ using GameManager.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
+using Serilog;
+using Serilog.Extensions.Logging;
+using Serilog.Formatting.Compact;
 
 namespace GameManager
 {
@@ -48,6 +51,25 @@ namespace GameManager
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IHttpService, HttpService>();
             builder.Services.AddScoped<IGameInfoProvider, VndbProvider>();
+
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+#if DEBUG
+                .MinimumLevel.Debug()
+#else
+                .MinimumLevel.Information()
+#endif
+                .WriteTo.File(new CompactJsonFormatter()
+                    , Path.Combine(config.GetLogPath(), ".log")
+                    , rollingInterval: RollingInterval.Day
+                    , retainedFileCountLimit: 30)
+                .CreateLogger();
+
+            builder.Services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.ClearProviders();
+                loggingBuilder.AddProvider(new SerilogLoggerProvider(Log.Logger));
+            });
 
             return builder.Build();
         }

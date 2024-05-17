@@ -22,6 +22,8 @@ namespace GameManager.Services
 
         string GetDbPath();
 
+        string GetLogPath();
+
         Task EditGameInfo(GameInfo info);
 
         AppSetting GetAppSetting();

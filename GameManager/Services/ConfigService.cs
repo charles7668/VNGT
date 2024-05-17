@@ -121,6 +121,11 @@ namespace GameManager.Services
             return Path.Combine(ConfigFolder, DB_FILE);
         }
 
+        public string GetLogPath()
+        {
+            return Path.Combine(ConfigFolder, "logs");
+        }
+
         public Task EditGameInfo(GameInfo info)
         {
             IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
