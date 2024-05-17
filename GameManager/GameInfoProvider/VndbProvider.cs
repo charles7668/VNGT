@@ -125,8 +125,24 @@ namespace GameManager.GameInfoProvider
         private async Task<string> UnzipAsync(HttpContent content)
         {
             await using Stream stream = await content.ReadAsStreamAsync();
-            await using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
-            using var reader = new StreamReader(gzipStream);
+            Stream decompressStream;
+            switch (content.Headers.ContentEncoding.ToString())
+            {
+                case "gzip":
+                    decompressStream = new GZipStream(stream, CompressionMode.Decompress);
+                    break;
+                case "deflate":
+                    decompressStream = new DeflateStream(stream, CompressionMode.Decompress);
+                    break;
+                case "br":
+                    decompressStream = new BrotliStream(stream, CompressionMode.Decompress);
+                    break;
+                default:
+                    decompressStream = new GZipStream(stream, CompressionMode.Decompress);
+                    break;
+            }
+
+            using var reader = new StreamReader(decompressStream);
             string result = await reader.ReadToEndAsync();
 
             return result;
