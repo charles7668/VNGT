@@ -10,16 +10,17 @@ namespace GameManager.Database
         public async Task<List<GameInfo>> GetGameInfos(SortOrder order)
         {
             if (order == SortOrder.UPLOAD_TIME)
-                return await context.GameInfos.Include(info => info.LaunchOption)
+                return await context.GameInfos.AsNoTracking().Include(info => info.LaunchOption)
                     .OrderByDescending(x => x.UploadTime)
                     .ToListAsync();
-            return await context.GameInfos.Include(info => info.LaunchOption)
+            return await context.GameInfos.AsNoTracking().Include(info => info.LaunchOption)
                 .OrderBy(x => x.GameName).ToListAsync();
         }
 
         public Task<string?> GetCoverById(int id)
         {
-            return context.GameInfos.Where(x => x.Id == id).Select(x => x.CoverPath).FirstOrDefaultAsync();
+            return context.GameInfos.AsNoTracking().Where(x => x.Id == id).Select(x => x.CoverPath)
+                .FirstOrDefaultAsync();
         }
 
         public async Task AddAsync(GameInfo info)
@@ -39,8 +40,8 @@ namespace GameManager.Database
 
         public async Task DeleteByIdAsync(int id)
         {
-            GameInfo? item = context.GameInfos.FirstOrDefault(x => x.Id == id);
-            if (item == null)
+            GameInfo? item = context.GameInfos.AsNoTracking().FirstOrDefault(x => x.Id == id);
+            if (item == null || context.Entry(item).State == EntityState.Deleted)
                 return;
             context.GameInfos.Remove(item);
             await context.SaveChangesAsync();

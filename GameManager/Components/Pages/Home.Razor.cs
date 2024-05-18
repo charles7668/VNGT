@@ -189,12 +189,10 @@ namespace GameManager.Components.Pages
             }
         }
 
-        private async Task OnSearchInfo(ActionBar.SearchParameter parameter)
+        private Task OnSearchInfo(ActionBar.SearchParameter parameter)
         {
             if (IsDeleting)
-                return;
-            IsLoading = true;
-            await InvokeAsync(StateHasChanged);
+                return Task.CompletedTask;
             string pattern = parameter.SearchText?.Trim().ToLower() ?? "";
             Parallel.ForEach(ViewGameInfos, viewInfo =>
             {
@@ -215,8 +213,8 @@ namespace GameManager.Components.Pages
                 viewInfo.Display = display;
             });
 
-            IsLoading = false;
-            _ = InvokeAsync(StateHasChanged);
+            _ = VirtualizeComponent.RefreshDataAsync();
+            return Task.CompletedTask;
         }
 
         private async Task OnDelete()
@@ -231,13 +229,16 @@ namespace GameManager.Components.Pages
                     var deleteItems = ViewGameInfos.Where(info => info.IsSelected).ToList();
                     CancellationToken token = _deleteTaskCancellationTokenSource.Token;
 
-                    foreach (ViewInfo item in deleteItems)
+                    await Parallel.ForEachAsync(deleteItems, new ParallelOptions()
                     {
-                        if (token.IsCancellationRequested)
-                            break;
+                        CancellationToken = token
+                    }, async (item, cancellationToken) =>
+                    {
+                        if (cancellationToken.IsCancellationRequested)
+                            return;
                         await ConfigService.DeleteGameById(item.Info.Id);
                         ViewGameInfos.Remove(item);
-                    }
+                    });
                 }, _deleteTaskCancellationTokenSource.Token);
             }
             catch (Exception e)
@@ -252,12 +253,10 @@ namespace GameManager.Components.Pages
             }
         }
 
-        private async Task OnSortByChange(SortOrder order)
+        private Task OnSortByChange(SortOrder order)
         {
             if (IsDeleting)
-                return;
-            IsLoading = true;
-            await InvokeAsync(StateHasChanged);
+                return Task.CompletedTask;
             switch (order)
             {
                 case SortOrder.NAME:
@@ -274,8 +273,8 @@ namespace GameManager.Components.Pages
                     break;
             }
 
-            IsLoading = false;
-            _ = InvokeAsync(StateHasChanged);
+            _ = VirtualizeComponent.RefreshDataAsync();
+            return Task.CompletedTask;
         }
 
         private void OnSelectionModeChange(bool value)
@@ -317,8 +316,7 @@ namespace GameManager.Components.Pages
                 return Task.CompletedTask;
             Debug.Assert(UnitOfWork != null);
             ViewGameInfos.Clear();
-            IsLoading = true;
-            StateHasChanged();
+            _ = InvokeAsync(StateHasChanged);
             _loadingCancellationTokenSource = new CancellationTokenSource();
             return Task.Run(async () =>
             {
@@ -332,7 +330,7 @@ namespace GameManager.Components.Pages
                 }, _loadingCancellationTokenSource.Token);
 
                 await loadTask;
-                IsLoading = false;
+                _ = VirtualizeComponent.RefreshDataAsync();
             }, _loadingCancellationTokenSource.Token);
         }
 

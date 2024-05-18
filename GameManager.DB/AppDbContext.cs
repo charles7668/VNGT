@@ -27,6 +27,7 @@ namespace GameManager.DB
         // special "local" folder for your platform.
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
+            options.EnableSensitiveDataLogging();
             options.UseSqlite(_connectString);
         }
     }

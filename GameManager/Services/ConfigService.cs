@@ -15,9 +15,10 @@ namespace GameManager.Services
             CreateConfigFolderIfNotExistAsync();
         }
 
-        public ConfigService(IUnitOfWork unitOfWork) : this()
+        public ConfigService(IUnitOfWork unitOfWork, IServiceProvider serviceProvider) : this()
         {
             _unitOfWork = unitOfWork;
+            ServiceProvider = serviceProvider;
             AppSetting = _unitOfWork.AppSettingRepository.GetAppSettingAsync().Result;
         }
 
@@ -37,6 +38,10 @@ namespace GameManager.Services
         public string ConfigFolder { get; } =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VNGT", "configs");
 #endif
+
+        private IServiceProvider ServiceProvider { get; } = null!;
+
+        private SemaphoreSlim _semaphore = new(1, 1);
 
         public void CreateConfigFolderIfNotExistAsync()
         {
@@ -100,14 +105,24 @@ namespace GameManager.Services
 
         public async Task DeleteGameById(int id)
         {
-            IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
-            string? cover = await gameInfoRepo.GetCoverById(id);
-            if (cover != null)
+            try
             {
-                await DeleteCoverImage(cover);
-            }
+                await using AsyncServiceScope scope = ServiceProvider.CreateAsyncScope();
+                IGameInfoRepository gameInfoRepo = scope.ServiceProvider
+                    .GetRequiredService<IGameInfoRepository>();
+                string? cover = await gameInfoRepo.GetCoverById(id);
+                if (cover != null)
+                {
+                    await DeleteCoverImage(cover);
+                }
 
-            await gameInfoRepo.DeleteByIdAsync(id);
+                await _semaphore.WaitAsync();
+                await gameInfoRepo.DeleteByIdAsync(id);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
         public async Task AddGameInfo(GameInfo info)
