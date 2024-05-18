@@ -12,10 +12,11 @@ using DBLibraryModel = GameManager.DB.Models.Library;
 
 namespace GameManager.Components.Pages
 {
-    public partial class Library
+    public partial class Library : IDisposable
     {
-        private static readonly SemaphoreSlim _SemaphoreSlim = new(1, 1);
         private readonly HashSet<string> _patHashSet = new();
+
+        private readonly CancellationTokenSource _loadLibraryCancellationTokenSource = new();
 
         [Inject]
         private IUnitOfWork UnitOfWork { get; set; } = null!;
@@ -38,18 +39,14 @@ namespace GameManager.Components.Pages
         [Inject]
         private ILogger<Library> Logger { get; set; } = null!;
 
+        public void Dispose()
+        {
+            _loadLibraryCancellationTokenSource.Cancel();
+        }
+
         protected override async Task OnInitializedAsync()
         {
-            await _SemaphoreSlim.WaitAsync();
-
-            try
-            {
-                Libraries = await UnitOfWork.LibraryRepository.GetLibrariesAsync();
-            }
-            finally
-            {
-                _SemaphoreSlim.Release();
-            }
+            Libraries = await UnitOfWork.LibraryRepository.GetLibrariesAsync(_loadLibraryCancellationTokenSource.Token);
 
             await base.OnInitializedAsync();
             foreach (DBLibraryModel library in Libraries)

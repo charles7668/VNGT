@@ -5,7 +5,7 @@ namespace GameManager.Database
 {
     public interface IGameInfoRepository
     {
-        Task GetGameInfoForEachAsync(Action<GameInfo> action,SortOrder order = SortOrder.UPLOAD_TIME);
+        Task GetGameInfoForEachAsync(Action<GameInfo> action,CancellationToken cancellationToken,SortOrder order = SortOrder.UPLOAD_TIME);
 
         Task<List<GameInfo>> GetGameInfos(SortOrder order = SortOrder.UPLOAD_TIME);
 

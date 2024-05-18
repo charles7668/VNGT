@@ -7,16 +7,6 @@ namespace GameManager.Database
 {
     public class GameInfoRepository(AppDbContext context) : IGameInfoRepository
     {
-        public async Task GetGameInfoForEachAsync(Action<GameInfo> action, SortOrder order = SortOrder.UPLOAD_TIME)
-        {
-            if (order == SortOrder.UPLOAD_TIME)
-                await context.GameInfos.Include(info => info.LaunchOption)
-                    .OrderByDescending(x => x.UploadTime)
-                    .ForEachAsync(action);
-            await context.GameInfos.Include(info => info.LaunchOption)
-                .OrderBy(x => x.GameName).ForEachAsync(action);
-        }
-
         public async Task<List<GameInfo>> GetGameInfos(SortOrder order)
         {
             if (order == SortOrder.UPLOAD_TIME)
@@ -59,6 +49,17 @@ namespace GameManager.Database
         public async Task<bool> CheckExePathExist(string path)
         {
             return await context.GameInfos.AnyAsync(x => x.ExePath == path);
+        }
+
+        public async Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
+            SortOrder order = SortOrder.UPLOAD_TIME)
+        {
+            if (order == SortOrder.UPLOAD_TIME)
+                await context.GameInfos.Include(info => info.LaunchOption)
+                    .OrderByDescending(x => x.UploadTime)
+                    .ForEachAsync(action, cancellationToken);
+            await context.GameInfos.Include(info => info.LaunchOption)
+                .OrderBy(x => x.GameName).ForEachAsync(action, cancellationToken);
         }
     }
 }

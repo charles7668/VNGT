@@ -6,9 +6,9 @@ namespace GameManager.Database
 {
     internal class LibraryRepository(AppDbContext dbContext) : ILibraryRepository
     {
-        public async Task<List<Library>> GetLibrariesAsync()
+        public async Task<List<Library>> GetLibrariesAsync(CancellationToken cancellationToken)
         {
-            return await dbContext.Libraries.ToListAsync();
+            return await dbContext.Libraries.ToListAsync(cancellationToken);
         }
 
         public async Task AddAsync(Library library)

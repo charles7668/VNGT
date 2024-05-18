@@ -4,7 +4,7 @@ namespace GameManager.Database
 {
     public interface ILibraryRepository
     {
-        public Task<List<Library>> GetLibrariesAsync();
+        public Task<List<Library>> GetLibrariesAsync(CancellationToken cancellationToken);
 
         public Task AddAsync(Library library);
 

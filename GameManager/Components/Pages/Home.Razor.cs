@@ -14,7 +14,9 @@ namespace GameManager.Components.Pages
 {
     public partial class Home : IDisposable
     {
+        private CancellationTokenSource _deleteTaskCancellationTokenSource = new();
         private bool _isCardUpdating;
+        private CancellationTokenSource _loadingCancellationTokenSource = new();
         private DotNetObjectReference<Home> _objRef = null!;
 
         [Inject]
@@ -49,6 +51,8 @@ namespace GameManager.Components.Pages
         public void Dispose()
         {
             JsRuntime.InvokeVoidAsync("resizeHandlers.removeResizeListener");
+            _deleteTaskCancellationTokenSource.Cancel();
+            _loadingCancellationTokenSource.Cancel();
         }
 
         protected override async Task OnInitializedAsync()
@@ -56,6 +60,7 @@ namespace GameManager.Components.Pages
             _objRef = DotNetObjectReference.Create(this);
             await JsRuntime.InvokeVoidAsync("resizeHandlers.addResizeListener", _objRef);
             Debug.Assert(UnitOfWork != null);
+            _loadingCancellationTokenSource = new CancellationTokenSource();
             _ = Task.Run(async () =>
             {
                 Task loadTask = UnitOfWork.GameInfoRepository.GetGameInfoForEachAsync(info =>
@@ -65,11 +70,11 @@ namespace GameManager.Components.Pages
                         Info = info,
                         Display = true
                     });
-                });
+                }, _loadingCancellationTokenSource.Token);
 
                 await loadTask;
-                _ = InvokeAsync(StateHasChanged);
-            });
+                await InvokeAsync(StateHasChanged);
+            }, _loadingCancellationTokenSource.Token);
 
             _ = base.OnInitializedAsync();
         }
@@ -211,20 +216,25 @@ namespace GameManager.Components.Pages
             StateHasChanged();
             try
             {
+                _deleteTaskCancellationTokenSource = new CancellationTokenSource();
                 await Task.Run(async () =>
                 {
                     var deleteItems = ViewGameInfos.Where(info => info.IsSelected).ToList();
+                    CancellationToken token = _deleteTaskCancellationTokenSource.Token;
 
                     foreach (ViewInfo item in deleteItems)
                     {
+                        if (token.IsCancellationRequested)
+                            break;
                         await ConfigService.DeleteGameById(item.Info.Id);
                         ViewGameInfos.Remove(item);
                     }
-                });
+                }, _deleteTaskCancellationTokenSource.Token);
             }
             catch (Exception e)
             {
-                await DialogService.ShowMessageBox("Error", e.Message, cancelText: "Cancel");
+                if (!_deleteTaskCancellationTokenSource.Token.IsCancellationRequested)
+                    await DialogService.ShowMessageBox("Error", e.Message, cancelText: "Cancel");
             }
             finally
             {
@@ -294,6 +304,7 @@ namespace GameManager.Components.Pages
             Debug.Assert(UnitOfWork != null);
             ViewGameInfos.Clear();
             StateHasChanged();
+            _loadingCancellationTokenSource = new CancellationTokenSource();
             return Task.Run(async () =>
             {
                 Task loadTask = UnitOfWork.GameInfoRepository.GetGameInfoForEachAsync(info =>
@@ -303,12 +314,12 @@ namespace GameManager.Components.Pages
                         Info = info,
                         Display = true
                     });
-                });
+                }, _loadingCancellationTokenSource.Token);
 
                 await loadTask;
                 if (VirtualizeComponent != null)
                     _ = VirtualizeComponent.RefreshDataAsync();
-            });
+            }, _loadingCancellationTokenSource.Token);
         }
 
         [JSInvokable("OnResizeEvent")]
