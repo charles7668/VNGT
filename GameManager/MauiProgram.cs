@@ -42,8 +42,7 @@ namespace GameManager
                 dbContext.Database.Migrate();
             dbContext.Database.EnsureCreated();
             dbContext.Database.ExecuteSql($"PRAGMA foreign_keys=ON;");
-            builder.Services.AddTransient(_ =>
-                new AppDbContext($"Data Source={config.GetDbPath()}"));
+            builder.Services.AddSingleton(dbContext);
 
 
             builder.Services.AddScoped<IGameInfoRepository, GameInfoRepository>();
