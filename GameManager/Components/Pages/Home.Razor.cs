@@ -44,6 +44,8 @@ namespace GameManager.Components.Pages
 
         private Virtualize<IEnumerable<ViewInfo>>? VirtualizeComponent { get; set; }
 
+        private bool IsDeleting { get; set; }
+
         public void Dispose()
         {
             JsRuntime.InvokeVoidAsync("resizeHandlers.removeResizeListener");
@@ -74,6 +76,8 @@ namespace GameManager.Components.Pages
 
         private async Task AddNewGame(string exePath)
         {
+            if (IsDeleting)
+                return;
             var inputModel = new DialogGameInfoEdit.FormModel
             {
                 GameName = Path.GetFileName(Path.GetDirectoryName(exePath)) ?? "null",
@@ -174,6 +178,8 @@ namespace GameManager.Components.Pages
 
         private void OnSearchInfo(ActionBar.SearchParameter parameter)
         {
+            if (IsDeleting)
+                return;
             string pattern = parameter.SearchText?.Trim().ToLower() ?? "";
             for (int i = 0; i < ViewGameInfos.Count; i++)
             {
@@ -201,23 +207,30 @@ namespace GameManager.Components.Pages
 
         private async Task OnDelete()
         {
+            IsDeleting = true;
+            StateHasChanged();
             try
             {
-                for (int i = 0; i < ViewGameInfos.Count; i++)
+                await Task.Run(async () =>
                 {
-                    if (!ViewGameInfos[i].IsSelected) continue;
-                    await ConfigService.DeleteGameById(ViewGameInfos[i].Info.Id);
-                    ViewGameInfos.RemoveAt(i);
-                    i--;
-                }
+                    var deleteItems = ViewGameInfos.Where(info => info.IsSelected).ToList();
+
+                    foreach (ViewInfo item in deleteItems)
+                    {
+                        await ConfigService.DeleteGameById(item.Info.Id);
+                        ViewGameInfos.Remove(item);
+                    }
+                });
             }
             catch (Exception e)
             {
                 await DialogService.ShowMessageBox("Error", e.Message, cancelText: "Cancel");
-                return;
             }
-
-            StateHasChanged();
+            finally
+            {
+                IsDeleting = false;
+                StateHasChanged();
+            }
         }
 
         private async Task OnSortByChange(SortOrder order)
@@ -244,6 +257,7 @@ namespace GameManager.Components.Pages
         private void OnSelectionModeChange(bool value)
         {
             IsSelectionMode = value;
+            if (!IsDeleting) return;
             foreach (ViewInfo viewInfo in ViewGameInfos)
             {
                 viewInfo.IsSelected = false;
@@ -254,7 +268,7 @@ namespace GameManager.Components.Pages
 
         private void OnSelectAllClick()
         {
-            if (!IsSelectionMode)
+            if (!IsSelectionMode || IsDeleting)
                 return;
             foreach (ViewInfo viewInfo in ViewGameInfos)
             {
@@ -275,6 +289,8 @@ namespace GameManager.Components.Pages
 
         private Task OnRefreshClick()
         {
+            if (IsDeleting)
+                return Task.CompletedTask;
             Debug.Assert(UnitOfWork != null);
             ViewGameInfos.Clear();
             StateHasChanged();
