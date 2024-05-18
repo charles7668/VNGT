@@ -6,24 +6,24 @@ namespace GameManager.Database
 {
     internal class LibraryRepository(AppDbContext dbContext) : ILibraryRepository
     {
-        public Task<List<Library>> GetLibrariesAsync()
+        public async Task<List<Library>> GetLibrariesAsync()
         {
-            return dbContext.Libraries.ToListAsync();
+            return await dbContext.Libraries.ToListAsync();
         }
 
-        public Task AddAsync(Library library)
+        public async Task AddAsync(Library library)
         {
-            dbContext.Libraries.Add(library);
-            return dbContext.SaveChangesAsync();
+            await dbContext.Libraries.AddAsync(library);
+            await dbContext.SaveChangesAsync();
         }
 
-        public Task DeleteByIdAsync(int id)
+        public async Task DeleteByIdAsync(int id)
         {
-            Library? item = dbContext.Libraries.FirstOrDefault(x => x.Id == id);
+            Library? item = await dbContext.Libraries.FirstOrDefaultAsync(x => x.Id == id);
             if (item == null)
-                return Task.CompletedTask;
+                return;
             dbContext.Libraries.Remove(item);
-            return dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
         }
     }
 }

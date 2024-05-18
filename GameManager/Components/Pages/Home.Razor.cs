@@ -5,13 +5,18 @@ using GameManager.Enums;
 using GameManager.Services;
 using Helper;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web.Virtualization;
+using Microsoft.JSInterop;
 using MudBlazor;
 using System.Diagnostics;
 
 namespace GameManager.Components.Pages
 {
-    public partial class Home
+    public partial class Home : IDisposable
     {
+        private bool _isCardUpdating;
+        private DotNetObjectReference<Home> _objRef = null!;
+
         [Inject]
         public ISnackbar SnakeBar { get; set; } = null!;
 
@@ -28,8 +33,26 @@ namespace GameManager.Components.Pages
 
         private bool IsSelectionMode { get; set; }
 
-        protected override Task OnInitializedAsync()
+        [Inject]
+        private IJSRuntime JsRuntime { get; set; } = null!;
+
+        private int CardListWidth { get; set; }
+
+        private int CardItemWidth { get; } = 275;
+
+        private int CardListRowCount { get; set; } = 1;
+
+        private Virtualize<IEnumerable<ViewInfo>>? VirtualizeComponent { get; set; }
+
+        public void Dispose()
         {
+            JsRuntime.InvokeVoidAsync("resizeHandlers.removeResizeListener");
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            _objRef = DotNetObjectReference.Create(this);
+            await JsRuntime.InvokeVoidAsync("resizeHandlers.addResizeListener", _objRef);
             Debug.Assert(UnitOfWork != null);
             _ = Task.Run(async () =>
             {
@@ -47,7 +70,6 @@ namespace GameManager.Components.Pages
             });
 
             _ = base.OnInitializedAsync();
-            return Task.CompletedTask;
         }
 
         private async Task AddNewGame(string exePath)
@@ -268,8 +290,51 @@ namespace GameManager.Components.Pages
                 });
 
                 await loadTask;
-                _ = InvokeAsync(StateHasChanged);
+                if (VirtualizeComponent != null)
+                    _ = VirtualizeComponent.RefreshDataAsync();
             });
+        }
+
+        [JSInvokable("OnResizeEvent")]
+        public async Task OnResizeEvent(int width, int height)
+        {
+            ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
+            CardListWidth = await getWidthTask;
+            if (!_isCardUpdating && VirtualizeComponent != null)
+                _ = VirtualizeComponent.RefreshDataAsync();
+        }
+
+        private ValueTask<ItemsProviderResult<IEnumerable<ViewInfo>>> CardItemProvider(
+            ItemsProviderRequest request)
+        {
+            _isCardUpdating = true;
+            List<IEnumerable<ViewInfo>> items = [];
+            const int paddingLeft = 15;
+            int countOfCard = (CardListWidth - paddingLeft) / CardItemWidth;
+            CardListRowCount = Math.Max((int)Math.Ceiling((float)ViewGameInfos.Count / countOfCard), 1);
+            int start = request.StartIndex * countOfCard;
+            for (int i = 0; i < request.Count; i++)
+            {
+                List<ViewInfo> rowCardItems = new();
+                for (int j = 0; j < countOfCard;)
+                {
+                    int index = start;
+                    if (index >= ViewGameInfos.Count)
+                        break;
+                    if (!ViewGameInfos[index].Display)
+                        continue;
+                    start++;
+                    j++;
+                    rowCardItems.Add(ViewGameInfos[index]);
+                }
+
+                items.Add(rowCardItems);
+            }
+
+            _ = InvokeAsync(StateHasChanged);
+            _isCardUpdating = false;
+            return new ValueTask<ItemsProviderResult<IEnumerable<ViewInfo>>>(
+                new ItemsProviderResult<IEnumerable<ViewInfo>>(items, request.Count));
         }
 
         private class ViewInfo

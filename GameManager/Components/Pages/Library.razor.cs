@@ -14,6 +14,7 @@ namespace GameManager.Components.Pages
 {
     public partial class Library
     {
+        private static readonly SemaphoreSlim _SemaphoreSlim = new(1, 1);
         private readonly HashSet<string> _patHashSet = new();
 
         [Inject]
@@ -39,7 +40,17 @@ namespace GameManager.Components.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            Libraries = await UnitOfWork.LibraryRepository.GetLibrariesAsync();
+            await _SemaphoreSlim.WaitAsync();
+
+            try
+            {
+                Libraries = await UnitOfWork.LibraryRepository.GetLibrariesAsync();
+            }
+            finally
+            {
+                _SemaphoreSlim.Release();
+            }
+
             await base.OnInitializedAsync();
             foreach (DBLibraryModel library in Libraries)
             {
