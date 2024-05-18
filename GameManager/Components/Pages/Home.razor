@@ -35,11 +35,11 @@
             {
                 @if (ViewGameInfos.Count > 0)
                 {
-                    <MudVirtualize Enabled="true"
-                                   ItemSize="475.6f"
-                                   ItemsProvider="CardItemProvider"
-                                   OverscanCount="10"
-                                   Context="rowViewInfo">
+                    <Virtualize ItemSize="475.6f"
+                                @ref="VirtualizeComponent"
+                                ItemsProvider="CardItemProvider"
+                                OverscanCount="10"
+                                Context="rowViewInfo">
                         <MudStack Row="true">
                             @foreach (var viewInfo in rowViewInfo)
                             {
@@ -47,11 +47,11 @@
                                       IsSelected="@(viewInfo is { Display: true, IsSelected: true } && IsSelectionMode)"
                                       GameInfo="viewInfo.Info"
                                       Class="@(viewInfo.Display ? "card" : "card card-hidden")"
-                                      OnDeleteEventCallback="DeleteGameCard">
+                                      OnDeleteEventCallback="OnDeleteGameCard">
                                 </Card>
                             }
                         </MudStack>
-                    </MudVirtualize>
+                    </Virtualize>
                 }
             }
         </div>

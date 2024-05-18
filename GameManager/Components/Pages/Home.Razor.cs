@@ -45,6 +45,8 @@ namespace GameManager.Components.Pages
 
         private bool IsLoading { get; set; } = true;
 
+        private Virtualize<IEnumerable<ViewInfo>> VirtualizeComponent { get; set; } = null!;
+
         public void Dispose()
         {
             JsRuntime.InvokeVoidAsync("resizeHandlers.removeResizeListener");
@@ -105,6 +107,8 @@ namespace GameManager.Components.Pages
             if (dialogResult.Data is not DialogGameInfoEdit.FormModel resultModel)
                 return;
             var gameInfo = new GameInfo();
+            IsLoading = true;
+            await InvokeAsync(StateHasChanged);
             Debug.Assert(ConfigService != null);
             if (resultModel.Cover != null)
             {
@@ -130,6 +134,8 @@ namespace GameManager.Components.Pages
             catch (Exception e)
             {
                 SnakeBar.Add(e.Message, Severity.Error);
+                IsLoading = false;
+                _ = InvokeAsync(StateHasChanged);
                 return;
             }
 
@@ -138,10 +144,11 @@ namespace GameManager.Components.Pages
                 Info = gameInfo,
                 Display = true
             });
-            StateHasChanged();
+            IsLoading = false;
+            _ = InvokeAsync(StateHasChanged);
         }
 
-        private async Task DeleteGameCard(int id)
+        private async Task OnDeleteGameCard(int id)
         {
             DialogParameters<DialogConfirm> parameters = new()
             {
@@ -177,7 +184,9 @@ namespace GameManager.Components.Pages
             }
 
             if (hasChane)
-                StateHasChanged();
+            {
+                _ = VirtualizeComponent.RefreshDataAsync();
+            }
         }
 
         private async Task OnSearchInfo(ActionBar.SearchParameter parameter)
@@ -245,6 +254,10 @@ namespace GameManager.Components.Pages
 
         private async Task OnSortByChange(SortOrder order)
         {
+            if (IsDeleting)
+                return;
+            IsLoading = true;
+            await InvokeAsync(StateHasChanged);
             switch (order)
             {
                 case SortOrder.NAME:
@@ -261,7 +274,8 @@ namespace GameManager.Components.Pages
                     break;
             }
 
-            await InvokeAsync(StateHasChanged);
+            IsLoading = false;
+            _ = InvokeAsync(StateHasChanged);
         }
 
         private void OnSelectionModeChange(bool value)
@@ -337,7 +351,7 @@ namespace GameManager.Components.Pages
             int countOfCard = (CardListWidth - paddingLeft) / CardItemWidth;
             var displayItem = ViewGameInfos.Where(info => info.Display).ToList();
             int start = request.StartIndex * countOfCard;
-            int end = Math.Min(start + request.Count * countOfCard, displayItem.Count);
+            int end = Math.Min(start + (request.Count * countOfCard), displayItem.Count);
 
             for (int i = start; i < end;)
             {

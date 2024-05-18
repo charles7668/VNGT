@@ -54,12 +54,21 @@ namespace GameManager.Database
         public async Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
             SortOrder order = SortOrder.UPLOAD_TIME)
         {
+            IOrderedQueryable<GameInfo> queryable;
             if (order == SortOrder.UPLOAD_TIME)
-                await context.GameInfos.Include(info => info.LaunchOption)
-                    .OrderByDescending(x => x.UploadTime)
-                    .ForEachAsync(action, cancellationToken);
-            await context.GameInfos.Include(info => info.LaunchOption)
-                .OrderBy(x => x.GameName).ForEachAsync(action, cancellationToken);
+            {
+                queryable = context.GameInfos
+                    .Include(info => info.LaunchOption)
+                    .OrderByDescending(x => x.UploadTime);
+                await queryable.ForEachAsync(action, cancellationToken);
+            }
+            else
+            {
+                queryable = context.GameInfos
+                    .Include(info => info.LaunchOption)
+                    .OrderBy(x => x.GameName);
+                await queryable.ForEachAsync(action, cancellationToken);
+            }
         }
     }
 }
