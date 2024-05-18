@@ -348,9 +348,9 @@ namespace GameManager.Components.Pages
                     int index = start;
                     if (index >= ViewGameInfos.Count)
                         break;
+                    start++;
                     if (!ViewGameInfos[index].Display)
                         continue;
-                    start++;
                     j++;
                     rowCardItems.Add(ViewGameInfos[index]);
                 }
