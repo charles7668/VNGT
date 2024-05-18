@@ -105,6 +105,8 @@ namespace GameManager.Components.Pages
 
         private async Task OnDelete()
         {
+            if (Libraries.Count <= 0)
+                return;
             DialogParameters<DialogConfirm> parameters = new()
             {
                 { x => x.Content, "Are you sure you want to delete?" }

@@ -15,7 +15,6 @@ namespace GameManager.Components.Pages
     public partial class Home : IDisposable
     {
         private CancellationTokenSource _deleteTaskCancellationTokenSource = new();
-        private bool _isCardUpdating;
         private CancellationTokenSource _loadingCancellationTokenSource = new();
         private DotNetObjectReference<Home> _objRef = null!;
 
@@ -42,11 +41,9 @@ namespace GameManager.Components.Pages
 
         private int CardItemWidth { get; } = 275;
 
-        private int CardListRowCount { get; set; } = 1;
-
-        private Virtualize<IEnumerable<ViewInfo>>? VirtualizeComponent { get; set; }
-
         private bool IsDeleting { get; set; }
+
+        private bool IsLoading { get; set; } = true;
 
         public void Dispose()
         {
@@ -60,6 +57,7 @@ namespace GameManager.Components.Pages
             _objRef = DotNetObjectReference.Create(this);
             await JsRuntime.InvokeVoidAsync("resizeHandlers.addResizeListener", _objRef);
             Debug.Assert(UnitOfWork != null);
+            await base.OnInitializedAsync();
             _loadingCancellationTokenSource = new CancellationTokenSource();
             _ = Task.Run(async () =>
             {
@@ -73,10 +71,11 @@ namespace GameManager.Components.Pages
                 }, _loadingCancellationTokenSource.Token);
 
                 await loadTask;
+                IsLoading = false;
                 await InvokeAsync(StateHasChanged);
+                ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
+                CardListWidth = await getWidthTask;
             }, _loadingCancellationTokenSource.Token);
-
-            _ = base.OnInitializedAsync();
         }
 
         private async Task AddNewGame(string exePath)
@@ -181,14 +180,15 @@ namespace GameManager.Components.Pages
                 StateHasChanged();
         }
 
-        private void OnSearchInfo(ActionBar.SearchParameter parameter)
+        private async Task OnSearchInfo(ActionBar.SearchParameter parameter)
         {
             if (IsDeleting)
                 return;
+            IsLoading = true;
+            await InvokeAsync(StateHasChanged);
             string pattern = parameter.SearchText?.Trim().ToLower() ?? "";
-            for (int i = 0; i < ViewGameInfos.Count; i++)
+            Parallel.ForEach(ViewGameInfos, viewInfo =>
             {
-                ViewInfo viewInfo = ViewGameInfos[i];
                 bool display = string.IsNullOrEmpty(pattern);
                 if (!display)
                 {
@@ -204,10 +204,10 @@ namespace GameManager.Components.Pages
                 }
 
                 viewInfo.Display = display;
-                ViewGameInfos[i] = viewInfo;
-            }
+            });
 
-            StateHasChanged();
+            IsLoading = false;
+            _ = InvokeAsync(StateHasChanged);
         }
 
         private async Task OnDelete()
@@ -303,6 +303,7 @@ namespace GameManager.Components.Pages
                 return Task.CompletedTask;
             Debug.Assert(UnitOfWork != null);
             ViewGameInfos.Clear();
+            IsLoading = true;
             StateHasChanged();
             _loadingCancellationTokenSource = new CancellationTokenSource();
             return Task.Run(async () =>
@@ -317,8 +318,7 @@ namespace GameManager.Components.Pages
                 }, _loadingCancellationTokenSource.Token);
 
                 await loadTask;
-                if (VirtualizeComponent != null)
-                    _ = VirtualizeComponent.RefreshDataAsync();
+                IsLoading = false;
             }, _loadingCancellationTokenSource.Token);
         }
 
@@ -327,41 +327,33 @@ namespace GameManager.Components.Pages
         {
             ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
             CardListWidth = await getWidthTask;
-            if (!_isCardUpdating && VirtualizeComponent != null)
-                _ = VirtualizeComponent.RefreshDataAsync();
         }
 
         private ValueTask<ItemsProviderResult<IEnumerable<ViewInfo>>> CardItemProvider(
             ItemsProviderRequest request)
         {
-            _isCardUpdating = true;
             List<IEnumerable<ViewInfo>> items = [];
             const int paddingLeft = 15;
             int countOfCard = (CardListWidth - paddingLeft) / CardItemWidth;
-            CardListRowCount = Math.Max((int)Math.Ceiling((float)ViewGameInfos.Count / countOfCard), 1);
+            var displayItem = ViewGameInfos.Where(info => info.Display).ToList();
             int start = request.StartIndex * countOfCard;
-            for (int i = 0; i < request.Count; i++)
+            int end = Math.Min(start + request.Count * countOfCard, displayItem.Count);
+
+            for (int i = start; i < end;)
             {
-                List<ViewInfo> rowCardItems = new();
-                for (int j = 0; j < countOfCard;)
+                List<ViewInfo> rowCardItems = [];
+                for (int j = 0; j < countOfCard && i < end; j++, i++)
                 {
-                    int index = start;
-                    if (index >= ViewGameInfos.Count)
-                        break;
-                    start++;
-                    if (!ViewGameInfos[index].Display)
-                        continue;
-                    j++;
-                    rowCardItems.Add(ViewGameInfos[index]);
+                    rowCardItems.Add(displayItem[i]);
                 }
 
                 items.Add(rowCardItems);
             }
 
             _ = InvokeAsync(StateHasChanged);
-            _isCardUpdating = false;
             return new ValueTask<ItemsProviderResult<IEnumerable<ViewInfo>>>(
-                new ItemsProviderResult<IEnumerable<ViewInfo>>(items, request.Count));
+                new ItemsProviderResult<IEnumerable<ViewInfo>>(items,
+                    (int)Math.Ceiling((float)displayItem.Count / countOfCard)));
         }
 
         private class ViewInfo

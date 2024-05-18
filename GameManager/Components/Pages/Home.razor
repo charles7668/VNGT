@@ -1,68 +1,79 @@
 ﻿@page "/"
 
-<MudLayout Class="main-mud-layout">
-    <ActionBar id="main-toolbar" Class="@("main-toolbar mb-0")"
-               OnDeleteEvent="OnDelete"
-               AddNewGameEvent="AddNewGame"
-               OnRefreshEvent="OnRefreshClick"
-               OnSortByChangeEvent="OnSortByChange"
-               SearchEvent="OnSearchInfo">
-    </ActionBar>
-    <MudToolBar Class="mt-0">
-        <MudCheckBox T="bool" ValueChanged="OnSelectionModeChange" Class="ml-2 mr-2">Selection Mode</MudCheckBox>
-        <MudButton OnClick="OnSelectAllClick" Variant="Variant.Outlined">Select All</MudButton>
-    </MudToolBar>
-    <div id="card-list" class="@(IsDeleting? "deleting justify-center align-center d-flex" : "")">
-        @if (IsDeleting)
-        {
+<MudLayout Class="main-mud-layout d-flex flex-column">
+    @if (IsLoading)
+    {
+        <div class="justify-center align-center d-flex">
             <MudProgressCircular Color="Color.Primary"
                                  Indeterminate="true"
-                                 Style="width:500px; height: 500px; "></MudProgressCircular>
-        }
-        else
-        {
-            @if (ViewGameInfos.Count > 0)
+                                 Style="width:500px; height: 500px; ">
+            </MudProgressCircular>
+        </div>
+    }
+    else
+    {
+        <ActionBar id="main-toolbar" Class="@("main-toolbar mb-0 flex-grow-0")"
+                   OnDeleteEvent="OnDelete"
+                   AddNewGameEvent="AddNewGame"
+                   OnRefreshEvent="OnRefreshClick"
+                   OnSortByChangeEvent="OnSortByChange"
+                   SearchEvent="OnSearchInfo">
+        </ActionBar>
+        <MudToolBar Class="mt-0 flex-grow-0">
+            <MudCheckBox T="bool" ValueChanged="OnSelectionModeChange" Class="ml-2 mr-2">Selection Mode</MudCheckBox>
+            <MudButton OnClick="OnSelectAllClick" Variant="Variant.Outlined">Select All</MudButton>
+        </MudToolBar>
+        <div id="card-list" class="@(IsDeleting ? "deleting justify-center align-center d-flex" : "" + " flex-grow-1")">
+            @if (IsDeleting || IsLoading)
             {
-                <Virtualize @ref="VirtualizeComponent"
-                            ItemsProvider="CardItemProvider"
-                            ItemSize="CardListRowCount"
-                            OverscanCount="10"
-                            Context="rowViewInfo">
-                    <MudStack Row="true">
-                        @foreach (var viewInfo in rowViewInfo)
-                        {
-                            <Card OnClick="_ => OnCardClick(viewInfo)"
-                                  IsSelected="@(viewInfo is { Display: true, IsSelected: true } && IsSelectionMode)"
-                                  GameInfo="viewInfo.Info"
-                                  Class="@(viewInfo.Display ? "card" : "card card-hidden")"
-                                  OnDeleteEventCallback="DeleteGameCard">
-                            </Card>
-                        }
-                    </MudStack>
-                </Virtualize>
+                <MudProgressCircular Color="Color.Primary"
+                                     Indeterminate="true"
+                                     Style="width:500px; height: 500px; ">
+                </MudProgressCircular>
             }
-        }
-    </div>
+            else
+            {
+                @if (ViewGameInfos.Count > 0)
+                {
+                    <MudVirtualize Enabled="true"
+                                   ItemSize="475.6f"
+                                   ItemsProvider="CardItemProvider"
+                                   OverscanCount="10"
+                                   Context="rowViewInfo">
+                        <MudStack Row="true">
+                            @foreach (var viewInfo in rowViewInfo)
+                            {
+                                <Card OnClick="_ => OnCardClick(viewInfo)"
+                                      IsSelected="@(viewInfo is { Display: true, IsSelected: true } && IsSelectionMode)"
+                                      GameInfo="viewInfo.Info"
+                                      Class="@(viewInfo.Display ? "card" : "card card-hidden")"
+                                      OnDeleteEventCallback="DeleteGameCard">
+                                </Card>
+                            }
+                        </MudStack>
+                    </MudVirtualize>
+                }
+            }
+        </div>
+    }
 </MudLayout>
 
 <style>
     .main-mud-layout {
         padding: 0px;
+        max-height: 100vh;
     }
 
-        .main-mud-layout > #card-list {
+        .main-mud-layout #card-list {
             max-width: 100%;
             min-width: 100%;
             padding-left: 15px;
-            height: 100%;
-            min-height: 100%;
-            max-height: 100%;
             overflow-y: auto;
         }
 
-            .main-mud-layout > #card-list.deleting {
-                overflow: hidden;
-            }
+        .main-mud-layout > #card-list.deleting {
+            overflow: hidden;
+        }
 
     main-mud-layout > #card-list .mud-stack {
         max-width: 100%;
