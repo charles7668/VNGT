@@ -1,7 +1,7 @@
 ﻿using GameManager.Components.Pages.components;
-using GameManager.Database;
 using GameManager.DB.Models;
 using GameManager.GameInfoProvider;
+using GameManager.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
@@ -19,7 +19,7 @@ namespace GameManager.Components.Pages
         private readonly CancellationTokenSource _loadLibraryCancellationTokenSource = new();
 
         [Inject]
-        private IUnitOfWork UnitOfWork { get; set; } = null!;
+        private IConfigService ConfigService { get; set; } = null!;
 
         [Inject]
         private IDialogService DialogService { get; set; } = null!;
@@ -46,7 +46,7 @@ namespace GameManager.Components.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            Libraries = await UnitOfWork.LibraryRepository.GetLibrariesAsync(_loadLibraryCancellationTokenSource.Token);
+            Libraries = await ConfigService.GetLibrariesAsync(_loadLibraryCancellationTokenSource.Token);
 
             await base.OnInitializedAsync();
             foreach (DBLibraryModel library in Libraries)
@@ -84,7 +84,7 @@ namespace GameManager.Components.Pages
 
             try
             {
-                await UnitOfWork.LibraryRepository.AddAsync(new DBLibraryModel
+                await ConfigService.AddLibraryAsync(new DBLibraryModel
                 {
                     FolderPath = folder.Path
                 });
@@ -123,7 +123,7 @@ namespace GameManager.Components.Pages
             int id = Libraries[SelectionIndex].Id;
             try
             {
-                await UnitOfWork.LibraryRepository.DeleteByIdAsync(id);
+                await ConfigService.DeleteLibraryByIdAsync(id);
             }
             catch (Exception e)
             {
@@ -175,7 +175,7 @@ namespace GameManager.Components.Pages
                                 GameName = Path.GetFileName(folder),
                                 ExePath = folder
                             };
-                            if (await UnitOfWork.GameInfoRepository.CheckExePathExist(folder))
+                            if (await ConfigService.CheckExePathExist(folder))
                             {
                                 Logger.LogInformation("{Folder} already exist", folder);
                                 continue;
@@ -211,7 +211,7 @@ namespace GameManager.Components.Pages
                                     Logger.LogError("Scan failed : {Err}", e.Message);
                                 }
 
-                                await UnitOfWork.GameInfoRepository.AddAsync(info);
+                                await ConfigService.AddGameInfoAsync(info);
                             }
                             catch (Exception e)
                             {

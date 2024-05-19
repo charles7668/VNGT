@@ -1,5 +1,4 @@
-﻿using GameManager.Database;
-using GameManager.DB.Models;
+﻿using GameManager.DB.Models;
 using GameManager.GameInfoProvider;
 using GameManager.Services;
 using Helper.Image;
@@ -35,14 +34,15 @@ namespace GameManager.Components.Pages.components
         private AppSetting AppSetting { get; set; } = null!;
 
         [Inject]
-        private IUnitOfWork UnitOfWork { get; set; } = null!;
+        private IConfigService ConfigService { get; set; } = null!;
 
         private List<string> ExeFiles { get; set; } = [];
 
         protected override async Task OnInitializedAsync()
         {
             LeConfigs = ["None"];
-            AppSetting = await UnitOfWork.AppSettingRepository.GetAppSettingAsync();
+            AppSetting=  
+            AppSetting = ConfigService.GetAppSetting();
             if (!string.IsNullOrEmpty(AppSetting.LocaleEmulatorPath)
                 && File.Exists(Path.Combine(AppSetting.LocaleEmulatorPath, "LEConfig.xml")))
             {

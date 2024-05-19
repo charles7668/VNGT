@@ -1,5 +1,5 @@
-﻿using GameManager.Database;
-using GameManager.DB.Models;
+﻿using GameManager.DB.Models;
+using GameManager.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Win32;
 using MudBlazor;
@@ -14,11 +14,11 @@ namespace GameManager.Components.Pages
         private IDialogService DialogService { get; set; } = null!;
 
         [Inject]
-        private IUnitOfWork UnitOfWork { get; set; } = null!;
+        private IConfigService ConfigService { get; set; } = null!;
 
         protected override void OnInitialized()
         {
-            AppSetting = UnitOfWork.AppSettingRepository.GetAppSettingAsync().Result;
+            AppSetting = ConfigService.GetAppSetting();
             base.OnInitialized();
         }
 
@@ -26,7 +26,7 @@ namespace GameManager.Components.Pages
         {
             try
             {
-                await UnitOfWork.AppSettingRepository.UpdateAppSettingAsync(AppSetting);
+                await ConfigService.UpdateAppSettingAsync(AppSetting);
             }
             catch (Exception e)
             {

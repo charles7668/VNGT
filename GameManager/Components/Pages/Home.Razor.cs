@@ -1,5 +1,4 @@
 ﻿using GameManager.Components.Pages.components;
-using GameManager.Database;
 using GameManager.DB.Models;
 using GameManager.Enums;
 using GameManager.Services;
@@ -20,9 +19,6 @@ namespace GameManager.Components.Pages
 
         [Inject]
         public ISnackbar SnakeBar { get; set; } = null!;
-
-        [Inject]
-        private IUnitOfWork? UnitOfWork { get; set; }
 
         private List<ViewInfo> ViewGameInfos { get; } = [];
 
@@ -58,12 +54,11 @@ namespace GameManager.Components.Pages
         {
             _objRef = DotNetObjectReference.Create(this);
             await JsRuntime.InvokeVoidAsync("resizeHandlers.addResizeListener", _objRef);
-            Debug.Assert(UnitOfWork != null);
             await base.OnInitializedAsync();
             _loadingCancellationTokenSource = new CancellationTokenSource();
             _ = Task.Run(async () =>
             {
-                Task loadTask = UnitOfWork.GameInfoRepository.GetGameInfoForEachAsync(info =>
+                Task loadTask = ConfigService.GetGameInfoForEachAsync(info =>
                 {
                     ViewGameInfos.Add(new ViewInfo
                     {
@@ -129,7 +124,7 @@ namespace GameManager.Components.Pages
             DataMapService.Map(resultModel, gameInfo);
             try
             {
-                await ConfigService.AddGameInfo(gameInfo);
+                await ConfigService.AddGameInfoAsync(gameInfo);
             }
             catch (Exception e)
             {
@@ -314,13 +309,12 @@ namespace GameManager.Components.Pages
         {
             if (IsDeleting)
                 return Task.CompletedTask;
-            Debug.Assert(UnitOfWork != null);
             ViewGameInfos.Clear();
             _ = InvokeAsync(StateHasChanged);
             _loadingCancellationTokenSource = new CancellationTokenSource();
             return Task.Run(async () =>
             {
-                Task loadTask = UnitOfWork.GameInfoRepository.GetGameInfoForEachAsync(info =>
+                Task loadTask = ConfigService.GetGameInfoForEachAsync(info =>
                 {
                     ViewGameInfos.Add(new ViewInfo
                     {

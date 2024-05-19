@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.Enums;
 
 namespace GameManager.Services
 {
@@ -18,7 +19,9 @@ namespace GameManager.Services
 
         Task DeleteGameById(int id);
 
-        Task AddGameInfo(GameInfo info);
+        Task AddGameInfoAsync(GameInfo info);
+
+        Task GetGameInfoForEachAsync(Action<GameInfo> action,CancellationToken cancellationToken,SortOrder order = SortOrder.UPLOAD_TIME);
 
         string GetDbPath();
 
@@ -27,5 +30,15 @@ namespace GameManager.Services
         Task EditGameInfo(GameInfo info);
 
         AppSetting GetAppSetting();
+
+        Task UpdateAppSettingAsync(AppSetting setting);
+
+        Task<List<Library>> GetLibrariesAsync(CancellationToken cancellationToken);
+
+        Task AddLibraryAsync(Library library);
+
+        Task DeleteLibraryByIdAsync(int id);
+
+        Task<bool> CheckExePathExist(string path);
     }
 }

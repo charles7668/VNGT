@@ -1,6 +1,7 @@
 ﻿using GameManager.Attributes;
 using GameManager.Database;
 using GameManager.DB.Models;
+using GameManager.Enums;
 using System.Reflection;
 
 namespace GameManager.Services
@@ -41,7 +42,7 @@ namespace GameManager.Services
 
         private IServiceProvider ServiceProvider { get; } = null!;
 
-        private SemaphoreSlim _semaphore = new(1, 1);
+        private readonly SemaphoreSlim _semaphore = new(1, 1);
 
         public void CreateConfigFolderIfNotExistAsync()
         {
@@ -125,10 +126,17 @@ namespace GameManager.Services
             }
         }
 
-        public async Task AddGameInfo(GameInfo info)
+        public async Task AddGameInfoAsync(GameInfo info)
         {
             IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
             await gameInfoRepo.AddAsync(info);
+        }
+
+        public Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
+            SortOrder order = SortOrder.UPLOAD_TIME)
+        {
+            return _unitOfWork.GameInfoRepository
+                .GetGameInfoForEachAsync(action, cancellationToken, order);
         }
 
         public string GetDbPath()
@@ -150,6 +158,31 @@ namespace GameManager.Services
         public AppSetting GetAppSetting()
         {
             return AppSetting;
+        }
+
+        public Task UpdateAppSettingAsync(AppSetting setting)
+        {
+            return _unitOfWork.AppSettingRepository.UpdateAppSettingAsync(setting);
+        }
+
+        public Task<List<Library>> GetLibrariesAsync(CancellationToken cancellationToken)
+        {
+            return _unitOfWork.LibraryRepository.GetLibrariesAsync(cancellationToken);
+        }
+
+        public Task AddLibraryAsync(Library library)
+        {
+            return _unitOfWork.LibraryRepository.AddAsync(library);
+        }
+
+        public Task DeleteLibraryByIdAsync(int id)
+        {
+            return _unitOfWork.LibraryRepository.DeleteByIdAsync(id);
+        }
+
+        public Task<bool> CheckExePathExist(string path)
+        {
+            return _unitOfWork.GameInfoRepository.CheckExePathExist(path);
         }
     }
 }

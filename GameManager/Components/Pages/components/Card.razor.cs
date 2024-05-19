@@ -1,5 +1,4 @@
-﻿using GameManager.Database;
-using GameManager.DB.Models;
+﻿using GameManager.DB.Models;
 using GameManager.Services;
 using Helper;
 using Helper.Image;
@@ -35,9 +34,6 @@ namespace GameManager.Components.Pages.components
 
         [Parameter]
         public EventCallback<int> OnDeleteEventCallback { get; set; }
-
-        [Inject]
-        private IUnitOfWork UnitOfWork { get; set; } = null!;
 
         [Parameter]
         public EventCallback<int> OnClick { get; set; }
