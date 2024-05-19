@@ -214,6 +214,18 @@ namespace GameManager.Components.Pages
 
         private async Task OnDelete()
         {
+            DialogParameters<DialogConfirm> parameters = new()
+            {
+                { x => x.Content, "Are you sure you want to delete?" }
+            };
+            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogConfirm>("Warning", parameters,
+                new DialogOptions
+                {
+                    BackdropClick = false
+                });
+            DialogResult? dialogResult = await dialogReference.Result;
+            if (dialogResult.Canceled)
+                return;
             IsDeleting = true;
             StateHasChanged();
             try
@@ -224,7 +236,7 @@ namespace GameManager.Components.Pages
                     var deleteItems = ViewGameInfos.Where(info => info.IsSelected).ToList();
                     CancellationToken token = _deleteTaskCancellationTokenSource.Token;
 
-                    await Parallel.ForEachAsync(deleteItems, new ParallelOptions()
+                    await Parallel.ForEachAsync(deleteItems, new ParallelOptions
                     {
                         CancellationToken = token
                     }, async (item, cancellationToken) =>
