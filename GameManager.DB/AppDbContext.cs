@@ -30,5 +30,14 @@ namespace GameManager.DB
             options.EnableSensitiveDataLogging();
             options.UseSqlite(_connectString);
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AppSetting>()
+                .Property(x => x.IsAutoFetchInfoEnabled)
+                .HasDefaultValue(true);
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

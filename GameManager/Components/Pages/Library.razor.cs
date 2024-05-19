@@ -183,32 +183,37 @@ namespace GameManager.Components.Pages
 
                             try
                             {
-                                try
+                                AppSetting appSetting = ConfigService.GetAppSetting();
+                                if (appSetting.IsAutoFetchInfoEnabled)
                                 {
-                                    Logger.LogInformation("Start fetch information");
-                                    (List<GameInfo>? infoList, bool hasMore) searchList =
-                                        await InfoGameInfoProvider.FetchGameSearchListAsync(info.GameName, 1, 1);
-                                    if (searchList.infoList?.Count > 0)
+                                    try
                                     {
-                                        string? id = searchList.infoList[0].GameInfoId;
-                                        Logger.LogInformation("Scan result id : {Id}", id);
-                                        if (id == null)
-                                            continue;
-                                        GameInfo? tempInfo = await InfoGameInfoProvider.FetchGameDetailByIdAsync(id);
-                                        Logger.LogInformation("Scan result {Info}", tempInfo);
-                                        if (tempInfo == null)
-                                            continue;
-                                        tempInfo.ExePath = folder;
-                                        info = tempInfo;
+                                        Logger.LogInformation("Start fetch information");
+                                        (List<GameInfo>? infoList, bool hasMore) searchList =
+                                            await InfoGameInfoProvider.FetchGameSearchListAsync(info.GameName, 1, 1);
+                                        if (searchList.infoList?.Count > 0)
+                                        {
+                                            string? id = searchList.infoList[0].GameInfoId;
+                                            Logger.LogInformation("Scan result id : {Id}", id);
+                                            if (id == null)
+                                                continue;
+                                            GameInfo? tempInfo =
+                                                await InfoGameInfoProvider.FetchGameDetailByIdAsync(id);
+                                            Logger.LogInformation("Scan result {Info}", tempInfo);
+                                            if (tempInfo == null)
+                                                continue;
+                                            tempInfo.ExePath = folder;
+                                            info = tempInfo;
+                                        }
+                                        else
+                                        {
+                                            Logger.LogInformation("No result found");
+                                        }
                                     }
-                                    else
+                                    catch (Exception e)
                                     {
-                                        Logger.LogInformation("No result found");
+                                        Logger.LogError("Scan failed : {Err}", e.Message);
                                     }
-                                }
-                                catch (Exception e)
-                                {
-                                    Logger.LogError("Scan failed : {Err}", e.Message);
                                 }
 
                                 await ConfigService.AddGameInfoAsync(info);
