@@ -1,2 +1,2 @@
-dotnet build -c Release
-dotnet publish VNGT\VNGT.csproj -c Release -o bin/publish
+dotnet build GameManager -c Release -o ./bin/GameManager /p:Platform=x64
+dotnet build SavePatcher -c Release -o ./bin/SavePatcher /p:Platform=x64

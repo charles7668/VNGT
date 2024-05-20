@@ -15,4 +15,4 @@ visual novel game tools
 
 Run the `build.bat` file to build the project.
 
-The build result will be in the `bin\publish` directory.
+The build result will be in the `bin` directory.
