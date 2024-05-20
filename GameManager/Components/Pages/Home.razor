@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using GameManager.Properties
 
 <MudLayout Class="main-mud-layout d-flex flex-column">
     @if (IsLoading)
@@ -20,8 +21,8 @@
                    SearchEvent="OnSearchInfo">
         </ActionBar>
         <MudToolBar Class="mt-0 flex-grow-0">
-            <MudCheckBox T="bool" ValueChanged="OnSelectionModeChange" Class="ml-2 mr-2">Selection Mode</MudCheckBox>
-            <MudButton OnClick="OnSelectAllClick" Variant="Variant.Outlined">Select All</MudButton>
+            <MudCheckBox T="bool" ValueChanged="OnSelectionModeChange" Class="ml-2 mr-2">@Resources.Home_SelectionMode</MudCheckBox>
+            <MudButton OnClick="OnSelectAllClick" Variant="Variant.Outlined">@Resources.Home_SelectAll</MudButton>
         </MudToolBar>
         <div id="card-list" class="@(IsDeleting ? "deleting justify-center align-center d-flex" : "" + " flex-grow-1")">
             @if (IsDeleting || IsLoading)

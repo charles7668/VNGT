@@ -295,6 +295,24 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Select All 的當地語系化字串。
+        /// </summary>
+        internal static string Home_SelectAll {
+            get {
+                return ResourceManager.GetString("Home.SelectAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Selection Mode 的當地語系化字串。
+        /// </summary>
+        internal static string Home_SelectionMode {
+            get {
+                return ResourceManager.GetString("Home.SelectionMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Developer 的當地語系化字串。
         /// </summary>
         internal static string Home_SortBy_Developer {
@@ -390,6 +408,15 @@ namespace GameManager.Properties {
         internal static string Message_RelatedGameNotFound {
             get {
                 return ResourceManager.GetString("Message.RelatedGameNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Update Succeeded 的當地語系化字串。
+        /// </summary>
+        internal static string Message_UpdateSuccess {
+            get {
+                return ResourceManager.GetString("Message.UpdateSuccess", resourceCulture);
             }
         }
         

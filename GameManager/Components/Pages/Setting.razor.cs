@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.Properties;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Win32;
@@ -34,7 +35,7 @@ namespace GameManager.Components.Pages
                 return;
             }
 
-            await DialogService.ShowMessageBox("Complete", "Update Succeeded");
+            await DialogService.ShowMessageBox("Complete", Resources.Message_UpdateSuccess);
         }
 
         private Task ScanLocaleEmulator()

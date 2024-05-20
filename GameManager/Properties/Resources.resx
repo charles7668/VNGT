@@ -195,6 +195,12 @@
   <data name="Home.Refresh" xml:space="preserve">
     <value>Refresh</value>
   </data>
+  <data name="Home.SelectAll" xml:space="preserve">
+    <value>Select All</value>
+  </data>
+  <data name="Home.SelectionMode" xml:space="preserve">
+    <value>Selection Mode</value>
+  </data>
   <data name="Home.SortBy.Developer" xml:space="preserve">
     <value>Developer</value>
   </data>
@@ -227,6 +233,9 @@
   </data>
   <data name="Message.RelatedGameNotFound" xml:space="preserve">
     <value>Related game not found</value>
+  </data>
+  <data name="Message.UpdateSuccess" xml:space="preserve">
+    <value>Update Succeeded</value>
   </data>
   <data name="NavMenu.Game" xml:space="preserve">
     <value>Game</value>
