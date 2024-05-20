@@ -1,5 +1,6 @@
 ﻿using GameManager.DB.Models;
 using GameManager.GameInfoProvider;
+using GameManager.Properties;
 using GameManager.Services;
 using Helper.Image;
 using Microsoft.AspNetCore.Components;
@@ -127,7 +128,7 @@ namespace GameManager.Components.Pages.components
                     await GameInfoProvider.FetchGameSearchListAsync(Model.GameName, 10, 1);
                 if (infoList == null || infoList.Count == 0)
                 {
-                    await DialogService.ShowMessageBox("Error", "Related game not found.", "Cancel");
+                    await DialogService.ShowMessageBox("Error", Resources.Message_RelatedGameNotFound,@Resources.Dialog_Button_Cancel);
                     return;
                 }
 
@@ -161,29 +162,24 @@ namespace GameManager.Components.Pages.components
             }
             catch (Exception e)
             {
-                await DialogService.ShowMessageBox("Error", e.Message, "Cancel");
+                await DialogService.ShowMessageBox("Error", e.Message,@Resources.Dialog_Button_Cancel);
             }
         }
 
         public class FormModel
         {
-            [Label("Game name")]
             public string? GameName { get; set; }
 
-            [Label("Developer")]
             public string? Vendor { get; set; }
 
-            [Label("Executable path")]
             public string? ExePath { get; set; }
 
             public string? ExeFile { get; set; }
 
-            [Label("Release Date")]
             public DateTime? DateTime { get; set; }
 
             public string? Cover { get; set; }
 
-            [Label("Description")]
             public string? Description { get; set; }
 
             public bool RunAsAdmin { get; set; }

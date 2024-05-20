@@ -1,4 +1,5 @@
 ﻿@page "/library"
+@using GameManager.Properties
 
 <div class="d-flex flex-column">
     <MudToolBar>
@@ -9,7 +10,7 @@
             <MudButton OnClick="OnScan"
                        Variant="Variant.Filled"
                        StartIcon="@Icons.Material.Filled.Refresh">
-                Scan
+                @Resources.Library_Button_Scan
             </MudButton>
         }
         else
@@ -20,8 +21,17 @@
             </MudButton>
         }
 
-        <MudButton OnClick="OnLibraryAdd" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">Add Folder</MudButton>
-        <MudButton OnClick="OnDelete" Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Close">Delete Selection</MudButton>
+        <MudButton OnClick="OnLibraryAdd" Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add">
+            @Resources.Library_Button_AddFolder
+        </MudButton>
+        <MudButton OnClick="OnDelete"
+                   Variant="Variant.Filled"
+                   Color="Color.Secondary"
+                   StartIcon="@Icons.Material.Filled.Close">
+            @Resources.Library_Button_DeleteSelection
+        </MudButton>
     </MudToolBar>
     <MudDivider />
     <MudPaper class="flex-grow-1">

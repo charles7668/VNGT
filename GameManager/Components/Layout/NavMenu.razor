@@ -1,9 +1,10 @@
-﻿<div>
+﻿@using GameManager.Properties
+<div>
     <MudNavMenu>
-        <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.GridView" Href="/">Game</MudNavLink>
+        <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.GridView" Href="/">@Resources.NavMenu_Game</MudNavLink>
         <MudDivider />
-        <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Folder" Href="/library">Library</MudNavLink>
+        <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Folder" Href="/library">@Resources.NavMenu_Library</MudNavLink>
         <MudSpacer />
-        <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Settings" Href="/setting">Settings</MudNavLink>
+        <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Settings" Href="/setting">@Resources.NavMenu_Setting</MudNavLink>
     </MudNavMenu>
 </div>

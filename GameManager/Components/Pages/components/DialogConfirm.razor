@@ -1,11 +1,12 @@
-﻿<MudDialog>
+﻿@using GameManager.Properties
+<MudDialog>
     <DialogContent>
         <MudPaper Elevation="0">
             @Content
         </MudPaper>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="OnOk" Variant="Variant.Filled" Color="Color.Primary">Yes</MudButton>
-        <MudButton OnClick="OnCancel">Cancel</MudButton>
+        <MudButton OnClick="OnOk" Variant="Variant.Filled" Color="Color.Primary">@Resources.Dialog_Button_Yes</MudButton>
+        <MudButton OnClick="OnCancel">@Resources.Dialog_Button_Cancel</MudButton>
     </DialogActions>
 </MudDialog>

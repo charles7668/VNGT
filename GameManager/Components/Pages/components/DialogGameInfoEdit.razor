@@ -1,4 +1,5 @@
-﻿<div>
+﻿@using GameManager.Properties
+<div>
     <MudDialog>
         <DialogContent>
             <MudPaper Elevation="0" Class="edit-zone">
@@ -11,7 +12,7 @@
                             <MudButton OnClick="UploadByUrl"
                                        Color="Color.Primary"
                                        Variant="Variant.Outlined">
-                                Change Cover
+                                @Resources.GameEditorDialog_ChangeCover
                             </MudButton>
                             <MudButton OnClick="OnInfoFetch"
                                        Class="ml-2"
@@ -22,11 +23,12 @@
                             </MudButton>
                             <MudSpacer />
                         </MudToolBar>
-                        <MudTextField @bind-Value="Model.GameName" For="@(() => Model.GameName)" />
+                        <MudTextField @bind-Value="Model.GameName" For="@(() => Model.GameName)" Label="@Resources.GameEditorDialog_Caption_GameName"/>
                         <MudToolBar Class="pa-0">
-                            <MudTextField @bind-Value="Model.Vendor" For="@(() => Model.Vendor)" />
+                            <MudTextField @bind-Value="Model.Vendor" For="@(() => Model.Vendor)" Label="@Resources.GameEditorDialog_Caption_Developer"/>
                             <MudDatePicker @bind-Date="Model.DateTime"
                                            For="@(() => Model.DateTime)"
+                                           Label="@Resources.GameEditorDialog_Caption_ReleaseDate"
                                            Editable="true"
                                            ImmediateText="true"
                                            Placeholder="yyyy/MM/dd"
@@ -35,27 +37,31 @@
                                            Clearable="true" />
                         </MudToolBar>
                         <MudToolBar Class="pa-0 ma-0">
-                            <MudTextField ReadOnly="true" @bind-Value="Model.ExePath" For="@(() => Model.ExePath)" />
+                            <MudTextField ReadOnly="true" @bind-Value="Model.ExePath" 
+                                          For="@(() => Model.ExePath)" 
+                                          Label="@Resources.GameEditorDialog_Caption_ExecutionFilePath"/>
                             <MudSelect Class="mt-2 mb-2"
                                        @bind-Value="Model.ExeFile"
                                        AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined"
-                                       Label="Execution File">
+                                       Label="@Resources.GameEditorDialog_Caption_ExecutionFile">
                                 @foreach (var file in ExeFiles)
                                 {
                                     <MudSelectItem Value="file"></MudSelectItem>
                                 }
                             </MudSelect>
                         </MudToolBar>
-                        <MudTextField Lines="5" MaxLines="8" @bind-Value="Model.Description" For="@(() => Model.Description)"></MudTextField>
+                        <MudTextField Lines="5" MaxLines="8" @bind-Value="Model.Description" 
+                                      For="@(() => Model.Description)"
+                                      Label="@Resources.GameEditorDialog_Caption_Desciption"></MudTextField>
                         <MudPaper Elevation="0">
                             <MudToolBar Class="pa-0">
-                                <MudText Typo="Typo.h5">Launch Options:</MudText>
+                                <MudText Typo="Typo.h5">@Resources.GameEditorDialog_Caption_LaunchOptions</MudText>
                                 <MudStack Row="true">
-                                    <MudCheckBox T="bool" @bind-Value="@Model.RunAsAdmin">RunAsAdmin</MudCheckBox>
+                                    <MudCheckBox T="bool" @bind-Value="@Model.RunAsAdmin">@Resources.GameEditorDialog_RunAsAdmin</MudCheckBox>
                                 </MudStack>
                                 <MudPaper Class="ml-3">
                                     <MudSelect
-                                        Label="LE Option"
+                                        Label="@Resources.GameEditorDialog_LEOption"
                                         @bind-Value="Model.LeConfig"
                                         AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
                                         @foreach (var config in LeConfigs)
@@ -75,11 +81,11 @@
                        Class="mr-2"
                        Color="Color.Primary"
                        OnClick="OnSave">
-                Save
+                @Resources.Dialog_Button_Save
             </MudButton>
             <MudButton Variant="Variant.Outlined"
                        OnClick="OnCancel">
-                Cancel
+                @Resources.Dialog_Button_Cancel
             </MudButton>
 
         </DialogActions>

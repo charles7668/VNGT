@@ -1,4 +1,5 @@
 ﻿@using GameManager.Enums
+@using GameManager.Properties
 @inherits MudComponentBase
 
 <MudPaper @attributes="UserAttributes!" Class="@Class">
@@ -9,19 +10,19 @@
             <MudMenuItem>
                 <MudCheckBox T="bool"
                              @bind-Value="SearchFilterModel.SearchName">
-                    Name
+                    @Resources.Home_Filter_GameName
                 </MudCheckBox>
             </MudMenuItem>
             <MudMenuItem>
                 <MudCheckBox T="bool"
                              @bind-Value="SearchFilterModel.SearchDeveloper">
-                    Developer
+                    @Resources.Home_Filter_Developer
                 </MudCheckBox>
             </MudMenuItem>
             <MudMenuItem>
                 <MudCheckBox T="bool"
                              @bind-Value="SearchFilterModel.SearchExePath">
-                    ExePath
+                    @Resources.Home_Filter_ExePath
                 </MudCheckBox>
             </MudMenuItem>
         </MudMenu>
@@ -37,7 +38,7 @@
                    Color="Color.Primary"
                    StartIcon="@Icons.Material.Filled.Refresh"
                    OnClick="OnRefresh">
-            Refresh
+            @Resources.Home_Refresh
         </MudButton>
         <MudPaper>
             <MudSelect T="SortOrder"
@@ -54,8 +55,8 @@
                 }
             </MudSelect>
         </MudPaper>
-        <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OnAddNewGame">Add</MudButton>
-        <MudButton Class="ma-3" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Close" OnClick="OnDeleteClick">Delete</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OnAddNewGame">@Resources.Home_AddGame</MudButton>
+        <MudButton Class="ma-3" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Close" OnClick="OnDeleteClick">@Resources.Home_DeleteGame</MudButton>
     </MudToolBar>
 </MudPaper>
 

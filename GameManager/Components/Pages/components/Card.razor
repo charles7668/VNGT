@@ -1,4 +1,5 @@
-﻿@inherits MudComponentBase
+﻿@using GameManager.Properties
+@inherits MudComponentBase
 
 <div class="card-item">
     <MudPaper Elevation="0" @attributes="UserAttributes!" Style="@Style" Class="@ClassName" @onclick="OnCardClick">
@@ -19,13 +20,13 @@
                 </MudTooltip>
             </MudPaper>
             <MudToolBar Class="pa-0">
-                <MudButton OnClick="OnLaunch" StartIcon="@Icons.Material.Filled.ArrowRight" Variant="Variant.Outlined">Run</MudButton>
-                <MudButton OnClick="OnEdit" StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined">Edit</MudButton>
+                <MudButton OnClick="OnLaunch" StartIcon="@Icons.Material.Filled.ArrowRight" Variant="Variant.Outlined">@Resources.Card_Run</MudButton>
+                <MudButton OnClick="OnEdit" StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined">@Resources.Card_Edit</MudButton>
                 <MudSpacer></MudSpacer>
                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
-                    <MudButton OnClick="OnOpenInExplorer" Variant="Variant.Text" Color="Color.Primary" FullWidth="true">Open in Explorer</MudButton>
+                    <MudButton OnClick="OnOpenInExplorer" Variant="Variant.Text" Color="Color.Primary" FullWidth="true">@Resources.Card_OpenInExplorer</MudButton>
                     <MudDivider />
-                    <MudButton OnClick="OnDelete" Variant="Variant.Text" Color="Color.Secondary" FullWidth="true">Delete</MudButton>
+                    <MudButton OnClick="OnDelete" Variant="Variant.Text" Color="Color.Secondary" FullWidth="true">@Resources.Card_Delete</MudButton>
                 </MudMenu>
             </MudToolBar>
         </MudPaper>

@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.Properties;
 using GameManager.Services;
 using Helper;
 using Helper.Image;
@@ -76,7 +77,7 @@ namespace GameManager.Components.Pages.components
             {
                 { x => x.Model, inputModel }
             };
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>("Edit Game Info",
+            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>(@Resources.Dialog_Title_EditGameInfo,
                 parameters,
                 new DialogOptions
                 {
@@ -129,7 +130,7 @@ namespace GameManager.Components.Pages.components
             }
             catch (Exception ex)
             {
-                DialogService.ShowMessageBox("Error", ex.Message, cancelText: "Cancel");
+                DialogService.ShowMessageBox("Error", ex.Message, cancelText:@Resources.Dialog_Button_Cancel);
             }
         }
 
@@ -145,13 +146,13 @@ namespace GameManager.Components.Pages.components
         {
             if (GameInfo == null || string.IsNullOrEmpty(GameInfo.ExePath) || !Directory.Exists(GameInfo.ExePath))
             {
-                Snackbar.Add("No executable file can launch", Severity.Warning);
+                Snackbar.Add(@Resources.Message_NoExecutionFile, Severity.Warning);
                 return Task.CompletedTask;
             }
 
             if (GameInfo.ExeFile is null or "Not Set")
             {
-                Snackbar.Add("please set execution file first", Severity.Warning);
+                Snackbar.Add(@Resources.Message_PleaseSetExeFirst, Severity.Warning);
                 return Task.CompletedTask;
             }
 
@@ -184,7 +185,7 @@ namespace GameManager.Components.Pages.components
             string leConfigPath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEConfig.xml");
             if (!File.Exists(leConfigPath))
             {
-                Snackbar.Add("Locale Emulator Not Found", Severity.Error);
+                Snackbar.Add(@Resources.Message_LENotFound, Severity.Error);
                 return Task.CompletedTask;
             }
 
@@ -195,7 +196,7 @@ namespace GameManager.Components.Pages.components
             XAttribute? guidAttr = node?.Attribute("Guid");
             if (guidAttr == null)
             {
-                Snackbar.Add($"LE Config {GameInfo.LaunchOption!.LaunchWithLocaleEmulator} not exist",
+                Snackbar.Add($"LE Config {GameInfo.LaunchOption!.LaunchWithLocaleEmulator} {Resources.Message_NotExist}",
                     Severity.Error);
                 return Task.CompletedTask;
             }
