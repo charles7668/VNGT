@@ -36,6 +36,9 @@ namespace GameManager.DB
             modelBuilder.Entity<AppSetting>()
                 .Property(x => x.IsAutoFetchInfoEnabled)
                 .HasDefaultValue(true);
+            modelBuilder.Entity<AppSetting>()
+                .Property(x => x.Localization)
+                .HasDefaultValue("en-US");
 
             base.OnModelCreating(modelBuilder);
         }

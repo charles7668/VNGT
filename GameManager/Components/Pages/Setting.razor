@@ -6,6 +6,16 @@
         <MudText Typo="Typo.h6">@Resources.Settings_Caption_Setting</MudText>
         <MudDivider Class="flex-grow-0" />
         <MudStack Class="flex-grow-1" Elevation="0">
+            <MudElement Class="mt-2">
+                <MudText>@Resources.Settings_Caption_Language</MudText>
+                <MudSelect T="string"
+                           @bind-Value="AppSetting.Localization"
+                           AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem Value="@("en-US")">English</MudSelectItem>
+                    <MudSelectItem Value="@("zh-cn")">Chinese Simplified</MudSelectItem>
+                    <MudSelectItem Value="@("zh-tw")">Chinese Traditional</MudSelectItem>
+                </MudSelect>
+            </MudElement>
             <MudPaper Class="d-flex" Elevation="0">
                 <MudTextField T="string"
                               Label="Locale Emulator Path"

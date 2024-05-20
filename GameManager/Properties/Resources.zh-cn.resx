@@ -118,135 +118,135 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Card.Delete" xml:space="preserve">
-    <value>Delete</value>
+    <value>删除</value>
   </data>
   <data name="Card.Edit" xml:space="preserve">
-    <value>Edit</value>
+    <value>编辑</value>
   </data>
   <data name="Card.OpenInExplorer" xml:space="preserve">
-    <value>Open in Explorer</value>
+    <value>档案管理员开启</value>
   </data>
   <data name="Card.Run" xml:space="preserve">
-    <value>Run</value>
+    <value>执行</value>
   </data>
   <data name="Dialog.Button.Cancel" xml:space="preserve">
-    <value>Cancel</value>
+    <value>取消</value>
   </data>
   <data name="Dialog.Button.Ok" xml:space="preserve">
     <value>OK</value>
   </data>
   <data name="Dialog.Button.Save" xml:space="preserve">
-    <value>Save</value>
+    <value>储存</value>
   </data>
   <data name="Dialog.Button.Upload" xml:space="preserve">
-    <value>Upload</value>
+    <value>上传</value>
   </data>
   <data name="Dialog.Button.Yes" xml:space="preserve">
-    <value>Yes</value>
+    <value>是</value>
   </data>
   <data name="Dialog.Title.EditGameInfo" xml:space="preserve">
-    <value>Edit Game Info</value>
+    <value>编辑游戏资讯</value>
   </data>
   <data name="GameEditorDialog.Caption.Desciption" xml:space="preserve">
-    <value>Description</value>
+    <value>简介</value>
   </data>
   <data name="GameEditorDialog.Caption.Developer" xml:space="preserve">
-    <value>Developer</value>
+    <value>开发商</value>
   </data>
   <data name="GameEditorDialog.Caption.ExecutionFile" xml:space="preserve">
-    <value>Execution File</value>
+    <value>执行档</value>
   </data>
   <data name="GameEditorDialog.Caption.ExecutionFilePath" xml:space="preserve">
-    <value>Execution File Path</value>
+    <value>执行档路径</value>
   </data>
   <data name="GameEditorDialog.Caption.GameName" xml:space="preserve">
-    <value>Game Name</value>
+    <value>游戏名</value>
   </data>
   <data name="GameEditorDialog.Caption.LaunchOptions" xml:space="preserve">
-    <value>Launch Options:</value>
+    <value>启动选项:</value>
   </data>
   <data name="GameEditorDialog.Caption.ReleaseDate" xml:space="preserve">
-    <value>Release Date</value>
+    <value>发售日期</value>
   </data>
   <data name="GameEditorDialog.ChangeCover" xml:space="preserve">
-    <value>Change Cover</value>
+    <value>修改封面图</value>
   </data>
   <data name="GameEditorDialog.LEOption" xml:space="preserve">
-    <value>LE Option</value>
+    <value>LE 配置</value>
   </data>
   <data name="GameEditorDialog.RunAsAdmin" xml:space="preserve">
-    <value>RunAsAdmin</value>
+    <value>使用管理员启动</value>
   </data>
   <data name="Home.AddGame" xml:space="preserve">
-    <value>Add</value>
+    <value>加入</value>
   </data>
   <data name="Home.DeleteGame" xml:space="preserve">
-    <value>Delete</value>
+    <value>删除</value>
   </data>
   <data name="Home.Filter.Developer" xml:space="preserve">
-    <value>Developer</value>
+    <value>开发商</value>
   </data>
   <data name="Home.Filter.ExePath" xml:space="preserve">
-    <value>EXE Path</value>
+    <value>EXE路径</value>
   </data>
   <data name="Home.Filter.GameName" xml:space="preserve">
-    <value>Name</value>
+    <value>游戏名</value>
   </data>
   <data name="Home.Refresh" xml:space="preserve">
-    <value>Refresh</value>
+    <value>刷新</value>
   </data>
   <data name="Home.SortBy.Developer" xml:space="preserve">
-    <value>Developer</value>
+    <value>开发商</value>
   </data>
   <data name="Home.SortBy.GameName" xml:space="preserve">
-    <value>Name</value>
+    <value>游戏名</value>
   </data>
   <data name="Home.SortBy.UploadTime" xml:space="preserve">
-    <value>Upload Time</value>
+    <value>上传时间</value>
   </data>
   <data name="Library.Button.AddFolder" xml:space="preserve">
-    <value>Add Folder</value>
+    <value>加入资料夹</value>
   </data>
   <data name="Library.Button.DeleteSelection" xml:space="preserve">
-    <value>Delete Selection</value>
+    <value>删除选中项</value>
   </data>
   <data name="Library.Button.Scan" xml:space="preserve">
-    <value>Scan</value>
+    <value>扫描</value>
   </data>
   <data name="Message.LENotFound" xml:space="preserve">
-    <value>Locale Emulator Not Found</value>
+    <value>未找到 Locale Emulator</value>
   </data>
   <data name="Message.NoExecutionFile" xml:space="preserve">
-    <value>No executable file can launch</value>
+    <value>没有可启动的执行档</value>
   </data>
   <data name="Message.NotExist" xml:space="preserve">
-    <value>Not Exist</value>
+    <value>不存在</value>
   </data>
   <data name="Message.PleaseSetExeFirst" xml:space="preserve">
-    <value>please set execution file first</value>
+    <value>请先设定执行档</value>
   </data>
   <data name="Message.RelatedGameNotFound" xml:space="preserve">
-    <value>Related game not found</value>
+    <value>未找到相关游戏</value>
   </data>
   <data name="NavMenu.Game" xml:space="preserve">
-    <value>Game</value>
+    <value>游戏</value>
   </data>
   <data name="NavMenu.Library" xml:space="preserve">
-    <value>Library</value>
+    <value>游戏库</value>
   </data>
   <data name="NavMenu.Setting" xml:space="preserve">
-    <value>Settings</value>
+    <value>设定</value>
   </data>
   <data name="Settings.Button.EnableAutoFetchInfoOnScan" xml:space="preserve">
-    <value>Enable Auto Fetch Info On Scan</value>
+    <value>启用扫描时自动下载资讯</value>
   </data>
   <data name="Settings.Button.ScanFromInstalled" xml:space="preserve">
-    <value>Scan From Installed</value>
+    <value>检测已安装</value>
   </data>
   <data name="Settings.Caption.Language" xml:space="preserve">
-    <value>Language (Restart Needed)</value>
+    <value>语言 (需重启)</value>
   </data>
   <data name="Settings.Caption.Setting" xml:space="preserve">
-    <value>Setting</value>
+    <value>设定</value>
   </data>
 </root>

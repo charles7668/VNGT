@@ -7,5 +7,7 @@
         public string? LocaleEmulatorPath { get; set; }
 
         public bool IsAutoFetchInfoEnabled { get; set; } = true;
+
+        public string? Localization { get; set; }
     }
 }

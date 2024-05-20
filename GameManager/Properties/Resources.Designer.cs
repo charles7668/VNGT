@@ -439,6 +439,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Language (Restart Needed) 的當地語系化字串。
+        /// </summary>
+        internal static string Settings_Caption_Language {
+            get {
+                return ResourceManager.GetString("Settings.Caption.Language", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Setting 的當地語系化字串。
         /// </summary>
         internal static string Settings_Caption_Setting {
