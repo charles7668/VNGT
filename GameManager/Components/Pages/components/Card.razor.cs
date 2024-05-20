@@ -164,7 +164,7 @@ namespace GameManager.Components.Pages.components
                 {
                     var proc = new Process();
                     proc.StartInfo.FileName = executionFile;
-                    proc.StartInfo.UseShellExecute = true;
+                    proc.StartInfo.UseShellExecute = false;
                     bool runAsAdmin = GameInfo.LaunchOption is { RunAsAdmin: true };
                     if (runAsAdmin)
                     {
@@ -208,7 +208,7 @@ namespace GameManager.Components.Pages.components
                 var proc = new Process();
                 proc.StartInfo.FileName = leExePath;
                 proc.StartInfo.Arguments = $"-runas \"{guid}\" \"{executionFile}\"";
-                proc.StartInfo.UseShellExecute = true;
+                proc.StartInfo.UseShellExecute = false;
                 bool runAsAdmin = GameInfo.LaunchOption is { RunAsAdmin: true };
                 if (runAsAdmin)
                 {
