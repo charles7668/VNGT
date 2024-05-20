@@ -134,7 +134,7 @@ namespace GameManager.Components.Pages
                 return;
             }
 
-            ViewGameInfos.Add(new ViewInfo
+            ViewGameInfos.Insert(0, new ViewInfo
             {
                 Info = gameInfo,
                 Display = true
