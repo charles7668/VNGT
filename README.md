@@ -1,11 +1,21 @@
 # VNGT
 
+![release badge](https://img.shields.io/github/v/release/charles7668/VNGT)
+![Downloads](https://img.shields.io/github/downloads/charles7668/VNGT/total)
+
 visual novel game tools
+![main](./Docs/img/main.png)
 
-## User Guild
+- Automatically scan folders for games
+- Automatically download game information (currently supported: [vndb](https://vndb.org/))
+- Support multiple languages
+- Integrate Locale Emulator to support non-Japanese OS
+- Use scripts to unlock game saves
 
-- [Save Patcher](./Docs/SavePatcher.md)
+## Guide
+
 - [Game Manager](./Docs/GameManager.md)
+- [Save Patcher](./Docs/SavePatcher.md)
 
 ## Build
 

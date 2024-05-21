@@ -1,18 +1,18 @@
 # Index
 
 - [Index](#index)
-- [User Guid](#user-guid)
-  - [Simple Example](#simple-example)
-  - [Patch File To Difference Folder Example](#patch-file-to-difference-folder-example)
-- [Support Save File Format](#support-save-file-format)
+  - [User Guide](#user-guide)
+    - [Simple Example](#simple-example)
+    - [Patch File To Difference Folder Example](#patch-file-to-difference-folder-example)
+  - [Support Save File Format](#support-save-file-format)
 
-# User Guid
+## User Guide
 
 Write your own configuration files.
 
 Example of a configuration file in YAML format:
 
-## Simple Example
+### Simple Example
 
 ```yaml
 ConfigName: game1 # Setting name. This setting specifies which game you will patch.
@@ -24,7 +24,7 @@ PatchFiles: # Specify which files in the zip file will be copied to the Destinat
 DestinationPath: destinationPath # Destination path. Specify the path to save the data folder. If set to an empty string (''), a window will prompt for selection. this setting can use environment path by using %variable_name%
 ```
 
-## Patch File To Difference Folder Example
+### Patch File To Difference Folder Example
 
 Sometimes, if a game has multiple files that need to be copied to different folders, then this example can be helpful.
 
@@ -47,7 +47,7 @@ Sometimes, if a game has multiple files that need to be copied to different fold
 
 Store configuration files in the "config" folder with arbitrary filenames. You can also place them in subdirectories.
 
-# Support Save File Format
+## Support Save File Format
 
 - `.zip`
 - `.7z`
