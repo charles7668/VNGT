@@ -275,7 +275,7 @@ namespace GameManager.Components.Pages
                     break;
                 case SortOrder.UPLOAD_TIME:
                     ViewGameInfos.Sort((v1, v2) =>
-                        DateTime.Compare((DateTime)v1.Info.UploadTime!, (DateTime)v2.Info.UploadTime!));
+                        DateTime.Compare((DateTime)v2.Info.UploadTime!, (DateTime)v1.Info.UploadTime!));
                     break;
                 case SortOrder.DEVELOPER:
                     ViewGameInfos.Sort((v1, v2) =>
