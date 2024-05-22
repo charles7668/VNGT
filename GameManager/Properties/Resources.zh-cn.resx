@@ -210,6 +210,9 @@
   <data name="Home.SortBy.UploadTime" xml:space="preserve">
     <value>上传时间</value>
   </data>
+  <data name="Home_SortBy_Favorite" xml:space="preserve">
+    <value>收藏</value>
+  </data>
   <data name="Library.Button.AddFolder" xml:space="preserve">
     <value>加入资料夹</value>
   </data>

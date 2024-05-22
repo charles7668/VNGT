@@ -322,6 +322,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Favorite 的當地語系化字串。
+        /// </summary>
+        internal static string Home_SortBy_Favorite {
+            get {
+                return ResourceManager.GetString("Home_SortBy_Favorite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Name 的當地語系化字串。
         /// </summary>
         internal static string Home_SortBy_GameName {

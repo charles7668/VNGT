@@ -4,6 +4,7 @@
     {
         NAME,
         DEVELOPER,
-        UPLOAD_TIME
+        UPLOAD_TIME,
+        FAVORITE
     }
 }

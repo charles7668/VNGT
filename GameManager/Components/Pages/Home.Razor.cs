@@ -278,6 +278,10 @@ namespace GameManager.Components.Pages
                     ViewGameInfos.Sort((v1, v2) =>
                         string.Compare(v1.Info.Developer, v2.Info.Developer, StringComparison.Ordinal));
                     break;
+                case SortOrder.FAVORITE:
+                    ViewGameInfos.Sort((v1, v2) =>
+                        v2.Info.IsFavorite.CompareTo(v1.Info.IsFavorite));
+                    break;
             }
 
             _ = VirtualizeComponent.RefreshDataAsync();

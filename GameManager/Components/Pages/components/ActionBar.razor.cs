@@ -34,9 +34,10 @@ namespace GameManager.Components.Pages.components
         {
             SortOrderDict = new Dictionary<SortOrder, string>
             {
-                { SortOrder.NAME, @Resources.Home_SortBy_GameName },
-                { SortOrder.UPLOAD_TIME, @Resources.Home_SortBy_UploadTime },
-                { SortOrder.DEVELOPER, @Resources.Home_SortBy_Developer }
+                { SortOrder.NAME, Resources.Home_SortBy_GameName },
+                { SortOrder.UPLOAD_TIME, Resources.Home_SortBy_UploadTime },
+                { SortOrder.DEVELOPER, Resources.Home_SortBy_Developer },
+                { SortOrder.FAVORITE, Resources.Home_SortBy_Favorite }
             };
 
             base.OnInitialized();
