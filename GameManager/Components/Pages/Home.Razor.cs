@@ -357,6 +357,7 @@ namespace GameManager.Components.Pages
         {
             ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
             CardListWidth = await getWidthTask;
+            _ = VirtualizeComponent.RefreshDataAsync();
         }
 
         private ValueTask<ItemsProviderResult<IEnumerable<ViewInfo>>> CardItemProvider(
