@@ -45,6 +45,7 @@
                             @foreach (var viewInfo in rowViewInfo)
                             {
                                 <Card OnClick="_ => OnCardClick(viewInfo)"
+                                      OnChipTagClickEvent="OnChipTagClick"
                                       IsSelected="@(viewInfo is { Display: true, IsSelected: true } && IsSelectionMode)"
                                       GameInfo="viewInfo.Info"
                                       Class="@(viewInfo.Display ? "card" : "card card-hidden")"

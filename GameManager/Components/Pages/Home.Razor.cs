@@ -374,6 +374,15 @@ namespace GameManager.Components.Pages
                     (int)Math.Ceiling((float)displayItem.Count / countOfCard)));
         }
 
+        private void OnChipTagClick(string chipText)
+        {
+            OnSearchInfo(new ActionBar.SearchParameter(chipText, new ActionBar.SearchFilter
+            {
+                SearchExePath = false,
+                SearchName = false
+            }));
+        }
+
         private class ViewInfo
         {
             public GameInfo Info { get; init; } = null!;

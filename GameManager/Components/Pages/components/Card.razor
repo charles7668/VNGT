@@ -11,7 +11,11 @@
                       Elevation="0" Class="card-labels">
                 @foreach (var developer in DeveloperList)
                 {
-                    <MudChip T="string" Color="Color.Error">@developer</MudChip>
+                    <MudChip T="string"
+                             OnClick="() => OnChipClick(developer)"
+                             Color="Color.Error">
+                        @developer
+                    </MudChip>
                 }
             </MudPaper>
             <MudPaper Elevation="0" MaxWidth="250px">

@@ -39,6 +39,9 @@ namespace GameManager.Components.Pages.components
         [Parameter]
         public EventCallback<int> OnClick { get; set; }
 
+        [Parameter]
+        public EventCallback<string> OnChipTagClickEvent { get; set; }
+
         private List<string> DeveloperList
         {
             get
@@ -77,7 +80,8 @@ namespace GameManager.Components.Pages.components
             {
                 { x => x.Model, inputModel }
             };
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>(@Resources.Dialog_Title_EditGameInfo,
+            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>(
+                Resources.Dialog_Title_EditGameInfo,
                 parameters,
                 new DialogOptions
                 {
@@ -130,7 +134,7 @@ namespace GameManager.Components.Pages.components
             }
             catch (Exception ex)
             {
-                DialogService.ShowMessageBox("Error", ex.Message, cancelText:@Resources.Dialog_Button_Cancel);
+                DialogService.ShowMessageBox("Error", ex.Message, cancelText: Resources.Dialog_Button_Cancel);
             }
         }
 
@@ -146,13 +150,13 @@ namespace GameManager.Components.Pages.components
         {
             if (GameInfo == null || string.IsNullOrEmpty(GameInfo.ExePath) || !Directory.Exists(GameInfo.ExePath))
             {
-                Snackbar.Add(@Resources.Message_NoExecutionFile, Severity.Warning);
+                Snackbar.Add(Resources.Message_NoExecutionFile, Severity.Warning);
                 return Task.CompletedTask;
             }
 
             if (GameInfo.ExeFile is null or "Not Set")
             {
-                Snackbar.Add(@Resources.Message_PleaseSetExeFirst, Severity.Warning);
+                Snackbar.Add(Resources.Message_PleaseSetExeFirst, Severity.Warning);
                 return Task.CompletedTask;
             }
 
@@ -185,7 +189,7 @@ namespace GameManager.Components.Pages.components
             string leConfigPath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEConfig.xml");
             if (!File.Exists(leConfigPath))
             {
-                Snackbar.Add(@Resources.Message_LENotFound, Severity.Error);
+                Snackbar.Add(Resources.Message_LENotFound, Severity.Error);
                 return Task.CompletedTask;
             }
 
@@ -196,7 +200,8 @@ namespace GameManager.Components.Pages.components
             XAttribute? guidAttr = node?.Attribute("Guid");
             if (guidAttr == null)
             {
-                Snackbar.Add($"LE Config {GameInfo.LaunchOption!.LaunchWithLocaleEmulator} {Resources.Message_NotExist}",
+                Snackbar.Add(
+                    $"LE Config {GameInfo.LaunchOption!.LaunchWithLocaleEmulator} {Resources.Message_NotExist}",
                     Severity.Error);
                 return Task.CompletedTask;
             }
@@ -231,6 +236,13 @@ namespace GameManager.Components.Pages.components
                 return;
             if (OnClick.HasDelegate)
                 OnClick.InvokeAsync(GameInfo.Id);
+        }
+
+        private Task OnChipClick(string developer)
+        {
+            if (OnChipTagClickEvent.HasDelegate)
+                return OnChipTagClickEvent.InvokeAsync(developer);
+            return Task.CompletedTask;
         }
     }
 }
