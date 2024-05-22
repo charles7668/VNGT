@@ -25,17 +25,19 @@ namespace GameManager.Database
 
         public async Task AddAsync(GameInfo info)
         {
-            if (context.GameInfos.Any(x => x.ExePath == info.ExePath))
+            if (context.GameInfos.AsNoTracking().Any(x => x.ExePath == info.ExePath))
                 throw new InvalidOperationException("Game already exists");
             info.UploadTime = DateTime.Now;
             context.GameInfos.Add(info);
             await context.SaveChangesAsync();
+            context.ChangeTracker.Clear();
         }
 
         public async Task EditAsync(GameInfo info)
         {
             context.GameInfos.Update(info);
             await context.SaveChangesAsync();
+            context.ChangeTracker.Clear();
         }
 
         public async Task DeleteByIdAsync(int id)
@@ -49,7 +51,20 @@ namespace GameManager.Database
 
         public async Task<bool> CheckExePathExist(string path)
         {
-            return await context.GameInfos.AnyAsync(x => x.ExePath == path);
+            return await context.GameInfos.AsNoTracking().AnyAsync(x => x.ExePath == path);
+        }
+
+        public async Task UpdateLastPlayedByIdAsync(int id, DateTime time)
+        {
+            GameInfo? info = await context.GameInfos
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if(info == null)
+                return;
+            info.LastPlayed = time;
+            context.GameInfos.Update(info);
+            await context.SaveChangesAsync();
+            context.ChangeTracker.Clear();
         }
 
         public async Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
@@ -59,6 +74,7 @@ namespace GameManager.Database
             if (order == SortOrder.UPLOAD_TIME)
             {
                 queryable = context.GameInfos
+                    .AsNoTracking()
                     .Include(info => info.LaunchOption)
                     .OrderByDescending(x => x.UploadTime);
                 await queryable.ForEachAsync(action, cancellationToken);
@@ -66,6 +82,7 @@ namespace GameManager.Database
             else
             {
                 queryable = context.GameInfos
+                    .AsNoTracking()
                     .Include(info => info.LaunchOption)
                     .OrderBy(x => x.GameName);
                 await queryable.ForEachAsync(action, cancellationToken);

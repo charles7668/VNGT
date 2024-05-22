@@ -18,5 +18,7 @@ namespace GameManager.Database
         Task DeleteByIdAsync(int id);
 
         Task<bool> CheckExePathExist(string path);
+
+        Task UpdateLastPlayedByIdAsync(int id , DateTime time);
     }
 }

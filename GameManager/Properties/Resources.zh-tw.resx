@@ -213,6 +213,9 @@
   <data name="Home_SortBy_Favorite" xml:space="preserve">
     <value>收藏</value>
   </data>
+  <data name="Home_SortBy_LastPlayed" xml:space="preserve">
+    <value>最近遊玩</value>
+  </data>
   <data name="Library.Button.AddFolder" xml:space="preserve">
     <value>加入資料夾</value>
   </data>

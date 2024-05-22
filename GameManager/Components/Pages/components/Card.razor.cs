@@ -146,18 +146,18 @@ namespace GameManager.Components.Pages.components
                 await OnDeleteEventCallback.InvokeAsync(GameInfo.Id);
         }
 
-        private Task OnLaunch()
+        private async Task OnLaunch()
         {
             if (GameInfo == null || string.IsNullOrEmpty(GameInfo.ExePath) || !Directory.Exists(GameInfo.ExePath))
             {
                 Snackbar.Add(Resources.Message_NoExecutionFile, Severity.Warning);
-                return Task.CompletedTask;
+                return;
             }
 
             if (GameInfo.ExeFile is null or "Not Set")
             {
                 Snackbar.Add(Resources.Message_PleaseSetExeFirst, Severity.Warning);
-                return Task.CompletedTask;
+                return;
             }
 
             string executionFile = Path.Combine(GameInfo.ExePath, GameInfo.ExeFile);
@@ -176,13 +176,17 @@ namespace GameManager.Components.Pages.components
                     }
 
                     proc.Start();
+                    DateTime time = DateTime.Now;
+                    await ConfigService.UpdateLastPlayedByIdAsync(GameInfo.Id, time);
+                    GameInfo.LastPlayed = time;
+                    await ConfigService.EditGameInfo(GameInfo);
                 }
                 catch (Exception e)
                 {
                     Snackbar.Add($"Error: {e.Message}", Severity.Error);
                 }
 
-                return Task.CompletedTask;
+                return;
             }
 
             AppSetting appSetting = ConfigService.GetAppSetting();
@@ -190,7 +194,7 @@ namespace GameManager.Components.Pages.components
             if (!File.Exists(leConfigPath))
             {
                 Snackbar.Add(Resources.Message_LENotFound, Severity.Error);
-                return Task.CompletedTask;
+                return;
             }
 
             var xmlDoc = XDocument.Load(leConfigPath);
@@ -203,7 +207,7 @@ namespace GameManager.Components.Pages.components
                 Snackbar.Add(
                     $"LE Config {GameInfo.LaunchOption!.LaunchWithLocaleEmulator} {Resources.Message_NotExist}",
                     Severity.Error);
-                return Task.CompletedTask;
+                return;
             }
 
             string guid = guidAttr.Value;
@@ -221,13 +225,14 @@ namespace GameManager.Components.Pages.components
                 }
 
                 proc.Start();
+                DateTime time = DateTime.Now;
+                await ConfigService.UpdateLastPlayedByIdAsync(GameInfo.Id, time);
+                GameInfo.LastPlayed = time;
             }
             catch (Exception e)
             {
                 Snackbar.Add($"Error: {e.Message}", Severity.Error);
             }
-
-            return Task.CompletedTask;
         }
 
         private void OnCardClick()

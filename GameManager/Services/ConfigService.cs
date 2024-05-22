@@ -184,5 +184,10 @@ namespace GameManager.Services
         {
             return _unitOfWork.GameInfoRepository.CheckExePathExist(path);
         }
+
+        public Task UpdateLastPlayedByIdAsync(int id, DateTime time)
+        {
+            return _unitOfWork.GameInfoRepository.UpdateLastPlayedByIdAsync(id, time);
+        }
     }
 }

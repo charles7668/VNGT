@@ -37,7 +37,8 @@ namespace GameManager.Components.Pages.components
                 { SortOrder.NAME, Resources.Home_SortBy_GameName },
                 { SortOrder.UPLOAD_TIME, Resources.Home_SortBy_UploadTime },
                 { SortOrder.DEVELOPER, Resources.Home_SortBy_Developer },
-                { SortOrder.FAVORITE, Resources.Home_SortBy_Favorite }
+                { SortOrder.FAVORITE, Resources.Home_SortBy_Favorite },
+                { SortOrder.LAST_PLAYED, Resources.Home_SortBy_LastPlayed }
             };
 
             base.OnInitialized();

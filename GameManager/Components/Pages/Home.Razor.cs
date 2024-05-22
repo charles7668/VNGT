@@ -282,6 +282,11 @@ namespace GameManager.Components.Pages
                     ViewGameInfos.Sort((v1, v2) =>
                         v2.Info.IsFavorite.CompareTo(v1.Info.IsFavorite));
                     break;
+                case SortOrder.LAST_PLAYED:
+                    ViewGameInfos.Sort((v1, v2) => DateTime.Compare(
+                        v2.Info.LastPlayed ?? new DateTime(2000, 1, 1)
+                        , v1.Info.LastPlayed ?? new DateTime(2000, 1, 1)));
+                    break;
             }
 
             _ = VirtualizeComponent.RefreshDataAsync();

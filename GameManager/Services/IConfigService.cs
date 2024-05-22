@@ -40,5 +40,7 @@ namespace GameManager.Services
         Task DeleteLibraryByIdAsync(int id);
 
         Task<bool> CheckExePathExist(string path);
+
+        Task UpdateLastPlayedByIdAsync(int id, DateTime time);
     }
 }

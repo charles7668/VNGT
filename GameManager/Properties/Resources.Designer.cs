@@ -340,6 +340,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Last Played 的當地語系化字串。
+        /// </summary>
+        internal static string Home_SortBy_LastPlayed {
+            get {
+                return ResourceManager.GetString("Home_SortBy_LastPlayed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Upload Time 的當地語系化字串。
         /// </summary>
         internal static string Home_SortBy_UploadTime {

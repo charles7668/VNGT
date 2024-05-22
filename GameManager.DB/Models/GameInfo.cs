@@ -31,5 +31,7 @@ namespace GameManager.DB.Models
         public DateTime? UploadTime { get; set; }
 
         public bool IsFavorite { get; set; }
+
+        public DateTime? LastPlayed { get; set; }
     }
 }

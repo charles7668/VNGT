@@ -5,6 +5,7 @@
         NAME,
         DEVELOPER,
         UPLOAD_TIME,
-        FAVORITE
+        FAVORITE,
+        LAST_PLAYED
     }
 }
