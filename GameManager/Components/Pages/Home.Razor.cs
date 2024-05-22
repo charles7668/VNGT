@@ -43,6 +43,8 @@ namespace GameManager.Components.Pages
 
         private Virtualize<IEnumerable<ViewInfo>> VirtualizeComponent { get; set; } = null!;
 
+        private SortOrder _currentOrder = SortOrder.UPLOAD_TIME;
+
         public void Dispose()
         {
             JsRuntime.InvokeVoidAsync("resizeHandlers.removeResizeListener");
@@ -264,6 +266,7 @@ namespace GameManager.Components.Pages
         {
             if (IsDeleting)
                 return Task.CompletedTask;
+            _currentOrder = order;
             switch (order)
             {
                 case SortOrder.NAME:
@@ -345,7 +348,7 @@ namespace GameManager.Components.Pages
                 }, _loadingCancellationTokenSource.Token);
 
                 await loadTask;
-                _ = VirtualizeComponent.RefreshDataAsync();
+                _ = OnSortByChange(_currentOrder);
             }, _loadingCancellationTokenSource.Token);
         }
 
