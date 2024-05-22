@@ -244,5 +244,15 @@ namespace GameManager.Components.Pages.components
                 return OnChipTagClickEvent.InvokeAsync(developer);
             return Task.CompletedTask;
         }
+
+        private Task OnCardFavoriteClick()
+        {
+            if (GameInfo == null)
+                return Task.CompletedTask;
+            GameInfo.IsFavorite = !GameInfo.IsFavorite;
+            ConfigService.EditGameInfo(GameInfo);
+            InvokeAsync(StateHasChanged);
+            return Task.CompletedTask;
+        }
     }
 }

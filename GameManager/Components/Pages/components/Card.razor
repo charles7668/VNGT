@@ -4,6 +4,10 @@
 <div class="card-item">
     <MudPaper Elevation="0" @attributes="UserAttributes!" Style="@Style" Class="@ClassName" @onclick="OnCardClick">
         <MudPaper Elevation="0" Class="d-flex flex-column">
+            <MudIconButton Class="@("card-star " + (GameInfo is { IsFavorite: true } ? "marked" : ""))"
+                           OnClick="OnCardFavoriteClick"
+                           Icon="@Icons.Material.Filled.Star"
+                           Size="Size.Large" />
             <MudImage Height="300" Width="250"
                       Src="@ImageSrc" loading="lazy"
                       Alt="No Image" ObjectFit="ObjectFit.Contain" />

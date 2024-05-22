@@ -29,5 +29,7 @@ namespace GameManager.DB.Models
         public LaunchOption? LaunchOption { get; set; }
 
         public DateTime? UploadTime { get; set; }
+
+        public bool IsFavorite { get; set; }
     }
 }

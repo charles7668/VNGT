@@ -2,6 +2,16 @@ div {
     max-width: 275px;
 }
 
+    div ::deep .card-star {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    div ::deep .card-star.marked {
+        color: yellow;
+    }
+
     div ::deep .card.selection {
         border-width: 3px;
         border-color: red;
