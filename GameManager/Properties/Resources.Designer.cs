@@ -97,6 +97,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Search Guide 的當地語系化字串。
+        /// </summary>
+        internal static string Card_SearchGuide {
+            get {
+                return ResourceManager.GetString("Card.SearchGuide", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Cancel 的當地語系化字串。
         /// </summary>
         internal static string Dialog_Button_Cancel {

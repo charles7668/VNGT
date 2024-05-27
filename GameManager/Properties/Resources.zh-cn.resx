@@ -129,6 +129,9 @@
   <data name="Card.Run" xml:space="preserve">
     <value>执行</value>
   </data>
+  <data name="Card.SearchGuide" xml:space="preserve">
+    <value>搜寻攻略</value>
+  </data>
   <data name="Dialog.Button.Cancel" xml:space="preserve">
     <value>取消</value>
   </data>

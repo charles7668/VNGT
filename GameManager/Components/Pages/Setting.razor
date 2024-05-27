@@ -3,31 +3,63 @@
 
 <div>
     <MudForm Class="d-flex flex-column pa-2" Model="@AppSetting">
-        <MudText Typo="Typo.h6">@Resources.Settings_Caption_Setting</MudText>
+        <MudText Typo="Typo.h6" Class="flex-grow-0">@Resources.Settings_Caption_Setting</MudText>
         <MudDivider Class="flex-grow-0" />
-        <MudStack Class="flex-grow-1" Elevation="0">
-            <MudElement Class="mt-2">
-                <MudText>@Resources.Settings_Caption_Language</MudText>
-                <MudSelect T="string"
-                           @bind-Value="AppSetting.Localization"
-                           AnchorOrigin="Origin.BottomCenter">
-                    <MudSelectItem Value="@("en-US")">English</MudSelectItem>
-                    <MudSelectItem Value="@("zh-cn")">Chinese Simplified</MudSelectItem>
-                    <MudSelectItem Value="@("zh-tw")">Chinese Traditional</MudSelectItem>
-                </MudSelect>
-            </MudElement>
-            <MudPaper Class="d-flex" Elevation="0">
-                <MudTextField T="string"
-                              Label="Locale Emulator Path"
-                              For="() => AppSetting.LocaleEmulatorPath!"
-                              @bind-Value="AppSetting.LocaleEmulatorPath">
-                </MudTextField>
-                <MudButton OnClick="ScanLocaleEmulator" Variant="Variant.Outlined">@Resources.Settings_Button_ScanFromInstalled</MudButton>
-            </MudPaper>
-            <MudElement>
-                <MudCheckBox T="bool" @bind-Value="AppSetting.IsAutoFetchInfoEnabled">@Resources.Settings_Button_EnableAutoFetchInfoOnScan</MudCheckBox>
-            </MudElement>
-        </MudStack>
+        <MudPaper Elevation="0" Class="setting-box flex-grow-1">
+            <MudStack Class="flex-grow-1" Elevation="0">
+                <MudElement Class="mt-2">
+                    <MudText>@Resources.Settings_Caption_Language</MudText>
+                    <MudSelect T="string"
+                               @bind-Value="AppSetting.Localization"
+                               AnchorOrigin="Origin.BottomCenter">
+                        <MudSelectItem Value="@("en-US")">English</MudSelectItem>
+                        <MudSelectItem Value="@("zh-cn")">Chinese Simplified</MudSelectItem>
+                        <MudSelectItem Value="@("zh-tw")">Chinese Traditional</MudSelectItem>
+                    </MudSelect>
+                </MudElement>
+                <MudPaper Class="d-flex" Elevation="0">
+                    <MudTextField T="string"
+                                  Label="Locale Emulator Path"
+                                  For="() => AppSetting.LocaleEmulatorPath!"
+                                  @bind-Value="AppSetting.LocaleEmulatorPath">
+                    </MudTextField>
+                    <MudButton OnClick="ScanLocaleEmulator" Variant="Variant.Outlined">@Resources.Settings_Button_ScanFromInstalled</MudButton>
+                </MudPaper>
+                <MudElement>
+                    <MudCheckBox T="bool" @bind-Value="AppSetting.IsAutoFetchInfoEnabled">@Resources.Settings_Button_EnableAutoFetchInfoOnScan</MudCheckBox>
+                </MudElement>
+                <MudStack Row="true">
+                    <MudStack Class="guide-site-bar">
+                        <MudToolBar Class="ma-0 pa-0">
+                            <MudText>Guide Site</MudText>
+                            <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                           OnClick="OnAddGuideSiteClick"
+                                           Style="color: green;" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                           OnClick="OnDeleteGuideSiteClick"
+                                           Style="color: red;" />
+                        </MudToolBar>
+                        <MudTable T="GuideSite" Items="@GuideSites"
+                                  Hover="true"
+                                  RowClass="cursor-pointer"
+                                  Height="200px"
+                                  Bordered="true"
+                                  @ref="GuideSiteTable"
+                                  OnRowClick="() => { }"
+                                  RowClassFunc="OnSelectedRowClassFunc">
+                            <HeaderContent>
+                                <MudTh>Name</MudTh>
+                                <MudTh>URL</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Name">@context.Name</MudTd>
+                                <MudTd DataLabel="URL">@context.SiteUrl</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudStack>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
         <MudToolBar Class="flex-grow-0 justify-end">
             <MudButton OnClick="UpdateSetting" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">@Resources.Dialog_Button_Save</MudButton>
         </MudToolBar>

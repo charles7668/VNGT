@@ -32,7 +32,36 @@
                 <MudButton OnClick="OnEdit" StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined">@Resources.Card_Edit</MudButton>
                 <MudSpacer></MudSpacer>
                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
-                    <MudButton OnClick="OnOpenInExplorer" Variant="Variant.Text" Color="Color.Primary" FullWidth="true">@Resources.Card_OpenInExplorer</MudButton>
+                    <MudMenuItem Class="ma-0 pa-0">
+                        <MudButton OnClick="OnOpenInExplorer" Variant="Variant.Text" Color="Color.Primary" FullWidth="true">@Resources.Card_OpenInExplorer</MudButton>
+                    </MudMenuItem>
+                    <MudDivider />
+                    <MudMenuItem Class="ma-0 pa-0">
+                        <MudMenu ActivationEvent="MouseEvent.LeftClick"
+                                 AnchorOrigin="Origin.TopRight"
+                                 Style="width: 100%"
+                                 TransformOrigin="Origin.TopLeft">
+                            <ActivatorContent>
+                                <MudButton Variant="Variant.Text"
+                                           FullWidth="true">
+                                    @Resources.Card_SearchGuide
+                                </MudButton>
+                            </ActivatorContent>
+
+                            <ChildContent>
+                                @foreach (var site in GuideSites)
+                                {
+                                    <MudButton Variant="Variant.Text"
+                                               Class="ma-0 pa-2"
+                                               Color="Color.Default"
+                                               FullWidth="true"
+                                               OnClick="()=>OnGuideSearchClick(site)">
+                                        @site.Name
+                                    </MudButton>
+                                }
+                            </ChildContent>
+                        </MudMenu>
+                    </MudMenuItem>
                     <MudDivider />
                     <MudButton OnClick="OnDelete" Variant="Variant.Text" Color="Color.Secondary" FullWidth="true">@Resources.Card_Delete</MudButton>
                 </MudMenu>

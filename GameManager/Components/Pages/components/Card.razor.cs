@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using MudBlazor.Utilities;
 using System.Diagnostics;
+using System.Web;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
@@ -41,6 +42,19 @@ namespace GameManager.Components.Pages.components
 
         [Parameter]
         public EventCallback<string> OnChipTagClickEvent { get; set; }
+
+        private AppSetting? AppSetting { get; set; }
+
+        private IList<GuideSite> GuideSites
+        {
+            get
+            {
+                if (AppSetting != null)
+                    return AppSetting.GuideSites;
+                AppSetting = ConfigService.GetAppSetting();
+                return AppSetting.GuideSites;
+            }
+        }
 
         private List<string> DeveloperList
         {
@@ -257,6 +271,23 @@ namespace GameManager.Components.Pages.components
             GameInfo.IsFavorite = !GameInfo.IsFavorite;
             ConfigService.EditGameInfo(GameInfo);
             InvokeAsync(StateHasChanged);
+            return Task.CompletedTask;
+        }
+
+        private Task OnGuideSearchClick(GuideSite site)
+        {
+            if (GameInfo == null)
+            {
+                return Task.CompletedTask;
+            }
+            string searchUrl = "https://www.google.com/search?q="
+                               + HttpUtility.UrlEncode(GameInfo.GameName + $" site:{site.SiteUrl}");
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = searchUrl,
+                UseShellExecute = true
+            };
+            Process.Start(startInfo);
             return Task.CompletedTask;
         }
     }

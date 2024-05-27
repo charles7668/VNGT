@@ -1,3 +1,24 @@
 div ::deep .mud-form {
     height: 100vh;
 }
+
+div ::deep .setting-box {
+    height: 100%;
+    overflow-y: auto;
+}
+
+div ::deep .guide-site-bar {
+    width: 50%;
+}
+
+    div ::deep .guide-site-bar .selected {
+        background-color: #1E88E5 !important;
+    }
+
+        div ::deep .guide-site-bar .selected > td {
+            color: white !important;
+        }
+
+            div ::deep .guide-site-bar .selected > td .mud-input {
+                color: white !important;
+            }

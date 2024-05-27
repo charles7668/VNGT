@@ -8,7 +8,9 @@ namespace GameManager.Database
     {
         public async Task<AppSetting> GetAppSettingAsync()
         {
-            AppSetting? appSetting = await dbContext.AppSettings.FirstOrDefaultAsync();
+            AppSetting? appSetting = await dbContext.AppSettings
+                .Include(x => x.GuideSites)
+                .FirstOrDefaultAsync();
             if (appSetting != null)
                 return appSetting;
             appSetting = new AppSetting();

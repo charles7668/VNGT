@@ -9,5 +9,7 @@
         public bool IsAutoFetchInfoEnabled { get; set; } = true;
 
         public string? Localization { get; set; }
+
+        public IList<GuideSite> GuideSites { get; set; }
     }
 }

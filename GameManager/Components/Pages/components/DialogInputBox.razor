@@ -1,0 +1,22 @@
+﻿@using GameManager.Properties
+<MudDialog>
+    <DialogContent>
+        <MudForm @bind-IsValid="IsValid" @ref="Form">
+            @foreach (var input in Inputs)
+            {
+                <MudTextField Label="@input.Label"
+                              @bind-Value="input.Value"
+                              Immediate="true"
+                              Validation="@(new Func<string, string>(input.Validate!))" />
+            }
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="OnOk"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary">
+            @Resources.Dialog_Button_Yes
+        </MudButton>
+        <MudButton OnClick="OnCancel">@Resources.Dialog_Button_Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

@@ -129,6 +129,9 @@
   <data name="Card.Run" xml:space="preserve">
     <value>Run</value>
   </data>
+  <data name="Card.SearchGuide" xml:space="preserve">
+    <value>Search Guide</value>
+  </data>
   <data name="Dialog.Button.Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
