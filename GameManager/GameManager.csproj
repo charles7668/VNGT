@@ -38,26 +38,10 @@
         <Platforms>AnyCPU;x64</Platforms>
 
         <PackageIcon>app.jpg</PackageIcon>
-    </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows10.0.19041.0|AnyCPU'">
-      <ApplicationVersion>0.1.0</ApplicationVersion>
-      <ApplicationDisplayVersion>0.0.1</ApplicationDisplayVersion>
-    </PropertyGroup>
+        <AssemblyVersion>0.1.0.0</AssemblyVersion>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows10.0.19041.0|x64'">
-      <ApplicationVersion>0.1.0</ApplicationVersion>
-      <ApplicationDisplayVersion>0.0.1</ApplicationDisplayVersion>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows10.0.19041.0|AnyCPU'">
-      <ApplicationVersion>0.1.0</ApplicationVersion>
-      <ApplicationDisplayVersion>0.0.1</ApplicationDisplayVersion>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows10.0.19041.0|x64'">
-      <ApplicationVersion>0.1.0</ApplicationVersion>
-      <ApplicationDisplayVersion>0.0.1</ApplicationDisplayVersion>
+        <FileVersion>0.1.0.0</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
