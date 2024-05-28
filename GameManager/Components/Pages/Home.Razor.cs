@@ -41,7 +41,7 @@ namespace GameManager.Components.Pages
 
         private bool IsLoading { get; set; } = true;
 
-        private Virtualize<IEnumerable<ViewInfo>> VirtualizeComponent { get; set; } = null!;
+        private Virtualize<IEnumerable<ViewInfo>>? VirtualizeComponent { get; set; }
 
         private SortOrder _currentOrder = SortOrder.UPLOAD_TIME;
 
@@ -160,12 +160,12 @@ namespace GameManager.Components.Pages
             if (dialogResult.Canceled)
                 return;
 
-            bool hasChane = false;
+            bool hasChange = false;
             for (int i = 0; i < ViewGameInfos.Count; i++)
             {
                 if (ViewGameInfos[i].Info.Id != id)
                     continue;
-                hasChane = true;
+                hasChange = true;
                 try
                 {
                     await ConfigService.DeleteGameById(id);
@@ -180,9 +180,9 @@ namespace GameManager.Components.Pages
                 break;
             }
 
-            if (hasChane)
+            if (hasChange)
             {
-                _ = VirtualizeComponent.RefreshDataAsync();
+                _ = VirtualizeComponent?.RefreshDataAsync();
             }
         }
 
@@ -210,7 +210,7 @@ namespace GameManager.Components.Pages
                 viewInfo.Display = display;
             });
 
-            _ = VirtualizeComponent.RefreshDataAsync();
+            _ = VirtualizeComponent?.RefreshDataAsync();
             return Task.CompletedTask;
         }
 
@@ -292,7 +292,7 @@ namespace GameManager.Components.Pages
                     break;
             }
 
-            _ = VirtualizeComponent.RefreshDataAsync();
+            _ = VirtualizeComponent?.RefreshDataAsync();
             return Task.CompletedTask;
         }
 
@@ -357,7 +357,7 @@ namespace GameManager.Components.Pages
         {
             ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
             CardListWidth = await getWidthTask;
-            _ = VirtualizeComponent.RefreshDataAsync();
+            _ = VirtualizeComponent?.RefreshDataAsync();
         }
 
         private ValueTask<ItemsProviderResult<IEnumerable<ViewInfo>>> CardItemProvider(
