@@ -261,6 +261,9 @@
   <data name="Settings.Button.ScanFromInstalled" xml:space="preserve">
     <value>Scan From Installed</value>
   </data>
+  <data name="Settings.Caption.GuideSite" xml:space="preserve">
+    <value>Guide Site</value>
+  </data>
   <data name="Settings.Caption.Language" xml:space="preserve">
     <value>Language (Restart Needed)</value>
   </data>

@@ -493,6 +493,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Guide Site 的當地語系化字串。
+        /// </summary>
+        internal static string Settings_Caption_GuideSite {
+            get {
+                return ResourceManager.GetString("Settings.Caption.GuideSite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Language (Restart Needed) 的當地語系化字串。
         /// </summary>
         internal static string Settings_Caption_Language {

@@ -261,6 +261,9 @@
   <data name="Settings.Button.ScanFromInstalled" xml:space="preserve">
     <value>检测已安装</value>
   </data>
+  <data name="Settings.Caption.GuideSite" xml:space="preserve">
+    <value>攻略网站</value>
+  </data>
   <data name="Settings.Caption.Language" xml:space="preserve">
     <value>语言 (需重启)</value>
   </data>
