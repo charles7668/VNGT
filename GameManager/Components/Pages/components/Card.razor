@@ -13,14 +13,16 @@
                       Alt="No Image" ObjectFit="ObjectFit.Contain" />
             <MudPaper Width="250px" MaxWidth="250px" MaxHeight="50px"
                       Elevation="0" Class="card-labels">
-                @foreach (var developer in DeveloperList)
-                {
-                    <MudChip T="string"
-                             OnClick="() => OnChipClick(developer)"
-                             Color="Color.Error">
-                        @developer
-                    </MudChip>
-                }
+                <MudStack Spacing="1" Row="true">
+                    @foreach (var developer in DeveloperList)
+                    {
+                        <MudChip T="string"
+                                 OnClick="() => OnChipClick(developer)"
+                                 Color="Color.Error">
+                            @developer
+                        </MudChip>
+                    }
+                </MudStack>
             </MudPaper>
             <MudPaper Elevation="0" MaxWidth="250px">
                 <MudTooltip Text="@GameInfo?.ExePath">
