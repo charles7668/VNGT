@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameManager", "GameManager\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameManager.DB", "GameManager.DB\GameManager.DB.csproj", "{C69AC4D8-71AA-4EC2-9B5D-57D76E7C1790}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VNGTTranslator", "VNGTTranslator\VNGTTranslator.csproj", "{FAB4D90A-58A9-4A17-86C1-3F2940DD5EA7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,12 +65,24 @@ Global
 		{C69AC4D8-71AA-4EC2-9B5D-57D76E7C1790}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C69AC4D8-71AA-4EC2-9B5D-57D76E7C1790}.Release|x64.ActiveCfg = Release|x64
 		{C69AC4D8-71AA-4EC2-9B5D-57D76E7C1790}.Release|x64.Build.0 = Release|x64
+		{FAB4D90A-58A9-4A17-86C1-3F2940DD5EA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAB4D90A-58A9-4A17-86C1-3F2940DD5EA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAB4D90A-58A9-4A17-86C1-3F2940DD5EA7}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{FAB4D90A-58A9-4A17-86C1-3F2940DD5EA7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FAB4D90A-58A9-4A17-86C1-3F2940DD5EA7}.Debug|x64.Build.0 = Debug|Any CPU
+		{FAB4D90A-58A9-4A17-86C1-3F2940DD5EA7}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{FAB4D90A-58A9-4A17-86C1-3F2940DD5EA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAB4D90A-58A9-4A17-86C1-3F2940DD5EA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAB4D90A-58A9-4A17-86C1-3F2940DD5EA7}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{FAB4D90A-58A9-4A17-86C1-3F2940DD5EA7}.Release|x64.ActiveCfg = Release|Any CPU
+		{FAB4D90A-58A9-4A17-86C1-3F2940DD5EA7}.Release|x64.Build.0 = Release|Any CPU
+		{FAB4D90A-58A9-4A17-86C1-3F2940DD5EA7}.Release|x64.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {89D99240-D609-4757-BAD5-E960EA1DE2E0}
 		RESX_SortFileContentOnSave = True
+		SolutionGuid = {89D99240-D609-4757-BAD5-E960EA1DE2E0}
 	EndGlobalSection
 EndGlobal
