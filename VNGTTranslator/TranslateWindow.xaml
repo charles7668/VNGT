@@ -9,7 +9,14 @@
         hc:WindowAttach.IsDragElement="True"
         WindowStyle="None" AllowsTransparency="True"
         Title="TranslateWindow"
+        ResizeMode="NoResize"
         MinHeight="32" Height="450" Width="800" MinWidth="380">
+    <Window.BorderBrush>
+        <SolidColorBrush>Red</SolidColorBrush>
+    </Window.BorderBrush>
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" />
+    </WindowChrome.WindowChrome>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
