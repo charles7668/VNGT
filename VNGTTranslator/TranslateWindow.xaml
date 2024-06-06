@@ -1,0 +1,79 @@
+﻿<Window x:Class="VNGTTranslator.TranslateWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        hc:WindowAttach.IsDragElement="True"
+        WindowStyle="None" AllowsTransparency="True"
+        Title="TranslateWindow"
+        MinHeight="32" Height="450" Width="800" MinWidth="380">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid x:Name="TitleBar" Grid.Row="0" Height="32">
+            <Grid.Resources>
+                <Style TargetType="StackPanel">
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                    <Setter Property="Orientation" Value="Horizontal" />
+                </Style>
+                <Style TargetType="Button">
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Height" Value="32" />
+                    <Setter Property="Width" Value="32" />
+                    <Setter Property="FontSize" Value="16" />
+                    <Setter Property="Foreground" Value="PapayaWhip" />
+                </Style>
+                <Style TargetType="ToggleButton">
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Height" Value="32" />
+                    <Setter Property="Width" Value="32" />
+                    <Setter Property="FontSize" Value="16" />
+                    <Setter Property="Foreground" Value="PapayaWhip" />
+                </Style>
+            </Grid.Resources>
+            <StackPanel HorizontalAlignment="Left">
+                <ToggleButton fa:Awesome.Content="MousePointer" Name="BtnLock" IsChecked="True" Click="BtnLock_OnClick"
+                              ToolTip="Transparent" />
+                <ToggleButton fa:Awesome.Content="Expand" Name="BtnAllowSizeChange" Click="BtnAllowSizeChange_OnClick"
+                              ToolTip="Allow resize the window" />
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Center">
+                <Button fa:Awesome.Content="Pause" Name="BtnPause" Click="BtnPause_OnClick"
+                        ToolTip="Pause/Resume Translator" />
+                <Button fa:Awesome.Content="Repeat" Name="BtnReTranslate" Click="BtnReTranslate_OnClick"
+                        ToolTip="Re-translate" />
+                <Button fa:Awesome.Content="EyeSlash" Name="BtnShowSourceText" Click="BtnShowSourceText_OnClick"
+                        ToolTip="Show source text" />
+                <Button fa:Awesome.Content="History" Name="BtnHistory" Click="BtnHistory_OnClick"
+                        ToolTip="Show history" />
+                <Button fa:Awesome.Content="Cog" Name="BtnSetting" Click="BtnSetting_OnClick" ToolTip="Setting" />
+                <Button fa:Awesome.Content="Microphone" Name="BtnReadAloud" Click="BtnReadAloud_OnClick"
+                        ToolTip="Read the source text aloud" />
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Right">
+                <Button fa:Awesome.Content="WindowMinimize" Name="BtnMinimizeWindow" Click="BtnMinimizeWindow_OnClick"
+                        ToolTip="Minimize the window" />
+                <Button fa:Awesome.Content="WindowCloseOutline" Name="BtnExit" Click="BtnExit_OnClick"
+                        ToolTip="Exit" />
+            </StackPanel>
+        </Grid>
+        <StackPanel Grid.Row="1" Margin="10" Orientation="Vertical">
+            <WrapPanel x:Name="PanelSourceText" Margin="10,0,10,5" Orientation="Horizontal" Background="Transparent"></WrapPanel>
+            <hc:OutlineText Text="Wait source text" Fill="White" Stroke="Beige" StrokeThickness="1"
+                            Name="TxtFirstTranslate"
+                            Margin="10,0,10,5" TextWrapping="Wrap" StrokePosition="Outside">
+            </hc:OutlineText>
+            <hc:OutlineText Text="" Fill="White" Stroke="Beige" StrokeThickness="1"
+                            Name="TxtSecondTranslate"
+                            Margin="10,0,10,0" TextWrapping="Wrap" StrokePosition="Outside">
+            </hc:OutlineText>
+        </StackPanel>
+    </Grid>
+</Window>
