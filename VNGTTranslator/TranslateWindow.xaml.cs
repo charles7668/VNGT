@@ -1,13 +1,6 @@
-﻿using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
+﻿using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace VNGTTranslator
 {
@@ -23,7 +16,17 @@ namespace VNGTTranslator
 
         private void BtnLock_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            if (!(((ToggleButton)sender).IsChecked ?? false))
+            {
+                Background = new SolidColorBrush(Colors.Transparent);
+            }
+            else
+            {
+                BrushConverter brushConverter = new();
+                var brush = (Brush?)brushConverter.ConvertFromString("#7F000000");
+                if (brush != null)
+                    Background = brush;
+            }
         }
 
         private void BtnAllowSizeChange_OnClick(object sender, RoutedEventArgs e)
