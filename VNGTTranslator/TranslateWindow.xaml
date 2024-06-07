@@ -10,6 +10,7 @@
         WindowStyle="None" AllowsTransparency="True"
         Title="TranslateWindow"
         ResizeMode="NoResize"
+        Background="Black"
         MinHeight="32" Height="450" Width="800" MinWidth="380">
     <Window.BorderBrush>
         <SolidColorBrush>Red</SolidColorBrush>
