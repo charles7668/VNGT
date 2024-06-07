@@ -14,4 +14,13 @@
     <PackageReference Include="HandyControl" Version="3.5.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="LunaHook\LunaHost32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="LunaHook\LunaHost64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
