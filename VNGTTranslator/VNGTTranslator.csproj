@@ -15,6 +15,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="LunaHook\LunaHook32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="LunaHook\LunaHook64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="LunaHook\LunaHost32.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
