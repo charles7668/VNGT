@@ -5,12 +5,14 @@
         xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vngtTranslator="clr-namespace:VNGTTranslator"
         mc:Ignorable="d"
         hc:WindowAttach.IsDragElement="True"
         WindowStyle="None" AllowsTransparency="True"
         Title="TranslateWindow"
         ResizeMode="NoResize"
         Background="Black"
+        d:DataContext="{d:DesignInstance Type=vngtTranslator:TranslateWindow , IsDesignTimeCreatable=True}"
         MinHeight="32" Height="450" Width="800" MinWidth="380">
     <Window.BorderBrush>
         <SolidColorBrush>Red</SolidColorBrush>
@@ -47,23 +49,54 @@
                 </Style>
             </Grid.Resources>
             <StackPanel HorizontalAlignment="Left">
-                <ToggleButton fa:Awesome.Content="MousePointer" Name="BtnLock" IsChecked="True" Click="BtnLock_OnClick"
+                <ToggleButton fa:Awesome.Content="MousePointer" Name="BtnLock"
+                              IsChecked="{Binding IsTransparent}" Click="BtnLock_OnClick"
                               ToolTip="Transparent" />
                 <ToggleButton fa:Awesome.Content="Expand" Name="BtnAllowSizeChange" Click="BtnAllowSizeChange_OnClick"
                               ToolTip="Allow resize the window" />
+                <ToggleButton fa:Awesome.Content="MapPin"
+                              IsChecked="True"
+                              Name="BtnToggleOnTop" Click="BtnToggleOnTop_OnClick"
+                              ToolTip="Toggle OnTop" />
             </StackPanel>
             <StackPanel HorizontalAlignment="Center">
-                <Button fa:Awesome.Content="Pause" Name="BtnPause" Click="BtnPause_OnClick"
-                        ToolTip="Pause/Resume Translator" />
+                <Button Name="BtnPause" Click="BtnPause_OnClick"
+                        ToolTip="Pause/Resume Translator">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                            <Setter Property="fa:Awesome.Content" Value="Pause" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding PauseState}" Value="True">
+                                    <Setter Property="fa:Awesome.Content" Value="Play" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
                 <Button fa:Awesome.Content="Repeat" Name="BtnReTranslate" Click="BtnReTranslate_OnClick"
                         ToolTip="Re-translate" />
-                <Button fa:Awesome.Content="EyeSlash" Name="BtnShowSourceText" Click="BtnShowSourceText_OnClick"
-                        ToolTip="Show source text" />
+                <Button Name="BtnShowSourceText" Click="BtnShowSourceText_OnClick"
+                        ToolTip="Show source text">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                            <Setter Property="fa:Awesome.Content" Value="EyeSlash" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsShowSourceText}" Value="False">
+                                    <Setter Property="fa:Awesome.Content" Value="Eye" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
                 <Button fa:Awesome.Content="History" Name="BtnHistory" Click="BtnHistory_OnClick"
                         ToolTip="Show history" />
+                <Button fa:Awesome.Content="ListAlt" Name="BtnSelectHookCode" Click="BtnSelectHookCode_OnClick"
+                        ToolTip="Select hook code" />
                 <Button fa:Awesome.Content="Cog" Name="BtnSetting" Click="BtnSetting_OnClick" ToolTip="Setting" />
                 <Button fa:Awesome.Content="Microphone" Name="BtnReadAloud" Click="BtnReadAloud_OnClick"
                         ToolTip="Read the source text aloud" />
+                <Button fa:Awesome.Content="Microchip" Name="BtnSelectProcess" Click="BtnSelectProcess_OnClick"
+                        ToolTip="Select process" />
             </StackPanel>
             <StackPanel HorizontalAlignment="Right">
                 <Button fa:Awesome.Content="WindowMinimize" Name="BtnMinimizeWindow" Click="BtnMinimizeWindow_OnClick"
@@ -73,15 +106,28 @@
             </StackPanel>
         </Grid>
         <StackPanel Grid.Row="1" Margin="10" Orientation="Vertical">
-            <WrapPanel x:Name="PanelSourceText" Margin="10,0,10,5" Orientation="Horizontal" Background="Transparent"></WrapPanel>
-            <hc:OutlineText Text="Wait source text" Fill="White" Stroke="Beige" StrokeThickness="1"
+            <WrapPanel x:Name="PanelSourceText" Margin="10,0,10,5" Orientation="Horizontal" Background="Transparent" />
+            <hc:OutlineText Text="{Binding SourceText , Mode=OneWay}"
+                            d:Text="Wait source text"
+                            Fill="White" Stroke="Beige" StrokeThickness="1"
                             Name="TxtFirstTranslate"
                             Margin="10,0,10,5" TextWrapping="Wrap" StrokePosition="Outside">
+                <hc:OutlineText.Style>
+                    <Style TargetType="hc:OutlineText">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsShowSourceText}" Value="False">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </hc:OutlineText.Style>
             </hc:OutlineText>
-            <hc:OutlineText Text="" Fill="White" Stroke="Beige" StrokeThickness="1"
+            <hc:OutlineText Text="{Binding TranslatedText , Mode=OneWay}"
+                            Fill="White" Stroke="Beige"
+                            StrokeThickness="1"
                             Name="TxtSecondTranslate"
-                            Margin="10,0,10,0" TextWrapping="Wrap" StrokePosition="Outside">
-            </hc:OutlineText>
+                            Margin="10,0,10,0" TextWrapping="Wrap" StrokePosition="Outside" />
         </StackPanel>
     </Grid>
 </Window>

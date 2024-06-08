@@ -1,14 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.DependencyInjection;
+using VNGTTranslator.Configs;
+using VNGTTranslator.Hooker;
 
 namespace VNGTTranslator
 {
     public static class Program
     {
         public static uint PID { get; set; }
-        public static bool Is64Bit { get; set; } = false;
+
+        public static ReceivedHookData? SelectedHookItem { get; set; }
+
+        public static IServiceProvider ServiceProvider { get; private set; } = null!;
+
+        public static void InitServices()
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton<IHooker, LunaHooker>();
+            services.AddSingleton<IAppConfigProvider, AppConfigProvider>(sp => new AppConfigProvider(string.Empty));
+            ServiceProvider = services.BuildServiceProvider();
+        }
     }
 }

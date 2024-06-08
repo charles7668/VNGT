@@ -1,7 +1,6 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Text;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
+using VNGTTranslator.Hooker;
 using VNGTTranslator.LunaHook;
 
 namespace VNGTTranslator
@@ -11,9 +10,14 @@ namespace VNGTTranslator
     /// </summary>
     public partial class App : Application
     {
+        private IHooker _hooker = null!;
+
         protected override void OnStartup(StartupEventArgs e)
         {
+            Program.InitServices();
+
             base.OnStartup(e);
+
             string[] commandLineArgs = Environment.GetCommandLineArgs();
             if (commandLineArgs.Length < 2 || !uint.TryParse(commandLineArgs[1], out uint pid))
             {
@@ -24,68 +28,35 @@ namespace VNGTTranslator
             }
 
             Program.PID = pid;
-            Program.Is64Bit = Environment.Is64BitProcess;
 
-            void Log(string text)
-            {
-                Debugger.Log(1, "", text);
-            }
-
-            File.WriteAllText("test.txt", "");
-
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            var cp932 = Encoding.GetEncoding(932);
-
-            // start luna hook service
-            HookMethod.LunaStart(inPid =>
-            {
-                File.AppendAllText("test.txt", $"connected {inPid}\n");
-            }, inPid =>
-            {
-                File.AppendAllText("test.txt", $"disconnected {inPid}\n");
-            }, (code, name, tp) =>
-            {
-                File.AppendAllText("test.txt", $"create {code}\n");
-            }, (code, name, tp) =>
-            {
-                File.AppendAllText("test.txt", $"destroy {code}\n");
-            }, (hookCode, name, tp, output) =>
-            {
-                string write = cp932.GetString(cp932.GetBytes(output));
-                File.AppendAllText("test.txt", $"output {hookCode} {write}\n");
-                return false;
-            }, output =>
-            {
-                string write = cp932.GetString(cp932.GetBytes(output));
-                File.AppendAllText("test.txt", $"console {write}\n");
-            }, (address, output) =>
-            {
-                File.AppendAllText("test.txt", $"hookInsert {address} {output}\n");
-            }, (output, tp) =>
-            {
-            });
-
-            HookMethod.LunaSettings(100, false, 932, 3000, 10000000);
-
-            string lunaHookPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LunaHook"));
-
+            _hooker = Program.ServiceProvider.GetRequiredService<IHooker>();
+            _hooker.Start();
             try
             {
-                HookMethod.LunaDetach(Program.PID);
+                _hooker.Detach(pid);
             }
             catch (Exception)
             {
-                // ignored
+                // ignore
             }
 
-            HookMethod.LunaInject(pid, lunaHookPath);
+            try
+            {
+                _hooker.Inject(pid, LunaDll.LunaHookDllPath);
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show($"Inject failed : {exc.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown(-1);
+            }
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
             try
             {
-                HookMethod.LunaDetach(Program.PID);
+                _hooker.Detach(Program.PID);
             }
             catch (Exception)
             {

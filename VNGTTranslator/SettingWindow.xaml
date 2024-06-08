@@ -1,0 +1,29 @@
+﻿<Window x:Class="VNGTTranslator.SettingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:vngtTranslator="clr-namespace:VNGTTranslator"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance vngtTranslator:SettingWindow}"
+        Title="SettingWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <hc:SideMenu BorderThickness="1"
+                     Width="200" HorizontalAlignment="Left"
+                     VerticalAlignment="Stretch">
+            <hc:SideMenuItem IsSelected="True" Header="About VNGTTranslator" FontSize="15"
+                             Selected="SideMenuItemAbout_OnSelected" />
+            <hc:SideMenuItem Header="Translate Window Setting" FontSize="15"
+                             Selected="SideMenuItemTranslateWindowSetting_OnSelected" />
+
+        </hc:SideMenu>
+        <Frame Grid.Column="1" Name="FramePage"
+               Source="{Binding NavigateTo}"
+               NavigationUIVisibility="Hidden" />
+    </Grid>
+</Window>

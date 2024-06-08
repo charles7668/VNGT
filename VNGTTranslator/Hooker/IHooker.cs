@@ -1,0 +1,19 @@
+﻿namespace VNGTTranslator.Hooker
+{
+    public interface IHooker
+    {
+        delegate void HookTextReceivedEventHandler(HookTextReceivedEventArgs e);
+
+        public event HookTextReceivedEventHandler HookTextReceived;
+
+        void Start();
+
+        void SetHookSetting(HookerSetting setting);
+
+        void Inject(uint pid, string basePath);
+
+        void Detach(uint pid);
+
+        bool InsertHook(uint pid, string hookCode);
+    }
+}

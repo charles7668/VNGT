@@ -1,31 +1,116 @@
-﻿using System.Windows;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using VNGTTranslator.Configs;
+using VNGTTranslator.Hooker;
 
 namespace VNGTTranslator
 {
     /// <summary>
     /// Interaction logic for TranslateWindow.xaml
     /// </summary>
-    public partial class TranslateWindow : Window
+    public partial class TranslateWindow : Window, INotifyPropertyChanged
     {
         public TranslateWindow()
         {
             InitializeComponent();
-            SetBackgroundTransparent(false);
+            DataContext = this;
+            _hooker = Program.ServiceProvider.GetRequiredService<IHooker>();
+            _hooker.HookTextReceived += HookerOnHookTextReceived;
+            _appConfig = Program.ServiceProvider.GetRequiredService<IAppConfigProvider>().GetAppConfig();
+            RefreshDisplayUI();
+            WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            Topmost = true;
         }
 
-        private readonly string _backgroundColor = "#7F000000";
+        private readonly AppConfig _appConfig;
+
+        private readonly IHooker _hooker;
+        private bool _isShowSourceText = true;
+
+        private bool _isTransparent;
+        private bool _pauseState;
+
+        private string _sourceText = "Wait source text";
+        private string _translatedText = string.Empty;
+
+        public bool IsShowSourceText
+        {
+            get => _isShowSourceText;
+            set => SetField(ref _isShowSourceText, value);
+        }
+
+        public bool PauseState
+        {
+            get => _pauseState;
+            set => SetField(ref _pauseState, value);
+        }
+
+        public bool IsTransparent
+        {
+            get => _isTransparent;
+            set => SetField(ref _isTransparent, value);
+        }
+
+        public string SourceText
+        {
+            get => _sourceText;
+            private set => SetField(ref _sourceText, value);
+        }
+
+        public string TranslatedText
+        {
+            get => _translatedText;
+            set => SetField(ref _translatedText, value);
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if (!PauseState)
+                _hooker.HookTextReceived -= HookerOnHookTextReceived;
+            base.OnClosing(e);
+        }
+
+        private void HookerOnHookTextReceived(HookTextReceivedEventArgs e)
+        {
+            var data = new ReceivedHookData
+            {
+                Ctx = e.Ctx,
+                Ctx2 = e.Ctx2,
+                HookFunc = e.HookFunc,
+                Data = e.Text,
+                HookCode = e.HookCode
+            };
+            if (Program.SelectedHookItem == null || data.DisplayHookCode != Program.SelectedHookItem.DisplayHookCode)
+            {
+                return;
+            }
+
+            Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                SourceText = e.Text;
+                // todo translate
+            });
+        }
+
+        private void RefreshDisplayUI()
+        {
+            SetWindowColor();
+        }
 
         /// <summary>
         /// set background transparent or not
         /// </summary>
-        /// <param name="isTransparent"></param>
-        private void SetBackgroundTransparent(bool isTransparent)
+        private void SetWindowColor()
         {
-            Background = isTransparent
+            Background = IsTransparent
                 ? new SolidColorBrush(Colors.Transparent)
-                : new SolidColorBrush((Color)ColorConverter.ConvertFromString(_backgroundColor));
+                : new SolidColorBrush(_appConfig.TranslateWindowColor);
         }
 
         /// <summary>
@@ -48,7 +133,7 @@ namespace VNGTTranslator
 
         private void BtnLock_OnClick(object sender, RoutedEventArgs e)
         {
-            SetBackgroundTransparent(((ToggleButton)sender).IsChecked ?? false);
+            SetWindowColor();
         }
 
         private void BtnAllowSizeChange_OnClick(object sender, RoutedEventArgs e)
@@ -58,7 +143,16 @@ namespace VNGTTranslator
 
         private void BtnPause_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            if (!PauseState)
+            {
+                _hooker.HookTextReceived -= HookerOnHookTextReceived;
+                PauseState = true;
+            }
+            else
+            {
+                _hooker.HookTextReceived += HookerOnHookTextReceived;
+                PauseState = false;
+            }
         }
 
         private void BtnReTranslate_OnClick(object sender, RoutedEventArgs e)
@@ -68,7 +162,12 @@ namespace VNGTTranslator
 
         private void BtnSetting_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            SettingWindow settingWindow = new()
+            {
+                Owner = this
+            };
+            settingWindow.ShowDialog();
+            RefreshDisplayUI();
         }
 
         private void BtnHistory_OnClick(object sender, RoutedEventArgs e)
@@ -78,7 +177,7 @@ namespace VNGTTranslator
 
         private void BtnShowSourceText_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            IsShowSourceText = !IsShowSourceText;
         }
 
         private void BtnReadAloud_OnClick(object sender, RoutedEventArgs e)
@@ -94,6 +193,35 @@ namespace VNGTTranslator
         private void BtnExit_OnClick(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        private void BtnSelectProcess_OnClick(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void BtnSelectHookCode_OnClick(object sender, RoutedEventArgs e)
+        {
+            HookSelectWindow hookSelectWindow = new();
+            hookSelectWindow.Show();
+        }
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+
+        private void BtnToggleOnTop_OnClick(object sender, RoutedEventArgs e)
+        {
+            Topmost = !Topmost;
         }
     }
 }
