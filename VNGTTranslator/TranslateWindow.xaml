@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:hc="https://handyorg.github.io/handycontrol"
-        xmlns:fa="http://schemas.fontawesome.io/icons/"
+        xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vngtTranslator="clr-namespace:VNGTTranslator"
         mc:Ignorable="d"
@@ -49,60 +49,119 @@
                 </Style>
             </Grid.Resources>
             <StackPanel HorizontalAlignment="Left">
-                <ToggleButton fa:Awesome.Content="MousePointer" Name="BtnLock"
+                <ToggleButton Name="BtnLock"
                               IsChecked="{Binding IsTransparent}" Click="BtnLock_OnClick"
-                              ToolTip="Transparent" />
-                <ToggleButton fa:Awesome.Content="Expand" Name="BtnAllowSizeChange" Click="BtnAllowSizeChange_OnClick"
-                              ToolTip="Allow resize the window" />
-                <ToggleButton fa:Awesome.Content="MapPin"
-                              IsChecked="True"
+                              ToolTip="Transparent">
+                    <ToggleButton.Content>
+                        <fa:IconBlock Icon="MousePointer"></fa:IconBlock>
+                    </ToggleButton.Content>
+                </ToggleButton>
+                <ToggleButton Name="BtnAllowSizeChange" Click="BtnAllowSizeChange_OnClick"
+                              ToolTip="Allow resize the window">
+                    <ToggleButton.Content>
+                        <fa:IconBlock Icon="Expand"></fa:IconBlock>
+                    </ToggleButton.Content>
+                </ToggleButton>
+                <ToggleButton IsChecked="True"
                               Name="BtnToggleOnTop" Click="BtnToggleOnTop_OnClick"
-                              ToolTip="Toggle OnTop" />
+                              ToolTip="Toggle OnTop">
+                    <ToggleButton.Content>
+                        <fa:IconBlock Icon="MapPin"></fa:IconBlock>
+                    </ToggleButton.Content>
+                </ToggleButton>
             </StackPanel>
             <StackPanel HorizontalAlignment="Center">
                 <Button Name="BtnPause" Click="BtnPause_OnClick"
                         ToolTip="Pause/Resume Translator">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                            <Setter Property="fa:Awesome.Content" Value="Pause" />
+                            <Setter Property="Content">
+                                <Setter.Value>
+                                    <fa:IconBlock Icon="Pause"></fa:IconBlock>
+                                </Setter.Value>
+                            </Setter>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding PauseState}" Value="True">
-                                    <Setter Property="fa:Awesome.Content" Value="Play" />
+                                    <Setter Property="Content">
+                                        <Setter.Value>
+                                            <fa:IconBlock Icon="Play"></fa:IconBlock>
+                                        </Setter.Value>
+                                    </Setter>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button fa:Awesome.Content="Repeat" Name="BtnReTranslate" Click="BtnReTranslate_OnClick"
-                        ToolTip="Re-translate" />
+                <Button Name="BtnReTranslate" Click="BtnReTranslate_OnClick"
+                        ToolTip="Re-translate">
+                    <Button.Content>
+                        <fa:IconBlock Icon="Repeat"></fa:IconBlock>
+                    </Button.Content>
+                </Button>
                 <Button Name="BtnShowSourceText" Click="BtnShowSourceText_OnClick"
                         ToolTip="Show source text">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                            <Setter Property="fa:Awesome.Content" Value="EyeSlash" />
+                            <Setter Property="Content">
+                                <Setter.Value>
+                                    <fa:IconBlock Icon="EyeSlash"></fa:IconBlock>
+                                </Setter.Value>
+                            </Setter>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsShowSourceText}" Value="False">
-                                    <Setter Property="fa:Awesome.Content" Value="Eye" />
+                                    <Setter Property="Content">
+                                        <Setter.Value>
+                                            <fa:IconBlock Icon="Eye"></fa:IconBlock>
+                                        </Setter.Value>
+                                    </Setter>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button fa:Awesome.Content="History" Name="BtnHistory" Click="BtnHistory_OnClick"
-                        ToolTip="Show history" />
-                <Button fa:Awesome.Content="ListAlt" Name="BtnSelectHookCode" Click="BtnSelectHookCode_OnClick"
-                        ToolTip="Select hook code" />
-                <Button fa:Awesome.Content="Cog" Name="BtnSetting" Click="BtnSetting_OnClick" ToolTip="Setting" />
-                <Button fa:Awesome.Content="Microphone" Name="BtnReadAloud" Click="BtnReadAloud_OnClick"
-                        ToolTip="Read the source text aloud" />
-                <Button fa:Awesome.Content="Microchip" Name="BtnSelectProcess" Click="BtnSelectProcess_OnClick"
-                        ToolTip="Select process" />
+                <Button Name="BtnHistory" Click="BtnHistory_OnClick"
+                        ToolTip="Show history">
+                    <Button.Content>
+                        <fa:IconBlock Icon="History"></fa:IconBlock>
+                    </Button.Content>
+                </Button>
+                <Button Name="BtnSelectHookCode" Click="BtnSelectHookCode_OnClick"
+                        ToolTip="Select hook code">
+                    <Button.Content>
+                        <fa:IconBlock Icon="ListAlt"></fa:IconBlock>
+                    </Button.Content>
+                </Button>
+                <Button Name="BtnSetting" Click="BtnSetting_OnClick" ToolTip="Setting">
+                    <Button.Content>
+                        <fa:IconBlock Icon="Cog"></fa:IconBlock>
+                    </Button.Content>
+                </Button>
+                <Button Name="BtnReadAloud" Click="BtnReadAloud_OnClick"
+                        ToolTip="Read the source text aloud">
+                    <Button.Content>
+                        <fa:IconBlock Icon="Microphone"></fa:IconBlock>
+                    </Button.Content>
+                </Button>
+                <Button Name="BtnSelectProcess" Click="BtnSelectProcess_OnClick"
+                        ToolTip="Select process">
+                    <Button.Content>
+                        <fa:IconBlock Icon="Microchip"></fa:IconBlock>
+                    </Button.Content>
+                </Button>
             </StackPanel>
             <StackPanel HorizontalAlignment="Right">
-                <Button fa:Awesome.Content="WindowMinimize" Name="BtnMinimizeWindow" Click="BtnMinimizeWindow_OnClick"
-                        ToolTip="Minimize the window" />
-                <Button fa:Awesome.Content="WindowCloseOutline" Name="BtnExit" Click="BtnExit_OnClick"
-                        ToolTip="Exit" />
+                <Button Name="BtnMinimizeWindow" Click="BtnMinimizeWindow_OnClick"
+                        ToolTip="Minimize the window">
+                    <Button.Content>
+                        <fa:IconBlock Icon="WindowMinimize"></fa:IconBlock>
+                    </Button.Content>
+                </Button>
+                <Button Name="BtnExit" Click="BtnExit_OnClick"
+                        ToolTip="Exit">
+                    <Button.Content>
+                        <fa:IconBlock Icon="WindowClose"></fa:IconBlock>
+                    </Button.Content>
+                </Button>
             </StackPanel>
         </Grid>
         <StackPanel Grid.Row="1" Margin="10" Orientation="Vertical">
