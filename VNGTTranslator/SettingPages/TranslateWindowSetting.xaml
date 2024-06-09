@@ -3,30 +3,55 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      xmlns:settingPages="clr-namespace:VNGTTranslator.SettingPages"
       mc:Ignorable="d"
       d:DesignHeight="450" d:DesignWidth="800"
+      d:DataContext="{d:DesignInstance d:Type=settingPages:TranslateWindowSetting}"
       Background="White"
       Title="TranslateWindowSetting">
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        <Grid.Resources>
+            <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                <Setter Property="FontSize" Value="20" />
+            </Style>
+            <Style TargetType="hc:ComboBox" BasedOn="{StaticResource {x:Type hc:ComboBox}}">
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontWeight" Value="Bold"></Setter>
+            </Style>
+        </Grid.Resources>
         <StackPanel Orientation="Horizontal">
             <StackPanel.Resources>
-                <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
-                    <Setter Property="FontSize" Value="20" />
-                </Style>
                 <Style x:Key="ButtonPrimaryNew" TargetType="Button" BasedOn="{StaticResource ButtonPrimary}">
                     <Setter Property="FontSize" Value="15" />
                 </Style>
             </StackPanel.Resources>
-            <TextBlock Text="Window Color : " VerticalAlignment="Center" />
+            <TextBlock Text="Window Color And Transparent: " VerticalAlignment="Center" />
             <Button Name="BtnBackgroundColorSelect" Content="Select Color"
                     Margin="10" Width="200"
                     Style="{StaticResource ButtonPrimaryNew}"
                     Click="BtnBackgroundColorSelect_OnClick" />
         </StackPanel>
+        <GroupBox Grid.Row="1"
+                  Style="{x:Null}"
+                  BorderBrush="Black" BorderThickness="2">
+            <GroupBox.Header>
+                <TextBlock Text="Source Text Font"></TextBlock>
+            </GroupBox.Header>
+            <GroupBox.Content>
+                <StackPanel>
+                    <hc:ComboBox hc:InfoElement.TitleWidth="140"
+                                 ItemsSource="{Binding FontList}"
+                                 SelectedItem="{Binding SelectedSourceFont }"
+                                 hc:InfoElement.TitlePlacement="Top"
+                                 hc:InfoElement.Title="Font" />
+                </StackPanel>
+            </GroupBox.Content>
+        </GroupBox>
     </Grid>
 </Page>

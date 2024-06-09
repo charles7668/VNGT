@@ -72,14 +72,14 @@ namespace VNGTTranslator
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            _hooker.HookTextReceived -= OnTextReceived;
+            _hooker.OnHookTextReceived -= OnTextReceived;
         }
 
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
             _hooker = Program.ServiceProvider.GetRequiredService<IHooker>();
-            _hooker.HookTextReceived += OnTextReceived;
+            _hooker.OnHookTextReceived += OnTextReceived;
         }
 
         private void BtnAddHook_OnClick(object sender, RoutedEventArgs e)

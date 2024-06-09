@@ -12,14 +12,14 @@ namespace VNGTTranslator
     /// <summary>
     /// Interaction logic for TranslateWindow.xaml
     /// </summary>
-    public partial class TranslateWindow : Window, INotifyPropertyChanged
+    public partial class TranslateWindow : INotifyPropertyChanged
     {
         public TranslateWindow()
         {
             InitializeComponent();
             DataContext = this;
             _hooker = Program.ServiceProvider.GetRequiredService<IHooker>();
-            _hooker.HookTextReceived += HookerOnHookTextReceived;
+            _hooker.OnHookTextReceived += OnHookerTextReceived;
             _appConfig = Program.ServiceProvider.GetRequiredService<IAppConfigProvider>().GetAppConfig();
             RefreshDisplayUI();
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -72,11 +72,11 @@ namespace VNGTTranslator
         protected override void OnClosing(CancelEventArgs e)
         {
             if (!PauseState)
-                _hooker.HookTextReceived -= HookerOnHookTextReceived;
+                _hooker.OnHookTextReceived -= OnHookerTextReceived;
             base.OnClosing(e);
         }
 
-        private void HookerOnHookTextReceived(HookTextReceivedEventArgs e)
+        private void OnHookerTextReceived(HookTextReceivedEventArgs e)
         {
             var data = new ReceivedHookData
             {
@@ -145,12 +145,12 @@ namespace VNGTTranslator
         {
             if (!PauseState)
             {
-                _hooker.HookTextReceived -= HookerOnHookTextReceived;
+                _hooker.OnHookTextReceived -= OnHookerTextReceived;
                 PauseState = true;
             }
             else
             {
-                _hooker.HookTextReceived += HookerOnHookTextReceived;
+                _hooker.OnHookTextReceived += OnHookerTextReceived;
                 PauseState = false;
             }
         }
@@ -206,7 +206,7 @@ namespace VNGTTranslator
             hookSelectWindow.Show();
         }
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

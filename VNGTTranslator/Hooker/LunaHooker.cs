@@ -21,7 +21,7 @@ namespace VNGTTranslator.Hooker
 
         private readonly object _outputCallBackLock = new();
 
-        public event IHooker.HookTextReceivedEventHandler? HookTextReceived;
+        public event IHooker.HookTextReceivedEventHandler? OnHookTextReceived;
 
         public void Start()
         {
@@ -71,7 +71,7 @@ namespace VNGTTranslator.Hooker
             if (!lockTaken)
                 return false;
             LunaDll.ThreadParam threadParam = Marshal.PtrToStructure<LunaDll.ThreadParam>(tp);
-            HookTextReceived?.Invoke(new HookTextReceivedEventArgs
+            OnHookTextReceived?.Invoke(new HookTextReceivedEventArgs
             {
                 Ctx = threadParam.Ctx,
                 Ctx2 = threadParam.Ctx2,

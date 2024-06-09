@@ -4,7 +4,7 @@
     {
         delegate void HookTextReceivedEventHandler(HookTextReceivedEventArgs e);
 
-        public event HookTextReceivedEventHandler HookTextReceived;
+        public event HookTextReceivedEventHandler OnHookTextReceived;
 
         void Start();
 
