@@ -34,6 +34,8 @@ namespace VNGTTranslator
         private bool _isTransparent;
         private bool _pauseState;
 
+        private FontFamily _sourceFontFamily = new("Arial");
+
         private string _sourceText = "Wait source text";
         private string _translatedText = string.Empty;
 
@@ -41,6 +43,20 @@ namespace VNGTTranslator
         {
             get => _isShowSourceText;
             set => SetField(ref _isShowSourceText, value);
+        }
+
+        public FontFamily SourceFontFamily
+        {
+            get => _sourceFontFamily;
+            set => SetField(ref _sourceFontFamily, value);
+        }
+
+        private uint _sourceFontSize = 15;
+
+        public uint SourceFontSize
+        {
+            get => _sourceFontSize;
+            set => SetField(ref _sourceFontSize, value);
         }
 
         public bool PauseState
@@ -101,6 +117,13 @@ namespace VNGTTranslator
         private void RefreshDisplayUI()
         {
             SetWindowColor();
+            SetFontStyle();
+        }
+
+        private void SetFontStyle()
+        {
+            SourceFontFamily = new FontFamily(_appConfig.SourceFontFamily);
+            SourceFontSize = _appConfig.SourceFontSize;
         }
 
         /// <summary>

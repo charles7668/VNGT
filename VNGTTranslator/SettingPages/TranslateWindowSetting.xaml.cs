@@ -7,7 +7,6 @@ using System.Drawing.Text;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using VNGTTranslator.Configs;
-using Color = System.Windows.Media.Color;
 using MessageBox = System.Windows.MessageBox;
 using Window = System.Windows.Window;
 
@@ -22,7 +21,7 @@ namespace VNGTTranslator.SettingPages
         {
             InitializeComponent();
             _appConfigProvider = Program.ServiceProvider.GetRequiredService<IAppConfigProvider>();
-            var appConfig = _appConfigProvider.GetAppConfig();
+            _appConfig = _appConfigProvider.GetAppConfig().Clone();
             DataContext = this;
 
             var fontList = new List<string>();
@@ -32,27 +31,32 @@ namespace VNGTTranslator.SettingPages
                 fontList.Add(family.Name);
             }
 
-            _selectedSourceFont = appConfig.SourceFontFamily;
             FontList = fontList;
         }
+
+        private readonly AppConfig _appConfig;
 
         private readonly IAppConfigProvider _appConfigProvider;
 
         private readonly List<string> _fontList = new();
 
-        private string _selectedSourceFont;
-
         public string SelectedSourceFont
         {
-            get => _selectedSourceFont;
+            get => _appConfig.SourceFontFamily;
             set
             {
-                if (SetField(ref _selectedSourceFont, value))
-                {
-                    AppConfig appConfig = _appConfigProvider.GetAppConfig();
-                    appConfig.SourceFontFamily = value;
-                    _appConfigProvider.TrySaveAppConfig(out _);
-                }
+                _appConfig.SourceFontFamily = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public uint SourceFontSize
+        {
+            get => _appConfig.SourceFontSize;
+            set
+            {
+                _appConfig.SourceFontSize = value;
+                OnPropertyChanged();
             }
         }
 
@@ -80,16 +84,7 @@ namespace VNGTTranslator.SettingPages
             };
             picker.Confirmed += (_, args) =>
             {
-                AppConfig appConfig = _appConfigProvider.GetAppConfig();
-                Color backupColor = appConfig.TranslateWindowColor;
-                appConfig.TranslateWindowColor = args.Info;
-                bool result = _appConfigProvider.TrySaveAppConfig(out string? err);
-                if (!result)
-                {
-                    appConfig.TranslateWindowColor = backupColor;
-                    MessageBox.Show(err, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-
+                _appConfig.TranslateWindowColor = args.Info;
                 window.Close();
             };
 
@@ -106,12 +101,18 @@ namespace VNGTTranslator.SettingPages
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+        private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
             field = value;
             OnPropertyChanged(propertyName);
             return true;
+        }
+
+        private void BtnSave_OnClick(object sender, RoutedEventArgs e)
+        {
+            _appConfigProvider.GetAppConfig().Update(_appConfig);
+            MessageBox.Show(!_appConfigProvider.TrySaveAppConfig(out string err) ? err : "Save Success");
         }
     }
 }

@@ -169,6 +169,8 @@
             <hc:OutlineText Text="{Binding SourceText , Mode=OneWay}"
                             d:Text="Wait source text"
                             Fill="White" Stroke="Beige" StrokeThickness="1"
+                            FontFamily="{Binding  SourceFontFamily}"
+                            FontSize="{Binding SourceFontSize}"
                             Name="TxtFirstTranslate"
                             Margin="10,0,10,5" TextWrapping="Wrap" StrokePosition="Outside">
                 <hc:OutlineText.Style>
