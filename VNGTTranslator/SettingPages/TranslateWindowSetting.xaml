@@ -28,14 +28,12 @@
         <StackPanel Grid.Row="0">
             <StackPanel Orientation="Horizontal">
                 <StackPanel.Resources>
-                    <Style x:Key="ButtonPrimaryNew" TargetType="Button" BasedOn="{StaticResource ButtonPrimary}">
-                        <Setter Property="FontSize" Value="15" />
-                    </Style>
                 </StackPanel.Resources>
                 <TextBlock Text="Window Color And Transparent: " VerticalAlignment="Center" />
                 <Button Name="BtnBackgroundColorSelect" Content="Select Color"
                         Margin="10" Width="200"
-                        Style="{StaticResource ButtonPrimaryNew}"
+                        FontSize="15"
+                        Background="{Binding TranslateWindowColor}"
                         Click="BtnBackgroundColorSelect_OnClick" />
             </StackPanel>
             <TabControl Style="{StaticResource TabControlInLine}"
@@ -46,19 +44,36 @@
                         <Setter Property="FontSize" Value="20" />
                         <Setter Property="FontWeight" Value="Bold" />
                     </Style>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                        <Setter Property="FontSize" Value="20" />
+                        <Setter Property="FontWeight" Value="Bold" />
+                    </Style>
+                    <Style TargetType="hc:ComboBox" BasedOn="{StaticResource {x:Type hc:ComboBox}}">
+                        <Setter Property="FontSize" Value="20" />
+                        <Setter Property="FontWeight" Value="Bold" />
+                    </Style>
+                    <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
+                        <Setter Property="FontSize" Value="20" />
+                        <Setter Property="FontWeight" Value="Bold" />
+                    </Style>
                 </TabControl.Resources>
                 <TabItem Header="Source Text Font Style">
                     <StackPanel>
+                        <StackPanel Orientation="Horizontal" />
+                        <TextBlock Text="Font Color" Margin="8,0,0,0" />
+                        <Button Content="Select Color"
+                                HorizontalAlignment="Left"
+                                Margin="8"
+                                Background="{Binding SourceTextColor}"
+                                Click="BtnSelectSourceTextColor_OnClick" />
                         <hc:ComboBox hc:InfoElement.TitleWidth="140"
                                      ItemsSource="{Binding FontList}"
                                      SelectedItem="{Binding SelectedSourceFont }"
                                      hc:InfoElement.TitlePlacement="Top"
                                      hc:InfoElement.Title="Font" />
-                        <hc:NumericUpDown FontSize="20" Minimum="8"
-                                          FontWeight="Bold"
+                        <hc:NumericUpDown Minimum="8"
                                           Value="{Binding SourceFontSize , Mode=TwoWay}"
-                                          hc:InfoElement.Title="Font Size"
-                                          Style="{StaticResource NumericUpDownExtend}" />
+                                          hc:InfoElement.Title="Font Size" />
                         <CheckBox Name="DropShadowCheckBox" Content="Enable Text Shadow"
                                   Margin="10"
                                   HorizontalAlignment="Left" />

@@ -7,6 +7,7 @@ using System.Drawing.Text;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using VNGTTranslator.Configs;
+using Color = System.Windows.Media.Color;
 using MessageBox = System.Windows.MessageBox;
 using Window = System.Windows.Window;
 
@@ -50,6 +51,16 @@ namespace VNGTTranslator.SettingPages
             }
         }
 
+        public Color SourceTextColor
+        {
+            get => _appConfig.SourceTextColor;
+            set
+            {
+                _appConfig.SourceTextColor = value;
+                OnPropertyChanged();
+            }
+        }
+
         public uint SourceFontSize
         {
             get => _appConfig.SourceFontSize;
@@ -64,6 +75,16 @@ namespace VNGTTranslator.SettingPages
         {
             get => _fontList;
             private init => SetField(ref _fontList, value);
+        }
+
+        public Color TranslateWindowColor
+        {
+            get => _appConfig.TranslateWindowColor;
+            set
+            {
+                _appConfig.TranslateWindowColor = value;
+                OnPropertyChanged();
+            }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -84,7 +105,7 @@ namespace VNGTTranslator.SettingPages
             };
             picker.Confirmed += (_, args) =>
             {
-                _appConfig.TranslateWindowColor = args.Info;
+                TranslateWindowColor = args.Info;
                 window.Close();
             };
 
@@ -113,6 +134,34 @@ namespace VNGTTranslator.SettingPages
         {
             _appConfigProvider.GetAppConfig().Update(_appConfig);
             MessageBox.Show(!_appConfigProvider.TrySaveAppConfig(out string err) ? err : "Save Success");
+        }
+
+        private void BtnSelectSourceTextColor_OnClick(object sender, RoutedEventArgs e)
+        {
+            ColorPicker? picker = SingleOpenHelper.CreateControl<ColorPicker>();
+            var window = new PopupWindow
+            {
+                PopupElement = picker,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                AllowsTransparency = true,
+                WindowStyle = WindowStyle.None,
+                MinWidth = 0,
+                MinHeight = 0,
+                Title = "Select Color",
+                Owner = Window.GetWindow(this)
+            };
+            picker.Confirmed += (_, args) =>
+            {
+                SourceTextColor = args.Info;
+                window.Close();
+            };
+
+            picker.Canceled += delegate
+            {
+                window.Close();
+            };
+
+            window.Show();
         }
     }
 }

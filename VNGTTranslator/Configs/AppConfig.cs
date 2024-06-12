@@ -4,11 +4,13 @@ namespace VNGTTranslator.Configs
 {
     public class AppConfig
     {
-        public Color TranslateWindowColor = Color.FromArgb(128, 0, 0, 0);
+        public Color TranslateWindowColor { get; set; } = Color.FromArgb(128, 0, 0, 0);
 
         public string SourceFontFamily { get; set; } = "Arial";
 
         public uint SourceFontSize { get; set; } = 15;
+
+        public Color SourceTextColor { get; set; } = Colors.White;
 
         public AppConfig Clone()
         {
@@ -16,7 +18,8 @@ namespace VNGTTranslator.Configs
             {
                 TranslateWindowColor = TranslateWindowColor,
                 SourceFontFamily = SourceFontFamily,
-                SourceFontSize = SourceFontSize
+                SourceFontSize = SourceFontSize,
+                SourceTextColor = SourceTextColor
             };
         }
 
@@ -26,6 +29,7 @@ namespace VNGTTranslator.Configs
             TranslateWindowColor = appConfig.TranslateWindowColor;
             SourceFontFamily = appConfig.SourceFontFamily;
             SourceFontSize = appConfig.SourceFontSize;
+            SourceTextColor = appConfig.SourceTextColor;
         }
     }
 }

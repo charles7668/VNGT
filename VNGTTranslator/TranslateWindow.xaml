@@ -53,20 +53,20 @@
                               IsChecked="{Binding IsTransparent}" Click="BtnLock_OnClick"
                               ToolTip="Transparent">
                     <ToggleButton.Content>
-                        <fa:IconBlock Icon="MousePointer"></fa:IconBlock>
+                        <fa:IconBlock Icon="MousePointer" />
                     </ToggleButton.Content>
                 </ToggleButton>
                 <ToggleButton Name="BtnAllowSizeChange" Click="BtnAllowSizeChange_OnClick"
                               ToolTip="Allow resize the window">
                     <ToggleButton.Content>
-                        <fa:IconBlock Icon="Expand"></fa:IconBlock>
+                        <fa:IconBlock Icon="Expand" />
                     </ToggleButton.Content>
                 </ToggleButton>
                 <ToggleButton IsChecked="True"
                               Name="BtnToggleOnTop" Click="BtnToggleOnTop_OnClick"
                               ToolTip="Toggle OnTop">
                     <ToggleButton.Content>
-                        <fa:IconBlock Icon="MapPin"></fa:IconBlock>
+                        <fa:IconBlock Icon="MapPin" />
                     </ToggleButton.Content>
                 </ToggleButton>
             </StackPanel>
@@ -77,14 +77,14 @@
                         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
                             <Setter Property="Content">
                                 <Setter.Value>
-                                    <fa:IconBlock Icon="Pause"></fa:IconBlock>
+                                    <fa:IconBlock Icon="Pause" />
                                 </Setter.Value>
                             </Setter>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding PauseState}" Value="True">
                                     <Setter Property="Content">
                                         <Setter.Value>
-                                            <fa:IconBlock Icon="Play"></fa:IconBlock>
+                                            <fa:IconBlock Icon="Play" />
                                         </Setter.Value>
                                     </Setter>
                                 </DataTrigger>
@@ -95,7 +95,7 @@
                 <Button Name="BtnReTranslate" Click="BtnReTranslate_OnClick"
                         ToolTip="Re-translate">
                     <Button.Content>
-                        <fa:IconBlock Icon="Repeat"></fa:IconBlock>
+                        <fa:IconBlock Icon="Repeat" />
                     </Button.Content>
                 </Button>
                 <Button Name="BtnShowSourceText" Click="BtnShowSourceText_OnClick"
@@ -104,14 +104,14 @@
                         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
                             <Setter Property="Content">
                                 <Setter.Value>
-                                    <fa:IconBlock Icon="EyeSlash"></fa:IconBlock>
+                                    <fa:IconBlock Icon="EyeSlash" />
                                 </Setter.Value>
                             </Setter>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsShowSourceText}" Value="False">
                                     <Setter Property="Content">
                                         <Setter.Value>
-                                            <fa:IconBlock Icon="Eye"></fa:IconBlock>
+                                            <fa:IconBlock Icon="Eye" />
                                         </Setter.Value>
                                     </Setter>
                                 </DataTrigger>
@@ -122,30 +122,30 @@
                 <Button Name="BtnHistory" Click="BtnHistory_OnClick"
                         ToolTip="Show history">
                     <Button.Content>
-                        <fa:IconBlock Icon="History"></fa:IconBlock>
+                        <fa:IconBlock Icon="History" />
                     </Button.Content>
                 </Button>
                 <Button Name="BtnSelectHookCode" Click="BtnSelectHookCode_OnClick"
                         ToolTip="Select hook code">
                     <Button.Content>
-                        <fa:IconBlock Icon="ListAlt"></fa:IconBlock>
+                        <fa:IconBlock Icon="ListAlt" />
                     </Button.Content>
                 </Button>
                 <Button Name="BtnSetting" Click="BtnSetting_OnClick" ToolTip="Setting">
                     <Button.Content>
-                        <fa:IconBlock Icon="Cog"></fa:IconBlock>
+                        <fa:IconBlock Icon="Cog" />
                     </Button.Content>
                 </Button>
                 <Button Name="BtnReadAloud" Click="BtnReadAloud_OnClick"
                         ToolTip="Read the source text aloud">
                     <Button.Content>
-                        <fa:IconBlock Icon="Microphone"></fa:IconBlock>
+                        <fa:IconBlock Icon="Microphone" />
                     </Button.Content>
                 </Button>
                 <Button Name="BtnSelectProcess" Click="BtnSelectProcess_OnClick"
                         ToolTip="Select process">
                     <Button.Content>
-                        <fa:IconBlock Icon="Microchip"></fa:IconBlock>
+                        <fa:IconBlock Icon="Microchip" />
                     </Button.Content>
                 </Button>
             </StackPanel>
@@ -153,13 +153,13 @@
                 <Button Name="BtnMinimizeWindow" Click="BtnMinimizeWindow_OnClick"
                         ToolTip="Minimize the window">
                     <Button.Content>
-                        <fa:IconBlock Icon="WindowMinimize"></fa:IconBlock>
+                        <fa:IconBlock Icon="WindowMinimize" />
                     </Button.Content>
                 </Button>
                 <Button Name="BtnExit" Click="BtnExit_OnClick"
                         ToolTip="Exit">
                     <Button.Content>
-                        <fa:IconBlock Icon="WindowClose"></fa:IconBlock>
+                        <fa:IconBlock Icon="WindowClose" />
                     </Button.Content>
                 </Button>
             </StackPanel>
@@ -168,7 +168,8 @@
             <WrapPanel x:Name="PanelSourceText" Margin="10,0,10,5" Orientation="Horizontal" Background="Transparent" />
             <hc:OutlineText Text="{Binding SourceText , Mode=OneWay}"
                             d:Text="Wait source text"
-                            Fill="White" Stroke="Beige" StrokeThickness="1"
+                            d:Fill="White"
+                            Fill="{Binding SourceTextColor}" Stroke="Beige" StrokeThickness="1"
                             FontFamily="{Binding  SourceFontFamily}"
                             FontSize="{Binding SourceFontSize}"
                             Name="TxtFirstTranslate"
