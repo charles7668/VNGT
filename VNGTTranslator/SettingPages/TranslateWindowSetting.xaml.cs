@@ -41,6 +41,16 @@ namespace VNGTTranslator.SettingPages
 
         private readonly List<string> _fontList = new();
 
+        public string SelectedTranslateFont
+        {
+            get => _appConfig.TranslateFontFamily;
+            set
+            {
+                _appConfig.TranslateFontFamily = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string SelectedSourceFont
         {
             get => _appConfig.SourceFontFamily;
@@ -54,9 +64,49 @@ namespace VNGTTranslator.SettingPages
         public Color SourceTextColor
         {
             get => _appConfig.SourceTextColor;
-            set
+            private set
             {
                 _appConfig.SourceTextColor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Color TranslateTextColor
+        {
+            get => _appConfig.TranslateTextColor;
+            private set
+            {
+                _appConfig.TranslateTextColor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public uint TranslateFontSize
+        {
+            get => _appConfig.TranslateFontSize;
+            set
+            {
+                _appConfig.TranslateFontSize = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SourceTextShadowEnabled
+        {
+            get => _appConfig.SourceTextShadowEnabled;
+            set
+            {
+                _appConfig.SourceTextShadowEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool TranslateTextShadowEnabled
+        {
+            get => _appConfig.TranslateTextShadowEnabled;
+            set
+            {
+                _appConfig.TranslateTextShadowEnabled = value;
                 OnPropertyChanged();
             }
         }
@@ -80,7 +130,7 @@ namespace VNGTTranslator.SettingPages
         public Color TranslateWindowColor
         {
             get => _appConfig.TranslateWindowColor;
-            set
+            private set
             {
                 _appConfig.TranslateWindowColor = value;
                 OnPropertyChanged();
@@ -122,12 +172,12 @@ namespace VNGTTranslator.SettingPages
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+        private void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
         {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            if (EqualityComparer<T>.Default.Equals(field, value))
+                return;
             field = value;
             OnPropertyChanged(propertyName);
-            return true;
         }
 
         private void BtnSave_OnClick(object sender, RoutedEventArgs e)
@@ -153,6 +203,34 @@ namespace VNGTTranslator.SettingPages
             picker.Confirmed += (_, args) =>
             {
                 SourceTextColor = args.Info;
+                window.Close();
+            };
+
+            picker.Canceled += delegate
+            {
+                window.Close();
+            };
+
+            window.Show();
+        }
+
+        private void BtnSelectTranslateTextColor_OnClick(object sender, RoutedEventArgs e)
+        {
+            ColorPicker? picker = SingleOpenHelper.CreateControl<ColorPicker>();
+            var window = new PopupWindow
+            {
+                PopupElement = picker,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                AllowsTransparency = true,
+                WindowStyle = WindowStyle.None,
+                MinWidth = 0,
+                MinHeight = 0,
+                Title = "Select Color",
+                Owner = Window.GetWindow(this)
+            };
+            picker.Confirmed += (_, args) =>
+            {
+                TranslateTextColor = args.Info;
                 window.Close();
             };
 

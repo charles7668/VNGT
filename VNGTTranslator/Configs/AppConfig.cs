@@ -12,6 +12,16 @@ namespace VNGTTranslator.Configs
 
         public Color SourceTextColor { get; set; } = Colors.White;
 
+        public bool SourceTextShadowEnabled { get; set; } = true;
+
+        public bool TranslateTextShadowEnabled { get; set; } = true;
+
+        public string TranslateFontFamily { get; set; } = "Arial";
+
+        public uint TranslateFontSize { get; set; } = 15;
+
+        public Color TranslateTextColor { get; set; } = Colors.White;
+
         public AppConfig Clone()
         {
             return new AppConfig
@@ -19,7 +29,10 @@ namespace VNGTTranslator.Configs
                 TranslateWindowColor = TranslateWindowColor,
                 SourceFontFamily = SourceFontFamily,
                 SourceFontSize = SourceFontSize,
-                SourceTextColor = SourceTextColor
+                SourceTextColor = SourceTextColor,
+                TranslateFontFamily = TranslateFontFamily,
+                TranslateFontSize = TranslateFontSize,
+                TranslateTextColor = TranslateTextColor
             };
         }
 
@@ -30,6 +43,9 @@ namespace VNGTTranslator.Configs
             SourceFontFamily = appConfig.SourceFontFamily;
             SourceFontSize = appConfig.SourceFontSize;
             SourceTextColor = appConfig.SourceTextColor;
+            TranslateFontFamily = appConfig.TranslateFontFamily;
+            TranslateFontSize = appConfig.TranslateFontSize;
+            TranslateTextColor = appConfig.TranslateTextColor;
         }
     }
 }
