@@ -20,9 +20,6 @@ namespace VNGTTranslator
         {
             Program.InitServices();
 
-            ITranslateProvider provider = new GoogleTranslateProvider();
-            var temp = provider.TranslateAsync(string.Empty, string.Empty, string.Empty).Result;
-
             ConfigHelper.Instance.SetLang("en");
 
             base.OnStartup(e);

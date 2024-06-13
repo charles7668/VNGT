@@ -4,6 +4,7 @@
     {
         string ProviderName { get; }
 
-        public Task<string> TranslateAsync(string text, string sourceLanguage, string targetLanguage);
+        public Task<string> TranslateAsync(string text, LanguageConstant.Language sourceLanguage,
+            LanguageConstant.Language targetLanguage);
     }
 }

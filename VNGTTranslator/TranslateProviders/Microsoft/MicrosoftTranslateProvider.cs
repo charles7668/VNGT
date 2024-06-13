@@ -6,8 +6,7 @@ namespace VNGTTranslator.TranslateProviders.Microsoft
     internal class MicrosoftTranslateProvider : ITranslateProvider
     {
         public string ProviderName { get; } = "Microsoft";
-
-        public Task<string> TranslateAsync(string text, string sourceLanguage, string targetLanguage)
+        public Task<string> TranslateAsync(string text, LanguageConstant.Language sourceLanguage, LanguageConstant.Language targetLanguage)
         {
             throw new NotImplementedException();
         }
