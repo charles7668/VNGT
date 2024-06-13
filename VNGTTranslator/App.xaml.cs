@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 using VNGTTranslator.Hooker;
 using VNGTTranslator.LunaHook;
+using VNGTTranslator.Network;
+using VNGTTranslator.TranslateProviders;
+using VNGTTranslator.TranslateProviders.Google;
 
 namespace VNGTTranslator
 {
@@ -16,6 +19,9 @@ namespace VNGTTranslator
         protected override void OnStartup(StartupEventArgs e)
         {
             Program.InitServices();
+
+            ITranslateProvider provider = new GoogleTranslateProvider();
+            var temp = provider.TranslateAsync(string.Empty, string.Empty, string.Empty).Result;
 
             ConfigHelper.Instance.SetLang("en");
 

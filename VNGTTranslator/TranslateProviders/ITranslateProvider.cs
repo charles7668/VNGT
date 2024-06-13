@@ -3,5 +3,7 @@
     public interface ITranslateProvider
     {
         string ProviderName { get; }
+
+        public Task<string> TranslateAsync(string text, string sourceLanguage, string targetLanguage);
     }
 }
