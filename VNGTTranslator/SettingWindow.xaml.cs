@@ -49,5 +49,10 @@ namespace VNGTTranslator
             OnPropertyChanged(propertyName);
             return true;
         }
+
+        private void SideMenuItemTranslateSetting_OnSelected(object sender, RoutedEventArgs e)
+        {
+            NavigateTo = new Uri("SettingPages/TranslateSetting.xaml", UriKind.Relative);
+        }
     }
 }

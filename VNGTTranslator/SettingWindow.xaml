@@ -20,7 +20,8 @@
                              Selected="SideMenuItemAbout_OnSelected" />
             <hc:SideMenuItem Header="Translate Window Setting" FontSize="15"
                              Selected="SideMenuItemTranslateWindowSetting_OnSelected" />
-
+            <hc:SideMenuItem Header="Translate Setting" FontSize="15"
+                             Selected="SideMenuItemTranslateSetting_OnSelected" />
         </hc:SideMenu>
         <Frame Grid.Column="1" Name="FramePage"
                Source="{Binding NavigateTo}"

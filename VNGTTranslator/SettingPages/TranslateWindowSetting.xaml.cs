@@ -91,7 +91,7 @@ namespace VNGTTranslator.SettingPages
             }
         }
 
-        public bool SourceTextShadowEnabled
+        public bool IsSourceTextShadowEnabled
         {
             get => _appConfig.SourceTextShadowEnabled;
             set
@@ -101,7 +101,7 @@ namespace VNGTTranslator.SettingPages
             }
         }
 
-        public bool TranslateTextShadowEnabled
+        public bool IsTranslateTextShadowEnabled
         {
             get => _appConfig.TranslateTextShadowEnabled;
             set

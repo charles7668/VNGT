@@ -75,7 +75,7 @@
                                           Value="{Binding SourceFontSize , Mode=TwoWay}"
                                           hc:InfoElement.Title="Font Size" />
                         <CheckBox Content="Enable Text Shadow"
-                                  IsChecked="{Binding SourceTextShadowEnabled}"
+                                  IsChecked="{Binding IsSourceTextShadowEnabled}"
                                   Margin="10"
                                   HorizontalAlignment="Left" />
                     </StackPanel>
@@ -98,7 +98,7 @@
                                           Value="{Binding TranslateFontSize , Mode=TwoWay}"
                                           hc:InfoElement.Title="Font Size" />
                         <CheckBox Content="Enable Text Shadow"
-                                  IsChecked="{Binding TranslateTextShadowEnabled}"
+                                  IsChecked="{Binding IsTranslateTextShadowEnabled}"
                                   Margin="10"
                                   HorizontalAlignment="Left" />
                     </StackPanel>
