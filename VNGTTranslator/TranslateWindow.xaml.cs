@@ -128,9 +128,9 @@ namespace VNGTTranslator
 
         private void SetFontStyle()
         {
-            SourceFontFamily = new FontFamily(_appConfig.SourceFontFamily);
-            SourceFontSize = _appConfig.SourceFontSize;
-            SourceTextColor = _appConfig.SourceTextColor;
+            SourceFontFamily = new FontFamily(_appConfig.SourceTextStyle.FontFamily);
+            SourceFontSize = _appConfig.SourceTextStyle.FontSize;
+            SourceTextColor = _appConfig.SourceTextStyle.TextColor;
         }
 
         /// <summary>

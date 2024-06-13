@@ -12,25 +12,73 @@
       Title="TranslateSetting">
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
         <TabControl>
             <TabControl.Resources>
                 <Style x:Key="TabItemNew" TargetType="TabItem" BasedOn="{StaticResource TabItemStyle}">
-                    <Setter Property="FontSize" Value="20"></Setter>
-                    <Setter Property="FontWeight" Value="Bold"></Setter>
+                    <Setter Property="FontSize" Value="20" />
+                    <Setter Property="FontWeight" Value="Bold" />
                 </Style>
             </TabControl.Resources>
             <TabItem Header="Translate Source" Style="{StaticResource TabItemNew}">
-                <ItemsControl x:Name="TranslateSourceItemsControl" ItemsSource="{Binding TranslateSourceList}">
+                <ItemsControl ItemsSource="{Binding TranslateProviderList}">
+                    <ItemsControl.Resources>
+                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Height" Value="32" />
+                            <Setter Property="Width" Value="32" />
+                            <Setter Property="FontSize" Value="16" />
+                            <Setter Property="Foreground" Value="Blue" />
+                        </Style>
+                    </ItemsControl.Resources>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Margin="10">
-                                <TextBlock Text="{Binding}" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                <Button Click="BtnSetting_OnClick">
-                                    <Button.Content>
-                                        <fa:IconBlock Icon="Cog"></fa:IconBlock>
-                                    </Button.Content>
-                                </Button>
-                            </StackPanel>
+                            <Border BorderBrush="Black" BorderThickness="1">
+                                <StackPanel Orientation="Horizontal" Margin="10">
+                                    <TextBlock
+                                        MinWidth="120" MaxWidth="120"
+                                        Text="{Binding ProviderName}" VerticalAlignment="Center"
+                                        HorizontalAlignment="Center" />
+                                    <Button Click="BtnProviderCheck_OnClick"
+                                            ToolTip="Use" Background="White">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                <Setter Property="Content">
+                                                    <Setter.Value>
+                                                        <fa:IconBlock Icon="Check" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsChecked}" Value="False">
+                                                        <Setter Property="Content">
+                                                            <Setter.Value>
+                                                                <fa:IconBlock Icon="Close" />
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Button Click="BtnProviderSetting_OnClick"
+                                            ToolTip="Text Style"
+                                            Background="{Binding ProviderTextColor}">
+                                        <Button.Content>
+                                            <fa:IconBlock Icon="Pencil" />
+                                        </Button.Content>
+                                    </Button>
+                                    <Button ToolTip="Settings" Background="White">
+                                        <Button.Content>
+                                            <fa:IconBlock Icon="Cog" />
+                                        </Button.Content>
+                                    </Button>
+                                </StackPanel>
+
+                            </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemsPanel>
@@ -41,5 +89,12 @@
                 </ItemsControl>
             </TabItem>
         </TabControl>
+        <Button Grid.Row="1"
+                FontSize="15"
+                Height="Auto"
+                FontWeight="Bold"
+                Content="Save"
+                Click="BtnSave_OnClick"
+                Style="{StaticResource ButtonPrimary}" />
     </Grid>
 </Page>

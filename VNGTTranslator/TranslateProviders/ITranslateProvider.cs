@@ -1,6 +1,6 @@
 ﻿namespace VNGTTranslator.TranslateProviders
 {
-    internal interface ITranslateProvider
+    public interface ITranslateProvider
     {
         string ProviderName { get; }
     }

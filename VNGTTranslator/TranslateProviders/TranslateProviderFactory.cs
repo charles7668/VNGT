@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
+﻿using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VNGTTranslator.TranslateProviders
 {
-    class TranslateProviderFactory
+    internal class TranslateProviderFactory
     {
-        public static Dictionary<string, ITranslateProvider> CachedProviders { get; }
-
-        [ImportMany]
-        private IEnumerable<ITranslateProvider> _supportedTranslateProviders;
-
         public TranslateProviderFactory()
         {
             try
@@ -30,8 +20,21 @@ namespace VNGTTranslator.TranslateProviders
             }
             catch (CompositionException compositionException)
             {
-                Console.WriteLine(compositionException.ToString());
             }
+
+            CachedProviders = SupportedTranslateProviders != null
+                ? SupportedTranslateProviders.ToDictionary(p => p.ProviderName)
+                : new Dictionary<string, ITranslateProvider>();
+        }
+
+        public Dictionary<string, ITranslateProvider> CachedProviders { get; set; }
+
+        [ImportMany]
+        private IEnumerable<ITranslateProvider>? SupportedTranslateProviders { get; set; }
+
+        public ITranslateProvider GetProvider(string providerName)
+        {
+            return CachedProviders[providerName];
         }
     }
 }

@@ -7,7 +7,7 @@
         xmlns:vngtTranslator="clr-namespace:VNGTTranslator"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance vngtTranslator:SettingWindow}"
-        Title="SettingWindow" Height="450" Width="800">
+        Title="SettingWindow" Height="650" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />

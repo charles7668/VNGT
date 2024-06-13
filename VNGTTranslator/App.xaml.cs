@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using HandyControl.Tools;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 using VNGTTranslator.Hooker;
 using VNGTTranslator.LunaHook;
@@ -15,6 +16,8 @@ namespace VNGTTranslator
         protected override void OnStartup(StartupEventArgs e)
         {
             Program.InitServices();
+
+            ConfigHelper.Instance.SetLang("en");
 
             base.OnStartup(e);
 

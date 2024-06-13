@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using VNGTTranslator.Configs;
 using VNGTTranslator.Hooker;
+using VNGTTranslator.TranslateProviders;
 
 namespace VNGTTranslator
 {
@@ -17,6 +18,7 @@ namespace VNGTTranslator
             var services = new ServiceCollection();
             services.AddSingleton<IHooker, LunaHooker>();
             services.AddSingleton<IAppConfigProvider, AppConfigProvider>(sp => new AppConfigProvider(string.Empty));
+            services.AddSingleton<TranslateProviderFactory, TranslateProviderFactory>();
             ServiceProvider = services.BuildServiceProvider();
         }
     }

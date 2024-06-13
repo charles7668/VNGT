@@ -80,29 +80,6 @@
                                   HorizontalAlignment="Left" />
                     </StackPanel>
                 </TabItem>
-                <TabItem Header="Translated Text Font Style">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" />
-                        <TextBlock Text="Font Color" Margin="8,0,0,0" />
-                        <Button Content="Select Color"
-                                HorizontalAlignment="Left"
-                                Margin="8"
-                                Background="{Binding TranslateTextColor}"
-                                Click="BtnSelectTranslateTextColor_OnClick" />
-                        <hc:ComboBox hc:InfoElement.TitleWidth="140"
-                                     ItemsSource="{Binding FontList}"
-                                     SelectedItem="{Binding SelectedTranslateFont }"
-                                     hc:InfoElement.TitlePlacement="Top"
-                                     hc:InfoElement.Title="Font" />
-                        <hc:NumericUpDown Minimum="8"
-                                          Value="{Binding TranslateFontSize , Mode=TwoWay}"
-                                          hc:InfoElement.Title="Font Size" />
-                        <CheckBox Content="Enable Text Shadow"
-                                  IsChecked="{Binding IsTranslateTextShadowEnabled}"
-                                  Margin="10"
-                                  HorizontalAlignment="Left" />
-                    </StackPanel>
-                </TabItem>
             </TabControl>
         </StackPanel>
         <Grid Grid.Row="1">

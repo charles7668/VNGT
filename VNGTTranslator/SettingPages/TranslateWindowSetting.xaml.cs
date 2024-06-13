@@ -2,12 +2,13 @@
 using HandyControl.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
-using System.Drawing;
 using System.Drawing.Text;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Media;
 using VNGTTranslator.Configs;
 using Color = System.Windows.Media.Color;
+using FontFamily = System.Drawing.FontFamily;
 using MessageBox = System.Windows.MessageBox;
 using Window = System.Windows.Window;
 
@@ -41,82 +42,56 @@ namespace VNGTTranslator.SettingPages
 
         private readonly List<string> _fontList = new();
 
-        public string SelectedTranslateFont
-        {
-            get => _appConfig.TranslateFontFamily;
-            set
-            {
-                _appConfig.TranslateFontFamily = value;
-                OnPropertyChanged();
-            }
-        }
 
         public string SelectedSourceFont
         {
-            get => _appConfig.SourceFontFamily;
+            get => _appConfig.SourceTextStyle.FontFamily;
             set
             {
-                _appConfig.SourceFontFamily = value;
+                _appConfig.SourceTextStyle = _appConfig.SourceTextStyle with
+                {
+                    FontFamily = value
+                };
                 OnPropertyChanged();
             }
         }
 
-        public Color SourceTextColor
+        public Brush SourceTextColor
         {
-            get => _appConfig.SourceTextColor;
+            get => new SolidColorBrush(_appConfig.SourceTextStyle.TextColor);
             private set
             {
-                _appConfig.SourceTextColor = value;
+                _appConfig.SourceTextStyle = _appConfig.SourceTextStyle with
+                {
+                    TextColor = ((SolidColorBrush)value).Color
+                };
                 OnPropertyChanged();
             }
         }
 
-        public Color TranslateTextColor
-        {
-            get => _appConfig.TranslateTextColor;
-            private set
-            {
-                _appConfig.TranslateTextColor = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public uint TranslateFontSize
-        {
-            get => _appConfig.TranslateFontSize;
-            set
-            {
-                _appConfig.TranslateFontSize = value;
-                OnPropertyChanged();
-            }
-        }
 
         public bool IsSourceTextShadowEnabled
         {
-            get => _appConfig.SourceTextShadowEnabled;
+            get => _appConfig.SourceTextStyle.IsTextShadowEnabled;
             set
             {
-                _appConfig.SourceTextShadowEnabled = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool IsTranslateTextShadowEnabled
-        {
-            get => _appConfig.TranslateTextShadowEnabled;
-            set
-            {
-                _appConfig.TranslateTextShadowEnabled = value;
+                _appConfig.SourceTextStyle = _appConfig.SourceTextStyle with
+                {
+                    IsTextShadowEnabled = value
+                };
                 OnPropertyChanged();
             }
         }
 
         public uint SourceFontSize
         {
-            get => _appConfig.SourceFontSize;
+            get => _appConfig.SourceTextStyle.FontSize;
             set
             {
-                _appConfig.SourceFontSize = value;
+                _appConfig.SourceTextStyle = _appConfig.SourceTextStyle with
+                {
+                    FontSize = value
+                };
                 OnPropertyChanged();
             }
         }
@@ -202,35 +177,7 @@ namespace VNGTTranslator.SettingPages
             };
             picker.Confirmed += (_, args) =>
             {
-                SourceTextColor = args.Info;
-                window.Close();
-            };
-
-            picker.Canceled += delegate
-            {
-                window.Close();
-            };
-
-            window.Show();
-        }
-
-        private void BtnSelectTranslateTextColor_OnClick(object sender, RoutedEventArgs e)
-        {
-            ColorPicker? picker = SingleOpenHelper.CreateControl<ColorPicker>();
-            var window = new PopupWindow
-            {
-                PopupElement = picker,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                AllowsTransparency = true,
-                WindowStyle = WindowStyle.None,
-                MinWidth = 0,
-                MinHeight = 0,
-                Title = "Select Color",
-                Owner = Window.GetWindow(this)
-            };
-            picker.Confirmed += (_, args) =>
-            {
-                TranslateTextColor = args.Info;
+                SourceTextColor = new SolidColorBrush(args.Info);
                 window.Close();
             };
 
