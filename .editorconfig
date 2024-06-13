@@ -284,6 +284,7 @@ resharper_indent_nested_foreach_stmt = true
 resharper_indent_nested_for_stmt = true
 resharper_keep_existing_enum_arrangement = true
 resharper_place_accessorholder_attribute_on_same_line = false
+resharper_place_field_attribute_on_same_line = false
 resharper_place_simple_embedded_statement_on_same_line = false
 resharper_wrap_object_and_collection_initializer_style = chop_always
 resharper_xmldoc_indent_text = ZeroIndent
