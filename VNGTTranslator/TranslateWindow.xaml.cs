@@ -259,41 +259,25 @@ namespace VNGTTranslator
                 return;
             }
 
-            await Application.Current.Dispatcher.InvokeAsync(async () =>
+            await Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 SourceText = e.Text;
-                _history.AppendLine(e.Text);
-
-                // Check if the interval between the last and current translation exceeds the configured limit
-                // to prevent excessively frequent translations.
-                TimeSpan diffTime = DateTime.Now - _previousTranslateTime;
-                if (diffTime >= TimeSpan.FromMilliseconds(_appConfig.TranslateInterval))
+                // clear text
+                Application.Current.Dispatcher.BeginInvoke(() =>
                 {
-                    await Task.WhenAll(UseTranslateProviderDataContexts.Select(context => context.Translate(e.Text))
-                        .ToArray());
-                    _previousTranslateTime = DateTime.Now;
                     foreach (TranslateProviderDataContext context in UseTranslateProviderDataContexts)
                     {
-                        _history.AppendLine(context.TranslatedText);
+                        context.TranslatedText = string.Empty;
                     }
+                });
 
-                    _history.AppendLine();
-                }
-                else
+                TimeSpan diffTime = DateTime.Now - _previousTranslateTime;
+                if (diffTime < TimeSpan.FromMilliseconds(_appConfig.TranslateInterval))
                 {
-                    // clear text
-                    Application.Current.Dispatcher.BeginInvoke(() =>
-                    {
-                        foreach (TranslateProviderDataContext context in UseTranslateProviderDataContexts)
-                        {
-                            context.TranslatedText = string.Empty;
-                        }
-                    });
-
-                    _translateTimeoutTimer.Change(diffTime.Milliseconds, -1);
+                    return;
                 }
 
-                _history.AppendLine("----------------------"); // line separator
+                _translateTimeoutTimer.Change(diffTime.Milliseconds, Timeout.Infinite);
             });
         }
 
@@ -365,9 +349,9 @@ namespace VNGTTranslator
         private void TranslateTimerCallback(object? state)
         {
             _history.AppendLine(SourceText);
-            Task.WhenAll(UseTranslateProviderDataContexts.Select(context =>
-                context.Translate(SourceText)).ToArray()).Wait();
-            Application.Current.Dispatcher.InvokeAsync(() =>
+            Task.WaitAll(UseTranslateProviderDataContexts.Select(context =>
+                context.Translate(SourceText)).ToArray());
+            Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 _previousTranslateTime = DateTime.Now;
                 foreach (TranslateProviderDataContext context in UseTranslateProviderDataContexts)

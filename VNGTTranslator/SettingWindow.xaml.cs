@@ -54,5 +54,10 @@ namespace VNGTTranslator
         {
             NavigateTo = new Uri("SettingPages/TranslateSetting.xaml", UriKind.Relative);
         }
+
+        private void SideMenuItemProxySetting_OnSelected(object sender, RoutedEventArgs e)
+        {
+            NavigateTo = new Uri("SettingPages/ProxySetting.xaml", UriKind.Relative);
+        }
     }
 }

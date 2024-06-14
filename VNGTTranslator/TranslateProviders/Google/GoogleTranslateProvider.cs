@@ -8,15 +8,21 @@ using System.Text.Json.Nodes;
 using System.Web;
 using System.Windows;
 using System.Windows.Controls;
+using VNGTTranslator.Configs;
+using VNGTTranslator.Models;
 using VNGTTranslator.Network;
 using VNGTTranslator.TranslateProviders.SettingPages;
-using Window = HandyControl.Controls.Window;
+using MessageBox = System.Windows.Forms.MessageBox;
+using Window = System.Windows.Window;
 
 namespace VNGTTranslator.TranslateProviders.Google
 {
     [Export(typeof(ITranslateProvider))]
     public class GoogleTranslateProvider : ITranslateProvider
     {
+        private readonly IAppConfigProvider _appConfigProvider =
+            Program.ServiceProvider.GetRequiredService<IAppConfigProvider>();
+
         private readonly INetworkService _networkService =
             Program.ServiceProvider.GetRequiredService<INetworkService>();
 
@@ -25,6 +31,14 @@ namespace VNGTTranslator.TranslateProviders.Google
         public async Task<string> TranslateAsync(string text, LanguageConstant.Language sourceLanguage,
             LanguageConstant.Language targetLanguage)
         {
+            Dictionary<string, object> setting = _appConfigProvider.GetTranslatorProviderConfig(ProviderName);
+            bool isProxyUse = !setting.TryGetValue("IsProxyUse", out object? obj) || (bool)obj;
+            HttpClient? httpClient = isProxyUse ? _networkService.ProxyHttpClient : _networkService.DefaultHttpClient;
+            if (httpClient == null)
+            {
+                throw new Exception("HttpClient is null");
+            }
+
             var requestMessage = new HttpRequestMessage(HttpMethod.Post,
                 "https://translate.google.com/_/TranslateWebserverUi/data/batchexecute");
             requestMessage.Headers.Add("Origin", "https://translate.google.com");
@@ -49,7 +63,7 @@ namespace VNGTTranslator.TranslateProviders.Google
             string reqDataStr = string.Join('&', contentList);
             requestMessage.Content = new StringContent(reqDataStr, Encoding.UTF8, "application/x-www-form-urlencoded");
             HttpResponseMessage response =
-                await _networkService.DefaultHttpClient.SendAsync(requestMessage).ConfigureAwait(false);
+                await httpClient.SendAsync(requestMessage).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 return $"{response.StatusCode}";
@@ -75,9 +89,15 @@ namespace VNGTTranslator.TranslateProviders.Google
             return result.Trim();
         }
 
-        public PopupWindow GetSettingWindow(System.Windows.Window parent)
+        public PopupWindow GetSettingWindow(Window parent)
         {
-            Page settingPage = new BaseSettingPage();
+            Dictionary<string, object> setting = _appConfigProvider.GetTranslatorProviderConfig(ProviderName);
+            bool isProxyUse = !setting.TryGetValue("IsProxyUse", out object? obj) || (bool)obj;
+            BaseSettingPage.SettingParams settingParams = new()
+            {
+                IsUseProxy = isProxyUse
+            };
+            Page settingPage = new BaseSettingPage(ref settingParams);
             var window = new PopupWindow
             {
                 PopupElement = settingPage,
@@ -88,6 +108,20 @@ namespace VNGTTranslator.TranslateProviders.Google
                 MinHeight = 0,
                 Title = ProviderName,
                 Owner = parent
+            };
+            window.Closing += (_, _) =>
+            {
+                bool hasChange = false;
+                if (settingParams.IsUseProxy != isProxyUse)
+                {
+                    setting["IsProxyUse"] = settingParams.IsUseProxy;
+                    hasChange = true;
+                }
+
+                if (!hasChange) return;
+                Result saveSuccess = _appConfigProvider.SaveTranslatorProviderConfig(ProviderName, setting);
+                if (!saveSuccess)
+                    MessageBox.Show(saveSuccess.ErrorMessage);
             };
             return window;
         }

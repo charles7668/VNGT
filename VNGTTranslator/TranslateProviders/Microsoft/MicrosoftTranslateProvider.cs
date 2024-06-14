@@ -10,8 +10,11 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Windows;
 using System.Windows.Controls;
+using VNGTTranslator.Configs;
+using VNGTTranslator.Models;
 using VNGTTranslator.Network;
 using VNGTTranslator.TranslateProviders.SettingPages;
+using MessageBox = System.Windows.MessageBox;
 using Window = System.Windows.Window;
 
 namespace VNGTTranslator.TranslateProviders.Microsoft
@@ -19,6 +22,9 @@ namespace VNGTTranslator.TranslateProviders.Microsoft
     [Export(typeof(ITranslateProvider))]
     internal class MicrosoftTranslateProvider : ITranslateProvider
     {
+        private readonly IAppConfigProvider _appConfigProvider =
+            Program.ServiceProvider.GetRequiredService<IAppConfigProvider>();
+
         private readonly INetworkService
             _networkService = Program.ServiceProvider.GetRequiredService<INetworkService>();
 
@@ -27,6 +33,14 @@ namespace VNGTTranslator.TranslateProviders.Microsoft
         public async Task<string> TranslateAsync(string text, LanguageConstant.Language sourceLanguage,
             LanguageConstant.Language targetLanguage)
         {
+            Dictionary<string, object> setting = _appConfigProvider.GetTranslatorProviderConfig(ProviderName);
+            bool isProxyUse = !setting.TryGetValue("IsProxyUse", out object? obj) || (bool)obj;
+            HttpClient? httpClient = isProxyUse ? _networkService.ProxyHttpClient : _networkService.DefaultHttpClient;
+            if (httpClient == null)
+            {
+                throw new Exception("HttpClient is null");
+            }
+
             string apiEndpoint = "api.cognitive.microsofttranslator.com";
             string apiVersion = "3.0";
             string apiUrl =
@@ -54,7 +68,7 @@ namespace VNGTTranslator.TranslateProviders.Microsoft
             var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
             requestMessage.Content = jsonContent;
             HttpResponseMessage response =
-                await _networkService.DefaultHttpClient.SendAsync(requestMessage).ConfigureAwait(false);
+                await httpClient.SendAsync(requestMessage).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 return $"{response.Content}";
@@ -69,7 +83,13 @@ namespace VNGTTranslator.TranslateProviders.Microsoft
 
         public PopupWindow GetSettingWindow(Window parent)
         {
-            Page settingPage = new BaseSettingPage();
+            Dictionary<string, object> setting = _appConfigProvider.GetTranslatorProviderConfig(ProviderName);
+            bool isProxyUse = !setting.TryGetValue("IsProxyUse", out object? obj) || (bool)obj;
+            BaseSettingPage.SettingParams settingParams = new()
+            {
+                IsUseProxy = isProxyUse
+            };
+            Page settingPage = new BaseSettingPage(ref settingParams);
             var window = new PopupWindow
             {
                 PopupElement = settingPage,
@@ -80,6 +100,20 @@ namespace VNGTTranslator.TranslateProviders.Microsoft
                 MinHeight = 0,
                 Title = ProviderName,
                 Owner = parent
+            };
+            window.Closing += (sender, args) =>
+            {
+                bool hasChange = false;
+                if (settingParams.IsUseProxy != isProxyUse)
+                {
+                    setting["IsProxyUse"] = settingParams.IsUseProxy;
+                    hasChange = true;
+                }
+
+                if (!hasChange) return;
+                Result saveSuccess = _appConfigProvider.SaveTranslatorProviderConfig(ProviderName, setting);
+                if (!saveSuccess)
+                    MessageBox.Show(saveSuccess.ErrorMessage);
             };
             return window;
         }

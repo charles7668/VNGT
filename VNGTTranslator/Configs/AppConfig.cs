@@ -22,6 +22,11 @@ namespace VNGTTranslator.Configs
 
         public uint TranslateInterval { get; set; } = 1000;
 
+        public bool IsUseProxy { get; set; } = true;
+        public bool IsUseSystemProxy { get; set; } = true;
+        public string ProxyAddress { get; set; } = "";
+        public string ProxyPort { get; set; } = "";
+
         public AppConfig Clone()
         {
             return new AppConfig
@@ -30,7 +35,11 @@ namespace VNGTTranslator.Configs
                 SourceTextStyle = SourceTextStyle,
                 TranslateTextStyles = new Dictionary<string, DisplayTextStyle>(TranslateTextStyles),
                 UsedTranslateProviderSet = [..UsedTranslateProviderSet],
-                MaxTranslateWordCount = MaxTranslateWordCount
+                MaxTranslateWordCount = MaxTranslateWordCount,
+                IsUseProxy = IsUseProxy,
+                IsUseSystemProxy = IsUseSystemProxy,
+                ProxyAddress = ProxyAddress,
+                ProxyPort = ProxyPort
             };
         }
 
@@ -42,6 +51,10 @@ namespace VNGTTranslator.Configs
             TranslateTextStyles = new Dictionary<string, DisplayTextStyle>(appConfig.TranslateTextStyles);
             UsedTranslateProviderSet = [..appConfig.UsedTranslateProviderSet];
             MaxTranslateWordCount = appConfig.MaxTranslateWordCount;
+            IsUseProxy = appConfig.IsUseProxy;
+            IsUseSystemProxy = appConfig.IsUseSystemProxy;
+            ProxyAddress = appConfig.ProxyAddress;
+            ProxyPort = appConfig.ProxyPort;
         }
     }
 }

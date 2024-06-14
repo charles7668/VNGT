@@ -22,6 +22,8 @@
                              Selected="SideMenuItemTranslateWindowSetting_OnSelected" />
             <hc:SideMenuItem Header="Translate Setting" FontSize="15"
                              Selected="SideMenuItemTranslateSetting_OnSelected" />
+            <hc:SideMenuItem Header="Proxy Setting" FontSize="15"
+                             Selected="SideMenuItemProxySetting_OnSelected" />
         </hc:SideMenu>
         <Frame Grid.Column="1" Name="FramePage"
                Source="{Binding NavigateTo}"

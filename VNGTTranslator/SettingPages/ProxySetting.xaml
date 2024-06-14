@@ -1,0 +1,80 @@
+﻿<Page x:Class="VNGTTranslator.SettingPages.ProxySetting"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:settingPages="clr-namespace:VNGTTranslator.SettingPages"
+      mc:Ignorable="d"
+      Background="White"
+      d:DesignHeight="450" d:DesignWidth="800"
+      d:DataContext="{d:DesignInstance settingPages:ProxySetting}"
+      Title="ProxySetting">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <GroupBox Header="Proxy" FontSize="20" FontWeight="Bold" Style="{x:Null}">
+                <StackPanel>
+                    <StackPanel.Resources>
+                        <Style TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+                            <Setter Property="HorizontalAlignment" Value="Left" />
+                            <Setter Property="Margin" Value="0,5,0,5" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="FontSize" Value="15" />
+                            <Setter Property="FontWeight" Value="Bold" />
+                        </Style>
+                        <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+                            <Setter Property="FontSize" Value="15" />
+                            <Setter Property="FontWeight" Value="Bold" />
+                            <Setter Property="BorderThickness" Value="0" />
+                        </Style>
+                    </StackPanel.Resources>
+                    <CheckBox IsChecked="{Binding IsUseProxy}"
+                              Content="Use Proxy" />
+                    <CheckBox IsChecked="{Binding IsUseSystemProxy}"
+                              Content="Use System Proxy" />
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
+                        <Label Content="IP" Width="50" HorizontalContentAlignment="Left" />
+                        <TextBox MinWidth="200" MaxWidth="200">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox" BasedOn="{StaticResource TextBoxExtend}">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsUseSystemProxy}" Value="False">
+                                            <Setter Property="IsEnabled" Value="True" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
+                        <Label Content="Port" Width="50" HorizontalContentAlignment="Left" />
+                        <TextBox MinWidth="200" MaxWidth="200">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox" BasedOn="{StaticResource TextBoxExtend}">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsUseSystemProxy}" Value="False">
+                                            <Setter Property="IsEnabled" Value="True" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Button Style="{StaticResource ButtonPrimary}"
+                    Click="BtnSaveSetting_OnClick"
+                    FontSize="15"
+                    FontWeight="Bold"
+                    Content="Save" />
+        </Grid>
+    </Grid>
+</Page>

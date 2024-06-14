@@ -1,28 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
-namespace VNGTTranslator.TranslateProviders.SettingPages
+﻿namespace VNGTTranslator.TranslateProviders.SettingPages
 {
     /// <summary>
     /// BaseSettingPage.xaml 的互動邏輯
     /// </summary>
-    public partial class BaseSettingPage : Page
+    public partial class BaseSettingPage
     {
-        public BaseSettingPage()
+        public BaseSettingPage(ref SettingParams settingParamRef)
         {
             InitializeComponent();
+            _settingParam = settingParamRef;
+            DataContext = this;
+        }
+
+        private readonly SettingParams _settingParam;
+
+        public bool IsUseProxy
+        {
+            get => _settingParam.IsUseProxy;
+            set => _settingParam.IsUseProxy = value;
+        }
+
+        public class SettingParams
+        {
+            public bool IsUseProxy { get; set; }
         }
     }
 }
