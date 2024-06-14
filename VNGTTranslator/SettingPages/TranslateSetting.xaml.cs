@@ -29,11 +29,45 @@ namespace VNGTTranslator.SettingPages
             {
                 TranslateProviderList.Add(new TranslateProviderBindingContext(translateProvider.Value, _appConfig));
             }
+
+            SupportLanguages = Enum.GetValues<LanguageConstant.Language>().ToList();
         }
 
         private readonly AppConfig _appConfig;
 
         public List<TranslateProviderBindingContext> TranslateProviderList { get; set; }
+
+        public List<LanguageConstant.Language> SupportLanguages { get; set; }
+
+        public LanguageConstant.Language SelectedSourceLanguage
+        {
+            get => _appConfig.SourceLanguage;
+            set
+            {
+                _appConfig.SourceLanguage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public LanguageConstant.Language SelectedTargetLanguage
+        {
+            get => _appConfig.TargetLanguage;
+            set
+            {
+                _appConfig.TargetLanguage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public uint TranslateInterval
+        {
+            get => _appConfig.TranslateInterval;
+            set
+            {
+                _appConfig.TranslateInterval = value;
+                OnPropertyChanged();
+            }
+        }
 
         public uint MaxTranslateWordCount
         {

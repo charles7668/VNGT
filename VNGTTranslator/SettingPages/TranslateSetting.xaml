@@ -19,12 +19,36 @@
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         <StackPanel Margin="0,5,0,5">
+            <StackPanel.Resources>
+                <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+                    <Setter Property="FontSize" Value="15" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="BorderThickness" Value="0" />
+                </Style>
+                <Style TargetType="StackPanel">
+                    <Setter Property="Margin" Value="0,5,0,5" />
+                </Style>
+            </StackPanel.Resources>
             <StackPanel Orientation="Horizontal">
-                <Label Content="Max Translate Word Count : "
-                       FontSize="15"
-                       FontWeight="Bold"
-                       BorderThickness="0" />
+                <Label Content="Max Translate Word Count : " />
                 <hc:NumericUpDown Value="{Binding MaxTranslateWordCount}" Minimum="100" Maximum="10000" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Source Language : " />
+                <hc:ComboBox ItemsSource="{Binding SupportLanguages}"
+                             SelectedItem="{Binding SelectedSourceLanguage}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Target Language : " />
+                <hc:ComboBox ItemsSource="{Binding SupportLanguages }"
+                             SelectedItem="{Binding SelectedTargetLanguage}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Translate Interval : " />
+                <hc:NumericUpDown Value="{Binding TranslateInterval}"
+                                  Minimum="300"
+                                  Maximum="100000" />
+                <Label Content="ms" />
             </StackPanel>
         </StackPanel>
         <TabControl Grid.Row="1">

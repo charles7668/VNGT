@@ -18,7 +18,7 @@ namespace VNGTTranslator
         {
             var services = new ServiceCollection();
             services.AddSingleton<IHooker, LunaHooker>();
-            services.AddSingleton<IAppConfigProvider, AppConfigProvider>(sp => new AppConfigProvider(string.Empty));
+            services.AddSingleton<IAppConfigProvider, AppConfigProvider>(_ => new AppConfigProvider(string.Empty));
             services.AddSingleton<TranslateProviderFactory, TranslateProviderFactory>();
             services.AddSingleton<INetworkService, NetworkService>();
             ServiceProvider = services.BuildServiceProvider();

@@ -186,7 +186,7 @@
             <ItemsControl ItemsSource="{Binding UseTranslateProviderDataContexts}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <hc:OutlineText Text="{Binding TranslatedText , Mode=OneWay}"
+                        <hc:OutlineText Text="{Binding TranslatedText}"
                                         Fill="{Binding  ProviderTextColor}" Stroke="Beige"
                                         FontSize="{Binding ProviderTextSize}"
                                         FontFamily="{Binding ProviderFontFamily}"

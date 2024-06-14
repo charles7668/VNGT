@@ -1,5 +1,6 @@
 ﻿using System.Windows.Media;
 using VNGTTranslator.Models;
+using VNGTTranslator.TranslateProviders;
 
 namespace VNGTTranslator.Configs
 {
@@ -14,6 +15,12 @@ namespace VNGTTranslator.Configs
         public Dictionary<string, DisplayTextStyle> TranslateTextStyles { get; set; } = new();
 
         public HashSet<string> UsedTranslateProviderSet { get; set; } = new();
+
+        public LanguageConstant.Language SourceLanguage { get; set; } = LanguageConstant.Language.JAPANESE;
+
+        public LanguageConstant.Language TargetLanguage { get; set; } = LanguageConstant.Language.CHINESE;
+
+        public uint TranslateInterval { get; set; } = 1000;
 
         public AppConfig Clone()
         {
