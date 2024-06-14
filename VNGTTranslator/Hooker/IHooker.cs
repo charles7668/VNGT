@@ -2,7 +2,7 @@
 {
     public interface IHooker
     {
-        delegate void HookTextReceivedEventHandler(HookTextReceivedEventArgs e);
+        delegate Task HookTextReceivedEventHandler(HookTextReceivedEventArgs e);
 
         public event HookTextReceivedEventHandler OnHookTextReceived;
 

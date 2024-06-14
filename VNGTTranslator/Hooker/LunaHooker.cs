@@ -71,7 +71,7 @@ namespace VNGTTranslator.Hooker
             if (!lockTaken)
                 return false;
             LunaDll.ThreadParam threadParam = Marshal.PtrToStructure<LunaDll.ThreadParam>(tp);
-            OnHookTextReceived?.Invoke(new HookTextReceivedEventArgs
+            Task? task = OnHookTextReceived?.Invoke(new HookTextReceivedEventArgs
             {
                 Ctx = threadParam.Ctx,
                 Ctx2 = threadParam.Ctx2,
@@ -79,6 +79,8 @@ namespace VNGTTranslator.Hooker
                 HookFunc = name,
                 Text = text
             });
+            if (task != null)
+                task.Wait();
             Monitor.Exit(_outputCallBackLock);
 
             return false;

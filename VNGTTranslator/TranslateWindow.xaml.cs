@@ -6,6 +6,8 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using VNGTTranslator.Configs;
 using VNGTTranslator.Hooker;
+using VNGTTranslator.Models;
+using VNGTTranslator.TranslateProviders;
 
 namespace VNGTTranslator
 {
@@ -21,6 +23,7 @@ namespace VNGTTranslator
             _hooker = Program.ServiceProvider.GetRequiredService<IHooker>();
             _hooker.OnHookTextReceived += OnHookerTextReceived;
             _appConfig = Program.ServiceProvider.GetRequiredService<IAppConfigProvider>().GetAppConfig();
+
             RefreshDisplayUI();
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             Topmost = true;
@@ -41,10 +44,16 @@ namespace VNGTTranslator
         private Color _sourceTextColor = Colors.White;
         private string _translatedText = string.Empty;
 
-        public Color SourceTextColor
+        private List<TranslateProviderDataContext> _useTranslateProviderDataContexts;
+
+        public Brush SourceTextColor
         {
-            get => _sourceTextColor;
-            set => SetField(ref _sourceTextColor, value);
+            get => new SolidColorBrush(_sourceTextColor);
+            set
+            {
+                _sourceTextColor = ((SolidColorBrush)value).Color;
+                OnPropertyChanged();
+            }
         }
 
         public bool IsShowSourceText
@@ -89,6 +98,16 @@ namespace VNGTTranslator
             set => SetField(ref _translatedText, value);
         }
 
+        public List<TranslateProviderDataContext> UseTranslateProviderDataContexts
+        {
+            get => _useTranslateProviderDataContexts;
+            set
+            {
+                _useTranslateProviderDataContexts = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected override void OnClosing(CancelEventArgs e)
@@ -98,7 +117,7 @@ namespace VNGTTranslator
             base.OnClosing(e);
         }
 
-        private void OnHookerTextReceived(HookTextReceivedEventArgs e)
+        private async Task OnHookerTextReceived(HookTextReceivedEventArgs e)
         {
             var data = new ReceivedHookData
             {
@@ -113,15 +132,27 @@ namespace VNGTTranslator
                 return;
             }
 
-            Application.Current.Dispatcher.BeginInvoke(() =>
+            await Application.Current.Dispatcher.InvokeAsync(async () =>
             {
                 SourceText = e.Text;
-                // todo translate
+
+                await Task.WhenAll(UseTranslateProviderDataContexts.Select(context => context.Translate(e.Text))
+                    .ToArray());
             });
+        }
+
+        private void SetTranslateProviderDataContext()
+        {
+            TranslateProviderFactory translateProviderFactory =
+                Program.ServiceProvider.GetRequiredService<TranslateProviderFactory>();
+            var tempList = _appConfig.UsedTranslateProviderSet.Select(s =>
+                new TranslateProviderDataContext(translateProviderFactory.GetProvider(s), _appConfig)).ToList();
+            UseTranslateProviderDataContexts = tempList;
         }
 
         private void RefreshDisplayUI()
         {
+            SetTranslateProviderDataContext();
             SetWindowColor();
             SetFontStyle();
         }
@@ -130,7 +161,7 @@ namespace VNGTTranslator
         {
             SourceFontFamily = new FontFamily(_appConfig.SourceTextStyle.FontFamily);
             SourceFontSize = _appConfig.SourceTextStyle.FontSize;
-            SourceTextColor = _appConfig.SourceTextStyle.TextColor;
+            SourceTextColor = new SolidColorBrush(_appConfig.SourceTextStyle.TextColor);
         }
 
         /// <summary>
@@ -252,6 +283,56 @@ namespace VNGTTranslator
         private void BtnToggleOnTop_OnClick(object sender, RoutedEventArgs e)
         {
             Topmost = !Topmost;
+        }
+
+        public class TranslateProviderDataContext : INotifyPropertyChanged
+        {
+            public TranslateProviderDataContext(ITranslateProvider provider, AppConfig appConfig)
+            {
+                Provider = provider;
+                _appConfig = appConfig;
+                _providerStyle = appConfig.TranslateTextStyles.TryGetValue(provider.ProviderName,
+                    out DisplayTextStyle displayTextStyle)
+                    ? displayTextStyle
+                    : new DisplayTextStyle();
+            }
+
+            private readonly AppConfig _appConfig;
+
+            private readonly DisplayTextStyle _providerStyle;
+
+            private string _translatedText = string.Empty;
+            private ITranslateProvider Provider { get; }
+
+            public Brush ProviderTextColor => new SolidColorBrush(_providerStyle.TextColor);
+
+            public uint ProviderTextSize => _providerStyle.FontSize;
+
+            public FontFamily ProviderFontFamily => new(_providerStyle.FontFamily);
+
+            public string TranslatedText
+            {
+                get => _translatedText;
+                set
+                {
+                    _translatedText = value;
+                    OnPropertyChanged();
+                }
+            }
+
+            public event PropertyChangedEventHandler? PropertyChanged;
+
+            public async Task Translate(string text)
+            {
+                string translated = await Provider.TranslateAsync(text, LanguageConstant.Language.JAPANESE,
+                    LanguageConstant.Language.CHINESE);
+                TranslatedText = translated;
+            }
+
+            protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
     }
 }

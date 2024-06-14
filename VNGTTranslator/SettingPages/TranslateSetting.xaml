@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
       xmlns:local="clr-namespace:VNGTTranslator.SettingPages"
+      xmlns:hc="https://handyorg.github.io/handycontrol"
       mc:Ignorable="d"
       d:DataContext="{d:DesignInstance local:TranslateSetting}"
       d:DesignHeight="450" d:DesignWidth="800"
@@ -13,10 +14,20 @@
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
-        <TabControl>
+        <StackPanel Margin="0,5,0,5">
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Max Translate Word Count : "
+                       FontSize="15"
+                       FontWeight="Bold"
+                       BorderThickness="0" />
+                <hc:NumericUpDown Value="{Binding MaxTranslateWordCount}" Minimum="100" Maximum="10000" />
+            </StackPanel>
+        </StackPanel>
+        <TabControl Grid.Row="1">
             <TabControl.Resources>
                 <Style x:Key="TabItemNew" TargetType="TabItem" BasedOn="{StaticResource TabItemStyle}">
                     <Setter Property="FontSize" Value="20" />
@@ -47,6 +58,7 @@
                                             ToolTip="Use" Background="White">
                                         <Button.Style>
                                             <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                <Setter Property="Foreground" Value="Red" />
                                                 <Setter Property="Content">
                                                     <Setter.Value>
                                                         <fa:IconBlock Icon="Check" />
@@ -54,6 +66,7 @@
                                                 </Setter>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsChecked}" Value="False">
+                                                        <Setter Property="Foreground" Value="Blue" />
                                                         <Setter Property="Content">
                                                             <Setter.Value>
                                                                 <fa:IconBlock Icon="Close" />
@@ -89,7 +102,7 @@
                 </ItemsControl>
             </TabItem>
         </TabControl>
-        <Button Grid.Row="1"
+        <Button Grid.Row="2"
                 FontSize="15"
                 Height="Auto"
                 FontWeight="Bold"

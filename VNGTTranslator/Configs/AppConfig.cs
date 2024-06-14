@@ -5,6 +5,8 @@ namespace VNGTTranslator.Configs
 {
     public class AppConfig
     {
+        public uint MaxTranslateWordCount { get; set; } = 1000;
+
         public Color TranslateWindowColor { get; set; } = Color.FromArgb(128, 0, 0, 0);
 
         public DisplayTextStyle SourceTextStyle { get; set; } = new();
@@ -20,7 +22,8 @@ namespace VNGTTranslator.Configs
                 TranslateWindowColor = TranslateWindowColor,
                 SourceTextStyle = SourceTextStyle,
                 TranslateTextStyles = new Dictionary<string, DisplayTextStyle>(TranslateTextStyles),
-                UsedTranslateProviderSet = [..UsedTranslateProviderSet]
+                UsedTranslateProviderSet = [..UsedTranslateProviderSet],
+                MaxTranslateWordCount = MaxTranslateWordCount
             };
         }
 
@@ -31,6 +34,7 @@ namespace VNGTTranslator.Configs
             SourceTextStyle = appConfig.SourceTextStyle;
             TranslateTextStyles = new Dictionary<string, DisplayTextStyle>(appConfig.TranslateTextStyles);
             UsedTranslateProviderSet = [..appConfig.UsedTranslateProviderSet];
+            MaxTranslateWordCount = appConfig.MaxTranslateWordCount;
         }
     }
 }

@@ -7,13 +7,14 @@ using System.Windows.Media;
 using VNGTTranslator.Configs;
 using VNGTTranslator.Models;
 using VNGTTranslator.TranslateProviders;
+using VNGTTranslator.TranslateProviders.Google;
 
 namespace VNGTTranslator.SettingPages
 {
     /// <summary>
     /// TranslateSetting.xaml 的互動邏輯
     /// </summary>
-    public partial class TranslateSetting : Page
+    public partial class TranslateSetting : INotifyPropertyChanged
     {
         public TranslateSetting()
         {
@@ -33,6 +34,18 @@ namespace VNGTTranslator.SettingPages
         private readonly AppConfig _appConfig;
 
         public List<TranslateProviderBindingContext> TranslateProviderList { get; set; }
+
+        public uint MaxTranslateWordCount
+        {
+            get => _appConfig.MaxTranslateWordCount;
+            set
+            {
+                _appConfig.MaxTranslateWordCount = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         private void BtnProviderCheck_OnClick(object sender, RoutedEventArgs e)
         {
@@ -66,6 +79,20 @@ namespace VNGTTranslator.SettingPages
                 out DisplayTextStyle displayTextStyle)
                 ? displayTextStyle.TextColor
                 : new DisplayTextStyle().TextColor);
+        }
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value))
+                return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
 
         public class TranslateProviderBindingContext

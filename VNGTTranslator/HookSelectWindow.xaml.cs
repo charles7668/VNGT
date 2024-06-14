@@ -43,7 +43,7 @@ namespace VNGTTranslator
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private void OnTextReceived(HookTextReceivedEventArgs e)
+        private Task OnTextReceived(HookTextReceivedEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
@@ -68,6 +68,7 @@ namespace VNGTTranslator
 
                 SelectIndex = currentIndex;
             }, DispatcherPriority.DataBind);
+            return Task.CompletedTask;
         }
 
         protected override void OnClosing(CancelEventArgs e)

@@ -21,10 +21,6 @@ namespace VNGTTranslator
         {
             Program.InitServices();
 
-            ITranslateProvider microsoftTranslateProvider = new MicrosoftTranslateProvider();
-            var temp = microsoftTranslateProvider.TranslateAsync("test", LanguageConstant.Language.JAPANESE,
-                LanguageConstant.Language.CHINESE).Result;
-
             ConfigHelper.Instance.SetLang("en");
 
             base.OnStartup(e);

@@ -25,7 +25,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <Grid x:Name="TitleBar" Grid.Row="0" Height="32">
+        <Grid Grid.Row="0" Height="32">
             <Grid.Resources>
                 <Style TargetType="StackPanel">
                     <Setter Property="VerticalAlignment" Value="Center" />
@@ -49,21 +49,21 @@
                 </Style>
             </Grid.Resources>
             <StackPanel HorizontalAlignment="Left">
-                <ToggleButton Name="BtnLock"
-                              IsChecked="{Binding IsTransparent}" Click="BtnLock_OnClick"
+                <ToggleButton IsChecked="{Binding IsTransparent}"
+                              Click="BtnLock_OnClick"
                               ToolTip="Transparent">
                     <ToggleButton.Content>
                         <fa:IconBlock Icon="MousePointer" />
                     </ToggleButton.Content>
                 </ToggleButton>
-                <ToggleButton Name="BtnAllowSizeChange" Click="BtnAllowSizeChange_OnClick"
+                <ToggleButton Click="BtnAllowSizeChange_OnClick"
                               ToolTip="Allow resize the window">
                     <ToggleButton.Content>
                         <fa:IconBlock Icon="Expand" />
                     </ToggleButton.Content>
                 </ToggleButton>
                 <ToggleButton IsChecked="True"
-                              Name="BtnToggleOnTop" Click="BtnToggleOnTop_OnClick"
+                              Click="BtnToggleOnTop_OnClick"
                               ToolTip="Toggle OnTop">
                     <ToggleButton.Content>
                         <fa:IconBlock Icon="MapPin" />
@@ -71,7 +71,7 @@
                 </ToggleButton>
             </StackPanel>
             <StackPanel HorizontalAlignment="Center">
-                <Button Name="BtnPause" Click="BtnPause_OnClick"
+                <Button Click="BtnPause_OnClick"
                         ToolTip="Pause/Resume Translator">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
@@ -92,13 +92,13 @@
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button Name="BtnReTranslate" Click="BtnReTranslate_OnClick"
+                <Button Click="BtnReTranslate_OnClick"
                         ToolTip="Re-translate">
                     <Button.Content>
                         <fa:IconBlock Icon="Repeat" />
                     </Button.Content>
                 </Button>
-                <Button Name="BtnShowSourceText" Click="BtnShowSourceText_OnClick"
+                <Button Click="BtnShowSourceText_OnClick"
                         ToolTip="Show source text">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
@@ -119,30 +119,30 @@
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button Name="BtnHistory" Click="BtnHistory_OnClick"
+                <Button Click="BtnHistory_OnClick"
                         ToolTip="Show history">
                     <Button.Content>
                         <fa:IconBlock Icon="History" />
                     </Button.Content>
                 </Button>
-                <Button Name="BtnSelectHookCode" Click="BtnSelectHookCode_OnClick"
+                <Button Click="BtnSelectHookCode_OnClick"
                         ToolTip="Select hook code">
                     <Button.Content>
                         <fa:IconBlock Icon="ListAlt" />
                     </Button.Content>
                 </Button>
-                <Button Name="BtnSetting" Click="BtnSetting_OnClick" ToolTip="Setting">
+                <Button Click="BtnSetting_OnClick" ToolTip="Setting">
                     <Button.Content>
                         <fa:IconBlock Icon="Cog" />
                     </Button.Content>
                 </Button>
-                <Button Name="BtnReadAloud" Click="BtnReadAloud_OnClick"
+                <Button Click="BtnReadAloud_OnClick"
                         ToolTip="Read the source text aloud">
                     <Button.Content>
                         <fa:IconBlock Icon="Microphone" />
                     </Button.Content>
                 </Button>
-                <Button Name="BtnSelectProcess" Click="BtnSelectProcess_OnClick"
+                <Button Click="BtnSelectProcess_OnClick"
                         ToolTip="Select process">
                     <Button.Content>
                         <fa:IconBlock Icon="Microchip" />
@@ -150,13 +150,13 @@
                 </Button>
             </StackPanel>
             <StackPanel HorizontalAlignment="Right">
-                <Button Name="BtnMinimizeWindow" Click="BtnMinimizeWindow_OnClick"
+                <Button Click="BtnMinimizeWindow_OnClick"
                         ToolTip="Minimize the window">
                     <Button.Content>
                         <fa:IconBlock Icon="WindowMinimize" />
                     </Button.Content>
                 </Button>
-                <Button Name="BtnExit" Click="BtnExit_OnClick"
+                <Button Click="BtnExit_OnClick"
                         ToolTip="Exit">
                     <Button.Content>
                         <fa:IconBlock Icon="WindowClose" />
@@ -165,15 +165,13 @@
             </StackPanel>
         </Grid>
         <StackPanel Grid.Row="1" Margin="10" Orientation="Vertical">
-            <WrapPanel x:Name="PanelSourceText" Margin="10,0,10,5" Orientation="Horizontal" Background="Transparent" />
             <hc:OutlineText Text="{Binding SourceText , Mode=OneWay}"
                             d:Text="Wait source text"
                             d:Fill="White"
                             Fill="{Binding SourceTextColor}" Stroke="Beige" StrokeThickness="1"
                             FontFamily="{Binding  SourceFontFamily}"
                             FontSize="{Binding SourceFontSize}"
-                            Name="TxtFirstTranslate"
-                            Margin="10,0,10,5" TextWrapping="Wrap" StrokePosition="Outside">
+                            Margin="10,0,10,10" TextWrapping="Wrap" StrokePosition="Outside">
                 <hc:OutlineText.Style>
                     <Style TargetType="hc:OutlineText">
                         <Setter Property="Visibility" Value="Visible" />
@@ -185,11 +183,23 @@
                     </Style>
                 </hc:OutlineText.Style>
             </hc:OutlineText>
-            <hc:OutlineText Text="{Binding TranslatedText , Mode=OneWay}"
-                            Fill="White" Stroke="Beige"
-                            StrokeThickness="1"
-                            Name="TxtSecondTranslate"
-                            Margin="10,0,10,0" TextWrapping="Wrap" StrokePosition="Outside" />
+            <ItemsControl ItemsSource="{Binding UseTranslateProviderDataContexts}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <hc:OutlineText Text="{Binding TranslatedText , Mode=OneWay}"
+                                        Fill="{Binding  ProviderTextColor}" Stroke="Beige"
+                                        FontSize="{Binding ProviderTextSize}"
+                                        FontFamily="{Binding ProviderFontFamily}"
+                                        StrokeThickness="1"
+                                        Margin="10,0,10,10" TextWrapping="Wrap" StrokePosition="Outside" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
         </StackPanel>
     </Grid>
 </Window>
