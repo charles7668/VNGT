@@ -169,6 +169,7 @@
                             d:Text="Wait source text"
                             d:Fill="White"
                             Fill="{Binding SourceTextColor}" Stroke="Beige" StrokeThickness="1"
+                            Effect="{Binding SourceTextEffect}"
                             FontFamily="{Binding  SourceFontFamily}"
                             FontSize="{Binding SourceFontSize}"
                             Margin="10,0,10,10" TextWrapping="Wrap" StrokePosition="Outside">
@@ -188,6 +189,7 @@
                     <DataTemplate>
                         <hc:OutlineText Text="{Binding TranslatedText}"
                                         Fill="{Binding  ProviderTextColor}" Stroke="Beige"
+                                        Effect="{Binding ProviderTextEffect}"
                                         FontSize="{Binding ProviderTextSize}"
                                         FontFamily="{Binding ProviderFontFamily}"
                                         StrokeThickness="1"

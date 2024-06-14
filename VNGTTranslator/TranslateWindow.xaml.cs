@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using VNGTTranslator.Configs;
 using VNGTTranslator.Hooker;
 using VNGTTranslator.Models;
@@ -36,11 +37,19 @@ namespace VNGTTranslator
 
         private readonly AppConfig _appConfig;
 
+        private readonly DropShadowEffect _dropShadowEffect = new()
+        {
+            Opacity = 1,
+            ShadowDepth = 0,
+            BlurRadius = 6
+        };
+
         private readonly StringBuilder _history = new();
 
         private readonly IHooker _hooker;
 
         private readonly Timer _translateTimeoutTimer;
+
         private bool _isShowSourceText = true;
 
         private bool _isTransparent;
@@ -54,7 +63,15 @@ namespace VNGTTranslator
         private string _sourceText = "Wait source text";
         private Color _sourceTextColor = Colors.White;
 
+        private Effect? _sourceTextEffect;
+
         private List<TranslateProviderDataContext> _useTranslateProviderDataContexts = [];
+
+        public Effect? SourceTextEffect
+        {
+            get => _sourceTextEffect;
+            set => SetField(ref _sourceTextEffect, value);
+        }
 
         public Brush SourceTextColor
         {
@@ -323,6 +340,7 @@ namespace VNGTTranslator
             SourceFontFamily = new FontFamily(_appConfig.SourceTextStyle.FontFamily);
             SourceFontSize = _appConfig.SourceTextStyle.FontSize;
             SourceTextColor = new SolidColorBrush(_appConfig.SourceTextStyle.TextColor);
+            SourceTextEffect = _appConfig.SourceTextStyle.IsTextShadowEnabled ? _dropShadowEffect : null;
         }
 
         private void SetTranslateProviderDataContext()
@@ -379,6 +397,7 @@ namespace VNGTTranslator
             private readonly DisplayTextStyle _providerStyle;
 
             private string _translatedText = string.Empty;
+
             private ITranslateProvider Provider { get; }
 
             public Brush ProviderTextColor => new SolidColorBrush(_providerStyle.TextColor);
@@ -386,6 +405,16 @@ namespace VNGTTranslator
             public uint ProviderTextSize => _providerStyle.FontSize;
 
             public FontFamily ProviderFontFamily => new(_providerStyle.FontFamily);
+
+            public Effect? ProviderTextEffect =>
+                _providerStyle.IsTextShadowEnabled
+                    ? new DropShadowEffect
+                    {
+                        Opacity = 1,
+                        ShadowDepth = 0,
+                        BlurRadius = 6
+                    }
+                    : null;
 
             public string TranslatedText
             {
