@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using HandyControl.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -7,7 +8,8 @@ using System.Windows.Media;
 using VNGTTranslator.Configs;
 using VNGTTranslator.Models;
 using VNGTTranslator.TranslateProviders;
-using VNGTTranslator.TranslateProviders.Google;
+using MessageBox = System.Windows.MessageBox;
+using Window = System.Windows.Window;
 
 namespace VNGTTranslator.SettingPages
 {
@@ -92,22 +94,30 @@ namespace VNGTTranslator.SettingPages
         {
             IAppConfigProvider appConfigProvider = Program.ServiceProvider.GetRequiredService<IAppConfigProvider>();
             appConfigProvider.GetAppConfig().Update(_appConfig);
-            MessageBox.Show(appConfigProvider.TrySaveAppConfig(out string err) ? "Save Success" : err);
+            Result saveResult = appConfigProvider.TrySaveAppConfig();
+            MessageBox.Show(saveResult ? "Save Success" : saveResult.ErrorMessage);
         }
 
-        private void BtnProviderSetting_OnClick(object sender, RoutedEventArgs e)
+        private void BtnTranslateProviderStyleSetting_OnClick(object sender, RoutedEventArgs e)
         {
             if (sender is not Button button) return;
             if (button.DataContext is not TranslateProviderBindingContext context) return;
             TranslateProviderFactory translateProviderFactory =
                 Program.ServiceProvider.GetRequiredService<TranslateProviderFactory>();
-            TranslateProviderSettingWindow settingWindow =
-                new(translateProviderFactory.GetProvider(context.ProviderName), _appConfig)
-                {
-                    Owner = Window.GetWindow(this),
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner
-                };
-            settingWindow.ShowDialog();
+            TranslateProviderStyleSetting styleSettingPage =
+                new(translateProviderFactory.GetProvider(context.ProviderName), _appConfig);
+            var popupSettingWindow = new PopupWindow(Window.GetWindow(this))
+            {
+                PopupElement = styleSettingPage,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                AllowsTransparency = true,
+                WindowStyle = WindowStyle.None,
+                MinWidth = 0,
+                MinHeight = 0,
+                Title = context.ProviderName,
+                Owner = Window.GetWindow(this)
+            };
+            popupSettingWindow.ShowDialog();
             context.ProviderTextColor = new SolidColorBrush(_appConfig.TranslateTextStyles.TryGetValue(
                 context.ProviderName,
                 out DisplayTextStyle displayTextStyle)
@@ -127,6 +137,15 @@ namespace VNGTTranslator.SettingPages
             field = value;
             OnPropertyChanged(propertyName);
             return true;
+        }
+
+        private void BtnTranslateProviderSetting_OnClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button == null) return;
+            var context = button.DataContext as TranslateProviderBindingContext;
+            if (context == null) return;
+            context.ShowSettingWindow(Window.GetWindow(this)!);
         }
 
         public class TranslateProviderBindingContext
@@ -188,6 +207,12 @@ namespace VNGTTranslator.SettingPages
                     return;
                 field = value;
                 OnPropertyChanged(propertyName);
+            }
+
+            public void ShowSettingWindow(Window parent)
+            {
+                PopupWindow settingWindow = Provider.GetSettingWindow(parent);
+                settingWindow.ShowDialog();
             }
         }
     }

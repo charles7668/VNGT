@@ -101,14 +101,16 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Click="BtnProviderSetting_OnClick"
+                                    <Button Click="BtnTranslateProviderStyleSetting_OnClick"
                                             ToolTip="Text Style"
                                             Background="{Binding ProviderTextColor}">
                                         <Button.Content>
                                             <fa:IconBlock Icon="Pencil" />
                                         </Button.Content>
                                     </Button>
-                                    <Button ToolTip="Settings" Background="White">
+                                    <Button ToolTip="Settings"
+                                            Click="BtnTranslateProviderSetting_OnClick"
+                                            Background="White">
                                         <Button.Content>
                                             <fa:IconBlock Icon="Cog" />
                                         </Button.Content>

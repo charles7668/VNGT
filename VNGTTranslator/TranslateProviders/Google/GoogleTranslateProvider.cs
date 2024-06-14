@@ -1,11 +1,16 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using HandyControl.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.Composition;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Web;
+using System.Windows;
+using System.Windows.Controls;
 using VNGTTranslator.Network;
+using VNGTTranslator.TranslateProviders.SettingPages;
+using Window = HandyControl.Controls.Window;
 
 namespace VNGTTranslator.TranslateProviders.Google
 {
@@ -68,6 +73,23 @@ namespace VNGTTranslator.TranslateProviders.Google
             }
 
             return result.Trim();
+        }
+
+        public PopupWindow GetSettingWindow(System.Windows.Window parent)
+        {
+            Page settingPage = new BaseSettingPage();
+            var window = new PopupWindow
+            {
+                PopupElement = settingPage,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                AllowsTransparency = true,
+                WindowStyle = WindowStyle.None,
+                MinWidth = 0,
+                MinHeight = 0,
+                Title = ProviderName,
+                Owner = parent
+            };
+            return window;
         }
     }
 }

@@ -9,15 +9,16 @@ using VNGTTranslator.Configs;
 using VNGTTranslator.Models;
 using VNGTTranslator.TranslateProviders;
 using FontFamily = System.Drawing.FontFamily;
+using Window = System.Windows.Window;
 
-namespace VNGTTranslator
+namespace VNGTTranslator.SettingPages
 {
     /// <summary>
-    /// TranslateProviderSettingWindow.xaml 的互動邏輯
+    /// TranslateProviderStyleSetting.xaml 的互動邏輯
     /// </summary>
-    public partial class TranslateProviderSettingWindow : INotifyPropertyChanged
+    public partial class TranslateProviderStyleSetting : INotifyPropertyChanged
     {
-        public TranslateProviderSettingWindow(ITranslateProvider provider, AppConfig appConfig)
+        public TranslateProviderStyleSetting(ITranslateProvider provider, AppConfig appConfig)
         {
             InitializeComponent();
             ProviderName = provider.ProviderName;
@@ -131,7 +132,7 @@ namespace VNGTTranslator
                 MinWidth = 0,
                 MinHeight = 0,
                 Title = "Select Color",
-                Owner = GetWindow(this)
+                Owner = Window.GetWindow(this)
             };
             picker.Confirmed += (_, args) =>
             {

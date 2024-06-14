@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
 using VNGTTranslator.Configs;
+using VNGTTranslator.Models;
 using Color = System.Windows.Media.Color;
 using FontFamily = System.Drawing.FontFamily;
 using MessageBox = System.Windows.MessageBox;
@@ -158,7 +159,8 @@ namespace VNGTTranslator.SettingPages
         private void BtnSave_OnClick(object sender, RoutedEventArgs e)
         {
             _appConfigProvider.GetAppConfig().Update(_appConfig);
-            MessageBox.Show(!_appConfigProvider.TrySaveAppConfig(out string err) ? err : "Save Success");
+            Result saveSuccess = _appConfigProvider.TrySaveAppConfig();
+            MessageBox.Show(saveSuccess ? "Save Success" : saveSuccess.ErrorMessage);
         }
 
         private void BtnSelectSourceTextColor_OnClick(object sender, RoutedEventArgs e)

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using HandyControl.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.Composition;
 using System.Globalization;
 using System.Net.Http;
@@ -7,7 +8,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Windows;
+using System.Windows.Controls;
 using VNGTTranslator.Network;
+using VNGTTranslator.TranslateProviders.SettingPages;
+using Window = System.Windows.Window;
 
 namespace VNGTTranslator.TranslateProviders.Microsoft
 {
@@ -60,6 +65,23 @@ namespace VNGTTranslator.TranslateProviders.Microsoft
             if (result == null)
                 return "";
             return result;
+        }
+
+        public PopupWindow GetSettingWindow(Window parent)
+        {
+            Page settingPage = new BaseSettingPage();
+            var window = new PopupWindow
+            {
+                PopupElement = settingPage,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                AllowsTransparency = true,
+                WindowStyle = WindowStyle.None,
+                MinWidth = 0,
+                MinHeight = 0,
+                Title = ProviderName,
+                Owner = parent
+            };
+            return window;
         }
 
         private string GetSignature(string requestUrl, byte[] privateKey)
