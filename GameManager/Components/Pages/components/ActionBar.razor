@@ -30,9 +30,12 @@
                       @bind-Value="SearchText"
                       Immediate="true"
                       OnKeyDown="OnKeyDown"
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@Icons.Material.Filled.Close"
+                      OnAdornmentClick="(() => { SearchText = string.Empty; })"
                       Placeholder="Search">
         </MudTextField>
-        <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Search" OnClick="OnSearch">Search</MudButton>
+        <MudButton Class="ml-2" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Search" OnClick="OnSearch">Search</MudButton>
         <MudSpacer></MudSpacer>
         <MudButton Variant="Variant.Outlined"
                    Color="Color.Primary"
@@ -63,6 +66,11 @@
 <style>
     .mud-text-field {
         padding: 0px;
+    }
+    
+    .mud-input-adornment > button {
+        padding: 0px;
+        margin-right: 5px;
     }
 
     .mud-select {
