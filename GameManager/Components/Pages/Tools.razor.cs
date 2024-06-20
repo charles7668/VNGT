@@ -32,5 +32,21 @@ namespace GameManager.Components.Pages
                 SnakeBar.Add(e.Message, Severity.Error);
             }
         }
+
+        private void OnOpenToolsFolderClick()
+        {
+            string appPath = AppDomain.CurrentDomain.BaseDirectory;
+            string toolsFolder = Path.Combine(appPath, "tools");
+            Directory.CreateDirectory(toolsFolder);
+
+            try
+            {
+                Process.Start("explorer.exe", toolsFolder);
+            }
+            catch (Exception e)
+            {
+                SnakeBar.Add(e.Message, Severity.Error);
+            }
+        }
     }
 }

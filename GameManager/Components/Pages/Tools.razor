@@ -1,7 +1,14 @@
 ﻿@page "/tools"
 
 <div>
-    <h1>Tools</h1>
+    <MudStack Row="true">
+        <h1>Tools</h1>
+        <MudButton Color="Color.Default" Variant="Variant.Outlined"
+                   ButtonType="ButtonType.Reset"
+                   OnClick="OnOpenToolsFolderClick">
+            Open Tools Folder
+        </MudButton>
+    </MudStack>
     <MudDivider />
     <MudGrid Class="pa-0 ma-0 tools-grid">
         <MudItem>
