@@ -2,6 +2,7 @@
 using SavePatcher.Configs;
 using SavePatcher.Logs;
 using SavePatcher.Models;
+using System.Diagnostics;
 
 namespace SavePatcher
 {
@@ -31,6 +32,7 @@ namespace SavePatcher
         /// </summary>
         private void LoadAllConfigFileName()
         {
+            Directory.CreateDirectory(Program.ConfigPath);
             string[] files = Directory.GetFiles(Program.ConfigPath, "*.yaml", SearchOption.AllDirectories);
             foreach (string file in files)
             {
@@ -131,6 +133,12 @@ namespace SavePatcher
         private void ClearLogText()
         {
             txtLog.Text = string.Empty;
+        }
+
+        private void btnOpenConfigFolder_Click(object sender, EventArgs e)
+        {
+            // open config folder
+            Process.Start("explorer.exe", Program.ConfigPath);
         }
     }
 }

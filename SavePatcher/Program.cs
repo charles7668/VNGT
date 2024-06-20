@@ -15,7 +15,7 @@ namespace SavePatcher
         /// <summary>
         /// configs path
         /// </summary>
-        public static string ConfigPath => "configs";
+        public static string ConfigPath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "configs");
 
         /// <summary>
         /// The main entry point for the application.

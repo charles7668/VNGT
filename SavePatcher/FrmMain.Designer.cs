@@ -31,23 +31,26 @@
             cmbConfigList = new ComboBox();
             btnPatch = new Button();
             txtLog = new TextBox();
+            btnOpenConfigFolder = new Button();
             SuspendLayout();
             // 
             // cmbConfigList
             // 
             cmbConfigList.Font = new Font("Microsoft JhengHei UI", 24F, FontStyle.Bold, GraphicsUnit.Point, 136);
             cmbConfigList.FormattingEnabled = true;
-            cmbConfigList.Location = new Point(30, 29);
+            cmbConfigList.Location = new Point(46, 118);
+            cmbConfigList.Margin = new Padding(5, 5, 5, 5);
             cmbConfigList.Name = "cmbConfigList";
-            cmbConfigList.Size = new Size(563, 49);
+            cmbConfigList.Size = new Size(882, 69);
             cmbConfigList.TabIndex = 0;
             // 
             // btnPatch
             // 
             btnPatch.Font = new Font("Microsoft JhengHei UI", 24F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            btnPatch.Location = new Point(611, 29);
+            btnPatch.Location = new Point(959, 118);
+            btnPatch.Margin = new Padding(5, 5, 5, 5);
             btnPatch.Name = "btnPatch";
-            btnPatch.Size = new Size(155, 48);
+            btnPatch.Size = new Size(244, 74);
             btnPatch.TabIndex = 1;
             btnPatch.Text = "Patch";
             btnPatch.UseVisualStyleBackColor = true;
@@ -55,20 +58,35 @@
             // 
             // txtLog
             // 
-            txtLog.Location = new Point(30, 104);
+            txtLog.Location = new Point(46, 233);
+            txtLog.Margin = new Padding(5, 5, 5, 5);
             txtLog.Multiline = true;
             txtLog.Name = "txtLog";
-            txtLog.Size = new Size(736, 248);
+            txtLog.Size = new Size(1154, 378);
             txtLog.TabIndex = 2;
+            // 
+            // btnOpenConfigFolder
+            // 
+            btnOpenConfigFolder.Font = new Font("Microsoft JhengHei UI", 24F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            btnOpenConfigFolder.Location = new Point(46, 25);
+            btnOpenConfigFolder.Margin = new Padding(5);
+            btnOpenConfigFolder.Name = "btnOpenConfigFolder";
+            btnOpenConfigFolder.Size = new Size(579, 74);
+            btnOpenConfigFolder.TabIndex = 1;
+            btnOpenConfigFolder.Text = "Open Config Folder";
+            btnOpenConfigFolder.UseVisualStyleBackColor = true;
+            btnOpenConfigFolder.Click += btnOpenConfigFolder_Click;
             // 
             // FrmMain
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(11F, 23F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(812, 387);
+            ClientSize = new Size(1315, 726);
             Controls.Add(txtLog);
+            Controls.Add(btnOpenConfigFolder);
             Controls.Add(btnPatch);
             Controls.Add(cmbConfigList);
+            Margin = new Padding(5, 5, 5, 5);
             Name = "FrmMain";
             Text = "Save Patcher";
             Load += Form1_Load;
@@ -81,5 +99,6 @@
         private ComboBox cmbConfigList;
         private Button btnPatch;
         private TextBox txtLog;
+        private Button btnOpenConfigFolder;
     }
 }
