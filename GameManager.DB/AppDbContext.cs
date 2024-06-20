@@ -38,7 +38,7 @@ namespace GameManager.DB
                 .HasDefaultValue(true);
             modelBuilder.Entity<AppSetting>()
                 .Property(x => x.Localization)
-                .HasDefaultValue("en-US");
+                .HasDefaultValue("zh-tw");
 
             base.OnModelCreating(modelBuilder);
         }

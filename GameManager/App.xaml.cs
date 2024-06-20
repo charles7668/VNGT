@@ -7,7 +7,7 @@ namespace GameManager
     {
         public App(IConfigService configService)
         {
-            string locale = configService.GetAppSetting().Localization ?? "en-US";
+            string locale = configService.GetAppSetting().Localization ?? "zh-tw";
             Thread.CurrentThread.CurrentCulture =
                 new CultureInfo(locale);
             Thread.CurrentThread.CurrentUICulture =
