@@ -169,6 +169,10 @@ namespace GameManager.Components.Pages.components
                 info.Developer = string.Join(",", replaceList);
 
                 info.ExePath = Model.ExePath;
+                info.ExeFile = Model.ExeFile;
+                info.LaunchOption ??= new LaunchOption();
+                info.LaunchOption.RunAsAdmin = Model.RunAsAdmin;
+                info.LaunchOption.LaunchWithLocaleEmulator = Model.LeConfig;
                 DataMapService.Map(info, Model);
                 StateHasChanged();
             }
