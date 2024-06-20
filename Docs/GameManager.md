@@ -39,11 +39,11 @@ using following command , if need detail message , the command can add `--verbos
 for add migration
 
 ```shell
-dotnet migrations add {MigrationName} --project .\GameManager.DB
+dotnet ef migrations add {MigrationName} --project .\GameManager.DB
 ```
 
 for remove migration
 
 ```shell
-dotnet migrations remove --project .\GameManage.DB
+dotnet ef migrations remove --project .\GameManager.DB
 ```
