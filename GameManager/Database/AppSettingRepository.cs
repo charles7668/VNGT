@@ -10,6 +10,7 @@ namespace GameManager.Database
         {
             AppSetting? appSetting = await dbContext.AppSettings
                 .Include(x => x.GuideSites)
+                .Include(x => x.TextMappings)
                 .FirstOrDefaultAsync();
             if (appSetting != null)
                 return appSetting;

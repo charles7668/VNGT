@@ -42,8 +42,8 @@ namespace GameManager.Components.Pages.components
         protected override async Task OnInitializedAsync()
         {
             LeConfigs = ["None"];
-            AppSetting=  
-            AppSetting = ConfigService.GetAppSetting();
+            AppSetting =
+                AppSetting = ConfigService.GetAppSetting();
             if (!string.IsNullOrEmpty(AppSetting.LocaleEmulatorPath)
                 && File.Exists(Path.Combine(AppSetting.LocaleEmulatorPath, "LEConfig.xml")))
             {
@@ -118,7 +118,7 @@ namespace GameManager.Components.Pages.components
             Model.Cover = cover;
         }
 
-        private async Task OnInfoFetch()
+        private async Task OnInfoFetchClick()
         {
             if (string.IsNullOrEmpty(Model.GameName))
                 return;
@@ -128,7 +128,8 @@ namespace GameManager.Components.Pages.components
                     await GameInfoProvider.FetchGameSearchListAsync(Model.GameName, 10, 1);
                 if (infoList == null || infoList.Count == 0)
                 {
-                    await DialogService.ShowMessageBox("Error", Resources.Message_RelatedGameNotFound,@Resources.Dialog_Button_Cancel);
+                    await DialogService.ShowMessageBox("Error", Resources.Message_RelatedGameNotFound,
+                        @Resources.Dialog_Button_Cancel);
                     return;
                 }
 
@@ -156,13 +157,24 @@ namespace GameManager.Components.Pages.components
                 GameInfo? info = await GameInfoProvider.FetchGameDetailByIdAsync(gameId);
                 if (info == null)
                     return;
+                List<string> replaceList = [];
+                string[]? split = info.Developer?.Split(',');
+                if (split is { Length: > 0 })
+                {
+                    replaceList.AddRange(from s in split
+                        let temp = AppSetting.TextMappings.FirstOrDefault(x => x.Original == s.Trim())?.Replace
+                        select temp ?? s.Trim());
+                }
+
+                info.Developer = string.Join(",", replaceList);
+
                 info.ExePath = Model.ExePath;
                 DataMapService.Map(info, Model);
                 StateHasChanged();
             }
             catch (Exception e)
             {
-                await DialogService.ShowMessageBox("Error", e.Message,@Resources.Dialog_Button_Cancel);
+                await DialogService.ShowMessageBox("Error", e.Message, @Resources.Dialog_Button_Cancel);
             }
         }
 

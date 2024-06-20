@@ -518,5 +518,14 @@ namespace GameManager.Properties {
                 return ResourceManager.GetString("Settings.Caption.Setting", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   查詢類似 Text Mapping 的當地語系化字串。
+        /// </summary>
+        internal static string Settings_Caption_TextMapping {
+            get {
+                return ResourceManager.GetString("Settings.Caption.TextMapping", resourceCulture);
+            }
+        }
     }
 }

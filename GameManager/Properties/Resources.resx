@@ -270,4 +270,7 @@
   <data name="Settings.Caption.Setting" xml:space="preserve">
     <value>Setting</value>
   </data>
+  <data name="Settings.Caption.TextMapping" xml:space="preserve">
+    <value>Text Mapping</value>
+  </data>
 </root>

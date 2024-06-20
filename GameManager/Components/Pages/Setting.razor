@@ -29,7 +29,7 @@
                     <MudCheckBox T="bool" @bind-Value="AppSetting.IsAutoFetchInfoEnabled">@Resources.Settings_Button_EnableAutoFetchInfoOnScan</MudCheckBox>
                 </MudElement>
                 <MudStack Row="true">
-                    <MudStack Class="guide-site-bar">
+                    <MudStack Class="list-container">
                         <MudToolBar Class="ma-0 pa-0">
                             <MudText>@Resources.Settings_Caption_GuideSite</MudText>
                             <MudIconButton Icon="@Icons.Material.Filled.Add"
@@ -54,6 +54,34 @@
                             <RowTemplate>
                                 <MudTd DataLabel="Name">@context.Name</MudTd>
                                 <MudTd DataLabel="URL">@context.SiteUrl</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudStack>
+                    <MudStack Class="list-container">
+                        <MudToolBar Class="ma-0 pa-0">
+                            <MudText>@Resources.Settings_Caption_TextMapping</MudText>
+                            <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                           OnClick="OnAddTextMappingClick"
+                                           Style="color: green;" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                           OnClick="OnDeleteTextMappingClick"
+                                           Style="color: red;" />
+                        </MudToolBar>
+                        <MudTable T="TextMapping" Items="@TextMappings"
+                                  Hover="true"
+                                  RowClass="cursor-pointer"
+                                  Height="200px"
+                                  Bordered="true"
+                                  @ref="TextMappingTable"
+                                  OnRowClick="() => { }"
+                                  RowClassFunc="OnTextMappingsSelectedRowClassFunc">
+                            <HeaderContent>
+                                <MudTh>Original</MudTh>
+                                <MudTh>Replace</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Orignal">@context.Original</MudTd>
+                                <MudTd DataLabel="Replace">@context.Replace</MudTd>
                             </RowTemplate>
                         </MudTable>
                     </MudStack>

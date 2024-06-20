@@ -11,6 +11,9 @@ namespace GameManager.Components.Pages
     public partial class Setting
     {
         private int _selectedRowNumber = -1;
+
+        private int _selectedTextMappingRowNumber = -1;
+
         private AppSetting AppSetting { get; set; } = null!;
 
         [Inject]
@@ -21,12 +24,17 @@ namespace GameManager.Components.Pages
 
         private MudTable<GuideSite> GuideSiteTable { get; set; } = null!;
 
+        private MudTable<TextMapping> TextMappingTable { get; set; } = null!;
+
         private List<GuideSite> GuideSites { get; set; } = null!;
+
+        private List<TextMapping> TextMappings { get; set; } = null!;
 
         protected override void OnInitialized()
         {
             AppSetting = ConfigService.GetAppSetting();
             GuideSites = AppSetting.GuideSites?.ToList() ?? new List<GuideSite>();
+            TextMappings = AppSetting.TextMappings?.ToList() ?? new List<TextMapping>();
             base.OnInitialized();
         }
 
@@ -35,6 +43,7 @@ namespace GameManager.Components.Pages
             try
             {
                 AppSetting.GuideSites = GuideSites;
+                AppSetting.TextMappings = TextMappings;
                 await ConfigService.UpdateAppSettingAsync(AppSetting);
             }
             catch (Exception e)
@@ -140,6 +149,83 @@ namespace GameManager.Components.Pages
                 && GuideSiteTable.SelectedItem.Equals(guideSite))
             {
                 _selectedRowNumber = rowNumber;
+                return "selected";
+            }
+
+            return string.Empty;
+        }
+
+        private async Task OnAddTextMappingClick()
+        {
+            List<DialogInputBox.InputModel> inputModel =
+            [
+                new DialogInputBox.InputModel
+                {
+                    Label = "Original",
+                    Validate = s =>
+                    {
+                        if (string.IsNullOrEmpty(s))
+                        {
+                            return "Original is required";
+                        }
+
+                        if (AppSetting.GuideSites != null && AppSetting.GuideSites.Any(x => x.Name == s))
+                            return "Original is exist";
+                        return null;
+                    }
+                },
+                new DialogInputBox.InputModel
+                {
+                    Label = "Replace",
+                    Validate = s => string.IsNullOrEmpty(s) ? "Replace is required" : null
+                }
+            ];
+
+            DialogParameters<DialogInputBox> parameters = new()
+            {
+                { x => x.Inputs, inputModel }
+            };
+            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogInputBox>("Add Text Mapping",
+                parameters, new DialogOptions
+                {
+                    BackdropClick = false
+                });
+            DialogResult? dialogResult = await dialogReference?.Result;
+            if (dialogResult == null || dialogResult.Canceled)
+            {
+                return;
+            }
+
+            TextMappings ??= [];
+            var textMapping = new TextMapping
+            {
+                Original = inputModel[0].Value,
+                Replace = inputModel[1].Value
+            };
+            TextMappings.Add(textMapping);
+        }
+
+        private Task OnDeleteTextMappingClick()
+        {
+            if (_selectedTextMappingRowNumber == -1)
+                return Task.CompletedTask;
+            TextMappings.RemoveAt(_selectedTextMappingRowNumber);
+            _selectedTextMappingRowNumber = -1;
+            return Task.CompletedTask;
+        }
+
+        private string OnTextMappingsSelectedRowClassFunc(TextMapping textMapping, int rowNumber)
+        {
+            if (_selectedTextMappingRowNumber == rowNumber)
+            {
+                _selectedTextMappingRowNumber = -1;
+                return string.Empty;
+            }
+
+            if (TextMappingTable.SelectedItem != null
+                && TextMappingTable.SelectedItem.Equals(textMapping))
+            {
+                _selectedTextMappingRowNumber = rowNumber;
                 return "selected";
             }
 

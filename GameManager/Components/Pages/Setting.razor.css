@@ -7,18 +7,18 @@ div ::deep .setting-box {
     overflow-y: auto;
 }
 
-div ::deep .guide-site-bar {
+div ::deep .list-container {
     width: 50%;
 }
 
-    div ::deep .guide-site-bar .selected {
+    div ::deep .list-container .selected {
         background-color: #1E88E5 !important;
     }
 
-        div ::deep .guide-site-bar .selected > td {
+        div ::deep .list-container .selected > td {
             color: white !important;
         }
 
-            div ::deep .guide-site-bar .selected > td .mud-input {
+            div ::deep .list-container .selected > td .mud-input {
                 color: white !important;
             }

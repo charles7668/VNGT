@@ -11,5 +11,7 @@
         public string? Localization { get; set; }
 
         public IList<GuideSite> GuideSites { get; set; }
+
+        public IList<TextMapping> TextMappings { get; set; }
     }
 }
