@@ -26,7 +26,7 @@ namespace GameManager.Components.Pages
         protected override void OnInitialized()
         {
             AppSetting = ConfigService.GetAppSetting();
-            GuideSites = AppSetting.GuideSites.ToList();
+            GuideSites = AppSetting.GuideSites?.ToList() ?? new List<GuideSite>();
             base.OnInitialized();
         }
 
