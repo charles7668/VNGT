@@ -47,7 +47,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
 
 [Files]
-SOURCE: "{#SourcePath}\*" ; DestDir:"{app}\" ; Flags: ignoreversion recursesubdirs createallsubdirs
+SOURCE: "{#SourcePath}\*" ; DestDir:"{app}\" ; Flags: ignoreversion recursesubdirs createallsubdirs ; Excludes: "*.pdb"
 
 ;icon
 SOURCE: "GameManager\Resources\Icons\app.ico" ; DestDir:"{app}" ;DestName:"icon.ico" ; Flags: ignoreversion ; Check: Is64BitInstallMode
