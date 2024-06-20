@@ -255,6 +255,9 @@
   <data name="NavMenu.Setting" xml:space="preserve">
     <value>Settings</value>
   </data>
+  <data name="NavMenu_Tools" xml:space="preserve">
+    <value>Tools</value>
+  </data>
   <data name="Settings.Button.EnableAutoFetchInfoOnScan" xml:space="preserve">
     <value>Enable Auto Fetch Info On Scan</value>
   </data>

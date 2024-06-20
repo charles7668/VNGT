@@ -1,0 +1,7 @@
+div ::deep .mud-icon-size-large {
+    font-size: 80px;
+}
+
+div ::deep .tools-grid {
+    max-width: 100%;
+}

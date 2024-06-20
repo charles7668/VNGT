@@ -475,6 +475,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Tools 的當地語系化字串。
+        /// </summary>
+        internal static string NavMenu_Tools {
+            get {
+                return ResourceManager.GetString("NavMenu_Tools", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Enable Auto Fetch Info On Scan 的當地語系化字串。
         /// </summary>
         internal static string Settings_Button_EnableAutoFetchInfoOnScan {

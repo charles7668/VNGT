@@ -255,6 +255,9 @@
   <data name="NavMenu.Setting" xml:space="preserve">
     <value>設定</value>
   </data>
+  <data name="NavMenu_Tools" xml:space="preserve">
+    <value>工具箱</value>
+  </data>
   <data name="Settings.Button.EnableAutoFetchInfoOnScan" xml:space="preserve">
     <value>啟用掃描時自動下載資訊</value>
   </data>
