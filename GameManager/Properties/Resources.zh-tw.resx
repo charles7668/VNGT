@@ -255,6 +255,9 @@
   <data name="NavMenu.Setting" xml:space="preserve">
     <value>設定</value>
   </data>
+  <data name="NavMenu_Help" xml:space="preserve">
+    <value>幫助</value>
+  </data>
   <data name="NavMenu_Tools" xml:space="preserve">
     <value>工具箱</value>
   </data>
