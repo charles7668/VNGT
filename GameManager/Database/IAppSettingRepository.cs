@@ -7,5 +7,7 @@ namespace GameManager.Database
         Task<AppSetting> GetAppSettingAsync();
 
         Task UpdateAppSettingAsync(AppSetting appSetting);
+
+        Task<TextMapping?> SearchTextMappingByOriginalText(string original);
     }
 }

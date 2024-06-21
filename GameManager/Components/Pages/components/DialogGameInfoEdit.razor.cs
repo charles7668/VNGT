@@ -161,9 +161,11 @@ namespace GameManager.Components.Pages.components
                 string[]? split = info.Developer?.Split(',');
                 if (split is { Length: > 0 })
                 {
-                    replaceList.AddRange(from s in split
-                        let temp = AppSetting.TextMappings.FirstOrDefault(x => x.Original == s.Trim())?.Replace
-                        select temp ?? s.Trim());
+                    foreach (string s in split)
+                    {
+                        TextMapping? mapping = await ConfigService.SearchTextMappingByOriginalText(s);
+                        replaceList.Add(mapping is { Replace: not null } ? mapping.Replace : s);
+                    }
                 }
 
                 info.Developer = string.Join(",", replaceList);

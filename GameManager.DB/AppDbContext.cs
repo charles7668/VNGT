@@ -22,6 +22,8 @@ namespace GameManager.DB
 
         public DbSet<AppSetting> AppSettings { get; set; }
 
+        public DbSet<TextMapping> TextMapping { get; set; }
+
 
         // The following configures EF to create a Sqlite database file in the
         // special "local" folder for your platform.

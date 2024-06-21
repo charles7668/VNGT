@@ -42,5 +42,7 @@ namespace GameManager.Services
         Task<bool> CheckExePathExist(string path);
 
         Task UpdateLastPlayedByIdAsync(int id, DateTime time);
+
+        Task<TextMapping?> SearchTextMappingByOriginalText(string original);
     }
 }

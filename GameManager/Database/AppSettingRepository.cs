@@ -26,5 +26,12 @@ namespace GameManager.Database
             dbContext.AppSettings.Update(appSetting);
             await dbContext.SaveChangesAsync();
         }
+
+        public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)
+        {
+            AppSetting appSetting = await GetAppSettingAsync();
+            return await dbContext.TextMapping.Where(x => x.Original == original)
+                .FirstOrDefaultAsync(x => x.AppSettingId == appSetting.Id);
+        }
     }
 }

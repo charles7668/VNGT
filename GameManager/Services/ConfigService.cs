@@ -2,6 +2,7 @@
 using GameManager.Database;
 using GameManager.DB.Models;
 using GameManager.Enums;
+using Microsoft.Extensions.Caching.Memory;
 using System.Reflection;
 
 namespace GameManager.Services
@@ -21,6 +22,10 @@ namespace GameManager.Services
             _unitOfWork = unitOfWork;
             ServiceProvider = serviceProvider;
             AppSetting = _unitOfWork.AppSettingRepository.GetAppSettingAsync().Result;
+            _memoryCache = new MemoryCache(new MemoryCacheOptions
+            {
+                SizeLimit = 200
+            });
         }
 
         private const string DB_FILE = "game.db";
@@ -43,6 +48,8 @@ namespace GameManager.Services
         private IServiceProvider ServiceProvider { get; } = null!;
 
         private readonly SemaphoreSlim _semaphore = new(1, 1);
+
+        private IMemoryCache _memoryCache = null!;
 
         public void CreateConfigFolderIfNotExistAsync()
         {
@@ -160,9 +167,15 @@ namespace GameManager.Services
             return AppSetting;
         }
 
-        public Task UpdateAppSettingAsync(AppSetting setting)
+        public async Task UpdateAppSettingAsync(AppSetting setting)
         {
-            return _unitOfWork.AppSettingRepository.UpdateAppSettingAsync(setting);
+            await _unitOfWork.AppSettingRepository.UpdateAppSettingAsync(setting);
+            // clear cache because the data has been changed
+            _memoryCache.Dispose();
+            _memoryCache = new MemoryCache(new MemoryCacheOptions
+            {
+                SizeLimit = 200
+            });
         }
 
         public Task<List<Library>> GetLibrariesAsync(CancellationToken cancellationToken)
@@ -188,6 +201,22 @@ namespace GameManager.Services
         public Task UpdateLastPlayedByIdAsync(int id, DateTime time)
         {
             return _unitOfWork.GameInfoRepository.UpdateLastPlayedByIdAsync(id, time);
+        }
+
+        public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)
+        {
+            string key = "TextMapping::" + original;
+            if (_memoryCache.TryGetValue(key, out TextMapping? mapping))
+            {
+                return mapping;
+            }
+
+            mapping = await _unitOfWork.AppSettingRepository.SearchTextMappingByOriginalText(original);
+            _memoryCache.Set(key, mapping, new MemoryCacheEntryOptions
+            {
+                Size = 1
+            });
+            return mapping;
         }
     }
 }
