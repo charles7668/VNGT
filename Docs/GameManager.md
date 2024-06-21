@@ -7,7 +7,7 @@
     - [Integrate Locale Emulator](#integrate-locale-emulator)
   - [Develop](#develop)
     - [Requirement](#requirement)
-    - [Dabase Model Change](#dabase-model-change)
+    - [Database Model Change](#database-model-change)
 
 ## User Guide
 
@@ -32,7 +32,7 @@
 
 - Install `dotnet-ef` by using `dotnet tool install --global dotnet-ef`
 
-### Dabase Model Change
+### Database Model Change
 
 using following command , if need detail message , the command can add `--verbose`
 
