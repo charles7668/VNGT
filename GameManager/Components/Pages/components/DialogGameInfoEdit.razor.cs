@@ -14,6 +14,8 @@ namespace GameManager.Components.Pages.components
 {
     public partial class DialogGameInfoEdit
     {
+        private HashSet<string> _tagHashSet = [];
+
         [Parameter]
         public FormModel Model { get; set; } = new();
 
@@ -68,6 +70,8 @@ namespace GameManager.Components.Pages.components
                 foreach (string file in files)
                     ExeFiles.Add(Path.GetRelativePath(Model.ExePath, Path.GetFullPath(file)));
             }
+
+            _tagHashSet = Model.Tags.ToHashSet();
 
             await base.OnInitializedAsync();
         }
@@ -129,7 +133,7 @@ namespace GameManager.Components.Pages.components
                 if (infoList == null || infoList.Count == 0)
                 {
                     await DialogService.ShowMessageBox("Error", Resources.Message_RelatedGameNotFound,
-                        @Resources.Dialog_Button_Cancel);
+                        Resources.Dialog_Button_Cancel);
                     return;
                 }
 
@@ -163,13 +167,15 @@ namespace GameManager.Components.Pages.components
                 {
                     foreach (string s in split)
                     {
+                        TryAddTag(s);
                         TextMapping? mapping = await ConfigService.SearchTextMappingByOriginalText(s);
-                        replaceList.Add(mapping is { Replace: not null } ? mapping.Replace : s);
+                        string? mappingResult = mapping is { Replace: not null } ? mapping.Replace : s;
+                        replaceList.Add(mappingResult);
+                        TryAddTag(mappingResult);
                     }
                 }
 
                 info.Developer = string.Join(",", replaceList);
-
                 info.ExePath = Model.ExePath;
                 info.ExeFile = Model.ExeFile;
                 info.LaunchOption ??= new LaunchOption();
@@ -180,8 +186,23 @@ namespace GameManager.Components.Pages.components
             }
             catch (Exception e)
             {
-                await DialogService.ShowMessageBox("Error", e.Message, @Resources.Dialog_Button_Cancel);
+                await DialogService.ShowMessageBox("Error", e.Message, Resources.Dialog_Button_Cancel);
             }
+        }
+
+        private void TryAddTag(string tag)
+        {
+            if (_tagHashSet.Contains(tag)) return;
+            Model.Tags.Add(tag);
+            _tagHashSet.Add(tag);
+        }
+
+        private void OnTagRemoveClick(MudChip<string> chip)
+        {
+            if (chip.Value == null)
+                return;
+            Model.Tags.Remove(chip.Value);
+            _tagHashSet.Remove(chip.Value);
         }
 
         public class FormModel
@@ -203,6 +224,8 @@ namespace GameManager.Components.Pages.components
             public bool RunAsAdmin { get; set; }
 
             public string? LeConfig { get; set; }
+
+            public List<string> Tags { get; set; } = [];
         }
     }
 }

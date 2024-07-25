@@ -5,7 +5,8 @@ namespace GameManager.Database
 {
     public interface IGameInfoRepository
     {
-        Task GetGameInfoForEachAsync(Action<GameInfo> action,CancellationToken cancellationToken,SortOrder order = SortOrder.UPLOAD_TIME);
+        Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
+            SortOrder order = SortOrder.UPLOAD_TIME);
 
         Task<List<GameInfo>> GetGameInfos(SortOrder order = SortOrder.UPLOAD_TIME);
 
@@ -19,6 +20,10 @@ namespace GameManager.Database
 
         Task<bool> CheckExePathExist(string path);
 
-        Task UpdateLastPlayedByIdAsync(int id , DateTime time);
+        Task UpdateLastPlayedByIdAsync(int id, DateTime time);
+
+        Task<IEnumerable<string>> GetTagsByIdAsync(int id);
+
+        Task AddTagAsync(int id, Tag tag);
     }
 }

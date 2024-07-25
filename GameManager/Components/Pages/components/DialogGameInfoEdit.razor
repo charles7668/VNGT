@@ -23,9 +23,9 @@
                             </MudButton>
                             <MudSpacer />
                         </MudToolBar>
-                        <MudTextField @bind-Value="Model.GameName" For="@(() => Model.GameName)" Label="@Resources.GameEditorDialog_Caption_GameName"/>
+                        <MudTextField @bind-Value="Model.GameName" For="@(() => Model.GameName)" Label="@Resources.GameEditorDialog_Caption_GameName" />
                         <MudToolBar Class="pa-0">
-                            <MudTextField @bind-Value="Model.Vendor" For="@(() => Model.Vendor)" Label="@Resources.GameEditorDialog_Caption_Developer"/>
+                            <MudTextField @bind-Value="Model.Vendor" For="@(() => Model.Vendor)" Label="@Resources.GameEditorDialog_Caption_Developer" />
                             <MudDatePicker @bind-Date="Model.DateTime"
                                            For="@(() => Model.DateTime)"
                                            Label="@Resources.GameEditorDialog_Caption_ReleaseDate"
@@ -37,9 +37,9 @@
                                            Clearable="true" />
                         </MudToolBar>
                         <MudToolBar Class="pa-0 ma-0">
-                            <MudTextField ReadOnly="true" @bind-Value="Model.ExePath" 
-                                          For="@(() => Model.ExePath)" 
-                                          Label="@Resources.GameEditorDialog_Caption_ExecutionFilePath"/>
+                            <MudTextField ReadOnly="true" @bind-Value="Model.ExePath"
+                                          For="@(() => Model.ExePath)"
+                                          Label="@Resources.GameEditorDialog_Caption_ExecutionFilePath" />
                             <MudSelect Class="mt-2 mb-2"
                                        @bind-Value="Model.ExeFile"
                                        AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined"
@@ -50,9 +50,10 @@
                                 }
                             </MudSelect>
                         </MudToolBar>
-                        <MudTextField Lines="5" MaxLines="8" @bind-Value="Model.Description" 
+                        <MudTextField Lines="5" MaxLines="8" @bind-Value="Model.Description"
                                       For="@(() => Model.Description)"
-                                      Label="@Resources.GameEditorDialog_Caption_Desciption"></MudTextField>
+                                      Label="@Resources.GameEditorDialog_Caption_Desciption">
+                        </MudTextField>
                         <MudPaper Elevation="0">
                             <MudToolBar Class="pa-0">
                                 <MudText Typo="Typo.h5">@Resources.GameEditorDialog_Caption_LaunchOptions</MudText>
@@ -72,6 +73,19 @@
                                 </MudPaper>
                             </MudToolBar>
                         </MudPaper>
+                        <MudPaper Elevation="0">
+                            <MudText Typo="Typo.h4">Tag Sets</MudText>
+                            <MudPaper MaxHeight="100px" Elevation="0" Outlined="true" Class="label-set">
+                                <MudStack Spacing="1" Row="true" Wrap="Wrap.Wrap">
+                                    @foreach (var tag in Model.Tags)
+                                    {
+                                        <MudChip T="string" Color="Color.Info"
+                                                 OnClose="OnTagRemoveClick" Value="tag">
+                                        </MudChip>
+                                    }
+                                </MudStack>
+                            </MudPaper>
+                        </MudPaper>
                     </MudStack>
                 </MudStack>
             </MudPaper>
@@ -87,7 +101,6 @@
                        OnClick="OnCancel">
                 @Resources.Dialog_Button_Cancel
             </MudButton>
-
         </DialogActions>
     </MudDialog>
 </div>

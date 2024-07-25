@@ -85,6 +85,7 @@ namespace GameManager.Components.Pages.components
                 return;
             var inputModel = new DialogGameInfoEdit.FormModel();
             DataMapService.Map(GameInfo, inputModel);
+            inputModel.Tags = (await ConfigService.GetGameTagsAsync(GameInfo.Id)).ToList();
             if (GameInfo.CoverPath != null && GameInfo.CoverPath.IsHttpLink())
                 inputModel.Cover = GameInfo.CoverPath;
             else
@@ -133,6 +134,7 @@ namespace GameManager.Components.Pages.components
 
             DataMapService.Map(resultModel, GameInfo);
             await ConfigService.EditGameInfo(GameInfo);
+            await ConfigService.AddTagsToGameInfoAsync(GameInfo.Id, resultModel.Tags);
             StateHasChanged();
         }
 

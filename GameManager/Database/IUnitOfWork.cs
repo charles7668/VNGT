@@ -7,5 +7,11 @@
         ILibraryRepository LibraryRepository { get; }
 
         IAppSettingRepository AppSettingRepository { get; }
+
+        ITagRepository TagRepository { get; }
+
+        Task<int> SaveChangesAsync();
+
+        Task ClearChangeTrackerAsync();
     }
 }

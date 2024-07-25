@@ -59,12 +59,36 @@ namespace GameManager.Database
             GameInfo? info = await context.GameInfos
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
-            if(info == null)
+            if (info == null)
                 return;
             info.LastPlayed = time;
             context.GameInfos.Update(info);
             await context.SaveChangesAsync();
             context.ChangeTracker.Clear();
+        }
+
+        public async Task<IEnumerable<string>> GetTagsByIdAsync(int id)
+        {
+            IEnumerable<string>? result = await context.GameInfos
+                .AsNoTracking()
+                .Where(x => x.Id == id)
+                .Select(x => x.Tags.Select(t => t.Name))
+                .FirstOrDefaultAsync();
+            result ??= new List<string>();
+            return result;
+        }
+
+        public async Task AddTagAsync(int id, Tag tag)
+        {
+            GameInfo? info = await context.GameInfos
+                .Include(x => x.Tags)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (info == null)
+                return;
+            if (info.Tags.Any(x => x.Name == tag.Name))
+                return;
+            info.Tags.Add(tag);
+            context.GameInfos.Update(info);
         }
 
         public async Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,

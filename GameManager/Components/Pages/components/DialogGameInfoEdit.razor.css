@@ -6,3 +6,7 @@ div ::deep .edit-zone {
     width: 100%;
     max-width: 100%;
 }
+
+div ::deep .label-set {
+    overflow-y: auto;
+}

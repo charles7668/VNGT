@@ -218,5 +218,23 @@ namespace GameManager.Services
             });
             return mapping;
         }
+
+        public async Task<IEnumerable<string>> GetGameTagsAsync(int gameId)
+        {
+            IEnumerable<string> result = await _unitOfWork.GameInfoRepository.GetTagsByIdAsync(gameId);
+            return result;
+        }
+
+        public async Task AddTagsToGameInfoAsync(int gameId, IEnumerable<string> tags)
+        {
+            foreach (string tag in tags)
+            {
+                Tag tagEntity = await _unitOfWork.TagRepository.AddTagAsync(tag);
+                await _unitOfWork.GameInfoRepository.AddTagAsync(gameId, tagEntity);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.ClearChangeTrackerAsync();
+        }
     }
 }

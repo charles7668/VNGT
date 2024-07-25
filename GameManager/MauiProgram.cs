@@ -49,6 +49,7 @@ namespace GameManager
             builder.Services.AddScoped<IGameInfoRepository, GameInfoRepository>();
             builder.Services.AddScoped<ILibraryRepository, LibraryRepository>();
             builder.Services.AddScoped<IAppSettingRepository, AppSettingRepository>();
+            builder.Services.AddScoped<ITagRepository, TagRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IHttpService, HttpService>();
             builder.Services.AddScoped<IGameInfoProvider, VndbProvider>();

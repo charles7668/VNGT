@@ -21,7 +21,8 @@ namespace GameManager.Services
 
         Task AddGameInfoAsync(GameInfo info);
 
-        Task GetGameInfoForEachAsync(Action<GameInfo> action,CancellationToken cancellationToken,SortOrder order = SortOrder.UPLOAD_TIME);
+        Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
+            SortOrder order = SortOrder.UPLOAD_TIME);
 
         string GetDbPath();
 
@@ -44,5 +45,9 @@ namespace GameManager.Services
         Task UpdateLastPlayedByIdAsync(int id, DateTime time);
 
         Task<TextMapping?> SearchTextMappingByOriginalText(string original);
+
+        Task<IEnumerable<string>> GetGameTagsAsync(int gameId);
+
+        Task AddTagsToGameInfoAsync(int gameId, IEnumerable<string> tags);
     }
 }
