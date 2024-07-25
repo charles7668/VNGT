@@ -24,6 +24,8 @@ namespace GameManager.DB
 
         public DbSet<TextMapping> TextMapping { get; set; }
 
+        public DbSet<Tag> Tags { get; set; }
+
 
         // The following configures EF to create a Sqlite database file in the
         // special "local" folder for your platform.
@@ -41,6 +43,10 @@ namespace GameManager.DB
             modelBuilder.Entity<AppSetting>()
                 .Property(x => x.Localization)
                 .HasDefaultValue("zh-tw");
+            modelBuilder.Entity<GameInfo>()
+                .HasMany(x => x.Tags)
+                .WithMany(x => x.GameInfos)
+                .UsingEntity<GameInfoTag>();
 
             base.OnModelCreating(modelBuilder);
         }

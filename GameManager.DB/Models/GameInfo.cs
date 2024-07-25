@@ -33,5 +33,7 @@ namespace GameManager.DB.Models
         public bool IsFavorite { get; set; }
 
         public DateTime? LastPlayed { get; set; }
+
+        public List<Tag> Tags { get; set; } = [];
     }
 }
