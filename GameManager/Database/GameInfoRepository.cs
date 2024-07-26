@@ -10,48 +10,57 @@ namespace GameManager.Database
         public async Task<List<GameInfo>> GetGameInfos(SortOrder order)
         {
             if (order == SortOrder.UPLOAD_TIME)
-                return await context.GameInfos.AsNoTracking().Include(info => info.LaunchOption)
+                return await context.GameInfos
+                    .AsNoTracking()
+                    .Include(info => info.LaunchOption)
                     .OrderByDescending(x => x.UploadTime)
                     .ToListAsync();
-            return await context.GameInfos.AsNoTracking().Include(info => info.LaunchOption)
+            return await context.GameInfos
+                .AsNoTracking()
+                .Include(info => info.LaunchOption)
                 .OrderBy(x => x.GameName).ToListAsync();
         }
 
         public Task<string?> GetCoverById(int id)
         {
-            return context.GameInfos.AsNoTracking().Where(x => x.Id == id).Select(x => x.CoverPath)
+            return context.GameInfos
+                .AsNoTracking()
+                .Where(x => x.Id == id)
+                .Select(x => x.CoverPath)
                 .FirstOrDefaultAsync();
         }
 
         public async Task AddAsync(GameInfo info)
         {
-            if (context.GameInfos.AsNoTracking().Any(x => x.ExePath == info.ExePath))
+            if (await context.GameInfos
+                    .AsNoTracking()
+                    .AnyAsync(x => x.ExePath == info.ExePath))
                 throw new InvalidOperationException("Game already exists");
-            info.UploadTime = DateTime.Now;
-            context.GameInfos.Add(info);
-            await context.SaveChangesAsync();
-            context.ChangeTracker.Clear();
+            info.UploadTime = DateTime.UtcNow;
+            await context.GameInfos.AddAsync(info);
         }
 
-        public async Task EditAsync(GameInfo info)
+        public Task EditAsync(GameInfo info)
         {
             context.GameInfos.Update(info);
-            await context.SaveChangesAsync();
-            context.ChangeTracker.Clear();
+            return Task.CompletedTask;
         }
 
-        public async Task DeleteByIdAsync(int id)
+        public Task DeleteByIdAsync(int id)
         {
-            GameInfo? item = context.GameInfos.AsNoTracking().FirstOrDefault(x => x.Id == id);
+            GameInfo? item = context.GameInfos
+                .AsNoTracking()
+                .FirstOrDefault(x => x.Id == id);
             if (item == null || context.Entry(item).State == EntityState.Deleted)
-                return;
+                return Task.CompletedTask;
             context.GameInfos.Remove(item);
-            await context.SaveChangesAsync();
+            return Task.CompletedTask;
         }
 
-        public async Task<bool> CheckExePathExist(string path)
+        public Task<bool> CheckExePathExist(string path)
         {
-            return await context.GameInfos.AsNoTracking().AnyAsync(x => x.ExePath == path);
+            return context.GameInfos
+                .AnyAsync(x => x.ExePath == path);
         }
 
         public async Task UpdateLastPlayedByIdAsync(int id, DateTime time)
@@ -63,18 +72,15 @@ namespace GameManager.Database
                 return;
             info.LastPlayed = time;
             context.GameInfos.Update(info);
-            await context.SaveChangesAsync();
-            context.ChangeTracker.Clear();
         }
 
         public async Task<IEnumerable<string>> GetTagsByIdAsync(int id)
         {
             IEnumerable<string>? result = await context.GameInfos
-                .AsNoTracking()
                 .Where(x => x.Id == id)
                 .Select(x => x.Tags.Select(t => t.Name))
                 .FirstOrDefaultAsync();
-            result ??= new List<string>();
+            result ??= [];
             return result;
         }
 

@@ -20,8 +20,8 @@ namespace GameManager.Services
         public ConfigService(IUnitOfWork unitOfWork, IServiceProvider serviceProvider) : this()
         {
             _unitOfWork = unitOfWork;
-            ServiceProvider = serviceProvider;
-            AppSetting = _unitOfWork.AppSettingRepository.GetAppSettingAsync().Result;
+            _serviceProvider = serviceProvider;
+            _appSetting = _unitOfWork.AppSettingRepository.GetAppSettingAsync().Result;
             _memoryCache = new MemoryCache(new MemoryCacheOptions
             {
                 SizeLimit = 200
@@ -32,7 +32,7 @@ namespace GameManager.Services
 
         private readonly IUnitOfWork _unitOfWork = null!;
 
-        private AppSetting AppSetting { get; } = null!;
+        private readonly AppSetting _appSetting = null!;
 
         [NeedCreate]
         private string CoverFolder => Path.Combine(ConfigFolder, "covers");
@@ -45,16 +45,19 @@ namespace GameManager.Services
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VNGT", "configs");
 #endif
 
-        private IServiceProvider ServiceProvider { get; } = null!;
+        private readonly IServiceProvider _serviceProvider = null!;
 
         private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-        private IMemoryCache _memoryCache = null!;
+        private MemoryCache _memoryCache = null!;
 
         public void CreateConfigFolderIfNotExistAsync()
         {
             PropertyInfo[] properties =
-                GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                GetType()
+                    .GetProperties(BindingFlags.Public
+                                   | BindingFlags.NonPublic
+                                   | BindingFlags.Instance);
             foreach (PropertyInfo propertyInfo in properties)
             {
                 if (propertyInfo.GetCustomAttribute<NeedCreateAttribute>() == null)
@@ -65,8 +68,7 @@ namespace GameManager.Services
                     continue;
                 }
 
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
+                Directory.CreateDirectory(dir);
             }
         }
 
@@ -115,9 +117,9 @@ namespace GameManager.Services
         {
             try
             {
-                await using AsyncServiceScope scope = ServiceProvider.CreateAsyncScope();
-                IGameInfoRepository gameInfoRepo = scope.ServiceProvider
-                    .GetRequiredService<IGameInfoRepository>();
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                IGameInfoRepository gameInfoRepo = unitOfWork.GameInfoRepository;
                 string? cover = await gameInfoRepo.GetCoverById(id);
                 if (cover != null)
                 {
@@ -126,10 +128,12 @@ namespace GameManager.Services
 
                 await _semaphore.WaitAsync();
                 await gameInfoRepo.DeleteByIdAsync(id);
+                await unitOfWork.SaveChangesAsync();
             }
             finally
             {
-                _semaphore.Release();
+                if (_semaphore.CurrentCount == 0)
+                    _semaphore.Release();
             }
         }
 
@@ -137,6 +141,7 @@ namespace GameManager.Services
         {
             IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
             await gameInfoRepo.AddAsync(info);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
@@ -156,20 +161,22 @@ namespace GameManager.Services
             return Path.Combine(ConfigFolder, "logs");
         }
 
-        public Task EditGameInfo(GameInfo info)
+        public async Task EditGameInfo(GameInfo info)
         {
             IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
-            return gameInfoRepo.EditAsync(info);
+            await gameInfoRepo.EditAsync(info);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public AppSetting GetAppSetting()
         {
-            return AppSetting;
+            return _appSetting;
         }
 
         public async Task UpdateAppSettingAsync(AppSetting setting)
         {
             await _unitOfWork.AppSettingRepository.UpdateAppSettingAsync(setting);
+            await _unitOfWork.SaveChangesAsync();
             // clear cache because the data has been changed
             _memoryCache.Dispose();
             _memoryCache = new MemoryCache(new MemoryCacheOptions
@@ -183,14 +190,16 @@ namespace GameManager.Services
             return _unitOfWork.LibraryRepository.GetLibrariesAsync(cancellationToken);
         }
 
-        public Task AddLibraryAsync(Library library)
+        public async Task AddLibraryAsync(Library library)
         {
-            return _unitOfWork.LibraryRepository.AddAsync(library);
+            await _unitOfWork.LibraryRepository.AddAsync(library);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public Task DeleteLibraryByIdAsync(int id)
+        public async Task DeleteLibraryByIdAsync(int id)
         {
-            return _unitOfWork.LibraryRepository.DeleteByIdAsync(id);
+            await _unitOfWork.LibraryRepository.DeleteByIdAsync(id);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public Task<bool> CheckExePathExist(string path)
@@ -198,9 +207,10 @@ namespace GameManager.Services
             return _unitOfWork.GameInfoRepository.CheckExePathExist(path);
         }
 
-        public Task UpdateLastPlayedByIdAsync(int id, DateTime time)
+        public async Task UpdateLastPlayedByIdAsync(int id, DateTime time)
         {
-            return _unitOfWork.GameInfoRepository.UpdateLastPlayedByIdAsync(id, time);
+            await _unitOfWork.GameInfoRepository.UpdateLastPlayedByIdAsync(id, time);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)
@@ -221,7 +231,8 @@ namespace GameManager.Services
 
         public async Task<IEnumerable<string>> GetGameTagsAsync(int gameId)
         {
-            IEnumerable<string> result = await _unitOfWork.GameInfoRepository.GetTagsByIdAsync(gameId);
+            IEnumerable<string> result = await _unitOfWork.GameInfoRepository
+                .GetTagsByIdAsync(gameId);
             return result;
         }
 
@@ -234,7 +245,6 @@ namespace GameManager.Services
             }
 
             await _unitOfWork.SaveChangesAsync();
-            await _unitOfWork.ClearChangeTrackerAsync();
         }
     }
 }

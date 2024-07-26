@@ -9,7 +9,8 @@ namespace GameManager.Database
     {
         public async Task<Tag> AddTagAsync(string tag)
         {
-            Tag? existTag = await context.Tags.FirstOrDefaultAsync(x => x.Name == tag);
+            Tag? existTag = await context.Tags
+                .FirstOrDefaultAsync(x => x.Name == tag);
             if (existTag != null)
             {
                 return existTag;
