@@ -1,0 +1,7 @@
+div ::deep .mud-dialog-content {
+    padding: 0px 24px;
+}
+
+    div ::deep .mud-dialog-content .mud-input {
+        margin: 0px;
+    }

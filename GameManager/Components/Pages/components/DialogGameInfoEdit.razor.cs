@@ -4,6 +4,7 @@ using GameManager.Properties;
 using GameManager.Services;
 using Helper.Image;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using System.Diagnostics;
 using System.Globalization;
@@ -205,6 +206,28 @@ namespace GameManager.Components.Pages.components
                 return;
             Model.Tags.Remove(chip.Value);
             _tagHashSet.Remove(chip.Value);
+        }
+
+        private async Task OnAddTagClick(MouseEventArgs obj)
+        {
+            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogMultiLineInputBox>("Add Tags",
+                new DialogOptions
+                {
+                    BackdropClick = false
+                });
+            DialogResult? dialogResult = await dialogReference.Result;
+            if (dialogResult.Canceled)
+                return;
+            if (dialogResult.Data is not string tags)
+                return;
+            string[] split = tags.Split('\n');
+            foreach (string s in split)
+            {
+                string tag = s.Trim();
+                if (string.IsNullOrEmpty(tag))
+                    continue;
+                TryAddTag(s);
+            }
         }
 
         public class FormModel

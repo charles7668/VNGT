@@ -1,0 +1,26 @@
+﻿@using GameManager.Properties
+<div>
+    <MudDialog>
+        <DialogContent>
+            <MudTextField T="string"
+                          HelperText="every line is a tag"
+                          @bind-Text="InputText"
+                          Variant="Variant.Outlined"
+                          Immediate="true"
+                          Lines="10" />
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="OnOk"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary">
+                @Resources.Dialog_Button_Yes
+            </MudButton>
+            <MudButton OnClick="OnCancel">@Resources.Dialog_Button_Cancel</MudButton>
+        </DialogActions>
+    </MudDialog>
+</div>
+<style>
+    .mud-dialog .mud-dialog-title {
+        padding: 0px 24px;
+    }
+</style>

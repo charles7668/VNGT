@@ -74,7 +74,11 @@
                             </MudToolBar>
                         </MudPaper>
                         <MudPaper Elevation="0">
-                            <MudText Typo="Typo.h4">Tag Sets</MudText>
+                            <MudStack Row="true">
+                                <MudText Typo="Typo.h4">Tag Sets</MudText>
+                                <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                               OnClick="OnAddTagClick"></MudIconButton>
+                            </MudStack>
                             <MudPaper MaxHeight="100px" Elevation="0" Outlined="true" Class="label-set">
                                 <MudStack Spacing="1" Row="true" Wrap="Wrap.Wrap">
                                     @foreach (var tag in Model.Tags)
