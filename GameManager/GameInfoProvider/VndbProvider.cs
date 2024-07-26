@@ -1,5 +1,4 @@
 ﻿using GameManager.DB.Models;
-using GameManager.Services;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 using System.Net;
@@ -8,9 +7,13 @@ using System.Text.Json;
 
 namespace GameManager.GameInfoProvider
 {
-    public class VndbProvider(IHttpService httpService, ILogger<VndbProvider> logger) : IGameInfoProvider
+    public class VndbProvider(ILogger<VndbProvider> logger) : IGameInfoProvider
     {
         private const string VN_REQUEST_URL = "https://api.vndb.org/kana/vn";
+
+        private readonly HttpClient _httpClient = RegisterHttpClient();
+
+        public string ProviderName { get; } = "VNDB";
 
         public async Task<(List<GameInfo>? infoList, bool hasMore)> FetchGameSearchListAsync(string searchText,
             int itemPerPage, int pageNum)
@@ -140,14 +143,41 @@ namespace GameManager.GameInfoProvider
             throw new Exception("Failed to fetch data from VNDB");
         }
 
+        private string BuildQueryString(List<string> filter, string fields, int itemPerPage = 10, int pageNum = 1)
+        {
+            var query = new
+            {
+                filters = filter,
+                fields,
+                sort = "id",
+                reverse = false,
+                results = itemPerPage,
+                page = pageNum,
+                user = (object?)null,
+                count = false,
+                compact_filters = false,
+                normalized_filters = false
+            };
+            return JsonSerializer.Serialize(query);
+        }
+
+        private static HttpClient RegisterHttpClient()
+        {
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "VNGT");
+            client.DefaultRequestHeaders.Add("Accept", "*/*");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            client.DefaultRequestHeaders.Add("Accept-Language", "*");
+            return client;
+        }
+
         private async Task<HttpResponseMessage> Request(string queryString)
         {
-            HttpClient client = httpService.DefaultClient;
             HttpRequestMessage request = new(HttpMethod.Post, VN_REQUEST_URL)
             {
                 Content = new StringContent(queryString, Encoding.UTF8, "application/json")
             };
-            HttpResponseMessage response = await client.SendAsync(request);
+            HttpResponseMessage response = await _httpClient.SendAsync(request);
             return response;
         }
 
@@ -175,24 +205,6 @@ namespace GameManager.GameInfoProvider
             string result = await reader.ReadToEndAsync();
 
             return result;
-        }
-
-        private string BuildQueryString(List<string> filter, string fields, int itemPerPage = 10, int pageNum = 1)
-        {
-            var query = new
-            {
-                filters = filter,
-                fields,
-                sort = "id",
-                reverse = false,
-                results = itemPerPage,
-                page = pageNum,
-                user = (object?)null,
-                count = false,
-                compact_filters = false,
-                normalized_filters = false
-            };
-            return JsonSerializer.Serialize(query);
         }
     }
 }

@@ -45,10 +45,10 @@ namespace GameManager
             builder.Services.AddTransient(_ =>
                 new AppDbContext($"Data Source={config.GetDbPath()}"));
 
-
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IHttpService, HttpService>();
+
             builder.Services.AddScoped<IGameInfoProvider, VndbProvider>();
+            builder.Services.AddScoped<GameInfoProviderFactory, GameInfoProviderFactory>();
 
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()

@@ -15,7 +15,7 @@ namespace GameManager.Components.Pages.components
         public string SearchName { get; set; } = null!;
 
         [Inject]
-        private IGameInfoProvider GameInfoProvider { get; set; } = null!;
+        private GameInfoProviderFactory GameInfoProviderFactory { get; set; } = null!;
 
         [CascadingParameter]
         public MudDialogInstance MudDialog { get; set; } = null!;
@@ -39,7 +39,7 @@ namespace GameManager.Components.Pages.components
             {
                 int newPage = _page + direction;
                 (List<GameInfo>? infoList, bool hasMore) =
-                    await GameInfoProvider.FetchGameSearchListAsync(SearchName, 10, newPage);
+                    await GameInfoProviderFactory.GetProvider("VNDB").FetchGameSearchListAsync(SearchName, 10, newPage);
                 if (infoList == null)
                 {
                     await DialogService.ShowMessageBox("Error", "parse result failed", "cancel");

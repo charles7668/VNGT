@@ -23,7 +23,7 @@ namespace GameManager.Components.Pages.components
         private IDialogService DialogService { get; set; } = null!;
 
         [Inject]
-        private IGameInfoProvider GameInfoProvider { get; set; } = null!;
+        private GameInfoProviderFactory GameInfoProviderFactory { get; set; } = null!;
 
         private string CoverPath => string.IsNullOrEmpty(Model.Cover)
             ? "/images/no-image.webp"
@@ -129,7 +129,7 @@ namespace GameManager.Components.Pages.components
             try
             {
                 (List<GameInfo>? infoList, bool hasMore) =
-                    await GameInfoProvider.FetchGameSearchListAsync(Model.GameName, 10, 1);
+                    await GameInfoProviderFactory.GetProvider("VNDB").FetchGameSearchListAsync(Model.GameName, 10, 1);
                 if (infoList == null || infoList.Count == 0)
                 {
                     await DialogService.ShowMessageBox("Error", Resources.Message_RelatedGameNotFound,
@@ -158,7 +158,7 @@ namespace GameManager.Components.Pages.components
                     gameId = dialogResult.Data as string ?? "";
                 }
 
-                GameInfo? info = await GameInfoProvider.FetchGameDetailByIdAsync(gameId);
+                GameInfo? info = await GameInfoProviderFactory.GetProvider("VNDB").FetchGameDetailByIdAsync(gameId);
                 if (info == null)
                     return;
                 List<string> replaceList = [];

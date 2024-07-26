@@ -31,7 +31,7 @@ namespace GameManager.Components.Pages
         private static Task? ScanTask { get; set; }
 
         [Inject]
-        private IGameInfoProvider InfoGameInfoProvider { get; set; } = null!;
+        private GameInfoProviderFactory GameInfoProviderFactory { get; set; } = null!;
 
         [Inject]
         public ISnackbar Snackbar { get; set; } = null!;
@@ -189,8 +189,11 @@ namespace GameManager.Components.Pages
                                     try
                                     {
                                         Logger.LogInformation("Start fetch information");
+                                        IGameInfoProvider provider = GameInfoProviderFactory.GetProvider("VNDB") ??
+                                                                     throw new ArgumentException(
+                                                                         "Game info provider not found : VNDB");
                                         (List<GameInfo>? infoList, bool hasMore) searchList =
-                                            await InfoGameInfoProvider.FetchGameSearchListAsync(info.GameName, 1, 1);
+                                            await provider.FetchGameSearchListAsync(info.GameName, 1, 1);
                                         if (searchList.infoList?.Count > 0)
                                         {
                                             string? id = searchList.infoList[0].GameInfoId;
@@ -198,7 +201,7 @@ namespace GameManager.Components.Pages
                                             if (id == null)
                                                 continue;
                                             GameInfo? tempInfo =
-                                                await InfoGameInfoProvider.FetchGameDetailByIdAsync(id);
+                                                await provider.FetchGameDetailByIdAsync(id);
                                             Logger.LogInformation("Scan result {Info}", tempInfo);
                                             if (tempInfo == null)
                                                 continue;
