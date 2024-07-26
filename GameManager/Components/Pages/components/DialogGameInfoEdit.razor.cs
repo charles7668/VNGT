@@ -181,6 +181,8 @@ namespace GameManager.Components.Pages.components
                 info.LaunchOption ??= new LaunchOption();
                 info.LaunchOption.RunAsAdmin = Model.RunAsAdmin;
                 info.LaunchOption.LaunchWithLocaleEmulator = Model.LeConfig;
+                foreach (Tag tag in info.Tags)
+                    TryAddTag(tag.Name);
                 DataMapService.Map(info, Model);
                 StateHasChanged();
             }

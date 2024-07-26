@@ -72,7 +72,8 @@ namespace GameManager.GameInfoProvider
             while (tryCount < 3)
             {
                 string queryString = BuildQueryString(["id", "=", gameId],
-                    "id , titles.title , developers.name , image.url , description , released", 1);
+                    "id , titles.title , developers.name , image.url , description , released , staff{name,original,role}",
+                    1);
                 HttpResponseMessage response = await Request(queryString);
                 logger.LogDebug("Status Code : {StatusCode}", response.StatusCode);
                 if (response.StatusCode == HttpStatusCode.OK)
@@ -117,12 +118,39 @@ namespace GameManager.GameInfoProvider
                             released = DateTime.Parse(dateString ?? "");
                         }
 
+                        JsonElement staffElements = item.GetProperty("staff");
+                        List<string> tags = [];
+                        foreach (JsonElement staffElement in staffElements.EnumerateArray())
+                        {
+                            if (!staffElement.TryGetProperty("role", out JsonElement roleProp) ||
+                                (roleProp.GetString() != "art" && roleProp.GetString() != "chardesign"))
+                                continue;
+                            if (staffElement.TryGetProperty("original", out JsonElement originalProp))
+                            {
+                                string? originString = originalProp.GetString();
+                                if (originString != null)
+                                    tags.Add(originString);
+                            }
+                            else if (staffElement.TryGetProperty("name", out JsonElement nameProp))
+                            {
+                                string? nameString = nameProp.GetString();
+                                if (nameString != null)
+                                    tags.Add(nameString);
+                            }
+                        }
+
+                        tags = tags.Distinct().ToList();
+
                         gameInfo.CoverPath = image;
                         gameInfo.GameName = title;
                         gameInfo.GameInfoId = id;
                         gameInfo.Developer = develop;
                         gameInfo.Description = description;
                         gameInfo.DateTime = released;
+                        gameInfo.Tags.AddRange(tags.Select(x => new Tag
+                        {
+                            Name = x
+                        }));
                     }
 
                     return gameInfo;
