@@ -33,7 +33,11 @@ namespace GameManager.DB
         // special "local" folder for your platform.
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.EnableSensitiveDataLogging();
+            // enable sensitive data logging if needed
+            // options.EnableSensitiveDataLogging().LogTo((log) =>
+            // {
+            //     Debugger.Log(1, "sql", log);
+            // }, LogLevel.Information);
             options.UseSqlite(_connectString);
         }
 
