@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 using Serilog;
-using Serilog.Extensions.Logging;
+using Serilog.Filters;
 using Serilog.Formatting.Compact;
 
 namespace GameManager
@@ -54,6 +54,7 @@ namespace GameManager
                 .Enrich.FromLogContext()
 #if DEBUG
                 .MinimumLevel.Debug()
+                .Filter.ByExcluding(Matching.FromSource("Microsoft.AspNetCore.Components"))
 #else
                 .MinimumLevel.Information()
 #endif
@@ -66,7 +67,7 @@ namespace GameManager
             builder.Services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.ClearProviders();
-                loggingBuilder.AddProvider(new SerilogLoggerProvider(Log.Logger));
+                loggingBuilder.AddSerilog(Log.Logger);
             });
 
             return builder.Build();
