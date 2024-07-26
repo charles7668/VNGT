@@ -5,6 +5,7 @@ using GameManager.Services;
 using Helper;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web.Virtualization;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using MudBlazor;
 using System.Diagnostics;
@@ -28,6 +29,9 @@ namespace GameManager.Components.Pages
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;
 
+        [Inject]
+        private ILogger<Home> Logger { get; set; } = null!;
+
         private bool IsSelectionMode { get; set; }
 
         [Inject]
@@ -44,7 +48,7 @@ namespace GameManager.Components.Pages
         private Virtualize<IEnumerable<ViewInfo>>? VirtualizeComponent { get; set; }
 
         private SortOrder _currentOrder = SortOrder.UPLOAD_TIME;
-
+        
         public void Dispose()
         {
             JsRuntime.InvokeVoidAsync("resizeHandlers.removeResizeListener");
@@ -147,6 +151,7 @@ namespace GameManager.Components.Pages
 
         private async Task OnDeleteGameCard(int id)
         {
+            Logger.LogInformation("Delete game card with id {Id}", id);
             DialogParameters<DialogConfirm> parameters = new()
             {
                 { x => x.Content, "Are you sure you want to delete?" }
@@ -168,10 +173,11 @@ namespace GameManager.Components.Pages
                 hasChange = true;
                 try
                 {
-                    await ConfigService.DeleteGameById(id);
+                    await ConfigService.DeleteGameInfoByIdAsync(id);
                 }
                 catch (Exception e)
                 {
+                    Logger.LogError(e, "Error occurred when deleting game info : {Exception}", e.ToString());
                     await DialogService.ShowMessageBox("Error", $"{e.Message}", cancelText: "Cancel");
                     return;
                 }
@@ -216,6 +222,7 @@ namespace GameManager.Components.Pages
 
         private async Task OnDelete()
         {
+            Logger.LogInformation("Bulk Delete button clicked");
             DialogParameters<DialogConfirm> parameters = new()
             {
                 { x => x.Content, "Are you sure you want to delete?" }
@@ -235,30 +242,26 @@ namespace GameManager.Components.Pages
                 _deleteTaskCancellationTokenSource = new CancellationTokenSource();
                 await Task.Run(async () =>
                 {
-                    var deleteItems = ViewGameInfos.Where(info => info.IsSelected).ToList();
+                    var deleteItems = ViewGameInfos.Where(info => info.IsSelected)
+                        .Select(x => new KeyValuePair<int, ViewInfo>(x.Info.Id, x)).ToDictionary();
                     CancellationToken token = _deleteTaskCancellationTokenSource.Token;
-
-                    await Parallel.ForEachAsync(deleteItems, new ParallelOptions
-                    {
-                        CancellationToken = token
-                    }, async (item, cancellationToken) =>
-                    {
-                        if (cancellationToken.IsCancellationRequested)
-                            return;
-                        await ConfigService.DeleteGameById(item.Info.Id);
-                        ViewGameInfos.Remove(item);
-                    });
+                    var idList = deleteItems.Select(x => x.Key).ToList();
+                    await ConfigService.DeleteGameInfoByIdListAsync(idList, token, _ => { });
                 }, _deleteTaskCancellationTokenSource.Token);
+            }
+            catch (TaskCanceledException e)
+            {
+                Logger.LogInformation(e, "Task canceled");
             }
             catch (Exception e)
             {
-                if (!_deleteTaskCancellationTokenSource.Token.IsCancellationRequested)
-                    await DialogService.ShowMessageBox("Error", e.Message, cancelText: "Cancel");
+                Logger.LogError(e, "Error occurred when deleting game info : {Exception}", e.ToString());
+                await DialogService.ShowMessageBox("Error", e.Message, cancelText: "Cancel");
             }
             finally
             {
                 IsDeleting = false;
-                StateHasChanged();
+                await OnRefreshClick();
             }
         }
 

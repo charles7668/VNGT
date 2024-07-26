@@ -17,7 +17,10 @@ namespace GameManager.Services
 
         Task DeleteCoverImage(string? coverName);
 
-        Task DeleteGameById(int id);
+        Task DeleteGameInfoByIdAsync(int id);
+
+        public Task DeleteGameInfoByIdListAsync(IEnumerable<int> idList, CancellationToken cancellationToken,
+            Action<int> onDeleteCallback);
 
         Task AddGameInfoAsync(GameInfo info);
 

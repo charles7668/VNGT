@@ -113,7 +113,7 @@ namespace GameManager.Services
             File.Delete(fullPath);
         }
 
-        public async Task DeleteGameById(int id)
+        public async Task DeleteGameInfoByIdAsync(int id)
         {
             try
             {
@@ -127,14 +127,44 @@ namespace GameManager.Services
                 }
 
                 await _semaphore.WaitAsync();
-                await gameInfoRepo.DeleteByIdAsync(id);
-                await unitOfWork.SaveChangesAsync();
+                await _unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
             }
             finally
             {
+                await _unitOfWork.SaveChangesAsync();
                 if (_semaphore.CurrentCount == 0)
                     _semaphore.Release();
             }
+        }
+
+        public async Task DeleteGameInfoByIdListAsync(IEnumerable<int> idList, CancellationToken cancellationToken,
+            Action<int> onDeleteCallback)
+        {
+            await Parallel.ForEachAsync(idList, cancellationToken, async (id, token) =>
+            {
+                token.ThrowIfCancellationRequested();
+                try
+                {
+                    await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                    IGameInfoRepository gameInfoRepo = unitOfWork.GameInfoRepository;
+                    string? cover = await gameInfoRepo.GetCoverById(id);
+                    if (cover != null)
+                    {
+                        await DeleteCoverImage(cover);
+                    }
+
+                    await _semaphore.WaitAsync(token);
+                    await _unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
+                }
+                finally
+                {
+                    if (_semaphore.CurrentCount == 0)
+                        _semaphore.Release();
+                    onDeleteCallback(id);
+                }
+            });
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task AddGameInfoAsync(GameInfo info)
