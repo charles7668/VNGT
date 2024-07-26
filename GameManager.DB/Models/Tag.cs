@@ -9,6 +9,7 @@ namespace GameManager.DB.Models
         public int Id { get; set; }
 
         [Required]
+        [MaxLength(100)]
         public string Name { get; set; } = null!;
 
         public List<GameInfo> GameInfos { get; set; } = [];

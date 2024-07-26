@@ -7,7 +7,7 @@ namespace GameManager.Database
     {
         public Task<bool> CheckGameHasTag(int tagId, int gameId)
         {
-            return context.GameInfoTag.AnyAsync(x => x.TagId == tagId && x.GameInfoId == gameId);
+            return context.GameInfoTags.AnyAsync(x => x.TagId == tagId && x.GameInfoId == gameId);
         }
     }
 }

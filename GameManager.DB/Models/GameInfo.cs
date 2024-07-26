@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace GameManager.DB.Models
 {
@@ -8,18 +9,25 @@ namespace GameManager.DB.Models
     {
         public int Id { get; set; }
 
+        [MaxLength(100)]
         public string? GameInfoId { get; set; }
 
+        [MaxLength(100)]
         public string? GameName { get; set; }
 
+        [MaxLength(100)]
         public string? Developer { get; set; }
 
+        [MaxLength(260)]
         public string? ExePath { get; set; }
 
+        [MaxLength(260)]
         public string? ExeFile { get; set; }
 
+        [MaxLength(260)]
         public string? CoverPath { get; set; }
 
+        [MaxLength(10000)]
         public string? Description { get; set; }
 
         public DateTime? DateTime { get; set; }

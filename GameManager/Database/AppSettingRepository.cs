@@ -33,7 +33,7 @@ namespace GameManager.Database
         public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)
         {
             AppSetting appSetting = await GetAppSettingAsync();
-            return await dbContext.TextMapping
+            return await dbContext.TextMappings
                 .Where(x => x.Original == original)
                 .FirstOrDefaultAsync(x => x.AppSettingId == appSetting.Id);
         }

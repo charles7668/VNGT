@@ -22,9 +22,9 @@ namespace GameManager.DB
 
         public DbSet<AppSetting> AppSettings { get; set; }
 
-        public DbSet<TextMapping> TextMapping { get; set; }
+        public DbSet<TextMapping> TextMappings { get; set; }
 
-        public DbSet<GameInfoTag> GameInfoTag { get; set; }
+        public DbSet<GameInfoTag> GameInfoTags { get; set; }
 
         public DbSet<Tag> Tags { get; set; }
 
