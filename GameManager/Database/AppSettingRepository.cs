@@ -1,6 +1,8 @@
-﻿using GameManager.DB;
+﻿using GameManager.Builders;
+using GameManager.DB;
 using GameManager.DB.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace GameManager.Database
 {
@@ -14,8 +16,11 @@ namespace GameManager.Database
                 .FirstOrDefaultAsync();
             if (appSetting != null)
                 return appSetting;
-            appSetting = new AppSetting();
-            dbContext.AppSettings.Add(appSetting);
+            appSetting = AppSettingBuilder.CreateDefault().Build();
+            EntityEntry<AppSetting> entityEntry = dbContext.AppSettings.Add(appSetting);
+            await dbContext.SaveChangesAsync();
+            appSetting = entityEntry.Entity;
+            entityEntry.State = EntityState.Detached;
             return appSetting;
         }
 
