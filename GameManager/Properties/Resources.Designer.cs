@@ -295,6 +295,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Tag 的當地語系化字串。
+        /// </summary>
+        internal static string Home_Filter_Tag {
+            get {
+                return ResourceManager.GetString("Home.Filter.Tag", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Refresh 的當地語系化字串。
         /// </summary>
         internal static string Home_Refresh {

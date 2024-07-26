@@ -213,6 +213,9 @@
   <data name="Home.SortBy.UploadTime" xml:space="preserve">
     <value>上傳時間</value>
   </data>
+  <data name="Home.Filter.Tag" xml:space="preserve">
+    <value>標籤</value>
+  </data>
   <data name="Home_SortBy_Favorite" xml:space="preserve">
     <value>收藏</value>
   </data>

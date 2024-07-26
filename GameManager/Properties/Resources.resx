@@ -213,6 +213,9 @@
   <data name="Home.SortBy.UploadTime" xml:space="preserve">
     <value>Upload Time</value>
   </data>
+  <data name="Home.Filter.Tag" xml:space="preserve">
+    <value>Tag</value>
+  </data>
   <data name="Home_SortBy_Favorite" xml:space="preserve">
     <value>Favorite</value>
   </data>

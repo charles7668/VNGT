@@ -25,6 +25,12 @@
                     @Resources.Home_Filter_ExePath
                 </MudCheckBox>
             </MudMenuItem>
+            <MudMenuItem>
+                <MudCheckBox T="bool"
+                             @bind-Value="SearchFilterModel.SearchTag">
+                    @Resources.Home_Filter_Tag
+                </MudCheckBox>
+            </MudMenuItem>
         </MudMenu>
         <MudTextField T="string"
                       @bind-Value="SearchText"

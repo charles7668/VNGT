@@ -109,6 +109,8 @@ namespace GameManager.Components.Pages.components
             public bool SearchDeveloper { get; set; } = true;
 
             public bool SearchExePath { get; set; } = true;
+
+            public bool SearchTag { get; set; } = true;
         }
 
         public class SearchParameter(string? searchText, SearchFilter filter)

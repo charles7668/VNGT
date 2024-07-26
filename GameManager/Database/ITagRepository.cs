@@ -7,5 +7,7 @@ namespace GameManager.Database
         Task<Tag> AddTagAsync(string tag);
 
         Task<List<string>> GetAllTagsAsync();
+
+        Task<Tag?> AnyAsync(string tagName);
     }
 }

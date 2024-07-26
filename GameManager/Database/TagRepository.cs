@@ -27,5 +27,13 @@ namespace GameManager.Database
         {
             return context.Tags.Select(x => x.Name).ToListAsync();
         }
+
+        public async Task<Tag?> AnyAsync(string tagName)
+        {
+            Tag? tag = await context.Tags
+                .Where(x => x.Name == tagName)
+                .FirstOrDefaultAsync();
+            return tag;
+        }
     }
 }

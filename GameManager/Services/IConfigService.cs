@@ -52,5 +52,7 @@ namespace GameManager.Services
         Task<IEnumerable<string>> GetGameTagsAsync(int gameId);
 
         Task AddTagsToGameInfoAsync(int gameId, IEnumerable<string> tags);
+
+        Task<bool> CheckGameInfoHasTag(int gameId, string tagName);
     }
 }

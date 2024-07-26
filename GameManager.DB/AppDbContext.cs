@@ -24,6 +24,8 @@ namespace GameManager.DB
 
         public DbSet<TextMapping> TextMapping { get; set; }
 
+        public DbSet<GameInfoTag> GameInfoTag { get; set; }
+
         public DbSet<Tag> Tags { get; set; }
 
 

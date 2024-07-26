@@ -276,5 +276,19 @@ namespace GameManager.Services
 
             await _unitOfWork.SaveChangesAsync();
         }
+
+        public async Task<bool> CheckGameInfoHasTag(int gameId, string tagName)
+        {
+            AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            Tag? tag = await unitOfWork.TagRepository.AnyAsync(tagName);
+            if (tag == null)
+            {
+                return false;
+            }
+
+            bool hasTag = await unitOfWork.GameInfoTagRepository.CheckGameHasTag(tag.Id, gameId);
+            return hasTag;
+        }
     }
 }

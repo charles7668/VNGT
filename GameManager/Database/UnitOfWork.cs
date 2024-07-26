@@ -12,6 +12,8 @@ namespace GameManager.Database
 
         public ITagRepository TagRepository { get; } = new TagRepository(context);
 
+        public IGameInfoTagRepository GameInfoTagRepository { get; } = new GameInfoTagRepository(context);
+
         public Task<int> SaveChangesAsync()
         {
             return context.SaveChangesAsync();

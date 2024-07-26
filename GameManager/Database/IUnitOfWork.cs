@@ -10,6 +10,8 @@
 
         ITagRepository TagRepository { get; }
 
+        IGameInfoTagRepository GameInfoTagRepository { get; }
+
         Task<int> SaveChangesAsync();
 
         Task ClearChangeTrackerAsync();

@@ -192,12 +192,12 @@ namespace GameManager.Components.Pages
             }
         }
 
-        private Task OnSearchInfo(ActionBar.SearchParameter parameter)
+        private async Task OnSearchInfo(ActionBar.SearchParameter parameter)
         {
             if (IsDeleting)
-                return Task.CompletedTask;
+                return;
             string pattern = parameter.SearchText?.Trim().ToLower() ?? "";
-            Parallel.ForEach(ViewGameInfos, viewInfo =>
+            await Parallel.ForEachAsync(ViewGameInfos, async (viewInfo, _) =>
             {
                 bool display = string.IsNullOrEmpty(pattern);
                 if (!display)
@@ -211,13 +211,14 @@ namespace GameManager.Components.Pages
                         display = developer.Contains(pattern);
                     if (!display && parameter.SearchFilter.SearchExePath)
                         display = exePath.Contains(pattern);
+                    if (!display && parameter.SearchFilter.SearchTag)
+                        display = await ConfigService.CheckGameInfoHasTag(viewInfo.Info.Id, pattern);
                 }
 
                 viewInfo.Display = display;
             });
 
             _ = VirtualizeComponent?.RefreshDataAsync();
-            return Task.CompletedTask;
         }
 
         private async Task OnDelete()
@@ -392,7 +393,7 @@ namespace GameManager.Components.Pages
 
         private void OnChipTagClick(string chipText)
         {
-            OnSearchInfo(new ActionBar.SearchParameter(chipText, new ActionBar.SearchFilter
+            _ = OnSearchInfo(new ActionBar.SearchParameter(chipText, new ActionBar.SearchFilter
             {
                 SearchExePath = false,
                 SearchName = false
