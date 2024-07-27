@@ -132,6 +132,7 @@ namespace GameManager.Services
             finally
             {
                 await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ClearChangeTrackerAsync();
                 if (_semaphore.CurrentCount == 0)
                     _semaphore.Release();
             }
@@ -165,6 +166,7 @@ namespace GameManager.Services
                 }
             });
             await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.ClearChangeTrackerAsync();
         }
 
         public async Task AddGameInfoAsync(GameInfo info)
@@ -172,6 +174,7 @@ namespace GameManager.Services
             IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
             await gameInfoRepo.AddAsync(info);
             await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.ClearChangeTrackerAsync();
         }
 
         public Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
@@ -196,6 +199,7 @@ namespace GameManager.Services
             IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
             await gameInfoRepo.EditAsync(info);
             await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.ClearChangeTrackerAsync();
         }
 
         public AppSetting GetAppSetting()
@@ -241,6 +245,7 @@ namespace GameManager.Services
         {
             await _unitOfWork.GameInfoRepository.UpdateLastPlayedByIdAsync(id, time);
             await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.ClearChangeTrackerAsync();
         }
 
         public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)
@@ -275,6 +280,7 @@ namespace GameManager.Services
             }
 
             await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.ClearChangeTrackerAsync();
         }
 
         public async Task<bool> CheckGameInfoHasTag(int gameId, string tagName)
