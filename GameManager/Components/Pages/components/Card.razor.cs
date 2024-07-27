@@ -140,7 +140,7 @@ namespace GameManager.Components.Pages.components
 
             DataMapService.Map(resultModel, GameInfo);
             await ConfigService.EditGameInfo(GameInfo);
-            await ConfigService.AddTagsToGameInfoAsync(GameInfo.Id, resultModel.Tags);
+            await ConfigService.UpdateGameInfoTags(GameInfo.Id, resultModel.Tags);
             StateHasChanged();
         }
 

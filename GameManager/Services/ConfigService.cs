@@ -266,14 +266,28 @@ namespace GameManager.Services
 
         public async Task<IEnumerable<string>> GetGameTagsAsync(int gameId)
         {
-            IEnumerable<string> result = await _unitOfWork.GameInfoRepository
+            IEnumerable<Tag> tags = await _unitOfWork.GameInfoRepository
                 .GetTagsByIdAsync(gameId);
+            IEnumerable<string> result = tags.Select(x => x.Name);
             return result;
         }
 
-        public async Task AddTagsToGameInfoAsync(int gameId, IEnumerable<string> tags)
+        public async Task UpdateGameInfoTags(int gameId, IEnumerable<string> tags)
         {
-            foreach (string tag in tags)
+            var tagSet = tags.ToArray().ToHashSet();
+            IEnumerable<Tag> originTags = await _unitOfWork.GameInfoRepository.GetTagsByIdAsync(gameId);
+            foreach (Tag tag in originTags)
+            {
+                if (tagSet.Contains(tag.Name))
+                {
+                    tagSet.Remove(tag.Name);
+                    continue;
+                }
+
+                await _unitOfWork.GameInfoTagRepository.RemoveGameInfoTagAsync(tag.Id, gameId);
+            }
+
+            foreach (string tag in tagSet)
             {
                 Tag tagEntity = await _unitOfWork.TagRepository.AddTagAsync(tag);
                 await _unitOfWork.GameInfoRepository.AddTagAsync(gameId, tagEntity);

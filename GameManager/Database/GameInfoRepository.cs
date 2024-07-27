@@ -74,14 +74,14 @@ namespace GameManager.Database
             context.GameInfos.Update(info);
         }
 
-        public async Task<IEnumerable<string>> GetTagsByIdAsync(int id)
+        public async Task<IEnumerable<Tag>> GetTagsByIdAsync(int id)
         {
-            IEnumerable<string>? result = await context.GameInfos
+            GameInfo? gameInfo = await context.GameInfos
                 .Where(x => x.Id == id)
-                .Select(x => x.Tags.Select(t => t.Name))
+                .Include(x => x.Tags)
+                .AsNoTracking()
                 .FirstOrDefaultAsync();
-            result ??= [];
-            return result;
+            return gameInfo == null ? [] : gameInfo.Tags;
         }
 
         public async Task AddTagAsync(int id, Tag tag)

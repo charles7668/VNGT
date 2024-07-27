@@ -22,7 +22,7 @@ namespace GameManager.Database
 
         Task UpdateLastPlayedByIdAsync(int id, DateTime time);
 
-        Task<IEnumerable<string>> GetTagsByIdAsync(int id);
+        Task<IEnumerable<Tag>> GetTagsByIdAsync(int id);
 
         Task AddTagAsync(int id, Tag tag);
     }

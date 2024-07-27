@@ -133,8 +133,13 @@ namespace GameManager.Components.Pages.components
                 return;
             try
             {
+                IGameInfoProvider? gameInfoProvider = GameInfoProviderFactory.GetProvider("VNDB");
+                if (gameInfoProvider == null)
+                {
+                    throw new ArgumentException("game info provider not found : vndb");
+                }
                 (List<GameInfo>? infoList, bool hasMore) =
-                    await GameInfoProviderFactory.GetProvider("VNDB").FetchGameSearchListAsync(Model.GameName, 10, 1);
+                    await gameInfoProvider.FetchGameSearchListAsync(Model.GameName, 10, 1);
                 if (infoList == null || infoList.Count == 0)
                 {
                     await DialogService.ShowMessageBox("Error", Resources.Message_RelatedGameNotFound,
@@ -163,7 +168,7 @@ namespace GameManager.Components.Pages.components
                     gameId = dialogResult.Data as string ?? "";
                 }
 
-                GameInfo? info = await GameInfoProviderFactory.GetProvider("VNDB").FetchGameDetailByIdAsync(gameId);
+                GameInfo? info = await gameInfoProvider.FetchGameDetailByIdAsync(gameId);
                 if (info == null)
                     return;
                 List<string> replaceList = [];
