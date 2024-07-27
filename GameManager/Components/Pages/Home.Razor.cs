@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using MudBlazor;
 using System.Diagnostics;
+using System.Web;
 
 namespace GameManager.Components.Pages
 {
@@ -36,6 +37,9 @@ namespace GameManager.Components.Pages
 
         [Inject]
         private IJSRuntime JsRuntime { get; set; } = null!;
+
+        [Parameter]
+        public string InitFilter { get; set; } = "";
 
         private int CardListWidth { get; set; }
 
@@ -69,7 +73,8 @@ namespace GameManager.Components.Pages
                     ViewGameInfos.Add(new ViewInfo
                     {
                         Info = info,
-                        Display = true
+                        Display = string.IsNullOrEmpty(InitFilter) ||
+                                  ConfigService.CheckGameInfoHasTag(info.Id, HttpUtility.UrlDecode(InitFilter)).Result
                     });
                 }, _loadingCancellationTokenSource.Token);
 

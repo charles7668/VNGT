@@ -290,5 +290,10 @@ namespace GameManager.Services
             bool hasTag = await unitOfWork.GameInfoTagRepository.CheckGameHasTag(tag.Id, gameId);
             return hasTag;
         }
+
+        public async Task<IEnumerable<string>> GetTagsAsync()
+        {
+            return await _unitOfWork.TagRepository.GetAllTagsAsync();
+        }
     }
 }

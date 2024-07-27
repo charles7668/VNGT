@@ -1,0 +1,21 @@
+﻿@page "/tagset"
+
+<div id="tag-set">
+    <MudStack id="tag-set-stack">
+        <h1 class="flex-grow-0">@Resources.TagSetPage_Title</h1>
+        <MudDivider Class="flex-grow-0" />
+        <div class="scrollable flex-grow-1">
+            <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
+                @foreach (var tag in Tags)
+                {
+                    <MudChip T="string"
+                             Variant="Variant.Filled"
+                             Color="Color.Primary"
+                             OnClick="_ => { OnChipClick(tag); }">
+                        @tag
+                    </MudChip>
+                }
+            </MudStack>
+        </div>
+    </MudStack>
+</div>

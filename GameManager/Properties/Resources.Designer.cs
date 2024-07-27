@@ -493,6 +493,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Tag Set 的當地語系化字串。
+        /// </summary>
+        internal static string NavMenu_TagSet {
+            get {
+                return ResourceManager.GetString("NavMenu.TagSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Tools 的當地語系化字串。
         /// </summary>
         internal static string NavMenu_Tools {
@@ -552,6 +561,15 @@ namespace GameManager.Properties {
         internal static string Settings_Caption_TextMapping {
             get {
                 return ResourceManager.GetString("Settings.Caption.TextMapping", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Tag Set 的當地語系化字串。
+        /// </summary>
+        internal static string TagSetPage_Title {
+            get {
+                return ResourceManager.GetString("TagSetPage.Title", resourceCulture);
             }
         }
     }

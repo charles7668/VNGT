@@ -195,6 +195,9 @@
   <data name="Home.Filter.GameName" xml:space="preserve">
     <value>遊戲名</value>
   </data>
+  <data name="Home.Filter.Tag" xml:space="preserve">
+    <value>標籤</value>
+  </data>
   <data name="Home.Refresh" xml:space="preserve">
     <value>刷新</value>
   </data>
@@ -212,9 +215,6 @@
   </data>
   <data name="Home.SortBy.UploadTime" xml:space="preserve">
     <value>上傳時間</value>
-  </data>
-  <data name="Home.Filter.Tag" xml:space="preserve">
-    <value>標籤</value>
   </data>
   <data name="Home_SortBy_Favorite" xml:space="preserve">
     <value>收藏</value>
@@ -258,6 +258,9 @@
   <data name="NavMenu.Setting" xml:space="preserve">
     <value>設定</value>
   </data>
+  <data name="NavMenu.TagSet" xml:space="preserve">
+    <value>標籤集</value>
+  </data>
   <data name="NavMenu_Help" xml:space="preserve">
     <value>幫助</value>
   </data>
@@ -281,5 +284,8 @@
   </data>
   <data name="Settings.Caption.TextMapping" xml:space="preserve">
     <value>文字映射</value>
+  </data>
+  <data name="TagSetPage.Title" xml:space="preserve">
+    <value>標籤集</value>
   </data>
 </root>
