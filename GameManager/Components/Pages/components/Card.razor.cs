@@ -4,6 +4,7 @@ using GameManager.Services;
 using Helper;
 using Helper.Image;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using MudBlazor;
 using MudBlazor.Utilities;
 using System.Diagnostics;
@@ -17,6 +18,9 @@ namespace GameManager.Components.Pages.components
     {
         [Inject]
         private IDialogService DialogService { get; set; } = null!;
+
+        [Inject]
+        private new ILogger<Card> Logger { get; set; } = null!;
 
         private string ClassName => new CssBuilder(Class)
             .AddClass(IsSelected ? "selection" : "")
@@ -83,6 +87,7 @@ namespace GameManager.Components.Pages.components
         {
             if (GameInfo == null)
                 return;
+            Logger.LogInformation("on edit click");
             var inputModel = new DialogGameInfoEdit.FormModel();
             DataMapService.Map(GameInfo, inputModel);
             inputModel.Tags = (await ConfigService.GetGameTagsAsync(GameInfo.Id)).ToList();
@@ -129,6 +134,7 @@ namespace GameManager.Components.Pages.components
             }
             catch (Exception e)
             {
+                Logger.LogError("Error : {Message}" , e.ToString());
                 await DialogService.ShowMessageBox("Error", $"{e.Message}", cancelText: "Cancel");
             }
 
@@ -143,6 +149,7 @@ namespace GameManager.Components.Pages.components
             Debug.Assert(GameInfo != null);
             if (GameInfo.ExePath == null)
                 return;
+            Logger.LogInformation("Open in explorer click");
             try
             {
                 // using "explorer.exe" and send path
@@ -150,6 +157,7 @@ namespace GameManager.Components.Pages.components
             }
             catch (Exception ex)
             {
+                Logger.LogError("Error : {Message}", ex.ToString());
                 DialogService.ShowMessageBox("Error", ex.Message, cancelText: Resources.Dialog_Button_Cancel);
             }
         }
@@ -158,6 +166,7 @@ namespace GameManager.Components.Pages.components
         {
             if (GameInfo == null)
                 return;
+            Logger.LogInformation("Delete click");
             if (OnDeleteEventCallback.HasDelegate)
                 await OnDeleteEventCallback.InvokeAsync(GameInfo.Id);
         }
@@ -169,6 +178,7 @@ namespace GameManager.Components.Pages.components
                 Snackbar.Add(Resources.Message_NoExecutionFile, Severity.Warning);
                 return;
             }
+            Logger.LogInformation("Launch click");
 
             if (GameInfo.ExeFile is null or "Not Set")
             {
@@ -199,6 +209,7 @@ namespace GameManager.Components.Pages.components
                 }
                 catch (Exception e)
                 {
+                    Logger.LogError("Error : {Message}", e.ToString());
                     Snackbar.Add($"Error: {e.Message}", Severity.Error);
                 }
 
@@ -247,6 +258,7 @@ namespace GameManager.Components.Pages.components
             }
             catch (Exception e)
             {
+                Logger.LogError("Error : {Message}", e.ToString());
                 Snackbar.Add($"Error: {e.Message}", Severity.Error);
             }
         }

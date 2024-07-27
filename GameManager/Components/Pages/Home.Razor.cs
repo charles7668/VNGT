@@ -90,6 +90,7 @@ namespace GameManager.Components.Pages
         {
             if (IsDeleting)
                 return;
+            Logger.LogInformation("Add new game button clicked");
             var inputModel = new DialogGameInfoEdit.FormModel
             {
                 GameName = Path.GetFileName(Path.GetDirectoryName(exePath)) ?? "null",
@@ -125,6 +126,7 @@ namespace GameManager.Components.Pages
                 }
                 catch (Exception e)
                 {
+                    Logger.LogError(e, "Error occurred when adding cover image : {Exception}", e.ToString());
                     await DialogService.ShowMessageBox(
                         "Error",
                         $"{e.Message}"
@@ -139,6 +141,7 @@ namespace GameManager.Components.Pages
             }
             catch (Exception e)
             {
+                Logger.LogError(e, "Error occurred when adding game info : {Exception}", e.ToString());
                 SnakeBar.Add(e.Message, Severity.Error);
                 IsLoading = false;
                 _ = InvokeAsync(StateHasChanged);

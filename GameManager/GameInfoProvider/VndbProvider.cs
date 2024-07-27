@@ -60,9 +60,12 @@ namespace GameManager.GameInfoProvider
 
                 string message = await HttpContentHelper.DecompressContent(response.Content);
 
+                logger.LogError("Failed to fetch data from VNDB with code : {StatusCode} \n{Message}", response.StatusCode,
+                    message);
                 throw new Exception($"Failed to fetch data from VNDB with code : {response.StatusCode} \n{message}");
             }
 
+            logger.LogError("Failed to fetch data from VNDB with {TryCount} time retry" , tryCount);
             throw new Exception("Failed to fetch data from VNDB");
         }
 
@@ -167,10 +170,14 @@ namespace GameManager.GameInfoProvider
                 }
 
                 string errorMessage = await HttpContentHelper.DecompressContent(response.Content);
+
+                logger.LogError("Failed to fetch data from VNDB with code : {StatusCode} \n{Message}", response.StatusCode,
+                    errorMessage);
                 throw new Exception(
                     $"Failed to fetch data from VNDB with code : {response.StatusCode} \n{errorMessage}");
             }
 
+            logger.LogError("Failed to fetch data from VNDB with {TryCount} time retry" , tryCount);
             throw new Exception("Failed to fetch data from VNDB");
         }
 

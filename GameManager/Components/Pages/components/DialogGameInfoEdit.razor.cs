@@ -5,6 +5,7 @@ using GameManager.Services;
 using Helper.Image;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
 using MudBlazor;
 using System.Diagnostics;
 using System.Globalization;
@@ -13,7 +14,7 @@ using System.Xml.XPath;
 
 namespace GameManager.Components.Pages.components
 {
-    public partial class DialogGameInfoEdit
+    public partial class DialogGameInfoEdit : ComponentBase
     {
         private HashSet<string> _tagHashSet = [];
 
@@ -22,6 +23,9 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private IDialogService DialogService { get; set; } = null!;
+
+        [Inject]
+        private ILogger<DialogGameInfoEdit> Logger { get; set; } = null!;
 
         [Inject]
         private GameInfoProviderFactory GameInfoProviderFactory { get; set; } = null!;
@@ -189,6 +193,7 @@ namespace GameManager.Components.Pages.components
             }
             catch (Exception e)
             {
+                Logger.LogError(e, "Failed to fetch game info {Exception}", e.ToString());
                 await DialogService.ShowMessageBox("Error", e.Message, Resources.Dialog_Button_Cancel);
             }
         }
