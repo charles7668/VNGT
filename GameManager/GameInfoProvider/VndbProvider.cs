@@ -129,14 +129,17 @@ namespace GameManager.GameInfoProvider
                             {
                                 string? originString = originalProp.GetString();
                                 if (originString != null)
+                                {
                                     tags.Add(originString);
+                                    continue;
+                                }
                             }
-                            else if (staffElement.TryGetProperty("name", out JsonElement nameProp))
-                            {
-                                string? nameString = nameProp.GetString();
-                                if (nameString != null)
-                                    tags.Add(nameString);
-                            }
+
+                            if (!staffElement.TryGetProperty("name", out JsonElement nameProp))
+                                continue;
+                            string? nameString = nameProp.GetString();
+                            if (nameString != null)
+                                tags.Add(nameString);
                         }
 
                         tags = tags.Distinct().ToList();
