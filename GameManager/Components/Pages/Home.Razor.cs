@@ -60,32 +60,57 @@ namespace GameManager.Components.Pages
             _loadingCancellationTokenSource.Cancel();
         }
 
+        #region Lifecycle
+
         protected override async Task OnInitializedAsync()
         {
-            _objRef = DotNetObjectReference.Create(this);
-            await JsRuntime.InvokeVoidAsync("resizeHandlers.addResizeListener", _objRef);
-            await base.OnInitializedAsync();
-            _loadingCancellationTokenSource = new CancellationTokenSource();
-            _ = Task.Run(async () =>
+            try
             {
-                Task loadTask = ConfigService.GetGameInfoForEachAsync(info =>
+                _objRef = DotNetObjectReference.Create(this);
+                await JsRuntime.InvokeVoidAsync("resizeHandlers.addResizeListener", _objRef);
+                await base.OnInitializedAsync();
+                _loadingCancellationTokenSource = new CancellationTokenSource();
+                _ = Task.Run(async () =>
                 {
-                    ViewGameInfos.Add(new ViewInfo
+                    Task loadTask = ConfigService.GetGameInfoForEachAsync(info =>
                     {
-                        Info = info,
-                        Display = string.IsNullOrEmpty(InitFilter) ||
-                                  ConfigService.CheckGameInfoHasTag(info.Id, HttpUtility.UrlDecode(InitFilter)).Result
-                    });
-                }, _loadingCancellationTokenSource.Token);
+                        ViewGameInfos.Add(new ViewInfo
+                        {
+                            Info = info,
+                            Display = string.IsNullOrEmpty(InitFilter) ||
+                                      ConfigService.CheckGameInfoHasTag(info.Id, HttpUtility.UrlDecode(InitFilter))
+                                          .Result
+                        });
+                    }, _loadingCancellationTokenSource.Token);
 
-                await loadTask;
-                IsLoading = false;
-                await InvokeAsync(StateHasChanged);
-                ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
-                CardListWidth = await getWidthTask;
-            }, _loadingCancellationTokenSource.Token);
+                    await loadTask;
+                    IsLoading = false;
+                    await InvokeAsync(StateHasChanged);
+                    ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
+                    CardListWidth = await getWidthTask;
+                }, _loadingCancellationTokenSource.Token);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error occurred when initializing Home page : {Exception}", ex.ToString());
+                throw;
+            }
         }
 
+        protected override void OnParametersSet()
+        {
+            try
+            {
+                base.OnParametersSet();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error occurred when setting parameters : {Exception}", ex.ToString());
+                throw;
+            }
+        }
+
+        #endregion
         private async Task AddNewGame(string exePath)
         {
             if (IsDeleting)
