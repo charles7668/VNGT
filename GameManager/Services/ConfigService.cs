@@ -194,6 +194,11 @@ namespace GameManager.Services
             return Path.Combine(ConfigFolder, "logs");
         }
 
+        public string GetToolPath()
+        {
+            return Path.Combine(ConfigFolder, "tools");
+        }
+
         public async Task EditGameInfo(GameInfo info)
         {
             IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;

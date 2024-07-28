@@ -1,4 +1,8 @@
-﻿namespace Helper
+﻿using System.Diagnostics;
+using System.Reflection;
+using System.Xml.Linq;
+
+namespace Helper
 {
     public static class FileHelper
     {

@@ -180,6 +180,12 @@
   <data name="GameEditorDialog.RunAsAdmin" xml:space="preserve">
     <value>RunAsAdmin</value>
   </data>
+  <data name="GameEditorDialog.RunWithVNGTTranslator" xml:space="preserve">
+    <value>Run with VNGTTranslator</value>
+  </data>
+  <data name="GameEditorDialog.VNGTTranslatorNeedAdmin" xml:space="preserve">
+    <value>VNGTTranslator need amin</value>
+  </data>
   <data name="Home.AddGame" xml:space="preserve">
     <value>Add</value>
   </data>
@@ -248,6 +254,9 @@
   </data>
   <data name="Message.UpdateSuccess" xml:space="preserve">
     <value>Update Succeeded</value>
+  </data>
+  <data name="Message.VNGTTranslatorNotInstalled" xml:space="preserve">
+    <value>VNGTTranslator is not installed. Please go to the tools page to download it.</value>
   </data>
   <data name="NavMenu.Game" xml:space="preserve">
     <value>Game</value>

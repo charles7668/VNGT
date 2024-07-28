@@ -17,6 +17,8 @@ namespace GameManager.Services
             dest.LaunchOption ??= new LaunchOption();
             dest.LaunchOption.RunAsAdmin = src.RunAsAdmin;
             dest.LaunchOption.LaunchWithLocaleEmulator = src.LeConfig;
+            dest.LaunchOption.RunWithVNGTTranslator = src.RunWithVNGTTranslator;
+            dest.LaunchOption.IsVNGTTranslatorNeedAdmin = src.IsVNGTTranslatorNeedAdmin;
         }
 
         public static void Map(GameInfo src, DialogGameInfoEdit.FormModel dest)
@@ -30,6 +32,8 @@ namespace GameManager.Services
             dest.DateTime = src.DateTime;
             dest.RunAsAdmin = src.LaunchOption?.RunAsAdmin ?? false;
             dest.LeConfig = src.LaunchOption?.LaunchWithLocaleEmulator ?? "None";
+            dest.RunWithVNGTTranslator = src.LaunchOption?.RunWithVNGTTranslator ?? false;
+            dest.IsVNGTTranslatorNeedAdmin = src.LaunchOption?.IsVNGTTranslatorNeedAdmin ?? false;
         }
     }
 }

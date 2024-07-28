@@ -83,6 +83,40 @@ namespace GameManager.Components.Pages.components
             }
         }
 
+        private void OnCardClick()
+        {
+            if (GameInfo == null)
+                return;
+            if (OnClick.HasDelegate)
+                OnClick.InvokeAsync(GameInfo.Id);
+        }
+
+        private Task OnCardFavoriteClick()
+        {
+            if (GameInfo == null)
+                return Task.CompletedTask;
+            GameInfo.IsFavorite = !GameInfo.IsFavorite;
+            ConfigService.EditGameInfo(GameInfo);
+            InvokeAsync(StateHasChanged);
+            return Task.CompletedTask;
+        }
+
+        private Task OnChipClick(string developer)
+        {
+            if (OnChipTagClickEvent.HasDelegate)
+                return OnChipTagClickEvent.InvokeAsync(developer);
+            return Task.CompletedTask;
+        }
+
+        private async Task OnDelete()
+        {
+            if (GameInfo == null)
+                return;
+            Logger.LogInformation("Delete click");
+            if (OnDeleteEventCallback.HasDelegate)
+                await OnDeleteEventCallback.InvokeAsync(GameInfo.Id);
+        }
+
         private async Task OnEdit()
         {
             if (GameInfo == null)
@@ -134,7 +168,7 @@ namespace GameManager.Components.Pages.components
             }
             catch (Exception e)
             {
-                Logger.LogError("Error : {Message}" , e.ToString());
+                Logger.LogError("Error : {Message}", e.ToString());
                 await DialogService.ShowMessageBox("Error", $"{e.Message}", cancelText: "Cancel");
             }
 
@@ -144,31 +178,22 @@ namespace GameManager.Components.Pages.components
             StateHasChanged();
         }
 
-        private void OnOpenInExplorer()
-        {
-            Debug.Assert(GameInfo != null);
-            if (GameInfo.ExePath == null)
-                return;
-            Logger.LogInformation("Open in explorer click");
-            try
-            {
-                // using "explorer.exe" and send path
-                Process.Start("explorer.exe", GameInfo.ExePath);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error : {Message}", ex.ToString());
-                DialogService.ShowMessageBox("Error", ex.Message, cancelText: Resources.Dialog_Button_Cancel);
-            }
-        }
-
-        private async Task OnDelete()
+        private Task OnGuideSearchClick(GuideSite site)
         {
             if (GameInfo == null)
-                return;
-            Logger.LogInformation("Delete click");
-            if (OnDeleteEventCallback.HasDelegate)
-                await OnDeleteEventCallback.InvokeAsync(GameInfo.Id);
+            {
+                return Task.CompletedTask;
+            }
+
+            string searchUrl = "https://www.google.com/search?q="
+                               + HttpUtility.UrlEncode(GameInfo.GameName + $" site:{site.SiteUrl}");
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = searchUrl,
+                UseShellExecute = true
+            };
+            Process.Start(startInfo);
+            return Task.CompletedTask;
         }
 
         private async Task OnLaunch()
@@ -178,6 +203,7 @@ namespace GameManager.Components.Pages.components
                 Snackbar.Add(Resources.Message_NoExecutionFile, Severity.Warning);
                 return;
             }
+
             Logger.LogInformation("Launch click");
 
             if (GameInfo.ExeFile is null or "Not Set")
@@ -198,10 +224,13 @@ namespace GameManager.Components.Pages.components
                     bool runAsAdmin = GameInfo.LaunchOption is { RunAsAdmin: true };
                     if (runAsAdmin)
                     {
+                        proc.StartInfo.UseShellExecute = true;
                         proc.StartInfo.Verb = "runas";
                     }
 
                     proc.Start();
+
+                    TryStartVNGTTranslator(proc.Id);
                     DateTime time = DateTime.Now;
                     await ConfigService.UpdateLastPlayedByIdAsync(GameInfo.Id, time);
                     GameInfo.LastPlayed = time;
@@ -248,10 +277,33 @@ namespace GameManager.Components.Pages.components
                 bool runAsAdmin = GameInfo.LaunchOption is { RunAsAdmin: true };
                 if (runAsAdmin)
                 {
+                    proc.StartInfo.UseShellExecute = true;
                     proc.StartInfo.Verb = "runas";
                 }
 
                 proc.Start();
+
+                await Task.Delay(500);
+                Process[] processes = Process.GetProcesses();
+                int foundPid = 0;
+                foreach (Process process in processes)
+                {
+                    try
+                    {
+                        if (string.Equals(process.MainModule?.FileName, executionFile,
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            foundPid = process.Id;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // ignore
+                    }
+                }
+
+                TryStartVNGTTranslator(foundPid);
+
                 DateTime time = DateTime.Now;
                 await ConfigService.UpdateLastPlayedByIdAsync(GameInfo.Id, time);
                 GameInfo.LastPlayed = time;
@@ -261,48 +313,55 @@ namespace GameManager.Components.Pages.components
                 Logger.LogError("Error : {Message}", e.ToString());
                 Snackbar.Add($"Error: {e.Message}", Severity.Error);
             }
-        }
 
-        private void OnCardClick()
-        {
-            if (GameInfo == null)
-                return;
-            if (OnClick.HasDelegate)
-                OnClick.InvokeAsync(GameInfo.Id);
-        }
+            return;
 
-        private Task OnChipClick(string developer)
-        {
-            if (OnChipTagClickEvent.HasDelegate)
-                return OnChipTagClickEvent.InvokeAsync(developer);
-            return Task.CompletedTask;
-        }
-
-        private Task OnCardFavoriteClick()
-        {
-            if (GameInfo == null)
-                return Task.CompletedTask;
-            GameInfo.IsFavorite = !GameInfo.IsFavorite;
-            ConfigService.EditGameInfo(GameInfo);
-            InvokeAsync(StateHasChanged);
-            return Task.CompletedTask;
-        }
-
-        private Task OnGuideSearchClick(GuideSite site)
-        {
-            if (GameInfo == null)
+            void TryStartVNGTTranslator(int pid)
             {
-                return Task.CompletedTask;
+                if (GameInfo?.LaunchOption is not { RunWithVNGTTranslator: true })
+                    return;
+                if (!File.Exists(Path.Combine(ConfigService.GetToolPath(),
+                        "VNGTTranslator/VNGTTranslator.exe")))
+                {
+                    Snackbar.Add($"{Resources.Message_VNGTTranslatorNotInstalled}");
+                    return;
+                }
+
+                _ = Task.Run(() =>
+                {
+                    var translatorInfo = new ProcessStartInfo
+                    {
+                        FileName = Path.Combine(ConfigService.GetToolPath(),
+                            "VNGTTranslator/VNGTTranslator.exe"),
+                        Arguments = $"{pid}"
+                    };
+                    if (GameInfo.LaunchOption is { IsVNGTTranslatorNeedAdmin: true })
+                    {
+                        translatorInfo.UseShellExecute = true;
+                        translatorInfo.Verb = "runas";
+                    }
+
+                    Process.Start(translatorInfo);
+                });
             }
-            string searchUrl = "https://www.google.com/search?q="
-                               + HttpUtility.UrlEncode(GameInfo.GameName + $" site:{site.SiteUrl}");
-            var startInfo = new ProcessStartInfo
+        }
+
+        private void OnOpenInExplorer()
+        {
+            Debug.Assert(GameInfo != null);
+            if (GameInfo.ExePath == null)
+                return;
+            Logger.LogInformation("Open in explorer click");
+            try
             {
-                FileName = searchUrl,
-                UseShellExecute = true
-            };
-            Process.Start(startInfo);
-            return Task.CompletedTask;
+                // using "explorer.exe" and send path
+                Process.Start("explorer.exe", GameInfo.ExePath);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error : {Message}", ex.ToString());
+                DialogService.ShowMessageBox("Error", ex.Message, cancelText: Resources.Dialog_Button_Cancel);
+            }
         }
     }
 }

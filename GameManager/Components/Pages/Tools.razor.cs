@@ -1,42 +1,99 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using GameManager.Extractor;
+using GameManager.Models;
+using GameManager.Services;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Yaml;
+using Microsoft.Extensions.Logging;
 using MudBlazor;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 
 namespace GameManager.Components.Pages
 {
-    public partial class Tools
+    public partial class Tools : IDisposable
     {
+        private static readonly bool _Is64Bit = !RuntimeInformation.OSArchitecture.HasFlag(Architecture.X86);
+
+        private static readonly BuiltinToolInfo[] _BuiltinToolInfos =
+        [
+            new BuiltinToolInfo("SavePatcher", "SavePatcher.exe",
+                "https://api.github.com/repos/charles7668/VNGT/releases",
+                _Is64Bit ? "SavePatcher.x86.7z" : "SavePatcher.x64.7z"),
+            new BuiltinToolInfo("VNGTTranslator", "VNGTTranslator.exe",
+                "https://api.github.com/repos/charles7668/VNGTTranslator/releases",
+                _Is64Bit ? "VNGTTranslator.x86.7z" : "VNGTTranslator.x64.7z")
+        ];
+
+        private static List<CustomToolInfo>? CustomToolInfos { get; set; }
+
         [Inject]
         private ISnackbar SnakeBar { get; set; } = null!;
 
-        public void OnPatcherClick()
-        {
-            string appPath = AppDomain.CurrentDomain.BaseDirectory;
-            string toolFile = Path.Combine(appPath, "tools", "SavePatcher", "SavePatcher.exe");
-            if (!File.Exists(toolFile))
-            {
-                SnakeBar.Add("SavePatcher not exist", Severity.Warning);
-                return;
-            }
+        [Inject]
+        private IConfigService ConfigService { get; set; } = null!;
 
-            var startInfo = new ProcessStartInfo(toolFile)
-            {
-                UseShellExecute = false
-            };
+        [Inject]
+        private ILogger<Tools> Logger { get; set; } = null!;
+
+        public void Dispose()
+        {
+            SnakeBar.Dispose();
+            BuiltinToolInfo.OnProgressUpdateHandler -= OnDownloadProgressUpdate;
+            BuiltinToolInfo.OnFailedHandler -= OnFailedNotify;
+        }
+
+        protected override Task OnInitializedAsync()
+        {
             try
             {
-                Process.Start(startInfo);
+                BuiltinToolInfo.OnProgressUpdateHandler += OnDownloadProgressUpdate;
+                BuiltinToolInfo.OnFailedHandler += OnFailedNotify;
+                CustomToolInfo.OnFailedHandler += OnFailedNotify;
+                if (CustomToolInfos != null)
+                    return base.OnInitializedAsync();
+                CustomToolInfos = [];
+                Directory.CreateDirectory(ConfigService.GetToolPath());
+                string[] directories = Directory.GetDirectories(ConfigService.GetToolPath());
+                foreach (string directory in directories)
+                {
+                    if (_BuiltinToolInfos.Any(x => x.Name == Path.GetFileName(directory)))
+                        continue;
+                    string configFile = Path.Combine(directory, "conf.vngt.yaml");
+                    if (File.Exists(configFile))
+                    {
+                        IConfigurationRoot configuration = new ConfigurationBuilder()
+                            .SetBasePath(directory)
+                            .AddYamlFile("conf.vngt.yaml", false, false)
+                            .Build();
+                        string dirName = Path.GetFileName(directory);
+                        string name = configuration.GetValue("Name", dirName) ?? dirName;
+                        string exePath = configuration.GetValue("ExePath", dirName + ".exe") ?? dirName + ".exe";
+                        bool runAsAdmin = configuration.GetValue("RunAsAdmin", false);
+                        CustomToolInfo customToolInfo = new(name, exePath, runAsAdmin);
+                        CustomToolInfos.Add(customToolInfo);
+                    }
+                    else
+                    {
+                        string name = Path.GetFileName(directory);
+                        CustomToolInfo customToolInfo = new(name, name + ".exe");
+                        CustomToolInfos.Add(customToolInfo);
+                    }
+                }
+
+                return base.OnInitializedAsync();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                SnakeBar.Add(e.Message, Severity.Error);
+                Logger.LogError("Failed to initialize Tools page {Exception}", ex.ToString());
+                throw;
             }
         }
 
         private void OnOpenToolsFolderClick()
         {
-            string appPath = AppDomain.CurrentDomain.BaseDirectory;
-            string toolsFolder = Path.Combine(appPath, "tools");
+            string toolsFolder = ConfigService.GetToolPath();
             Directory.CreateDirectory(toolsFolder);
 
             try
@@ -46,6 +103,229 @@ namespace GameManager.Components.Pages
             catch (Exception e)
             {
                 SnakeBar.Add(e.Message, Severity.Error);
+            }
+        }
+
+        private void OnDownloadProgressUpdate(int progress)
+        {
+            InvokeAsync(StateHasChanged);
+        }
+
+        private void OnFailedNotify(string name, string message)
+        {
+            InvokeAsync(() =>
+            {
+                SnakeBar.Add($"{name} error occur : {message}", Severity.Error);
+            });
+        }
+
+        private class CustomToolInfo(string name, string exePath, bool runAsAdmin = false)
+        {
+            public string Name { get; } = name;
+
+            public static event Action<string, string>? OnFailedHandler;
+
+            public void Launch()
+            {
+                IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
+                string exeFullPath = Path.Combine(configService.GetToolPath(), Name, exePath);
+                ProcessStartInfo startInfo = new(exeFullPath)
+                {
+                    UseShellExecute = false
+                };
+                if (runAsAdmin)
+                {
+                    startInfo.UseShellExecute = true;
+                    startInfo.Verb = "runas";
+                }
+
+                try
+                {
+                    Process.Start(startInfo);
+                }
+                catch (Exception e)
+                {
+                    OnFailed(Name, $"can't launch program : {e.Message}");
+                }
+            }
+
+            private static void OnFailed(string name, string message)
+            {
+                OnFailedHandler?.Invoke(name, message);
+            }
+        }
+
+        private class BuiltinToolInfo(string name, string exePath, string downloadUrl, string downloadFileName)
+        {
+            private static readonly HttpClient _HttpClient = new()
+            {
+                DefaultRequestHeaders =
+                {
+                    { "User-Agent", "VNGT" }
+                }
+            };
+
+            public string Name { get; } = name;
+            private string ExePath { get; } = exePath;
+            private string DownloadUrl { get; } = downloadUrl;
+            private string DownloadFileName { get; } = downloadFileName;
+            private Task? DownloadTask { get; set; }
+            public int Progress { get; private set; }
+            public CancellationTokenSource CancellationTokenSource { get; private set; } = new();
+
+            public bool IsDownloading => DownloadTask != null && DownloadTask != Task.CompletedTask;
+
+            public static event Action<int>? OnProgressUpdateHandler;
+            public static event Action<string, string>? OnFailedHandler;
+
+            public void Launch()
+            {
+                IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
+                string exeFullPath = Path.Combine(configService.GetToolPath(), Name, ExePath);
+                ProcessStartInfo startInfo = new(exeFullPath)
+                {
+                    UseShellExecute = false
+                };
+                try
+                {
+                    Process.Start(startInfo);
+                }
+                catch (Exception e)
+                {
+                    OnFailed(Name, $"can't launch program : {e.Message}");
+                }
+            }
+
+            public void StartDownload()
+            {
+                CancellationTokenSource = new CancellationTokenSource();
+                DownloadTask = Task.Run(async () =>
+                {
+                    string tempPath = Path.Combine(Path.GetTempPath(), DownloadFileName);
+                    CancellationToken token = CancellationTokenSource.Token;
+                    string response = await _HttpClient.GetStringAsync(DownloadUrl, token);
+                    JsonElement releaseInfos = JsonSerializer.Deserialize<JsonElement>(response);
+                    if (releaseInfos.GetArrayLength() == 0)
+                    {
+                        OnFailed(Name, "this project not have release");
+                        return;
+                    }
+
+                    bool ok = releaseInfos[0].TryGetProperty("assets", out JsonElement assets);
+                    if (!ok)
+                    {
+                        OnFailed(Name, "No assets data on release");
+                        return;
+                    }
+
+                    bool find = false;
+                    foreach (JsonElement asset in assets.EnumerateArray())
+                    {
+                        if (!asset.TryGetProperty("name", out JsonElement name) ||
+                            name.GetString() != DownloadFileName) continue;
+                        string? downloadUrl = asset.GetProperty("browser_download_url").GetString();
+                        if (downloadUrl == null)
+                        {
+                            break;
+                        }
+
+                        find = true;
+
+                        using HttpResponseMessage fileResponse =
+                            await _HttpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, token);
+                        fileResponse.EnsureSuccessStatusCode();
+
+                        long? totalBytes = fileResponse.Content.Headers.ContentLength;
+
+                        await using Stream contentStream = await fileResponse.Content.ReadAsStreamAsync(token),
+                            fileStream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None,
+                                8192, true);
+                        byte[] buffer = new byte[8192];
+                        long totalReadBytes = 0;
+                        int readBytes;
+                        while ((readBytes = await contentStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0 &&
+                               !token.IsCancellationRequested)
+                        {
+                            await fileStream.WriteAsync(buffer, 0, readBytes, token);
+                            totalReadBytes += readBytes;
+
+                            if (totalBytes.HasValue)
+                            {
+                                double progress = (double)totalReadBytes / totalBytes.Value * 100;
+                                if ((int)Math.Floor(progress) != Progress)
+                                {
+                                    Progress = (int)Math.Floor(progress);
+                                    OnProgressUpdate(Progress);
+                                }
+                            }
+                            else
+                            {
+                                Progress = 100;
+                                OnProgressUpdate(Progress);
+                            }
+                        }
+
+                        break;
+                    }
+
+                    if (token.IsCancellationRequested)
+                    {
+                        OnFailed(Name, "Task is canceled.");
+                        return;
+                    }
+
+                    if (!find)
+                    {
+                        OnFailed(Name, "No download file found");
+                        return;
+                    }
+
+                    ExtractorFactory extractorFactory = App.ServiceProvider.GetRequiredService<ExtractorFactory>();
+                    IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
+                    string extension = Path.GetExtension(DownloadFileName);
+                    IExtractor? extractor = extractorFactory.GetExtractor(extension);
+                    if (extractor == null)
+                    {
+                        OnFailed(Name, $"can't extract {extension} file");
+                        return;
+                    }
+
+                    string targetPath = Path.Combine(configService.GetToolPath(), Name);
+                    Result<string> extractResult = await extractor.ExtractAsync(tempPath, new ExtractOption
+                    {
+                        CreateNewFolder = false,
+                        TargetPath = targetPath
+                    });
+                    if (!extractResult.Success)
+                    {
+                        OnFailed(Name, $"extract failed : {extractResult.Message}");
+                        try
+                        {
+                            Directory.Delete(targetPath);
+                        }
+                        catch (Exception)
+                        {
+                            // ignore
+                        }
+                    }
+                }, CancellationTokenSource.Token).ContinueWith(task =>
+                {
+                    if (task.IsCanceled)
+                        OnFailed(Name, "Task is canceled.");
+                    Progress = 0;
+                    DownloadTask = Task.CompletedTask;
+                    OnProgressUpdate(100);
+                });
+            }
+
+            private static void OnProgressUpdate(int obj)
+            {
+                OnProgressUpdateHandler?.Invoke(obj);
+            }
+
+            private static void OnFailed(string toolName, string message)
+            {
+                OnFailedHandler?.Invoke(toolName, message);
             }
         }
     }

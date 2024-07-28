@@ -1,5 +1,6 @@
 ﻿using GameManager.Database;
 using GameManager.DB;
+using GameManager.Extensions;
 using GameManager.GameInfoProvider;
 using GameManager.Services;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +50,8 @@ namespace GameManager
 
             builder.Services.AddScoped<IGameInfoProvider, VndbProvider>();
             builder.Services.AddScoped<GameInfoProviderFactory, GameInfoProviderFactory>();
+
+            builder.Services.AddExtractors();
 
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()

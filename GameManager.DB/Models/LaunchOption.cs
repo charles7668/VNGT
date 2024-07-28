@@ -8,6 +8,10 @@ namespace GameManager.DB.Models
 
         public bool RunAsAdmin { get; set; }
 
+        public bool RunWithVNGTTranslator { get; set; }
+
+        public bool IsVNGTTranslatorNeedAdmin { get; set; }
+
         [MaxLength(100)]
         public string? LaunchWithLocaleEmulator { get; set; }
     }

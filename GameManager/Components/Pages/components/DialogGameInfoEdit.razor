@@ -54,8 +54,8 @@
                                       Label="@Resources.GameEditorDialog_Caption_Desciption">
                         </MudTextField>
                         <MudPaper Elevation="0">
+                            <MudText Typo="Typo.h5">@Resources.GameEditorDialog_Caption_LaunchOptions</MudText>
                             <MudToolBar Class="pa-0">
-                                <MudText Typo="Typo.h5">@Resources.GameEditorDialog_Caption_LaunchOptions</MudText>
                                 <MudStack Row="true">
                                     <MudCheckBox T="bool" @bind-Value="@Model.RunAsAdmin">@Resources.GameEditorDialog_RunAsAdmin</MudCheckBox>
                                 </MudStack>
@@ -71,12 +71,24 @@
                                     </MudSelect>
                                 </MudPaper>
                             </MudToolBar>
+                            <MudToolBar Class="pa-0">
+                                <MudCheckBox T="bool"
+                                             @bind-Value="@Model.RunWithVNGTTranslator"
+                                             Label="@Resources.GameEditorDialog_RunWithVNGTTranslator">
+                                </MudCheckBox>
+                                <MudCheckBox T="bool"
+                                             Disabled="@(!Model.RunWithVNGTTranslator)"
+                                             @bind-Value="@Model.IsVNGTTranslatorNeedAdmin"
+                                             Label="@Resources.GameEditorDialog_VNGTTranslatorNeedAdmin">
+                                </MudCheckBox>
+                            </MudToolBar>
                         </MudPaper>
                         <MudPaper Elevation="0">
                             <MudStack Row="true">
                                 <MudText Typo="Typo.h4">Tag Sets</MudText>
                                 <MudIconButton Icon="@Icons.Material.Filled.Add"
-                                               OnClick="OnAddTagClick"></MudIconButton>
+                                               OnClick="OnAddTagClick">
+                                </MudIconButton>
                             </MudStack>
                             <MudPaper MaxHeight="100px" Elevation="0" Outlined="true" Class="label-set">
                                 <MudStack Spacing="1" Row="true" Wrap="Wrap.Wrap">

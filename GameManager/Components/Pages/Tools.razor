@@ -10,16 +10,54 @@
         </MudButton>
     </MudStack>
     <MudDivider />
-    <MudGrid Class="pa-0 ma-0 tools-grid">
-        <MudItem>
-            <MudButton OnClick="OnPatcherClick">
-                <MudStack Row="false" Class="box-item" Spacing="0" AlignItems="AlignItems.Center">
-                    <MudIcon Icon="@Icons.Material.Filled.Apps" Size="Size.Large" />
-                    <MudText Typo="Typo.h6" Align="Align.Center">
-                        Save Patcher
-                    </MudText>
-                </MudStack>
-            </MudButton>
-        </MudItem>
-    </MudGrid>
+    <MudStack>
+        <h2>Built-in</h2>
+        @foreach (var builtinToolInfo in _BuiltinToolInfos)
+        {
+            <MudPaper Outlined="true" Class="d-flex flex-row pa-2">
+                <MudText Typo="Typo.h6" Align="Align.Center">@builtinToolInfo.Name</MudText>
+                <MudSpacer />
+                @if (Directory.Exists(Path.Combine(ConfigService.GetToolPath(), builtinToolInfo.Name)))
+                {
+                    <MudButton OnClick="builtinToolInfo.Launch">
+                        <MudIcon Icon="@Icons.Material.Filled.ArrowRight" Style="@($"color:{Colors.Green.Default}")"></MudIcon>
+                        Run
+                    </MudButton>
+                }
+                else
+                {
+                    @if (builtinToolInfo.IsDownloading)
+                    {
+                        <MudProgressCircular Color="Color.Success" Value="@builtinToolInfo.Progress" />
+                        <MudButton OnClick="@(_ => { builtinToolInfo.CancellationTokenSource.Cancel(); })">
+                            <MudIcon Icon="@Icons.Material.Filled.Close" Style="@($"color:{Colors.Green.Default}")"></MudIcon>
+                            Cancel
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton OnClick="@builtinToolInfo.StartDownload">
+                            <MudIcon Icon="@Icons.Material.Filled.Download" Style="@($"color:{Colors.Green.Default}")"></MudIcon>
+                            Download
+                        </MudButton>
+                    }
+                }
+            </MudPaper>
+        }
+        <h2>Custom</h2>
+        @if (CustomToolInfos != null)
+        {
+            @foreach (var customToolInfo in CustomToolInfos)
+            {
+                <MudPaper Outlined="true" Class="d-flex flex-row pa-2">
+                    <MudText Typo="Typo.h6" Align="Align.Center">@customToolInfo.Name</MudText>
+                    <MudSpacer />
+                    <MudButton OnClick="customToolInfo.Launch">
+                        <MudIcon Icon="@Icons.Material.Filled.ArrowRight" Style="@($"color:{Colors.Green.Default}")"></MudIcon>
+                        Run
+                    </MudButton>
+                </MudPaper>
+            }
+        }
+    </MudStack>
 </div>

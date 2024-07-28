@@ -258,6 +258,10 @@ namespace GameManager.Components.Pages.components
 
             public bool RunAsAdmin { get; set; }
 
+            public bool RunWithVNGTTranslator { get; set; }
+
+            public bool IsVNGTTranslatorNeedAdmin { get; set; }
+
             public string? LeConfig { get; set; }
 
             public List<string> Tags { get; set; } = [];

@@ -250,6 +250,24 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Run with VNGTTranslator 的當地語系化字串。
+        /// </summary>
+        internal static string GameEditorDialog_RunWithVNGTTranslator {
+            get {
+                return ResourceManager.GetString("GameEditorDialog.RunWithVNGTTranslator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 VNGTTranslator need amin 的當地語系化字串。
+        /// </summary>
+        internal static string GameEditorDialog_VNGTTranslatorNeedAdmin {
+            get {
+                return ResourceManager.GetString("GameEditorDialog.VNGTTranslatorNeedAdmin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Add 的當地語系化字串。
         /// </summary>
         internal static string Home_AddGame {
@@ -453,6 +471,15 @@ namespace GameManager.Properties {
         internal static string Message_UpdateSuccess {
             get {
                 return ResourceManager.GetString("Message.UpdateSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 VNGTTranslator is not installed. Please go to the tools page to download it. 的當地語系化字串。
+        /// </summary>
+        internal static string Message_VNGTTranslatorNotInstalled {
+            get {
+                return ResourceManager.GetString("Message.VNGTTranslatorNotInstalled", resourceCulture);
             }
         }
         
