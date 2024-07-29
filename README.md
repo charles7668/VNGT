@@ -10,7 +10,9 @@ visual novel game tools
 - Automatically download game information (currently supported: [vndb](https://vndb.org/))
 - Support multiple languages
 - Integrate Locale Emulator to support non-Japanese OS
-- Use scripts to unlock game saves
+- Integrate [VNGTTranslator](https://github.com/charles7668/VNGTTranslator) to help users translate game text
+- Save patcher can replace save data to unlock game CG
+- Support execution of your game tool
 
 ## Guide
 
@@ -21,7 +23,7 @@ visual novel game tools
 
 ### Requirement
 
-- [.net 8](https://dotnet.microsoft.com/en-us/download)
+- [.NET 8](https://dotnet.microsoft.com/en-us/download)
 
 Run the `build.bat` file to build the project.
 
