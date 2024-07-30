@@ -126,6 +126,9 @@
   <data name="Card.OpenInExplorer" xml:space="preserve">
     <value>档案管理员开启</value>
   </data>
+  <data name="Card.OpenSaveFilePath" xml:space="preserve">
+    <value>打开存档资料夹</value>
+  </data>
   <data name="Card.Run" xml:space="preserve">
     <value>执行</value>
   </data>
@@ -149,6 +152,9 @@
   </data>
   <data name="Dialog.Title.EditGameInfo" xml:space="preserve">
     <value>编辑游戏资讯</value>
+  </data>
+  <data name="GameEditorDialog.Browse" xml:space="preserve">
+    <value>浏览</value>
   </data>
   <data name="GameEditorDialog.Caption.Desciption" xml:space="preserve">
     <value>简介</value>
@@ -182,6 +188,9 @@
   </data>
   <data name="GameEditorDialog.RunWithVNGTTranslator" xml:space="preserve">
     <value>与VNGT翻译器一起启动</value>
+  </data>
+  <data name="GameEditorDialog.SavePath" xml:space="preserve">
+    <value>存档路径</value>
   </data>
   <data name="GameEditorDialog.VNGTTranslatorNeedAdmin" xml:space="preserve">
     <value>VNGT翻译器需要管理员权限</value>
@@ -237,6 +246,9 @@
   <data name="Library.Button.Scan" xml:space="preserve">
     <value>扫描</value>
   </data>
+  <data name="Message.DirectoryNotExist" xml:space="preserve">
+    <value>资料夹不存在</value>
+  </data>
   <data name="Message.LENotFound" xml:space="preserve">
     <value>未找到 Locale Emulator</value>
   </data>
@@ -245,6 +257,9 @@
   </data>
   <data name="Message.NotExist" xml:space="preserve">
     <value>不存在</value>
+  </data>
+  <data name="Message.ParameterNotSet" xml:space="preserve">
+    <value>参数未设定</value>
   </data>
   <data name="Message.PleaseSetExeFirst" xml:space="preserve">
     <value>请先设定执行档</value>

@@ -22,6 +22,9 @@ namespace GameManager.DB.Models
         public string? ExePath { get; set; }
 
         [MaxLength(260)]
+        public string? SaveFilePath { get; set; }
+
+        [MaxLength(260)]
         public string? ExeFile { get; set; }
 
         [MaxLength(260)]

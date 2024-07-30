@@ -13,6 +13,7 @@ namespace GameManager.Services
             dest.Description = src.Description;
             dest.DateTime = src.DateTime;
             dest.ExePath = src.ExePath;
+            dest.SaveFilePath = src.SaveFilePath;
             dest.ExeFile = src.ExeFile;
             dest.LaunchOption ??= new LaunchOption();
             dest.LaunchOption.RunAsAdmin = src.RunAsAdmin;
@@ -28,6 +29,7 @@ namespace GameManager.Services
             dest.Vendor = src.Developer;
             dest.Description = src.Description;
             dest.ExePath = src.ExePath;
+            dest.SaveFilePath = src.SaveFilePath;
             dest.ExeFile = string.IsNullOrEmpty(src.ExeFile) ? "Not Set" : src.ExeFile;
             dest.DateTime = src.DateTime;
             dest.RunAsAdmin = src.LaunchOption?.RunAsAdmin ?? false;

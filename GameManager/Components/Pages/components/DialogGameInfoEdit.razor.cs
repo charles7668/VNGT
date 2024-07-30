@@ -11,6 +11,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
 
 namespace GameManager.Components.Pages.components
 {
@@ -46,51 +49,6 @@ namespace GameManager.Components.Pages.components
 
         private List<string> ExeFiles { get; set; } = [];
 
-        protected override async Task OnInitializedAsync()
-        {
-            LeConfigs = ["None"];
-            AppSetting =
-                AppSetting = ConfigService.GetAppSetting();
-            if (!string.IsNullOrEmpty(AppSetting.LocaleEmulatorPath)
-                && File.Exists(Path.Combine(AppSetting.LocaleEmulatorPath, "LEConfig.xml")))
-            {
-                string configPath = Path.Combine(AppSetting.LocaleEmulatorPath, "LEConfig.xml");
-                var xmlDoc = XDocument.Load(configPath);
-                IEnumerable<XElement> nodes = xmlDoc.XPathSelectElements("//Profiles/Profile");
-                foreach (XElement node in nodes)
-                {
-                    XAttribute? attr = node.Attribute("Name");
-                    if (attr == null || string.IsNullOrEmpty(attr.Value))
-                        continue;
-                    LeConfigs.Add(attr.Value);
-                }
-            }
-
-            Model.LeConfig ??= "None";
-
-            ExeFiles = ["Not Set"];
-            if (Directory.Exists(Model.ExePath))
-            {
-                string[] files = Directory.GetFiles(Model.ExePath, "*.exe", SearchOption.AllDirectories);
-                foreach (string file in files)
-                    ExeFiles.Add(Path.GetRelativePath(Model.ExePath, Path.GetFullPath(file)));
-            }
-
-            _tagHashSet = Model.Tags.ToHashSet();
-
-            await base.OnInitializedAsync();
-        }
-
-        private void OnCancel()
-        {
-            MudDialog?.Cancel();
-        }
-
-        private void OnSave()
-        {
-            MudDialog?.Close(DialogResult.Ok(Model));
-        }
-
         private void DatePickerTextChanged(string? value)
         {
             if (value == null || value.Length < 6)
@@ -112,10 +70,9 @@ namespace GameManager.Components.Pages.components
             }
         }
 
-        private async Task UploadByUrl()
+        private async Task OnAddTagClick(MouseEventArgs obj)
         {
-            Debug.Assert(DialogService != null);
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogImageChange>("Change Cover",
+            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogMultiLineInputBox>("Add Tags",
                 new DialogOptions
                 {
                     BackdropClick = false
@@ -123,8 +80,21 @@ namespace GameManager.Components.Pages.components
             DialogResult? dialogResult = await dialogReference.Result;
             if (dialogResult.Canceled)
                 return;
-            string? cover = dialogResult.Data as string;
-            Model.Cover = cover;
+            if (dialogResult.Data is not string tags)
+                return;
+            string[] split = tags.Split('\n');
+            foreach (string s in split)
+            {
+                string tag = s.Trim();
+                if (string.IsNullOrEmpty(tag))
+                    continue;
+                TryAddTag(s);
+            }
+        }
+
+        private void OnCancel()
+        {
+            MudDialog?.Cancel();
         }
 
         private async Task OnInfoFetchClick()
@@ -138,6 +108,7 @@ namespace GameManager.Components.Pages.components
                 {
                     throw new ArgumentException("game info provider not found : vndb");
                 }
+
                 (List<GameInfo>? infoList, bool hasMore) =
                     await gameInfoProvider.FetchGameSearchListAsync(Model.GameName, 10, 1);
                 if (infoList == null || infoList.Count == 0)
@@ -203,11 +174,60 @@ namespace GameManager.Components.Pages.components
             }
         }
 
-        private void TryAddTag(string tag)
+        protected override async Task OnInitializedAsync()
         {
-            if (_tagHashSet.Contains(tag)) return;
-            Model.Tags.Add(tag);
-            _tagHashSet.Add(tag);
+            LeConfigs = ["None"];
+            AppSetting =
+                AppSetting = ConfigService.GetAppSetting();
+            if (!string.IsNullOrEmpty(AppSetting.LocaleEmulatorPath)
+                && File.Exists(Path.Combine(AppSetting.LocaleEmulatorPath, "LEConfig.xml")))
+            {
+                string configPath = Path.Combine(AppSetting.LocaleEmulatorPath, "LEConfig.xml");
+                var xmlDoc = XDocument.Load(configPath);
+                IEnumerable<XElement> nodes = xmlDoc.XPathSelectElements("//Profiles/Profile");
+                foreach (XElement node in nodes)
+                {
+                    XAttribute? attr = node.Attribute("Name");
+                    if (attr == null || string.IsNullOrEmpty(attr.Value))
+                        continue;
+                    LeConfigs.Add(attr.Value);
+                }
+            }
+
+            Model.LeConfig ??= "None";
+
+            ExeFiles = ["Not Set"];
+            if (Directory.Exists(Model.ExePath))
+            {
+                string[] files = Directory.GetFiles(Model.ExePath, "*.exe", SearchOption.AllDirectories);
+                foreach (string file in files)
+                    ExeFiles.Add(Path.GetRelativePath(Model.ExePath, Path.GetFullPath(file)));
+            }
+
+            _tagHashSet = Model.Tags.ToHashSet();
+
+            await base.OnInitializedAsync();
+        }
+
+        private void OnSave()
+        {
+            MudDialog?.Close(DialogResult.Ok(Model));
+        }
+
+        private async Task OnSaveBrowseClick(MouseEventArgs obj)
+        {
+            var folderPicker = new FolderPicker();
+            folderPicker.FileTypeFilter.Add("*");
+            IElementHandler? elementHandler = Application.Current?.Windows[0].Handler;
+            IntPtr? handle = ((MauiWinUIWindow?)elementHandler?.PlatformView)?.WindowHandle;
+            if (handle != null)
+            {
+                InitializeWithWindow.Initialize(folderPicker, (IntPtr)handle);
+                StorageFolder? result = await folderPicker.PickSingleFolderAsync();
+                if (result == null)
+                    return;
+                Model.SaveFilePath = result.Path;
+            }
         }
 
         private void OnTagRemoveClick(MudChip<string> chip)
@@ -218,9 +238,17 @@ namespace GameManager.Components.Pages.components
             _tagHashSet.Remove(chip.Value);
         }
 
-        private async Task OnAddTagClick(MouseEventArgs obj)
+        private void TryAddTag(string tag)
         {
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogMultiLineInputBox>("Add Tags",
+            if (_tagHashSet.Contains(tag)) return;
+            Model.Tags.Add(tag);
+            _tagHashSet.Add(tag);
+        }
+
+        private async Task UploadByUrl()
+        {
+            Debug.Assert(DialogService != null);
+            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogImageChange>("Change Cover",
                 new DialogOptions
                 {
                     BackdropClick = false
@@ -228,16 +256,8 @@ namespace GameManager.Components.Pages.components
             DialogResult? dialogResult = await dialogReference.Result;
             if (dialogResult.Canceled)
                 return;
-            if (dialogResult.Data is not string tags)
-                return;
-            string[] split = tags.Split('\n');
-            foreach (string s in split)
-            {
-                string tag = s.Trim();
-                if (string.IsNullOrEmpty(tag))
-                    continue;
-                TryAddTag(s);
-            }
+            string? cover = dialogResult.Data as string;
+            Model.Cover = cover;
         }
 
         public class FormModel
@@ -247,6 +267,8 @@ namespace GameManager.Components.Pages.components
             public string? Vendor { get; set; }
 
             public string? ExePath { get; set; }
+
+            public string? SaveFilePath { get; set; }
 
             public string? ExeFile { get; set; }
 

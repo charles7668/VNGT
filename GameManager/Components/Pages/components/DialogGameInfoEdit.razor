@@ -49,6 +49,16 @@
                                 }
                             </MudSelect>
                         </MudToolBar>
+                        <MudToolBar Class="pa-0 ma-0">
+                            <MudTextField @bind-Value="Model.SaveFilePath"
+                                          For="@(() => Model.SaveFilePath)"
+                                          Label="@Resources.GameEditorDialog_SavePath" />
+                            <MudButton Variant="Variant.Outlined"
+                            OnClick="OnSaveBrowseClick"
+                                       Color="Color.Primary">
+                                @Resources.GameEditorDialog_Browse
+                            </MudButton>
+                        </MudToolBar>
                         <MudTextField Lines="5" MaxLines="8" @bind-Value="Model.Description"
                                       For="@(() => Model.Description)"
                                       Label="@Resources.GameEditorDialog_Caption_Desciption">

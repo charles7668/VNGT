@@ -37,6 +37,9 @@
                     <MudMenuItem Class="ma-0 pa-0">
                         <MudButton OnClick="OnOpenInExplorer" Variant="Variant.Text" Color="Color.Primary" FullWidth="true">@Resources.Card_OpenInExplorer</MudButton>
                     </MudMenuItem>
+                    <MudMenuItem Class="ma-0 pa-0">
+                        <MudButton OnClick="OnOpenSaveFilePath" Variant="Variant.Text" Color="Color.Default" FullWidth="true">@Resources.Card_OpenSaveFilePath</MudButton>
+                    </MudMenuItem>
                     <MudDivider />
                     <MudMenuItem Class="ma-0 pa-0">
                         <MudMenu ActivationEvent="MouseEvent.LeftClick"
@@ -57,7 +60,7 @@
                                                Class="ma-0 pa-2"
                                                Color="Color.Default"
                                                FullWidth="true"
-                                               OnClick="()=>OnGuideSearchClick(site)">
+                                               OnClick="() => OnGuideSearchClick(site)">
                                         @site.Name
                                     </MudButton>
                                 }

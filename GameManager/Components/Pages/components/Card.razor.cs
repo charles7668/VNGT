@@ -4,6 +4,7 @@ using GameManager.Services;
 using Helper;
 using Helper.Image;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
 using MudBlazor.Utilities;
@@ -356,6 +357,36 @@ namespace GameManager.Components.Pages.components
             {
                 // using "explorer.exe" and send path
                 Process.Start("explorer.exe", GameInfo.ExePath);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error : {Message}", ex.ToString());
+                DialogService.ShowMessageBox("Error", ex.Message, cancelText: Resources.Dialog_Button_Cancel);
+            }
+        }
+
+        private void OnOpenSaveFilePath(MouseEventArgs obj)
+        {
+            if (GameInfo == null)
+                return;
+            string? dirPath = GameInfo.SaveFilePath;
+            if (string.IsNullOrEmpty(dirPath))
+            {
+                Snackbar.Add(Resources.Message_ParameterNotSet, Severity.Warning);
+                return;
+            }
+
+            if (!Directory.Exists(dirPath))
+            {
+                Snackbar.Add($"{dirPath} : " + Resources.Message_DirectoryNotExist, Severity.Warning);
+                return;
+            }
+
+            Logger.LogInformation("Open save file path click");
+            try
+            {
+                // using "explorer.exe" and send path
+                Process.Start("explorer.exe", dirPath);
             }
             catch (Exception ex)
             {

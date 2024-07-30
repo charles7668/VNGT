@@ -88,6 +88,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Open Save File Directory 的當地語系化字串。
+        /// </summary>
+        internal static string Card_OpenSaveFilePath {
+            get {
+                return ResourceManager.GetString("Card.OpenSaveFilePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Run 的當地語系化字串。
         /// </summary>
         internal static string Card_Run {
@@ -156,6 +165,15 @@ namespace GameManager.Properties {
         internal static string Dialog_Title_EditGameInfo {
             get {
                 return ResourceManager.GetString("Dialog.Title.EditGameInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Browse 的當地語系化字串。
+        /// </summary>
+        internal static string GameEditorDialog_Browse {
+            get {
+                return ResourceManager.GetString("GameEditorDialog.Browse", resourceCulture);
             }
         }
         
@@ -255,6 +273,15 @@ namespace GameManager.Properties {
         internal static string GameEditorDialog_RunWithVNGTTranslator {
             get {
                 return ResourceManager.GetString("GameEditorDialog.RunWithVNGTTranslator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Save File Path 的當地語系化字串。
+        /// </summary>
+        internal static string GameEditorDialog_SavePath {
+            get {
+                return ResourceManager.GetString("GameEditorDialog.SavePath", resourceCulture);
             }
         }
         
@@ -421,6 +448,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Directory does not exist. 的當地語系化字串。
+        /// </summary>
+        internal static string Message_DirectoryNotExist {
+            get {
+                return ResourceManager.GetString("Message.DirectoryNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Locale Emulator Not Found 的當地語系化字串。
         /// </summary>
         internal static string Message_LENotFound {
@@ -444,6 +480,15 @@ namespace GameManager.Properties {
         internal static string Message_NotExist {
             get {
                 return ResourceManager.GetString("Message.NotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Parameter doest not set 的當地語系化字串。
+        /// </summary>
+        internal static string Message_ParameterNotSet {
+            get {
+                return ResourceManager.GetString("Message.ParameterNotSet", resourceCulture);
             }
         }
         

@@ -126,6 +126,9 @@
   <data name="Card.OpenInExplorer" xml:space="preserve">
     <value>Open in Explorer</value>
   </data>
+  <data name="Card.OpenSaveFilePath" xml:space="preserve">
+    <value>Open Save File Directory</value>
+  </data>
   <data name="Card.Run" xml:space="preserve">
     <value>Run</value>
   </data>
@@ -149,6 +152,9 @@
   </data>
   <data name="Dialog.Title.EditGameInfo" xml:space="preserve">
     <value>Edit Game Info</value>
+  </data>
+  <data name="GameEditorDialog.Browse" xml:space="preserve">
+    <value>Browse</value>
   </data>
   <data name="GameEditorDialog.Caption.Desciption" xml:space="preserve">
     <value>Description</value>
@@ -182,6 +188,9 @@
   </data>
   <data name="GameEditorDialog.RunWithVNGTTranslator" xml:space="preserve">
     <value>Run with VNGTTranslator</value>
+  </data>
+  <data name="GameEditorDialog.SavePath" xml:space="preserve">
+    <value>Save File Path</value>
   </data>
   <data name="GameEditorDialog.VNGTTranslatorNeedAdmin" xml:space="preserve">
     <value>VNGTTranslator need amin</value>
@@ -237,6 +246,9 @@
   <data name="Library.Button.Scan" xml:space="preserve">
     <value>Scan</value>
   </data>
+  <data name="Message.DirectoryNotExist" xml:space="preserve">
+    <value>Directory does not exist.</value>
+  </data>
   <data name="Message.LENotFound" xml:space="preserve">
     <value>Locale Emulator Not Found</value>
   </data>
@@ -245,6 +257,9 @@
   </data>
   <data name="Message.NotExist" xml:space="preserve">
     <value>Not Exist</value>
+  </data>
+  <data name="Message.ParameterNotSet" xml:space="preserve">
+    <value>Parameter doest not set</value>
   </data>
   <data name="Message.PleaseSetExeFirst" xml:space="preserve">
     <value>please set execution file first</value>
