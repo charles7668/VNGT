@@ -23,6 +23,9 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private new ILogger<Card> Logger { get; set; } = null!;
 
+        [Inject]
+        private IAppPathService AppPathService { get; set; } = null!;
+
         private string ClassName => new CssBuilder(Class)
             .AddClass(IsSelected ? "selection" : "")
             .Build();
@@ -321,7 +324,7 @@ namespace GameManager.Components.Pages.components
             {
                 if (GameInfo?.LaunchOption is not { RunWithVNGTTranslator: true })
                     return;
-                if (!File.Exists(Path.Combine(ConfigService.GetToolPath(),
+                if (!File.Exists(Path.Combine(AppPathService.ToolsDirPath,
                         "VNGTTranslator/VNGTTranslator.exe")))
                 {
                     Snackbar.Add($"{Resources.Message_VNGTTranslatorNotInstalled}");
@@ -332,7 +335,7 @@ namespace GameManager.Components.Pages.components
                 {
                     var translatorInfo = new ProcessStartInfo
                     {
-                        FileName = Path.Combine(ConfigService.GetToolPath(),
+                        FileName = Path.Combine(AppPathService.ToolsDirPath,
                             "VNGTTranslator/VNGTTranslator.exe"),
                         Arguments = $"{pid}"
                     };

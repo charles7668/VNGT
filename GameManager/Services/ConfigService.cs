@@ -1,9 +1,7 @@
-﻿using GameManager.Attributes;
-using GameManager.Database;
+﻿using GameManager.Database;
 using GameManager.DB.Models;
 using GameManager.Enums;
 using Microsoft.Extensions.Caching.Memory;
-using System.Reflection;
 
 namespace GameManager.Services
 {
@@ -12,65 +10,29 @@ namespace GameManager.Services
     /// </summary>
     public class ConfigService : IConfigService
     {
-        public ConfigService()
-        {
-            CreateConfigFolderIfNotExistAsync();
-        }
-
-        public ConfigService(IUnitOfWork unitOfWork, IServiceProvider serviceProvider) : this()
+        public ConfigService(IUnitOfWork unitOfWork, IServiceProvider serviceProvider)
         {
             _unitOfWork = unitOfWork;
             _serviceProvider = serviceProvider;
             _appSetting = _unitOfWork.AppSettingRepository.GetAppSettingAsync().Result;
+            _appPathService = serviceProvider.GetRequiredService<IAppPathService>();
             _memoryCache = new MemoryCache(new MemoryCacheOptions
             {
                 SizeLimit = 200
             });
         }
 
-        private const string DB_FILE = "game.db";
+        private readonly IAppPathService _appPathService;
 
-        private readonly IUnitOfWork _unitOfWork = null!;
+        private readonly IUnitOfWork _unitOfWork;
 
-        private readonly AppSetting _appSetting = null!;
+        private readonly AppSetting _appSetting;
 
-        [NeedCreate]
-        private string CoverFolder => Path.Combine(ConfigFolder, "covers");
-
-        [NeedCreate]
-#if DEBUG
-        public string ConfigFolder { get; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "configs");
-#else
-        public string ConfigFolder { get; } =
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VNGT", "configs");
-#endif
-
-        private readonly IServiceProvider _serviceProvider = null!;
+        private readonly IServiceProvider _serviceProvider;
 
         private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-        private MemoryCache _memoryCache = null!;
-
-        public void CreateConfigFolderIfNotExistAsync()
-        {
-            PropertyInfo[] properties =
-                GetType()
-                    .GetProperties(BindingFlags.Public
-                                   | BindingFlags.NonPublic
-                                   | BindingFlags.Instance);
-            foreach (PropertyInfo propertyInfo in properties)
-            {
-                if (propertyInfo.GetCustomAttribute<NeedCreateAttribute>() == null)
-                    continue;
-                object? obj = propertyInfo.GetValue(this);
-                if (obj is not string dir)
-                {
-                    continue;
-                }
-
-                Directory.CreateDirectory(dir);
-            }
-        }
+        private MemoryCache _memoryCache;
 
         public async Task<string> AddCoverImage(string srcFile)
         {
@@ -99,7 +61,7 @@ namespace GameManager.Services
         {
             if (coverName == null)
                 return Task.FromResult<string?>(null);
-            string fullPath = Path.Combine(CoverFolder, coverName);
+            string fullPath = Path.Combine(_appPathService.CoverDirPath, coverName);
             return Task.FromResult(fullPath)!;
         }
 
@@ -184,20 +146,6 @@ namespace GameManager.Services
                 .GetGameInfoForEachAsync(action, cancellationToken, order);
         }
 
-        public string GetDbPath()
-        {
-            return Path.Combine(ConfigFolder, DB_FILE);
-        }
-
-        public string GetLogPath()
-        {
-            return Path.Combine(ConfigFolder, "logs");
-        }
-
-        public string GetToolPath()
-        {
-            return Path.Combine(ConfigFolder, "tools");
-        }
 
         public async Task EditGameInfo(GameInfo info)
         {

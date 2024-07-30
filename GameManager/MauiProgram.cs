@@ -35,16 +35,21 @@ namespace GameManager
 
             builder.Services.AddSingleton<IConfigService, ConfigService>();
 
-            // just for get db path
-            IConfigService config = new ConfigService();
-            var dbContext = new AppDbContext($"Data Source={config.GetDbPath()}");
+#if DEBUG
+            IAppPathService appPathService = new DebugAppPathService();
+#else
+            IAppPathService appPathService = new AppPathService();
+#endif
+            appPathService.CreateAppPath();
+            builder.Services.AddSingleton(appPathService);
+            var dbContext = new AppDbContext($"Data Source={appPathService.DBFilePath}");
             dbContext.Database.ExecuteSql($"PRAGMA foreign_keys=OFF;");
             if (dbContext.Database.GetPendingMigrations().Any())
                 dbContext.Database.Migrate();
             dbContext.Database.EnsureCreated();
             dbContext.Database.ExecuteSql($"PRAGMA foreign_keys=ON;");
             builder.Services.AddTransient(_ =>
-                new AppDbContext($"Data Source={config.GetDbPath()}"));
+                new AppDbContext($"Data Source={appPathService.DBFilePath}"));
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -62,7 +67,7 @@ namespace GameManager
                 .MinimumLevel.Information()
 #endif
                 .WriteTo.File(new CompactJsonFormatter()
-                    , Path.Combine(config.GetLogPath(), ".log")
+                    , Path.Combine(appPathService.LogDirPath, ".log")
                     , rollingInterval: RollingInterval.Day
                     , retainedFileCountLimit: 30)
                 .CreateLogger();

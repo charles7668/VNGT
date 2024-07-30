@@ -32,10 +32,10 @@ namespace GameManager.Components.Pages
         private ISnackbar SnakeBar { get; set; } = null!;
 
         [Inject]
-        private IConfigService ConfigService { get; set; } = null!;
+        private ILogger<Tools> Logger { get; set; } = null!;
 
         [Inject]
-        private ILogger<Tools> Logger { get; set; } = null!;
+        private IAppPathService AppPathService { get; set; } = null!;
 
         public void Dispose()
         {
@@ -54,8 +54,7 @@ namespace GameManager.Components.Pages
                 if (CustomToolInfos != null)
                     return base.OnInitializedAsync();
                 CustomToolInfos = [];
-                Directory.CreateDirectory(ConfigService.GetToolPath());
-                string[] directories = Directory.GetDirectories(ConfigService.GetToolPath());
+                string[] directories = Directory.GetDirectories(AppPathService.ToolsDirPath);
                 foreach (string directory in directories)
                 {
                     if (_BuiltinToolInfos.Any(x => x.Name == Path.GetFileName(directory)))
@@ -93,8 +92,7 @@ namespace GameManager.Components.Pages
 
         private void OnOpenToolsFolderClick()
         {
-            string toolsFolder = ConfigService.GetToolPath();
-            Directory.CreateDirectory(toolsFolder);
+            string toolsFolder = AppPathService.ToolsDirPath;
 
             try
             {
@@ -127,8 +125,8 @@ namespace GameManager.Components.Pages
 
             public void Launch()
             {
-                IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
-                string exeFullPath = Path.Combine(configService.GetToolPath(), Name, exePath);
+                IAppPathService appPathService = App.ServiceProvider.GetRequiredService<IAppPathService>();
+                string exeFullPath = Path.Combine(appPathService.ToolsDirPath, Name, exePath);
                 ProcessStartInfo startInfo = new(exeFullPath)
                 {
                     UseShellExecute = false
@@ -180,8 +178,8 @@ namespace GameManager.Components.Pages
 
             public void Launch()
             {
-                IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
-                string exeFullPath = Path.Combine(configService.GetToolPath(), Name, ExePath);
+                IAppPathService appPathService = App.ServiceProvider.GetRequiredService<IAppPathService>();
+                string exeFullPath = Path.Combine(appPathService.ToolsDirPath, Name, ExePath);
                 ProcessStartInfo startInfo = new(exeFullPath)
                 {
                     UseShellExecute = false
@@ -281,7 +279,7 @@ namespace GameManager.Components.Pages
                     }
 
                     ExtractorFactory extractorFactory = App.ServiceProvider.GetRequiredService<ExtractorFactory>();
-                    IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
+                    IAppPathService appPathService = App.ServiceProvider.GetRequiredService<IAppPathService>();
                     string extension = Path.GetExtension(DownloadFileName);
                     IExtractor? extractor = extractorFactory.GetExtractor(extension);
                     if (extractor == null)
@@ -290,7 +288,7 @@ namespace GameManager.Components.Pages
                         return;
                     }
 
-                    string targetPath = Path.Combine(configService.GetToolPath(), Name);
+                    string targetPath = Path.Combine(appPathService.ToolsDirPath, Name);
                     Result<string> extractResult = await extractor.ExtractAsync(tempPath, new ExtractOption
                     {
                         CreateNewFolder = false,

@@ -17,7 +17,7 @@
             <MudPaper Outlined="true" Class="d-flex flex-row pa-2">
                 <MudText Typo="Typo.h6" Align="Align.Center">@builtinToolInfo.Name</MudText>
                 <MudSpacer />
-                @if (Directory.Exists(Path.Combine(ConfigService.GetToolPath(), builtinToolInfo.Name)))
+                @if (Directory.Exists(Path.Combine(AppPathService.ToolsDirPath, builtinToolInfo.Name)))
                 {
                     <MudButton OnClick="builtinToolInfo.Launch">
                         <MudIcon Icon="@Icons.Material.Filled.ArrowRight" Style="@($"color:{Colors.Green.Default}")"></MudIcon>
