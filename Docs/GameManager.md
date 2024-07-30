@@ -1,5 +1,7 @@
 # GameManager
 
+[繁體中文](./GameManager.zh-tw.md) | [简体中文](./GameManager.zh-cn.md)
+
 - [GameManager](#gamemanager)
   - [User Guide](#user-guide)
     - [Manual Add Game](#manual-add-game)

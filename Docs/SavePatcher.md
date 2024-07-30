@@ -1,6 +1,8 @@
-# Index
+# SavePatcher
 
-- [Index](#index)
+[繁体中文](./SavePatcher.zh-tw.md.md) | [简体中文](./SavePatcher.zh-cn.md)
+
+- [SavePatcher](#savepatcher)
   - [User Guide](#user-guide)
     - [Simple Example](#simple-example)
     - [Patch File To Difference Folder Example](#patch-file-to-difference-folder-example)

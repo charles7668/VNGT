@@ -3,7 +3,10 @@
 ![release badge](https://img.shields.io/github/v/release/charles7668/VNGT)
 ![Downloads](https://img.shields.io/github/downloads/charles7668/VNGT/total)
 
-visual novel game tools
+[繁體中文](./Docs/README.zh-tw.md) | [简体中文](./Docs/README.zh-cn.md)
+
+Game management tool: easily manage your games and integrate various assistive tools for gaming.
+
 ![main](./Docs/img/main.png)
 
 - Automatically scan folders for games
