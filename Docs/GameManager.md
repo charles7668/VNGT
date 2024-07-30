@@ -70,11 +70,11 @@ using following command , if need detail message , the command can add `--verbos
 for add migration
 
 ```shell
-dotnet ef migrations add {MigrationName} --project .\GameManager.DB
+dotnet ef migrations add {MigrationName} --project .\GameManager.DB --startup-project .\GameManager.DB.Migrator
 ```
 
 for remove migration
 
 ```shell
-dotnet ef migrations remove --project .\GameManager.DB
+dotnet ef migrations remove --project .\GameManager.DB --startup-project .\GameManager.DB.Migrator
 ```

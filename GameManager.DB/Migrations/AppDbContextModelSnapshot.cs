@@ -40,7 +40,7 @@ namespace GameManager.DB.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AppSettings");
+                    b.ToTable("AppSettings", (string)null);
                 });
 
             modelBuilder.Entity("GameManager.DB.Models.GameInfo", b =>
@@ -105,7 +105,7 @@ namespace GameManager.DB.Migrations
 
                     b.HasIndex("UploadTime", "GameName");
 
-                    b.ToTable("GameInfos");
+                    b.ToTable("GameInfos", (string)null);
                 });
 
             modelBuilder.Entity("GameManager.DB.Models.GameInfoTag", b =>
@@ -120,7 +120,7 @@ namespace GameManager.DB.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("GameInfoTags");
+                    b.ToTable("GameInfoTags", (string)null);
                 });
 
             modelBuilder.Entity("GameManager.DB.Models.GuideSite", b =>
@@ -147,7 +147,7 @@ namespace GameManager.DB.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("GuideSite");
+                    b.ToTable("GuideSite", (string)null);
                 });
 
             modelBuilder.Entity("GameManager.DB.Models.LaunchOption", b =>
@@ -171,7 +171,7 @@ namespace GameManager.DB.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LaunchOption");
+                    b.ToTable("LaunchOption", (string)null);
                 });
 
             modelBuilder.Entity("GameManager.DB.Models.Library", b =>
@@ -186,7 +186,7 @@ namespace GameManager.DB.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Libraries");
+                    b.ToTable("Libraries", (string)null);
                 });
 
             modelBuilder.Entity("GameManager.DB.Models.Tag", b =>
@@ -205,7 +205,7 @@ namespace GameManager.DB.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("GameManager.DB.Models.TextMapping", b =>
@@ -232,7 +232,7 @@ namespace GameManager.DB.Migrations
                     b.HasIndex("Original")
                         .IsUnique();
 
-                    b.ToTable("TextMappings");
+                    b.ToTable("TextMappings", (string)null);
                 });
 
             modelBuilder.Entity("GameManager.DB.Models.GameInfo", b =>

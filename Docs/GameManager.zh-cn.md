@@ -70,11 +70,11 @@
 添加迁移
 
 ```shell
-dotnet ef migrations add {MigrationName} --project .\GameManager.DB
+dotnet ef migrations add {MigrationName} --project .\GameManager.DB --startup-project .\GameManager.DB.Migrator
 ```
 
 移除迁移
 
 ```shell
-dotnet ef migrations remove --project .\GameManager.DB
+dotnet ef migrations remove --project .\GameManager.DB --startup-project .\GameManager.DB.Migrator
 ```

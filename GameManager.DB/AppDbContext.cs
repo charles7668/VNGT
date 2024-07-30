@@ -3,19 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameManager.DB
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
-        public AppDbContext()
-        {
-        }
-
-        public AppDbContext(string connectString)
-        {
-            _connectString = connectString;
-        }
-
-        private readonly string _connectString = "Data Source=InMemorySample;Mode=Memory;Cache=Shared";
-
         public DbSet<GameInfo> GameInfos { get; set; }
 
         public DbSet<Library> Libraries { get; set; }
@@ -27,19 +16,6 @@ namespace GameManager.DB
         public DbSet<GameInfoTag> GameInfoTags { get; set; }
 
         public DbSet<Tag> Tags { get; set; }
-
-
-        // The following configures EF to create a Sqlite database file in the
-        // special "local" folder for your platform.
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            // enable sensitive data logging if needed
-            // options.EnableSensitiveDataLogging().LogTo((log) =>
-            // {
-            //     Debugger.Log(1, "sql", log);
-            // }, LogLevel.Information);
-            options.UseSqlite(_connectString);
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -42,14 +42,10 @@ namespace GameManager
 #endif
             appPathService.CreateAppPath();
             builder.Services.AddSingleton(appPathService);
-            var dbContext = new AppDbContext($"Data Source={appPathService.DBFilePath}");
-            dbContext.Database.ExecuteSql($"PRAGMA foreign_keys=OFF;");
-            if (dbContext.Database.GetPendingMigrations().Any())
-                dbContext.Database.Migrate();
-            dbContext.Database.EnsureCreated();
-            dbContext.Database.ExecuteSql($"PRAGMA foreign_keys=ON;");
-            builder.Services.AddTransient(_ =>
-                new AppDbContext($"Data Source={appPathService.DBFilePath}"));
+            builder.Services.AddDbContextFactory<AppDbContext>(optionBuilder =>
+            {
+                optionBuilder.UseSqlite($"Data Source={appPathService.DBFilePath}");
+            });
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

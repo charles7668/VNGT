@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameManager", "GameManager\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameManager.DB", "GameManager.DB\GameManager.DB.csproj", "{C69AC4D8-71AA-4EC2-9B5D-57D76E7C1790}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameManager.DB.Migrator", "GameManager.DB.Migrator\GameManager.DB.Migrator.csproj", "{C6882738-AFC0-44CB-8DE0-3DF4B2E987E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{C69AC4D8-71AA-4EC2-9B5D-57D76E7C1790}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C69AC4D8-71AA-4EC2-9B5D-57D76E7C1790}.Release|x64.ActiveCfg = Release|x64
 		{C69AC4D8-71AA-4EC2-9B5D-57D76E7C1790}.Release|x64.Build.0 = Release|x64
+		{C6882738-AFC0-44CB-8DE0-3DF4B2E987E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6882738-AFC0-44CB-8DE0-3DF4B2E987E6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C6882738-AFC0-44CB-8DE0-3DF4B2E987E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6882738-AFC0-44CB-8DE0-3DF4B2E987E6}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
