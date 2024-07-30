@@ -18,11 +18,5 @@ namespace GameManager.Database
         {
             return context.SaveChangesAsync();
         }
-
-        public Task ClearChangeTrackerAsync()
-        {
-            context.ChangeTracker.Clear();
-            return Task.CompletedTask;
-        }
     }
 }

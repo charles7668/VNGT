@@ -13,7 +13,5 @@
         IGameInfoTagRepository GameInfoTagRepository { get; }
 
         Task<int> SaveChangesAsync();
-
-        Task ClearChangeTrackerAsync();
     }
 }

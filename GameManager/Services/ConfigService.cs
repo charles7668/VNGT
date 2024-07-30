@@ -10,9 +10,9 @@ namespace GameManager.Services
     /// </summary>
     public class ConfigService : IConfigService
     {
-        public ConfigService(IUnitOfWork unitOfWork, IServiceProvider serviceProvider)
+        public ConfigService(IServiceProvider serviceProvider)
         {
-            _unitOfWork = unitOfWork;
+            _unitOfWork = serviceProvider.GetRequiredService<IUnitOfWork>();
             _serviceProvider = serviceProvider;
             _appSetting = _unitOfWork.AppSettingRepository.GetAppSettingAsync().Result;
             _appPathService = serviceProvider.GetRequiredService<IAppPathService>();
@@ -24,13 +24,13 @@ namespace GameManager.Services
 
         private readonly IAppPathService _appPathService;
 
-        private readonly IUnitOfWork _unitOfWork;
-
         private readonly AppSetting _appSetting;
+
+        private readonly SemaphoreSlim _semaphore = new(1, 1);
 
         private readonly IServiceProvider _serviceProvider;
 
-        private readonly SemaphoreSlim _semaphore = new(1, 1);
+        private readonly IUnitOfWork _unitOfWork;
 
         private MemoryCache _memoryCache;
 
@@ -77,10 +77,10 @@ namespace GameManager.Services
 
         public async Task DeleteGameInfoByIdAsync(int id)
         {
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             try
             {
-                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 IGameInfoRepository gameInfoRepo = unitOfWork.GameInfoRepository;
                 string? cover = await gameInfoRepo.GetCoverById(id);
                 if (cover != null)
@@ -88,29 +88,27 @@ namespace GameManager.Services
                     await DeleteCoverImage(cover);
                 }
 
-                await _semaphore.WaitAsync();
-                await _unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
+                await unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
             }
             finally
             {
-                await _unitOfWork.SaveChangesAsync();
-                await _unitOfWork.ClearChangeTrackerAsync();
-                if (_semaphore.CurrentCount == 0)
-                    _semaphore.Release();
+                await unitOfWork.SaveChangesAsync();
             }
         }
 
         public async Task DeleteGameInfoByIdListAsync(IEnumerable<int> idList, CancellationToken cancellationToken,
             Action<int> onDeleteCallback)
         {
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             await Parallel.ForEachAsync(idList, cancellationToken, async (id, token) =>
             {
                 token.ThrowIfCancellationRequested();
                 try
                 {
-                    await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-                    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                    IGameInfoRepository gameInfoRepo = unitOfWork.GameInfoRepository;
+                    await using AsyncServiceScope subScope = _serviceProvider.CreateAsyncScope();
+                    IUnitOfWork subUnitOfWork = subScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                    IGameInfoRepository gameInfoRepo = subUnitOfWork.GameInfoRepository;
                     string? cover = await gameInfoRepo.GetCoverById(id);
                     if (cover != null)
                     {
@@ -118,7 +116,7 @@ namespace GameManager.Services
                     }
 
                     await _semaphore.WaitAsync(token);
-                    await _unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
+                    await unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
                 }
                 finally
                 {
@@ -127,32 +125,33 @@ namespace GameManager.Services
                     onDeleteCallback(id);
                 }
             });
-            await _unitOfWork.SaveChangesAsync();
-            await _unitOfWork.ClearChangeTrackerAsync();
+            await unitOfWork.SaveChangesAsync();
         }
 
         public async Task AddGameInfoAsync(GameInfo info)
         {
-            IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
-            await gameInfoRepo.AddAsync(info);
-            await _unitOfWork.SaveChangesAsync();
-            await _unitOfWork.ClearChangeTrackerAsync();
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            await unitOfWork.GameInfoRepository.AddAsync(info);
+            await unitOfWork.SaveChangesAsync();
         }
 
         public Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
             SortOrder order = SortOrder.UPLOAD_TIME)
         {
-            return _unitOfWork.GameInfoRepository
+            AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            return unitOfWork.GameInfoRepository
                 .GetGameInfoForEachAsync(action, cancellationToken, order);
         }
 
 
         public async Task EditGameInfo(GameInfo info)
         {
-            IGameInfoRepository gameInfoRepo = _unitOfWork.GameInfoRepository;
-            await gameInfoRepo.EditAsync(info);
-            await _unitOfWork.SaveChangesAsync();
-            await _unitOfWork.ClearChangeTrackerAsync();
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            await unitOfWork.GameInfoRepository.EditAsync(info);
+            await unitOfWork.SaveChangesAsync();
         }
 
         public AppSetting GetAppSetting()
@@ -162,8 +161,10 @@ namespace GameManager.Services
 
         public async Task UpdateAppSettingAsync(AppSetting setting)
         {
-            await _unitOfWork.AppSettingRepository.UpdateAppSettingAsync(setting);
-            await _unitOfWork.SaveChangesAsync();
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            await unitOfWork.AppSettingRepository.UpdateAppSettingAsync(setting);
+            await unitOfWork.SaveChangesAsync();
             // clear cache because the data has been changed
             _memoryCache.Dispose();
             _memoryCache = new MemoryCache(new MemoryCacheOptions
@@ -174,19 +175,25 @@ namespace GameManager.Services
 
         public Task<List<Library>> GetLibrariesAsync(CancellationToken cancellationToken)
         {
-            return _unitOfWork.LibraryRepository.GetLibrariesAsync(cancellationToken);
+            AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            return unitOfWork.LibraryRepository.GetLibrariesAsync(cancellationToken);
         }
 
         public async Task AddLibraryAsync(Library library)
         {
-            await _unitOfWork.LibraryRepository.AddAsync(library);
-            await _unitOfWork.SaveChangesAsync();
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            await unitOfWork.LibraryRepository.AddAsync(library);
+            await unitOfWork.SaveChangesAsync();
         }
 
         public async Task DeleteLibraryByIdAsync(int id)
         {
-            await _unitOfWork.LibraryRepository.DeleteByIdAsync(id);
-            await _unitOfWork.SaveChangesAsync();
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            await unitOfWork.LibraryRepository.DeleteByIdAsync(id);
+            await unitOfWork.SaveChangesAsync();
         }
 
         public Task<bool> CheckExePathExist(string path)
@@ -196,9 +203,10 @@ namespace GameManager.Services
 
         public async Task UpdateLastPlayedByIdAsync(int id, DateTime time)
         {
-            await _unitOfWork.GameInfoRepository.UpdateLastPlayedByIdAsync(id, time);
-            await _unitOfWork.SaveChangesAsync();
-            await _unitOfWork.ClearChangeTrackerAsync();
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            await unitOfWork.GameInfoRepository.UpdateLastPlayedByIdAsync(id, time);
+            await unitOfWork.SaveChangesAsync();
         }
 
         public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)
@@ -227,8 +235,10 @@ namespace GameManager.Services
 
         public async Task UpdateGameInfoTags(int gameId, IEnumerable<string> tags)
         {
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             var tagSet = tags.ToArray().ToHashSet();
-            IEnumerable<Tag> originTags = await _unitOfWork.GameInfoRepository.GetTagsByIdAsync(gameId);
+            IEnumerable<Tag> originTags = await unitOfWork.GameInfoRepository.GetTagsByIdAsync(gameId);
             foreach (Tag tag in originTags)
             {
                 if (tagSet.Contains(tag.Name))
@@ -237,17 +247,16 @@ namespace GameManager.Services
                     continue;
                 }
 
-                await _unitOfWork.GameInfoTagRepository.RemoveGameInfoTagAsync(tag.Id, gameId);
+                await unitOfWork.GameInfoTagRepository.RemoveGameInfoTagAsync(tag.Id, gameId);
             }
 
             foreach (string tag in tagSet)
             {
-                Tag tagEntity = await _unitOfWork.TagRepository.AddTagAsync(tag);
-                await _unitOfWork.GameInfoRepository.AddTagAsync(gameId, tagEntity);
+                Tag tagEntity = await unitOfWork.TagRepository.AddTagAsync(tag);
+                await unitOfWork.GameInfoRepository.AddTagAsync(gameId, tagEntity);
             }
 
-            await _unitOfWork.SaveChangesAsync();
-            await _unitOfWork.ClearChangeTrackerAsync();
+            await unitOfWork.SaveChangesAsync();
         }
 
         public async Task<bool> CheckGameInfoHasTag(int gameId, string tagName)
