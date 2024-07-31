@@ -132,6 +132,15 @@
   <data name="Card.Run" xml:space="preserve">
     <value>Run</value>
   </data>
+  <data name="Card.SaveBackup" xml:space="preserve">
+    <value>Save Backup</value>
+  </data>
+  <data name="Card.SaveRestore" xml:space="preserve">
+    <value>Save Restore</value>
+  </data>
+  <data name="Card.SaveManage" xml:space="preserve">
+    <value>Manage Save</value>
+  </data>
   <data name="Card.SearchGuide" xml:space="preserve">
     <value>Search Guide</value>
   </data>
