@@ -8,6 +8,7 @@
         string ToolsDirPath { get; }
         string DBFilePath { get; }
         string LogDirPath { get; }
+        string SaveFileBackupDirPath { get; }
 
         void CreateAppPath();
     }

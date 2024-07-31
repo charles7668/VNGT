@@ -106,6 +106,33 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Save Backup 的當地語系化字串。
+        /// </summary>
+        internal static string Card_SaveBackup {
+            get {
+                return ResourceManager.GetString("Card.SaveBackup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Manage Save 的當地語系化字串。
+        /// </summary>
+        internal static string Card_SaveManage {
+            get {
+                return ResourceManager.GetString("Card.SaveManage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Save Restore 的當地語系化字串。
+        /// </summary>
+        internal static string Card_SaveRestore {
+            get {
+                return ResourceManager.GetString("Card.SaveRestore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Search Guide 的當地語系化字串。
         /// </summary>
         internal static string Card_SearchGuide {

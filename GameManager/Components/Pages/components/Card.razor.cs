@@ -1,4 +1,6 @@
 ﻿using GameManager.DB.Models;
+using GameManager.Extractor;
+using GameManager.Models;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;
@@ -9,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using MudBlazor;
 using MudBlazor.Utilities;
 using System.Diagnostics;
+using System.IO.Compression;
 using System.Web;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -17,6 +20,8 @@ namespace GameManager.Components.Pages.components
 {
     public partial class Card
     {
+        private MudMenu? _menuRef;
+
         [Inject]
         private IDialogService DialogService { get; set; } = null!;
 
@@ -50,6 +55,8 @@ namespace GameManager.Components.Pages.components
 
         [Parameter]
         public EventCallback<string> OnChipTagClickEvent { get; set; }
+
+        private List<string> BackupSaveFiles { get; set; } = [];
 
         private AppSetting? AppSetting { get; set; }
 
@@ -197,8 +204,26 @@ namespace GameManager.Components.Pages.components
                 UseShellExecute = true
             };
             Process.Start(startInfo);
+            _menuRef?.CloseMenuAsync();
             return Task.CompletedTask;
         }
+
+        #region LifeCycles
+
+        protected override void OnInitialized()
+        {
+            try
+            {
+                base.OnInitialized();
+            }
+            catch (Exception e)
+            {
+                Logger.LogError("Error : {Message}", e.ToString());
+                throw;
+            }
+        }
+
+        #endregion
 
         private async Task OnLaunch()
         {
@@ -366,6 +391,7 @@ namespace GameManager.Components.Pages.components
                 Logger.LogError("Error : {Message}", ex.ToString());
                 DialogService.ShowMessageBox("Error", ex.Message, cancelText: Resources.Dialog_Button_Cancel);
             }
+            _menuRef?.CloseMenuAsync();
         }
 
         private void OnOpenSaveFilePath(MouseEventArgs obj)
@@ -396,6 +422,130 @@ namespace GameManager.Components.Pages.components
                 Logger.LogError("Error : {Message}", ex.ToString());
                 DialogService.ShowMessageBox("Error", ex.Message, cancelText: Resources.Dialog_Button_Cancel);
             }
+        }
+
+        private void OnSaveFileBackupClick(MouseEventArgs obj)
+        {
+            if (GameInfo?.ExePath == null)
+                return;
+            if (string.IsNullOrEmpty(GameInfo.SaveFilePath))
+            {
+                Snackbar.Add(Resources.Message_ParameterNotSet, Severity.Warning);
+                return;
+            }
+
+            if (!Directory.Exists(GameInfo.SaveFilePath))
+            {
+                Snackbar.Add(GameInfo.SaveFilePath + Resources.Message_DirectoryNotExist, Severity.Warning);
+                return;
+            }
+
+            string backupDirHash = HashHelper.GetMD5(GameInfo.ExePath);
+            string backupDir = Path.Combine(AppPathService.SaveFileBackupDirPath, backupDirHash);
+            Directory.CreateDirectory(backupDir);
+            IEnumerable<string> oldFiles = Directory.EnumerateFiles(backupDir, "*.zip")
+                .OrderByDescending(x => x).Skip(9);
+            foreach (string file in oldFiles)
+            {
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError("Error to delete old save backup {file} : {Message}", file, e.ToString());
+                }
+            }
+
+            using ZipArchive zipArchive =
+                ZipFile.Open(Path.Combine(backupDir, $"{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.zip"),
+                    ZipArchiveMode.Create);
+            string[] files = Directory.GetFiles(GameInfo.SaveFilePath, "*", SearchOption.AllDirectories);
+
+            foreach (string filePath in files)
+            {
+                string relativePath = Path.GetRelativePath(GameInfo.SaveFilePath, filePath);
+                zipArchive.CreateEntryFromFile(filePath, relativePath);
+            }
+            _menuRef?.CloseMenuAsync();
+        }
+
+        private void OnSaveFileRestoreClick(MouseEventArgs obj)
+        {
+            if (GameInfo?.ExePath == null)
+                return;
+            string backupDirHash = HashHelper.GetMD5(GameInfo.ExePath);
+            string backupDir = Path.Combine(AppPathService.SaveFileBackupDirPath, backupDirHash);
+            if (!Directory.Exists(backupDir))
+                return;
+            IEnumerable<string> files = Directory.EnumerateFiles(backupDir, "*.zip")
+                .OrderByDescending(x => x).Take(10);
+            BackupSaveFiles = files.Select(Path.GetFileNameWithoutExtension).ToList()!;
+        }
+
+        private async Task OnSaveFileStartRestore(string backupFile)
+        {
+            if (GameInfo?.ExePath == null)
+            {
+                return;
+            }
+
+            if (string.IsNullOrEmpty(GameInfo?.SaveFilePath))
+            {
+                Snackbar.Add(Resources.Message_ParameterNotSet, Severity.Warning);
+                return;
+            }
+
+            if (!Directory.Exists(GameInfo.SaveFilePath))
+            {
+                Snackbar.Add(GameInfo.SaveFilePath + Resources.Message_DirectoryNotExist, Severity.Warning);
+                return;
+            }
+
+            string backupDirHash = HashHelper.GetMD5(GameInfo.ExePath);
+            string filePath = Path.Combine(AppPathService.SaveFileBackupDirPath, backupDirHash, backupFile + ".zip");
+            if (!File.Exists(filePath))
+            {
+                Snackbar.Add(backupFile + " " + Resources.Message_NotExist, Severity.Warning);
+                return;
+            }
+
+            ExtractorFactory extractorFactory = App.ServiceProvider.GetRequiredService<ExtractorFactory>();
+            IExtractor zipExtractor = extractorFactory.GetExtractor(".zip") ??
+                                      throw new ArgumentException(".zip extractor not found");
+            string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+            Result<string> extractResult = await zipExtractor.ExtractAsync(filePath,
+                new ExtractOption
+                {
+                    TargetPath = tempPath
+                });
+            if (!extractResult.Success)
+            {
+                Logger.LogError("extract file to temp path failed : {ErrorMessage}", extractResult.Message);
+                Snackbar.Add(extractResult.Message, Severity.Error);
+                try
+                {
+                    Directory.Delete(tempPath);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("error to delete file : {Exception}", ex.ToString());
+                }
+
+                return;
+            }
+
+            try
+            {
+                FileHelper.CopyDirectory(tempPath, GameInfo.SaveFilePath);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError("Error to copy file : {Message}", e.ToString());
+                Snackbar.Add(e.Message, Severity.Error);
+            }
+            _menuRef?.CloseMenuAsync();
         }
     }
 }
