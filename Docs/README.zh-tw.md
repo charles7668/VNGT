@@ -19,8 +19,8 @@
 
 ## 使用指南
 
-- [遊戲管理器](./Docs/GameManager.md)
-- [存檔修改器](./Docs/SavePatcher.md)
+- [遊戲管理器](./GameManager.zh-tw.md)
+- [存檔修改器](./SavePatcher.zh-tw.md)
 
 ## 構建
 
