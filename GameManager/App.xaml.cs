@@ -9,14 +9,6 @@ namespace GameManager
     {
         public App(IServiceProvider serviceProvider)
         {
-            ServiceProvider = serviceProvider;
-            string locale = serviceProvider.GetRequiredService<IConfigService>()
-                .GetAppSetting().Localization ?? "zh-tw";
-            Thread.CurrentThread.CurrentCulture =
-                new CultureInfo(locale);
-            Thread.CurrentThread.CurrentUICulture =
-                new CultureInfo(locale);
-
             IDbContextFactory<AppDbContext> dbContextFactory =
                 serviceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
             AppDbContext dbContext = dbContextFactory.CreateDbContext();
@@ -25,7 +17,14 @@ namespace GameManager
                 dbContext.Database.Migrate();
             dbContext.Database.EnsureCreated();
             dbContext.Database.ExecuteSql($"PRAGMA foreign_keys=ON;");
-
+            
+            ServiceProvider = serviceProvider;
+            string locale = serviceProvider.GetRequiredService<IConfigService>()
+                .GetAppSetting().Localization ?? "zh-tw";
+            Thread.CurrentThread.CurrentCulture =
+                new CultureInfo(locale);
+            Thread.CurrentThread.CurrentUICulture =
+                new CultureInfo(locale);
 
             InitializeComponent();
 
