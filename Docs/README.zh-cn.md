@@ -16,6 +16,7 @@
 - 集成[VNGTTranslator](https://github.com/charles7668/VNGTTranslator)以帮助用户翻译游戏文本
 - 存档修改器可以替换存档以解锁游戏 CG 或替换存档
 - 支持加入自定义的游戏工具
+- 支持备份和还原存档文件（最多可备份 10 个文件）
 
 ## 使用指南
 

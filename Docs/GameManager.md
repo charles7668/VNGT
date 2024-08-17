@@ -9,6 +9,9 @@
     - [Integrate Locale Emulator](#integrate-locale-emulator)
     - [Integrate VNGTTranslator](#integrate-vngttranslator)
     - [Integrate Your Custom Tools](#integrate-your-custom-tools)
+    - [Backup and restore save file](#backup-and-restore-save-file)
+      - [Backup](#backup)
+      - [Restore](#restore)
   - [Develop](#develop)
     - [Requirement](#requirement)
     - [Database Model Change](#database-model-change)
@@ -56,6 +59,24 @@
   ExeName: path-to-your-custom-tool # relative to tools/your-custom-tool folder
   RunAsAdmin: true
   ```
+
+### Backup and restore save file
+
+#### Backup
+
+- Set the save file location in the game information editor.
+- Open the menu on the game info by clicking `⋮`.
+- Click `MANAGE SAVE`.
+- Click `SAVE BACKUP`.
+- The save file will be backed up to the save file location, using the date as the archive name.
+
+#### Restore
+
+- Set the save file location in the game information editor.
+- Open the menu on the game info by clicking `⋮`.
+- Click `MANAGE SAVE`.
+- Click `SAVE RESTORE`.
+- Select a date to restore. Be careful, as this action will replace the original data.
 
 ## Develop
 
