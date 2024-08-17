@@ -1,0 +1,24 @@
+﻿<div>
+    <MudDialog Title="Check use locale emulator" MaxWidth="MaxWidth.Small">
+        <DialogContent>
+            <MudText Typo="Typo.body1">Do you want to use Locale Emulator to install?</MudText>
+            <MudSelect
+                Label="@Resources.GameEditorDialog_LEOption"
+                @bind-Value="LeConfig"
+                AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
+                @foreach (string config in LeConfigs)
+                {
+                    <MudSelectItem Value="config"/>
+                }
+            </MudSelect>
+        </DialogContent>
+        <DialogActions>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="OnYes">Yes</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="OnNo">No</MudButton>
+        </DialogActions>
+    </MudDialog>
+</div>
+
+@code {
+
+}

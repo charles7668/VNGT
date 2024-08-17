@@ -64,7 +64,14 @@
                 }
             </MudSelect>
         </MudPaper>
-        <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OnAddNewGame">@Resources.Home_AddGame</MudButton>
+        <MudMenu Label="Add"
+                 StartIcon="@Icons.Material.Filled.Add"
+                 AnchorOrigin="Origin.BottomLeft"
+                 Color="Color.Primary"
+                 Variant="Variant.Outlined">
+            <MudMenuItem OnClick="OnInstallGameClick">Install Game</MudMenuItem>
+            <MudMenuItem OnClick="OnAddNewGame">Add From Local</MudMenuItem>
+        </MudMenu>
         <MudButton Class="ma-3" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Close" OnClick="OnDeleteClick">@Resources.Home_DeleteGame</MudButton>
     </MudToolBar>
 </MudPaper>

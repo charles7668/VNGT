@@ -23,7 +23,10 @@ namespace GameManager.Components.Pages
                 _Is64Bit ? "SavePatcher.x86.7z" : "SavePatcher.x64.7z"),
             new BuiltinToolInfo("VNGTTranslator", "VNGTTranslator.exe",
                 "https://api.github.com/repos/charles7668/VNGTTranslator/releases",
-                _Is64Bit ? "VNGTTranslator.x86.7z" : "VNGTTranslator.x64.7z")
+                _Is64Bit ? "VNGTTranslator.x86.7z" : "VNGTTranslator.x64.7z"),
+            new BuiltinToolInfo("ProcessTracer", "ProcessTracer.exe",
+                "https://api.github.com/repos/charles7668/ProcessTracer/releases",
+                _Is64Bit ? "ProcessTracer.x86.7z" : "ProcessTracer.7z")
         ];
 
         private static List<CustomToolInfo>? CustomToolInfos { get; set; }
