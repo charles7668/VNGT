@@ -103,15 +103,27 @@ namespace GameManager.Components.Pages.components
                 return;
             try
             {
-                IGameInfoProvider? gameInfoProvider = GameInfoProviderFactory.GetProvider("VNDB");
-                if (gameInfoProvider == null)
+                List<string> providers = ["VNDB", "DLSite"];
+                List<GameInfo>? infoList = [];
+                bool hasMore = false;
+                IGameInfoProvider? gameInfoProvider = null;
+                foreach (string provider in providers)
                 {
-                    throw new ArgumentException("game info provider not found : vndb");
+                    gameInfoProvider = GameInfoProviderFactory.GetProvider(provider);
+                    if (gameInfoProvider == null)
+                    {
+                        Logger.LogError("Provider {Provider} not found", provider);
+                        continue;
+                    }
+
+                    (infoList, hasMore) =
+                        await gameInfoProvider.FetchGameSearchListAsync(Model.GameName, 10, 1);
+
+                    if (infoList is { Count: > 0 })
+                        break;
                 }
 
-                (List<GameInfo>? infoList, bool hasMore) =
-                    await gameInfoProvider.FetchGameSearchListAsync(Model.GameName, 10, 1);
-                if (infoList == null || infoList.Count == 0)
+                if (infoList == null || infoList.Count == 0 || gameInfoProvider == null)
                 {
                     await DialogService.ShowMessageBox("Error", Resources.Message_RelatedGameNotFound,
                         Resources.Dialog_Button_Cancel);
@@ -125,7 +137,8 @@ namespace GameManager.Components.Pages.components
                     {
                         { x => x.DisplayInfos, infoList },
                         { x => x.HasMore, hasMore },
-                        { x => x.SearchName, Model.GameName }
+                        { x => x.SearchName, Model.GameName },
+                        { x => x.ProviderName, gameInfoProvider.ProviderName }
                     };
                     IDialogReference? dialogReference = await DialogService.ShowAsync<DialogFetchSelection>("",
                         parameters,

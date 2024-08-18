@@ -50,6 +50,7 @@ namespace GameManager
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddScoped<IGameInfoProvider, VndbProvider>();
+            builder.Services.AddScoped<IGameInfoProvider, DLSiteProvider>();
             builder.Services.AddScoped<GameInfoProviderFactory, GameInfoProviderFactory>();
 
             builder.Services.AddExtractors();

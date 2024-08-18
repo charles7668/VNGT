@@ -64,6 +64,8 @@
 
     <ItemGroup>
 	    <PackageReference Include="DotNetZip" Version="1.16.0" />
+	    <PackageReference Include="HtmlAgilityPack" Version="1.11.63" />
+	    <PackageReference Include="HtmlAgilityPack.CssSelectors.NetCore" Version="1.2.1" />
 	    <PackageReference Include="Microsoft.Extensions.Configuration.Yaml" Version="2.0.0-preview2" />
 	    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.7" />
 	    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />

@@ -29,6 +29,9 @@ namespace GameManager.Components.Pages.components
         [Parameter]
         public bool HasMore { get; set; }
 
+        [Parameter]
+        public string ProviderName { get; set; }
+
         private bool PrevBtnDisabled => _page <= 1;
 
         private bool NextBtnDisabled => !HasMore;
@@ -39,7 +42,8 @@ namespace GameManager.Components.Pages.components
             {
                 int newPage = _page + direction;
                 (List<GameInfo>? infoList, bool hasMore) =
-                    await GameInfoProviderFactory.GetProvider("VNDB").FetchGameSearchListAsync(SearchName, 10, newPage);
+                    await GameInfoProviderFactory.GetProvider(ProviderName)!.FetchGameSearchListAsync(SearchName, 10,
+                        newPage);
                 if (infoList == null)
                 {
                     await DialogService.ShowMessageBox("Error", "parse result failed", "cancel");
