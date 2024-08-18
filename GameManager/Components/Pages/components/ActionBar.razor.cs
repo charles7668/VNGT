@@ -267,7 +267,9 @@ namespace GameManager.Components.Pages.components
             // if the target is empty, return
             if (string.IsNullOrEmpty(target))
                 return;
-            await AddNewGameEvent.InvokeAsync(target);
+
+            if (AddNewGameEvent.HasDelegate)
+                await AddNewGameEvent.InvokeAsync(target);
         }
 
         private async Task OnAddNewGame()
