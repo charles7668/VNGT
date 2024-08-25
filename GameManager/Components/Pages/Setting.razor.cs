@@ -78,6 +78,26 @@ namespace GameManager.Components.Pages
             return Task.CompletedTask;
         }
 
+        private Task ScanSandboxie()
+        {
+            RegistryKey key = Registry.LocalMachine;
+            const string subKeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Sandboxie-Plus_is1";
+            RegistryKey? subKey = key.OpenSubKey(subKeyPath);
+            if (subKey?.GetValue("InstallLocation") is not string installLocation)
+            {
+                return Task.CompletedTask;
+            }
+
+            string startFilePath = Path.Combine(installLocation, "Start.exe");
+            if (!File.Exists(startFilePath))
+            {
+                return Task.CompletedTask;
+            }
+
+            AppSetting.SandboxiePath = startFilePath;
+            return Task.CompletedTask;
+        }
+
         private async Task OnAddGuideSiteClick()
         {
             List<DialogInputBox.InputModel> inputModel =

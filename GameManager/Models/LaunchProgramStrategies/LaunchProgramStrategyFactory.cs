@@ -6,6 +6,11 @@ namespace GameManager.Models.LaunchProgramStrategies
     {
         public static IStrategy Create(GameInfo gameInfo, Action<int>? tryLaunchVNGTTranslator = null)
         {
+            if (gameInfo.LaunchOption?.RunWithSandboxie is true)
+            {
+                return new LaunchWithSandboxie(gameInfo, tryLaunchVNGTTranslator);
+            }
+
             if (gameInfo.LaunchOption?.LaunchWithLocaleEmulator is not "None")
             {
                 return new LaunchWithLocaleEmulator(gameInfo, tryLaunchVNGTTranslator);

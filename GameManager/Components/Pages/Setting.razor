@@ -25,6 +25,14 @@
                     </MudTextField>
                     <MudButton OnClick="ScanLocaleEmulator" Variant="Variant.Outlined">@Resources.Settings_Button_ScanFromInstalled</MudButton>
                 </MudPaper>
+                <MudPaper Class="d-flex" Elevation="0">
+                    <MudTextField T="string"
+                                  Label="Sandboxie Path"
+                                  For="() => AppSetting.SandboxiePath!"
+                                  @bind-Value="AppSetting.SandboxiePath">
+                    </MudTextField>
+                    <MudButton OnClick="ScanSandboxie" Variant="Variant.Outlined">@Resources.Settings_Button_ScanFromInstalled</MudButton>
+                </MudPaper>
                 <MudElement>
                     <MudCheckBox T="bool" @bind-Value="AppSetting.IsAutoFetchInfoEnabled">@Resources.Settings_Button_EnableAutoFetchInfoOnScan</MudCheckBox>
                 </MudElement>

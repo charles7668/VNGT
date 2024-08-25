@@ -295,6 +295,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Run with Sandboxie 的當地語系化字串。
+        /// </summary>
+        internal static string GameEditorDialog_RunWithSandboxie {
+            get {
+                return ResourceManager.GetString("GameEditorDialog.RunWithSandboxie", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Run with VNGTTranslator 的當地語系化字串。
         /// </summary>
         internal static string GameEditorDialog_RunWithVNGTTranslator {

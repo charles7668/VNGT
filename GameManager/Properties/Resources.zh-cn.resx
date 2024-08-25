@@ -135,11 +135,11 @@
   <data name="Card.SaveBackup" xml:space="preserve">
     <value>备份存档</value>
   </data>
-  <data name="Card.SaveRestore" xml:space="preserve">
-    <value>复原存档</value>
-  </data>
   <data name="Card.SaveManage" xml:space="preserve">
     <value>存档管理</value>
+  </data>
+  <data name="Card.SaveRestore" xml:space="preserve">
+    <value>复原存档</value>
   </data>
   <data name="Card.SearchGuide" xml:space="preserve">
     <value>搜寻攻略</value>
@@ -194,6 +194,9 @@
   </data>
   <data name="GameEditorDialog.RunAsAdmin" xml:space="preserve">
     <value>使用管理员启动</value>
+  </data>
+  <data name="GameEditorDialog.RunWithSandboxie" xml:space="preserve">
+    <value>使用 Sandboxie 开启</value>
   </data>
   <data name="GameEditorDialog.RunWithVNGTTranslator" xml:space="preserve">
     <value>与VNGT翻译器一起启动</value>

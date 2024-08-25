@@ -294,6 +294,8 @@ namespace GameManager.Components.Pages.components
             public bool RunAsAdmin { get; set; }
 
             public bool RunWithVNGTTranslator { get; set; }
+            
+            public bool RunWithSandboxie { get; set; }
 
             public bool IsVNGTTranslatorNeedAdmin { get; set; }
 

@@ -20,6 +20,7 @@ namespace GameManager.Services
             dest.LaunchOption.LaunchWithLocaleEmulator = src.LeConfig;
             dest.LaunchOption.RunWithVNGTTranslator = src.RunWithVNGTTranslator;
             dest.LaunchOption.IsVNGTTranslatorNeedAdmin = src.IsVNGTTranslatorNeedAdmin;
+            dest.LaunchOption.RunWithSandboxie = src.RunWithSandboxie;
         }
 
         public static void Map(GameInfo src, DialogGameInfoEdit.FormModel dest)
@@ -36,6 +37,7 @@ namespace GameManager.Services
             dest.LeConfig = src.LaunchOption?.LaunchWithLocaleEmulator ?? "None";
             dest.RunWithVNGTTranslator = src.LaunchOption?.RunWithVNGTTranslator ?? false;
             dest.IsVNGTTranslatorNeedAdmin = src.LaunchOption?.IsVNGTTranslatorNeedAdmin ?? false;
+            dest.RunWithSandboxie = src.LaunchOption?.RunWithSandboxie ?? false;
         }
     }
 }

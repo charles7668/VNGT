@@ -83,6 +83,12 @@
                             </MudToolBar>
                             <MudToolBar Class="pa-0">
                                 <MudCheckBox T="bool"
+                                             @bind-Value="@Model.RunWithSandboxie"
+                                             Label="@Resources.GameEditorDialog_RunWithSandboxie">
+                                </MudCheckBox>
+                            </MudToolBar>
+                            <MudToolBar Class="pa-0">
+                                <MudCheckBox T="bool"
                                              @bind-Value="@Model.RunWithVNGTTranslator"
                                              Label="@Resources.GameEditorDialog_RunWithVNGTTranslator">
                                 </MudCheckBox>

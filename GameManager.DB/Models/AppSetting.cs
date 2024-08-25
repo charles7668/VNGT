@@ -9,6 +9,9 @@ namespace GameManager.DB.Models
         [MaxLength(260)]
         public string? LocaleEmulatorPath { get; set; }
 
+        [MaxLength(260)]
+        public string? SandboxiePath { get; set; }
+
         public bool IsAutoFetchInfoEnabled { get; set; } = true;
 
         [MaxLength(10)]
