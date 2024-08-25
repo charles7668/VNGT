@@ -1,6 +1,7 @@
 ﻿using GameManager.DB.Models;
 using GameManager.Extractor;
 using GameManager.Models;
+using GameManager.Models.LaunchProgramStrategies;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;
@@ -13,8 +14,6 @@ using MudBlazor.Utilities;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Web;
-using System.Xml.Linq;
-using System.Xml.XPath;
 
 namespace GameManager.Components.Pages.components
 {
@@ -241,108 +240,17 @@ namespace GameManager.Components.Pages.components
                 return;
             }
 
-            string executionFile = Path.Combine(GameInfo.ExePath, GameInfo.ExeFile);
-
-            if (GameInfo.LaunchOption == null || GameInfo.LaunchOption?.LaunchWithLocaleEmulator == "None")
-            {
-                try
-                {
-                    var proc = new Process();
-                    proc.StartInfo.FileName = executionFile;
-                    proc.StartInfo.UseShellExecute = false;
-                    bool runAsAdmin = GameInfo.LaunchOption is { RunAsAdmin: true };
-                    if (runAsAdmin)
-                    {
-                        proc.StartInfo.UseShellExecute = true;
-                        proc.StartInfo.Verb = "runas";
-                    }
-
-                    proc.Start();
-
-                    TryStartVNGTTranslator(proc.Id);
-                    DateTime time = DateTime.Now;
-                    await ConfigService.UpdateLastPlayedByIdAsync(GameInfo.Id, time);
-                    GameInfo.LastPlayed = time;
-                    await ConfigService.EditGameInfo(GameInfo);
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError("Error : {Message}", e.ToString());
-                    Snackbar.Add($"Error: {e.Message}", Severity.Error);
-                }
-
-                return;
-            }
-
-            AppSetting appSetting = ConfigService.GetAppSetting();
-            string leConfigPath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEConfig.xml");
-            if (!File.Exists(leConfigPath))
-            {
-                Snackbar.Add(Resources.Message_LENotFound, Severity.Error);
-                return;
-            }
-
-            var xmlDoc = XDocument.Load(leConfigPath);
-            XElement? node =
-                xmlDoc.XPathSelectElement(
-                    $"//Profiles/Profile[@Name='{GameInfo.LaunchOption?.LaunchWithLocaleEmulator}']");
-            XAttribute? guidAttr = node?.Attribute("Guid");
-            if (guidAttr == null)
-            {
-                Snackbar.Add(
-                    $"LE Config {GameInfo.LaunchOption!.LaunchWithLocaleEmulator} {Resources.Message_NotExist}",
-                    Severity.Error);
-                return;
-            }
-
-            string guid = guidAttr.Value;
-            string leExePath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEProc.exe");
+            IStrategy launchStrategy = LaunchProgramStrategyFactory.Create(GameInfo, TryStartVNGTTranslator);
             try
             {
-                var proc = new Process();
-                proc.StartInfo.FileName = leExePath;
-                proc.StartInfo.Arguments = $"-runas \"{guid}\" \"{executionFile}\"";
-                proc.StartInfo.UseShellExecute = false;
-                bool runAsAdmin = GameInfo.LaunchOption is { RunAsAdmin: true };
-                if (runAsAdmin)
-                {
-                    proc.StartInfo.UseShellExecute = true;
-                    proc.StartInfo.Verb = "runas";
-                }
-
-                proc.Start();
-
-                await Task.Delay(500);
-                Process[] processes = Process.GetProcesses();
-                int foundPid = 0;
-                foreach (Process process in processes)
-                {
-                    try
-                    {
-                        if (string.Equals(process.MainModule?.FileName, executionFile,
-                                StringComparison.OrdinalIgnoreCase))
-                        {
-                            foundPid = process.Id;
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // ignore
-                    }
-                }
-
-                TryStartVNGTTranslator(foundPid);
-
-                DateTime time = DateTime.Now;
-                await ConfigService.UpdateLastPlayedByIdAsync(GameInfo.Id, time);
-                GameInfo.LastPlayed = time;
+                await launchStrategy.ExecuteAsync();
             }
             catch (Exception e)
             {
                 Logger.LogError("Error : {Message}", e.ToString());
-                Snackbar.Add($"Error: {e.Message}", Severity.Error);
+                Snackbar.Add(e.Message, Severity.Error);
             }
-
+            
             return;
 
             void TryStartVNGTTranslator(int pid)
@@ -453,7 +361,7 @@ namespace GameManager.Components.Pages.components
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError("Error to delete old save backup {file} : {Message}", file, e.ToString());
+                    Logger.LogError("Error to delete old save backup {File} : {Message}", file, e.ToString());
                 }
             }
 
