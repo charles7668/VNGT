@@ -206,32 +206,32 @@ namespace GameManager.Components.Pages
                     CancellationToken token = CancellationTokenSource.Token;
                     string response = await _HttpClient.GetStringAsync(DownloadUrl, token);
                     JsonElement releaseInfos = JsonSerializer.Deserialize<JsonElement>(response);
-                    if (releaseInfos.GetArrayLength() == 0)
-                    {
-                        OnFailed(Name, "this project not have release");
-                        return;
-                    }
-
-                    bool ok = releaseInfos[0].TryGetProperty("assets", out JsonElement assets);
-                    if (!ok)
-                    {
-                        OnFailed(Name, "No assets data on release");
-                        return;
-                    }
-
+                    int releaseCount = releaseInfos.GetArrayLength();
                     bool find = false;
-                    foreach (JsonElement asset in assets.EnumerateArray())
+                    string? downloadUrl = null;
+                    for (int i = 0; i < releaseCount && !find; ++i)
                     {
-                        if (!asset.TryGetProperty("name", out JsonElement name) ||
-                            name.GetString() != DownloadFileName) continue;
-                        string? downloadUrl = asset.GetProperty("browser_download_url").GetString();
-                        if (downloadUrl == null)
+                        bool ok = releaseInfos[i].TryGetProperty("assets", out JsonElement assets);
+                        if (!ok)
+                            continue;
+                        foreach (JsonElement asset in assets.EnumerateArray())
                         {
+                            if (!asset.TryGetProperty("name", out JsonElement name) ||
+                                name.GetString() != DownloadFileName)
+                                continue;
+                            downloadUrl = asset.GetProperty("browser_download_url").GetString();
+                            if (downloadUrl == null)
+                            {
+                                break;
+                            }
+
+                            find = true;
                             break;
                         }
+                    }
 
-                        find = true;
-
+                    if (find)
+                    {
                         using HttpResponseMessage fileResponse =
                             await _HttpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, token);
                         fileResponse.EnsureSuccessStatusCode();
@@ -266,16 +266,13 @@ namespace GameManager.Components.Pages
                             }
                         }
 
-                        break;
+                        if (token.IsCancellationRequested)
+                        {
+                            OnFailed(Name, "Task is canceled.");
+                            return;
+                        }
                     }
-
-                    if (token.IsCancellationRequested)
-                    {
-                        OnFailed(Name, "Task is canceled.");
-                        return;
-                    }
-
-                    if (!find)
+                    else
                     {
                         OnFailed(Name, "No download file found");
                         return;
