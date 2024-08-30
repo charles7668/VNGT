@@ -88,6 +88,9 @@
                                                  @bind-Value="@Model.RunWithSandboxie"
                                                  Label="@Resources.GameEditorDialog_RunWithSandboxie">
                                     </MudCheckBox>
+                                    <MudTextField T="string" @bind-Value="@Model.SandboxieBoxName"
+                                                  For="() => Model.SandboxieBoxName" Variant="Variant.Outlined" >
+                                    </MudTextField>
                                 </MudToolBar>
                             }
                             @if (_isVNGTTranslatorInstalled)

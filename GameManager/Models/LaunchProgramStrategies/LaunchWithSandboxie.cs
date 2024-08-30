@@ -25,6 +25,7 @@ namespace GameManager.Models.LaunchProgramStrategies
             if (string.IsNullOrEmpty(sandboxiePath))
                 throw new Exception("Sandboxie path not set");
             string sandboxieFilePath = Path.Combine(sandboxiePath, "Start.exe");
+            string sandboxieBoxName = gameInfo.LaunchOption?.SandboxieBoxName ?? "DefaultBox";
             if (!File.Exists(sandboxieFilePath))
                 throw new Exception("Sandboxie Start.exe not found");
 
@@ -53,7 +54,7 @@ namespace GameManager.Models.LaunchProgramStrategies
 
                 var proc = new Process();
                 proc.StartInfo.FileName = sandboxieFilePath;
-                proc.StartInfo.Arguments = $"{leExePath} -runas \"{guid}\" \"{executionFile}\"";
+                proc.StartInfo.Arguments = $"/Box:{sandboxieBoxName} {leExePath} -runas \"{guid}\" \"{executionFile}\"";
                 proc.StartInfo.UseShellExecute = false;
                 proc.Start();
             }
@@ -61,7 +62,7 @@ namespace GameManager.Models.LaunchProgramStrategies
             {
                 var proc = new Process();
                 proc.StartInfo.FileName = sandboxieFilePath;
-                proc.StartInfo.Arguments = $"\"{executionFile}\"";
+                proc.StartInfo.Arguments = $"/Box:{sandboxieBoxName} \"{executionFile}\"";
                 proc.StartInfo.UseShellExecute = false;
                 proc.Start();
             }

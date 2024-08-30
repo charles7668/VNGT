@@ -29,6 +29,9 @@ namespace GameManager.DB
                 .HasMany(x => x.Tags)
                 .WithMany(x => x.GameInfos)
                 .UsingEntity<GameInfoTag>();
+            modelBuilder.Entity<LaunchOption>()
+                .Property(x => x.SandboxieBoxName)
+                .HasDefaultValue("DefaultBox");
 
             base.OnModelCreating(modelBuilder);
         }

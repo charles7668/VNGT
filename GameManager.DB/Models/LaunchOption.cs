@@ -11,6 +11,9 @@ namespace GameManager.DB.Models
         public bool RunWithVNGTTranslator { get; set; }
         
         public bool RunWithSandboxie { get; set; }
+        
+        [MaxLength(100)]
+        public string SandboxieBoxName { get; set; } = "DefaultBox";
 
         public bool IsVNGTTranslatorNeedAdmin { get; set; }
 

@@ -309,6 +309,9 @@ namespace GameManager.Components.Pages.components
             
             public bool RunWithSandboxie { get; set; }
 
+            [Label("Box Name")]
+            public string SandboxieBoxName { get; set; } = "DefaultBox";
+
             public bool IsVNGTTranslatorNeedAdmin { get; set; }
 
             public string? LeConfig { get; set; }
