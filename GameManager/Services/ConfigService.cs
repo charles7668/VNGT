@@ -88,7 +88,9 @@ namespace GameManager.Services
                     await DeleteCoverImage(cover);
                 }
 
-                await unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
+                GameInfo? deletedInfo = await unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
+                if (deletedInfo?.LaunchOption != null)
+                    await unitOfWork.LaunchOptionRepository.Delete(deletedInfo.LaunchOption.Id);
             }
             finally
             {

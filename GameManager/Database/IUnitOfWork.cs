@@ -11,6 +11,8 @@
         ITagRepository TagRepository { get; }
 
         IGameInfoTagRepository GameInfoTagRepository { get; }
+        
+        ILaunchOptionRepository LaunchOptionRepository { get; }
 
         Task<int> SaveChangesAsync();
     }

@@ -46,15 +46,16 @@ namespace GameManager.Database
             return Task.CompletedTask;
         }
 
-        public Task DeleteByIdAsync(int id)
+        public Task<GameInfo?> DeleteByIdAsync(int id)
         {
             GameInfo? item = context.GameInfos
+                .Include(x => x.LaunchOption)
                 .AsNoTracking()
                 .FirstOrDefault(x => x.Id == id);
             if (item == null || context.Entry(item).State == EntityState.Deleted)
-                return Task.CompletedTask;
+                return Task.FromResult<GameInfo?>(null);
             context.GameInfos.Remove(item);
-            return Task.CompletedTask;
+            return Task.FromResult<GameInfo?>(item);
         }
 
         public Task<bool> CheckExePathExist(string path)

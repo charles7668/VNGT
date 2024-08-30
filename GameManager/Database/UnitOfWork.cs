@@ -13,6 +13,8 @@ namespace GameManager.Database
         public ITagRepository TagRepository { get; } = new TagRepository(context);
 
         public IGameInfoTagRepository GameInfoTagRepository { get; } = new GameInfoTagRepository(context);
+        
+        public ILaunchOptionRepository LaunchOptionRepository { get; } = new LaunchOptionRepository(context);
 
         public Task<int> SaveChangesAsync()
         {

@@ -16,7 +16,7 @@ namespace GameManager.Database
 
         Task EditAsync(GameInfo info);
 
-        Task DeleteByIdAsync(int id);
+        Task<GameInfo?> DeleteByIdAsync(int id);
 
         Task<bool> CheckExePathExist(string path);
 
