@@ -46,8 +46,14 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;
+        
+        [Inject]
+        private IAppPathService AppPathService { get; set; } = null!;
 
         private List<string> ExeFiles { get; set; } = [];
+
+        private bool _isVNGTTranslatorInstalled;
+        private bool _isSandboxieInstalled;
 
         private void DatePickerTextChanged(string? value)
         {
@@ -218,6 +224,12 @@ namespace GameManager.Components.Pages.components
             }
 
             _tagHashSet = Model.Tags.ToHashSet();
+
+            string toolsPath = AppPathService.ToolsDirPath;
+            _isVNGTTranslatorInstalled = File.Exists(Path.Combine(toolsPath, "VNGTTranslator", "VNGTTranslator.exe"));
+            string? sandboxiePath = Path.GetDirectoryName(AppSetting.SandboxiePath);
+            _isSandboxieInstalled = !string.IsNullOrEmpty(sandboxiePath) &&
+                                    File.Exists(Path.Combine(sandboxiePath, "Start.exe"));
 
             await base.OnInitializedAsync();
         }

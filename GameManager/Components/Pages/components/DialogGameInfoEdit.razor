@@ -81,23 +81,29 @@
                                     </MudSelect>
                                 </MudPaper>
                             </MudToolBar>
-                            <MudToolBar Class="pa-0">
-                                <MudCheckBox T="bool"
-                                             @bind-Value="@Model.RunWithSandboxie"
-                                             Label="@Resources.GameEditorDialog_RunWithSandboxie">
-                                </MudCheckBox>
-                            </MudToolBar>
-                            <MudToolBar Class="pa-0">
-                                <MudCheckBox T="bool"
-                                             @bind-Value="@Model.RunWithVNGTTranslator"
-                                             Label="@Resources.GameEditorDialog_RunWithVNGTTranslator">
-                                </MudCheckBox>
-                                <MudCheckBox T="bool"
-                                             Disabled="@(!Model.RunWithVNGTTranslator)"
-                                             @bind-Value="@Model.IsVNGTTranslatorNeedAdmin"
-                                             Label="@Resources.GameEditorDialog_VNGTTranslatorNeedAdmin">
-                                </MudCheckBox>
-                            </MudToolBar>
+                            @if (_isSandboxieInstalled)
+                            {
+                                <MudToolBar Class="pa-0">
+                                    <MudCheckBox T="bool"
+                                                 @bind-Value="@Model.RunWithSandboxie"
+                                                 Label="@Resources.GameEditorDialog_RunWithSandboxie">
+                                    </MudCheckBox>
+                                </MudToolBar>
+                            }
+                            @if (_isVNGTTranslatorInstalled)
+                            {
+                                <MudToolBar Class="pa-0">
+                                    <MudCheckBox T="bool"
+                                                 @bind-Value="@Model.RunWithVNGTTranslator"
+                                                 Label="@Resources.GameEditorDialog_RunWithVNGTTranslator">
+                                    </MudCheckBox>
+                                    <MudCheckBox T="bool"
+                                                 Disabled="@(!Model.RunWithVNGTTranslator)"
+                                                 @bind-Value="@Model.IsVNGTTranslatorNeedAdmin"
+                                                 Label="@Resources.GameEditorDialog_VNGTTranslatorNeedAdmin">
+                                    </MudCheckBox>
+                                </MudToolBar>
+                            }
                         </MudPaper>
                         <MudPaper Elevation="0">
                             <MudStack Row="true">
