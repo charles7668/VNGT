@@ -4,6 +4,7 @@ using GameManager.Properties;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
 using MudBlazor;
 using System.Diagnostics;
 using System.Text;
@@ -48,6 +49,9 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private ISnackbar Snackbar { get; set; } = null!;
+        
+        [Inject]
+        private new ILogger<ActionBar> Logger { get; set; } = null!;
 
         protected override void OnInitialized()
         {
@@ -124,6 +128,41 @@ namespace GameManager.Components.Pages.components
             {
                 return;
             }
+            
+            string tempPath =
+                Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetTempFileName()));
+            Directory.CreateDirectory(tempPath);
+            string tempConsoleOutputPath = Path.Combine(tempPath, "output.txt");
+            string tempConsoleErrorPath = Path.Combine(tempPath, "error.txt");
+
+            var processTracerStartInfo = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                WorkingDirectory = AppPathService.AppDirPath,
+                Arguments =
+                    $"/c {processTracingToolPath} --hide --file \"{installFileResult.FullPath}\" > \"{tempConsoleOutputPath}\" 2>\"{tempConsoleErrorPath}\"",
+                RedirectStandardOutput = false,
+                RedirectStandardError = false,
+                UseShellExecute = true,
+                CreateNoWindow = true,
+                Verb = "runas"
+            };
+            Process? processTracerProc;
+            try
+            {
+                processTracerProc = Process.Start(processTracerStartInfo);
+                if (processTracerProc == null)
+                {
+                    Snackbar.Add("Failed to start ProcessTracer tool", Severity.Error);
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to start ProcessTracer tool : {Exception}", e.ToString());
+                Snackbar.Add("Failed to start ProcessTracer tool", Severity.Error);
+                return;
+            }
 
             if (!string.IsNullOrEmpty(guid))
             {
@@ -146,8 +185,6 @@ namespace GameManager.Components.Pages.components
                     {
                         // ignore
                     }
-
-                    await Task.Delay(200, CancellationToken.None);
                 }
             }
             else
@@ -157,32 +194,6 @@ namespace GameManager.Components.Pages.components
                     FileName = installFileResult.FullPath
                 };
                 Process.Start(processStartInfo);
-                await Task.Delay(100);
-            }
-
-            string tempPath =
-                Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetTempFileName()));
-            Directory.CreateDirectory(tempPath);
-            string tempConsoleOutputPath = Path.Combine(tempPath, "output.txt");
-            string tempConsoleErrorPath = Path.Combine(tempPath, "error.txt");
-
-            var processTracerStartInfo = new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                WorkingDirectory = AppPathService.AppDirPath,
-                Arguments =
-                    $"/c {processTracingToolPath} --file \"{installFileResult.FullPath}\" > \"{tempConsoleOutputPath}\" 2>\"{tempConsoleErrorPath}\"",
-                RedirectStandardOutput = false,
-                RedirectStandardError = false,
-                UseShellExecute = true,
-                CreateNoWindow = true,
-                Verb = "runas"
-            };
-            var processTracerProc = Process.Start(processTracerStartInfo);
-            if (processTracerProc == null)
-            {
-                Snackbar.Add("Failed to start ProcessTracer tool", Severity.Error);
-                return;
             }
 
             await processTracerProc.WaitForExitAsync();
@@ -199,19 +210,21 @@ namespace GameManager.Components.Pages.components
             }
             else if (File.Exists(tempConsoleOutputPath))
             {
-                HashSet<string> candidateDirs = [];
+                HashSet<string> candidateFilePaths = [];
                 List<string> excludePath =
                 [
                     Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)
+                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                    Path.GetDirectoryName(installFileResult.FullPath)!
                 ];
+                Dictionary<string, int> pathCounter = new();
                 using (var sr = new StreamReader(tempConsoleOutputPath, Encoding.UTF8))
                 {
                     do
                     {
                         string? line = await sr.ReadLineAsync();
                         // only find FileIOWrite event data
-                        if (line == null || !line.StartsWith("[FileIOWrite]"))
+                        if (line == null || (!line.StartsWith("[FileIOWrite]") && !line.StartsWith("[FileIOCreate]")))
                         {
                             continue;
                         }
@@ -224,33 +237,35 @@ namespace GameManager.Components.Pages.components
                             continue;
                         }
 
+
                         string? dirPath = Path.GetDirectoryName(filePath);
+                        if (filePath.EndsWith('\\'))
+                            dirPath = filePath;
                         string ext = Path.GetExtension(filePath);
                         // only find for exe path
                         if (dirPath != null && ext == ".exe")
                         {
-                            candidateDirs.Add(filePath);
+                            pathCounter[dirPath] = pathCounter.GetValueOrDefault(dirPath) + 1;
+                            candidateFilePaths.Add(filePath);
                         }
                     } while (!sr.EndOfStream);
                 }
 
-                if (candidateDirs.Count < 1)
+                if (candidateFilePaths.Count < 1)
                 {
                     Snackbar.Add("Can't find the executable file of game", Severity.Error);
                     return;
                 }
 
-                var candidates = candidateDirs.ToList();
-                int minSplitCount = candidates[0].Replace('/', '\\').Split('\\').Length;
+                var candidates = candidateFilePaths.ToList();
                 target = candidates[0];
+                int targetCount = pathCounter!.GetValueOrDefault(Path.GetDirectoryName(candidates[0]));
                 for (int i = 1; i < candidates.Count; ++i)
                 {
-                    int splitCount = candidates[i].Replace('/', '\\').Split('\\').Length;
-                    if (splitCount < minSplitCount)
-                    {
-                        minSplitCount = splitCount;
-                        target = candidates[i];
-                    }
+                    string? dirPath = Path.GetDirectoryName(candidates[i]);
+                    if (string.IsNullOrEmpty(dirPath) || pathCounter[dirPath] <= targetCount) continue;
+                    targetCount = pathCounter[dirPath];
+                    target = candidates[i];
                 }
             }
 
