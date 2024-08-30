@@ -23,6 +23,10 @@
                         <MudIcon Icon="@Icons.Material.Filled.ArrowRight" Style="@($"color:{Colors.Green.Default}")"></MudIcon>
                         Run
                     </MudButton>
+                    <MudButton OnClick="() => RemoveTool(builtinToolInfo.Name)">
+                        <MudIcon Icon="@Icons.Material.Filled.Close" Style="@($"color:{Colors.Red.Default}")"></MudIcon>
+                        Remove
+                    </MudButton>
                 }
                 else
                 {

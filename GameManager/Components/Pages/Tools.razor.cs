@@ -156,6 +156,24 @@ namespace GameManager.Components.Pages
             }
         }
 
+        private void RemoveTool(string name)
+        {
+            string toolsPath = AppPathService.ToolsDirPath;
+            string toolPath = Path.Combine(toolsPath, name);
+            if (!Directory.Exists(toolPath)) return;
+            try
+            {
+
+                Directory.Delete(toolPath, true);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to remove {Name} , {Excep}", name, e.ToString());
+                SnakeBar.Add($"Failed to remove {name} : {e.Message}", Severity.Error);
+            }
+            StateHasChanged();
+        }
+
         private class BuiltinToolInfo(string name, string exePath, string downloadUrl, string downloadFileName)
         {
             private static readonly HttpClient _HttpClient = new()
