@@ -271,8 +271,7 @@ namespace GameManager.Components.Pages.components
 
             try
             {
-                File.Delete(tempConsoleOutputPath);
-                File.Delete(tempConsoleErrorPath);
+                Directory.Delete(tempPath);
             }
             catch (Exception)
             {
