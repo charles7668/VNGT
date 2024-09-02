@@ -51,18 +51,21 @@ namespace GameManager.Models.LaunchProgramStrategies
 
                 string guid = guidAttr.Value;
                 string leExePath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEProc.exe");
+                string elevate = gameInfo.LaunchOption?.RunAsAdmin ?? false ? "/elevate" : "";
 
                 var proc = new Process();
                 proc.StartInfo.FileName = sandboxieFilePath;
-                proc.StartInfo.Arguments = $"/Box:{sandboxieBoxName} {leExePath} -runas \"{guid}\" \"{executionFile}\"";
+                proc.StartInfo.Arguments =
+                    $"/Box:{sandboxieBoxName} {elevate} {leExePath} -runas \"{guid}\" \"{executionFile}\"";
                 proc.StartInfo.UseShellExecute = false;
                 proc.Start();
             }
             else
             {
+                string elevate = gameInfo.LaunchOption?.RunAsAdmin ?? false ? "/elevate" : "";
                 var proc = new Process();
                 proc.StartInfo.FileName = sandboxieFilePath;
-                proc.StartInfo.Arguments = $"/Box:{sandboxieBoxName} \"{executionFile}\"";
+                proc.StartInfo.Arguments = $"/Box:{sandboxieBoxName} {elevate} \"{executionFile}\"";
                 proc.StartInfo.UseShellExecute = false;
                 proc.Start();
             }
