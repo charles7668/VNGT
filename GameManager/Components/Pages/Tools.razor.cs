@@ -20,13 +20,13 @@ namespace GameManager.Components.Pages
         [
             new BuiltinToolInfo("SavePatcher", "SavePatcher.exe",
                 "https://api.github.com/repos/charles7668/VNGT/releases",
-                _Is64Bit ? "SavePatcher.x86.7z" : "SavePatcher.x64.7z"),
+                _Is64Bit ? "SavePatcher.x86.7z" : "SavePatcher.x64.7z", "0.4.0.0"),
             new BuiltinToolInfo("VNGTTranslator", "VNGTTranslator.exe",
                 "https://api.github.com/repos/charles7668/VNGTTranslator/releases",
-                _Is64Bit ? "VNGTTranslator.x86.7z" : "VNGTTranslator.x64.7z"),
+                _Is64Bit ? "VNGTTranslator.x86.7z" : "VNGTTranslator.x64.7z", "0.1.1"),
             new BuiltinToolInfo("ProcessTracer", "ProcessTracer.exe",
                 "https://api.github.com/repos/charles7668/ProcessTracer/releases",
-                _Is64Bit ? "ProcessTracer.x86.7z" : "ProcessTracer.7z")
+                _Is64Bit ? "ProcessTracer.x86.7z" : "ProcessTracer.7z", "0.2.0")
         ];
 
         private static List<CustomToolInfo>? CustomToolInfos { get; set; }
@@ -174,7 +174,12 @@ namespace GameManager.Components.Pages
             StateHasChanged();
         }
 
-        private class BuiltinToolInfo(string name, string exePath, string downloadUrl, string downloadFileName)
+        private class BuiltinToolInfo(
+            string name,
+            string exePath,
+            string downloadUrl,
+            string downloadFileName,
+            string? releaseTag = null)
         {
             private static readonly HttpClient _HttpClient = new()
             {
@@ -229,6 +234,9 @@ namespace GameManager.Components.Pages
                     string? downloadUrl = null;
                     for (int i = 0; i < releaseCount && !find; ++i)
                     {
+                        if (releaseTag != null && releaseInfos[i].TryGetProperty("name", out JsonElement title) &&
+                            title.GetString() != releaseTag)
+                            continue;
                         bool ok = releaseInfos[i].TryGetProperty("assets", out JsonElement assets);
                         if (!ok)
                             continue;
