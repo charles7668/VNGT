@@ -54,6 +54,7 @@ namespace GameManager.Components.Pages.components
 
         private bool _isVNGTTranslatorInstalled;
         private bool _isSandboxieInstalled;
+        private bool _isFetching;
 
         private void DatePickerTextChanged(string? value)
         {
@@ -105,8 +106,11 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnInfoFetchClick()
         {
+            if (_isFetching)
+                return;
             if (string.IsNullOrEmpty(Model.GameName))
                 return;
+            _isFetching = true;
             try
             {
                 List<string> providers = ["VNDB", "DLSite"];
@@ -190,6 +194,10 @@ namespace GameManager.Components.Pages.components
             {
                 Logger.LogError(e, "Failed to fetch game info {Exception}", e.ToString());
                 await DialogService.ShowMessageBox("Error", e.Message, Resources.Dialog_Button_Cancel);
+            }
+            finally
+            {
+                _isFetching = false;
             }
         }
 

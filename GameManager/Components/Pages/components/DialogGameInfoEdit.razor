@@ -13,13 +13,24 @@
                                        Variant="Variant.Outlined">
                                 @Resources.GameEditorDialog_ChangeCover
                             </MudButton>
-                            <MudButton OnClick="OnInfoFetchClick"
-                                       Class="ml-2"
-                                       Color="Color.Primary"
-                                       Variant="Variant.Outlined"
-                                       StartIcon="@Icons.Material.Filled.Download">
-                                Fetch
-                            </MudButton>
+                            @if (_isFetching)
+                            {
+                                <MudButton Class="ml-2"
+                                           Color="Color.Primary"
+                                           Variant="Variant.Outlined">
+                                    <MudProgressCircular Size="Size.Small" Color="Color.Success" Indeterminate="true"/>
+                                </MudButton>
+                            }
+                            else
+                            {
+                                <MudButton OnClick="OnInfoFetchClick"
+                                           Class="ml-2"
+                                           Color="Color.Primary"
+                                           Variant="Variant.Outlined"
+                                           StartIcon="@Icons.Material.Filled.Download">
+                                    Fetch
+                                </MudButton>
+                            }
                             <MudSpacer />
                         </MudToolBar>
                         <MudTextField @bind-Value="Model.GameName" For="@(() => Model.GameName)" Label="@Resources.GameEditorDialog_Caption_GameName" />
