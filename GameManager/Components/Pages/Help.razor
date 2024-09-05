@@ -2,9 +2,14 @@
 @using System.Reflection
 <div>
     <h1>Help</h1>
-    <MudDivider />
+    <MudDivider/>
     <MudText Typo="Typo.h6">@("Version : " + Assembly.GetExecutingAssembly().GetName().Version)</MudText>
     <MudText Typo="Typo.h6">
         Project Site : <a style="color: aqua" href="https://github.com/charles7668/VNGT">@("Github")</a>
     </MudText>
+    <MudButton OnClick="OnExportLogClick"
+               Variant="Variant.Outlined"
+               Class="ma-0" Color="Color.Primary">
+        Export Log
+    </MudButton>
 </div>
