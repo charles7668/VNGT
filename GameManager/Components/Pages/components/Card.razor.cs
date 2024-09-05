@@ -244,6 +244,7 @@ namespace GameManager.Components.Pages.components
             try
             {
                 await launchStrategy.ExecuteAsync();
+                GameInfo.LastPlayed = DateTime.Now;
             }
             catch (Exception e)
             {
