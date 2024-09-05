@@ -185,6 +185,10 @@ namespace GameManager.Components.Pages.components
                 info.LaunchOption ??= new LaunchOption();
                 info.LaunchOption.RunAsAdmin = Model.RunAsAdmin;
                 info.LaunchOption.LaunchWithLocaleEmulator = Model.LeConfig;
+                info.LaunchOption.RunWithSandboxie = Model.RunWithSandboxie;
+                info.LaunchOption.SandboxieBoxName = Model.SandboxieBoxName;
+                info.LaunchOption.RunWithVNGTTranslator = Model.RunWithVNGTTranslator;
+                info.LaunchOption.IsVNGTTranslatorNeedAdmin = Model.IsVNGTTranslatorNeedAdmin;
                 foreach (Tag tag in info.Tags)
                     TryAddTag(tag.Name);
                 DataMapService.Map(info, Model);
