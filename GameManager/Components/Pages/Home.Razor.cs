@@ -160,6 +160,10 @@ namespace GameManager.Components.Pages
             }
 
             DataMapService.Map(resultModel, gameInfo);
+            gameInfo.Tags = resultModel.Tags.Select(x => new Tag
+            {
+                Name = x
+            }).ToList();
             try
             {
                 await ConfigService.AddGameInfoAsync(gameInfo);
