@@ -3,6 +3,7 @@ using GameManager.DB.Models;
 using GameManager.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Linq.Expressions;
 
 namespace GameManager.Database
 {
@@ -64,6 +65,11 @@ namespace GameManager.Database
         {
             return context.GameInfos
                 .AnyAsync(x => x.ExePath == path);
+        }
+
+        public Task<bool> HasGameInfo(Expression<Func<GameInfo, bool>> query)
+        {
+            return context.GameInfos.AnyAsync(query);
         }
 
         public async Task UpdateLastPlayedByIdAsync(int id, DateTime time)

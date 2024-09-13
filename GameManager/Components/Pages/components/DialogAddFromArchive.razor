@@ -1,0 +1,40 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudForm @bind-IsValid="IsInputValid" @bind-Errors="Errors" @ref="FormInstance">
+            <div id="library-selection">
+                <MudPaper Width="100%">
+                    <MudSelect T="string"
+                               SelectedValuesChanged="OnLibraryChanged"
+                               AnchorOrigin="Origin.BottomCenter"
+                               @bind-Value="Result.TargetLibrary"
+                               Label="Select Library">
+                        @foreach (Library library in Libraries)
+                        {
+                            <MudSelectItem Value="@library.FolderPath">@library.FolderPath</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudPaper>
+            </div>
+            <MudTextField Label="Game Name"
+                          Immediate="true"
+                          T="string"
+                          @bind-Value="Result.GameName"
+                          Required="true"
+                          Validation="@(new Func<string, Task<IEnumerable<string>>>(GameNameValidate))">
+            </MudTextField>
+            <div id="advance-options">
+                <MudExpansionPanel Text="Advance options">
+                    <MudTextField Label="Password" @bind-Value="Result.ArchivePassword"/>
+                </MudExpansionPanel>
+            </div>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="OnOk"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary">
+            @Resources.Dialog_Button_Yes
+        </MudButton>
+        <MudButton OnClick="OnCancel">@Resources.Dialog_Button_Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

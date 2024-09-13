@@ -1,5 +1,6 @@
 ﻿using GameManager.DB.Models;
 using GameManager.Enums;
+using System.Linq.Expressions;
 
 namespace GameManager.Database
 {
@@ -19,6 +20,8 @@ namespace GameManager.Database
         Task<GameInfo?> DeleteByIdAsync(int id);
 
         Task<bool> CheckExePathExist(string path);
+
+        Task<bool> HasGameInfo(Expression<Func<GameInfo, bool>> query);
 
         Task UpdateLastPlayedByIdAsync(int id, DateTime time);
 

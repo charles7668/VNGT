@@ -1,0 +1,7 @@
+﻿#library-selection ::deep .mud-select {
+    width: 100%;
+}
+
+#advance-options ::deep .mud-expand-panel-header {
+    padding-left: 0;
+}

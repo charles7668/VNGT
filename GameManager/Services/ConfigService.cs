@@ -2,6 +2,7 @@
 using GameManager.DB.Models;
 using GameManager.Enums;
 using Microsoft.Extensions.Caching.Memory;
+using System.Linq.Expressions;
 
 namespace GameManager.Services
 {
@@ -158,6 +159,11 @@ namespace GameManager.Services
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             await unitOfWork.GameInfoRepository.EditAsync(info);
             await unitOfWork.SaveChangesAsync();
+        }
+
+        public Task<bool> IsGameInfoExistAsync(Expression<Func<GameInfo, bool>> query)
+        {
+            return _unitOfWork.GameInfoRepository.HasGameInfo(query);
         }
 
         public AppSetting GetAppSetting()

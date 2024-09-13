@@ -1,11 +1,15 @@
 ﻿using GameManager.DB.Models;
 using GameManager.Enums;
+using GameManager.Extractor;
+using GameManager.Models;
 using GameManager.Properties;
 using GameManager.Services;
+using Helper;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
+using Serilog;
 using System.Diagnostics;
 using System.Text;
 using System.Xml.Linq;
@@ -342,6 +346,127 @@ namespace GameManager.Components.Pages.components
         {
             if (OnSortByChangeEvent.HasDelegate)
                 await OnSortByChangeEvent.InvokeAsync(SortBy);
+        }
+
+        private async Task OnAddNewGameFromZip()
+        {
+            var customFileType = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+            {
+                { DevicePlatform.WinUI, [".zip", ".rar", ".7z"] }
+            });
+
+            var options = new PickOptions
+            {
+                PickerTitle = "Please select archive file",
+                FileTypes = customFileType
+            };
+
+            FileResult? targetFile = await FilePicker.PickAsync(options);
+            if (targetFile == null)
+            {
+                return;
+            }
+
+            IDialogReference dialogReference = await DialogService.ShowAsync<DialogAddFromArchive>("Add Game from Zip",
+                new DialogOptions
+                {
+                    FullWidth = true,
+                    MaxWidth = MaxWidth.Small
+                });
+            DialogResult? dialogResult = await dialogReference.Result;
+            if (dialogResult.Canceled)
+                return;
+            var extractOption = (DialogAddFromArchive.Model?)dialogResult.Data;
+            if (extractOption?.GameName == null || extractOption.TargetLibrary == null)
+                return;
+            Logger.LogInformation("Start add game info from archive");
+            string targetPath = Path.Combine(extractOption.TargetLibrary, extractOption.GameName);
+            ExtractorFactory extractorFactory = App.ServiceProvider.GetRequiredService<ExtractorFactory>();
+            IExtractor? extractor = extractorFactory.GetExtractor(Path.GetExtension(targetFile.FileName));
+            if (extractor is null)
+            {
+                Logger.LogError("Extractor for {ResultFileName} not found", targetFile.FileName);
+                return;
+            }
+
+            string tempPath =
+                Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetTempFileName()));
+            Directory.CreateDirectory(tempPath);
+            IDialogReference dialogReferenceProgress = await DialogService.ShowAsync<ProgressDialog>("Extracting",
+                new DialogOptions
+                {
+                    FullWidth = true,
+                    MaxWidth = MaxWidth.Small
+                });
+            try
+            {
+                Result<string> extractResult = await extractor.ExtractAsync(targetFile.FullPath, new ExtractOption
+                {
+                    CreateNewFolder = false,
+                    Password = extractOption.ArchivePassword ?? "",
+                    TargetPath = tempPath
+                });
+                if (!extractResult.Success)
+                {
+                    throw new Exception(extractResult.Message);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to extract file to temp folder");
+                Snackbar.Add($"Failed to extract file to temp folder {e.Message}", Severity.Error);
+                try
+                {
+                    Directory.Delete(tempPath, true);
+                }
+                catch
+                {
+                    // ignore
+                }
+
+                dialogReferenceProgress.Close();
+                return;
+            }
+
+            Directory.CreateDirectory(targetPath);
+            string startPath = tempPath;
+            do
+            {
+                var dirInfo = new DirectoryInfo(startPath);
+                int fileCount = dirInfo.EnumerateFiles().Count();
+                int innerCount = dirInfo.EnumerateDirectories().Count() + fileCount;
+                if (innerCount == 1 && fileCount == 0)
+                {
+                    startPath = dirInfo.EnumerateDirectories().First().FullName;
+                }
+                else
+                {
+                    break;
+                }
+            } while (true);
+
+            try
+            {
+                FileHelper.CopyDirectory(startPath, targetPath);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to copy directory to target path");
+                Snackbar.Add($"Failed to copy directory to target path : {e.Message}", Severity.Error);
+                try
+                {
+                    Directory.Delete(tempPath, true);
+                    Directory.Delete(targetPath, true);
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
+
+            Logger.LogInformation("Finish add game info from archive");
+            dialogReferenceProgress.Close();
+            _ = AddNewGameEvent.InvokeAsync(Path.Combine(targetPath, "Fake.exe"));
         }
 
         public class SearchFilter
