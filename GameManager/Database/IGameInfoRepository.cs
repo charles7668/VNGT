@@ -12,7 +12,7 @@ namespace GameManager.Database
 
         Task<string?> GetCoverById(int id);
 
-        Task AddAsync(GameInfo info);
+        Task<GameInfo> AddAsync(GameInfo info);
 
         Task EditAsync(GameInfo info);
 

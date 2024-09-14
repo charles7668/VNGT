@@ -134,8 +134,12 @@ namespace GameManager.Services
         {
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            await unitOfWork.GameInfoRepository.AddAsync(info);
+            string[] tagArray = info.Tags.Select(x => x.Name).ToArray();
+            info.Tags = [];
+            GameInfo gameInfoEntity = await unitOfWork.GameInfoRepository.AddAsync(info);
             await unitOfWork.SaveChangesAsync();
+            info.Id = gameInfoEntity.Id;
+            await UpdateGameInfoTags(info.Id, tagArray);
         }
 
         public Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,

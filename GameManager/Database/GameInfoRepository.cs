@@ -2,6 +2,7 @@
 using GameManager.DB.Models;
 using GameManager.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace GameManager.Database
 {
@@ -30,14 +31,15 @@ namespace GameManager.Database
                 .FirstOrDefaultAsync();
         }
 
-        public async Task AddAsync(GameInfo info)
+        public async Task<GameInfo> AddAsync(GameInfo info)
         {
             if (await context.GameInfos
                     .AsNoTracking()
                     .AnyAsync(x => x.ExePath == info.ExePath))
                 throw new InvalidOperationException("Game already exists");
             info.UploadTime = DateTime.UtcNow;
-            await context.GameInfos.AddAsync(info);
+            EntityEntry<GameInfo> entityEntry = await context.GameInfos.AddAsync(info);
+            return entityEntry.Entity;
         }
 
         public Task EditAsync(GameInfo info)
