@@ -132,7 +132,7 @@ namespace GameManager.Components.Pages.components
             {
                 return;
             }
-            
+
             string tempPath =
                 Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetTempFileName()));
             Directory.CreateDirectory(tempPath);
@@ -168,126 +168,141 @@ namespace GameManager.Components.Pages.components
                 return;
             }
 
-            if (!string.IsNullOrEmpty(guid))
-            {
-                var leProcessStartInfo = new ProcessStartInfo
+            IDialogReference? dialogReferenceProgress = await DialogService.ShowAsync<ProgressDialog>("Installing",
+                new DialogOptions
                 {
-                    FileName = leExePath,
-                    Arguments = $"-runas \"{guid}\" \"{installFileResult.FullPath}\"",
-                    UseShellExecute = false
-                };
-                var leProc = Process.Start(leProcessStartInfo);
-                if (leProc != null)
-                {
-                    var cancellationTokenSource = new CancellationTokenSource();
-                    cancellationTokenSource.CancelAfter(500);
-                    try
-                    {
-                        await leProc.WaitForExitAsync(cancellationTokenSource.Token);
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        // ignore
-                    }
-                }
-            }
-            else
-            {
-                var processStartInfo = new ProcessStartInfo
-                {
-                    FileName = installFileResult.FullPath
-                };
-                Process.Start(processStartInfo);
-            }
-
-            await processTracerProc.WaitForExitAsync();
-            string target = "";
-            string errors = "";
-            if (File.Exists(tempConsoleErrorPath))
-            {
-                errors = await File.ReadAllTextAsync(tempConsoleErrorPath);
-            }
-
-            if (!string.IsNullOrEmpty(errors))
-            {
-                Snackbar.Add(errors, Severity.Error);
-            }
-            else if (File.Exists(tempConsoleOutputPath))
-            {
-                HashSet<string> candidateFilePaths = [];
-                List<string> excludePath =
-                [
-                    Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                    Path.GetDirectoryName(installFileResult.FullPath)!
-                ];
-                Dictionary<string, int> pathCounter = new();
-                using (var sr = new StreamReader(tempConsoleOutputPath, Encoding.UTF8))
-                {
-                    do
-                    {
-                        string? line = await sr.ReadLineAsync();
-                        // only find FileIOWrite event data
-                        if (line == null || (!line.StartsWith("[FileIOWrite]") && !line.StartsWith("[FileIOCreate]")))
-                        {
-                            continue;
-                        }
-
-                        int startIndex = line.LastIndexOf(", File: ", StringComparison.Ordinal);
-                        string filePath = line.Substring(startIndex + 8);
-                        // if the file path is in the exclude path, skip it
-                        if (excludePath.Any(p => filePath.StartsWith(p)))
-                        {
-                            continue;
-                        }
-
-
-                        string? dirPath = Path.GetDirectoryName(filePath);
-                        if (filePath.EndsWith('\\'))
-                            dirPath = filePath;
-                        string ext = Path.GetExtension(filePath);
-                        // only find for exe path
-                        if (dirPath != null && ext == ".exe")
-                        {
-                            pathCounter[dirPath] = pathCounter.GetValueOrDefault(dirPath) + 1;
-                            candidateFilePaths.Add(filePath);
-                        }
-                    } while (!sr.EndOfStream);
-                }
-
-                if (candidateFilePaths.Count < 1)
-                {
-                    Snackbar.Add("Can't find the executable file of game", Severity.Error);
-                    return;
-                }
-
-                var candidates = candidateFilePaths.ToList();
-                target = candidates[0];
-                int targetCount = pathCounter!.GetValueOrDefault(Path.GetDirectoryName(candidates[0]));
-                for (int i = 1; i < candidates.Count; ++i)
-                {
-                    string? dirPath = Path.GetDirectoryName(candidates[i]);
-                    if (string.IsNullOrEmpty(dirPath) || pathCounter[dirPath] <= targetCount) continue;
-                    targetCount = pathCounter[dirPath];
-                    target = candidates[i];
-                }
-            }
+                    FullWidth = true,
+                    MaxWidth = MaxWidth.Small
+                });
 
             try
             {
-                Directory.Delete(tempPath);
+                if (!string.IsNullOrEmpty(guid))
+                {
+                    var leProcessStartInfo = new ProcessStartInfo
+                    {
+                        FileName = leExePath,
+                        Arguments = $"-runas \"{guid}\" \"{installFileResult.FullPath}\"",
+                        UseShellExecute = false
+                    };
+                    var leProc = Process.Start(leProcessStartInfo);
+                    if (leProc != null)
+                    {
+                        var cancellationTokenSource = new CancellationTokenSource();
+                        cancellationTokenSource.CancelAfter(500);
+                        try
+                        {
+                            await leProc.WaitForExitAsync(cancellationTokenSource.Token);
+                        }
+                        catch (TaskCanceledException)
+                        {
+                            // ignore
+                        }
+                    }
+                }
+                else
+                {
+                    var processStartInfo = new ProcessStartInfo
+                    {
+                        FileName = installFileResult.FullPath
+                    };
+                    Process.Start(processStartInfo);
+                }
+
+                await processTracerProc.WaitForExitAsync();
+                string target = "";
+                string errors = "";
+                if (File.Exists(tempConsoleErrorPath))
+                {
+                    errors = await File.ReadAllTextAsync(tempConsoleErrorPath);
+                }
+
+                if (!string.IsNullOrEmpty(errors))
+                {
+                    Snackbar.Add(errors, Severity.Error);
+                }
+                else if (File.Exists(tempConsoleOutputPath))
+                {
+                    HashSet<string> candidateFilePaths = [];
+                    List<string> excludePath =
+                    [
+                        Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                        Path.GetDirectoryName(installFileResult.FullPath)!
+                    ];
+                    Dictionary<string, int> pathCounter = new();
+                    using (var sr = new StreamReader(tempConsoleOutputPath, Encoding.UTF8))
+                    {
+                        do
+                        {
+                            string? line = await sr.ReadLineAsync();
+                            // only find FileIOWrite event data
+                            if (line == null ||
+                                (!line.StartsWith("[FileIOWrite]") && !line.StartsWith("[FileIOCreate]")))
+                            {
+                                continue;
+                            }
+
+                            int startIndex = line.LastIndexOf(", File: ", StringComparison.Ordinal);
+                            string filePath = line.Substring(startIndex + 8);
+                            // if the file path is in the exclude path, skip it
+                            if (excludePath.Any(p => filePath.StartsWith(p)))
+                            {
+                                continue;
+                            }
+
+
+                            string? dirPath = Path.GetDirectoryName(filePath);
+                            if (filePath.EndsWith('\\'))
+                                dirPath = filePath;
+                            string ext = Path.GetExtension(filePath);
+                            // only find for exe path
+                            if (dirPath != null && ext == ".exe")
+                            {
+                                pathCounter[dirPath] = pathCounter.GetValueOrDefault(dirPath) + 1;
+                                candidateFilePaths.Add(filePath);
+                            }
+                        } while (!sr.EndOfStream);
+                    }
+
+                    if (candidateFilePaths.Count < 1)
+                    {
+                        Snackbar.Add("Can't find the executable file of game", Severity.Error);
+                        return;
+                    }
+
+                    var candidates = candidateFilePaths.ToList();
+                    target = candidates[0];
+                    int targetCount = pathCounter!.GetValueOrDefault(Path.GetDirectoryName(candidates[0]));
+                    for (int i = 1; i < candidates.Count; ++i)
+                    {
+                        string? dirPath = Path.GetDirectoryName(candidates[i]);
+                        if (string.IsNullOrEmpty(dirPath) || pathCounter[dirPath] <= targetCount) continue;
+                        targetCount = pathCounter[dirPath];
+                        target = candidates[i];
+                    }
+                }
+
+                try
+                {
+                    Directory.Delete(tempPath);
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
+
+                // if the target is empty, return
+                if (string.IsNullOrEmpty(target))
+                    return;
+
+                if (AddNewGameEvent.HasDelegate)
+                    await AddNewGameEvent.InvokeAsync(target);
             }
-            catch (Exception)
+            finally
             {
-                // ignore
+                dialogReferenceProgress.Close();
             }
-
-            // if the target is empty, return
-            if (string.IsNullOrEmpty(target))
-                return;
-
-            if (AddNewGameEvent.HasDelegate)
-                await AddNewGameEvent.InvokeAsync(target);
         }
 
         private async Task OnAddNewGame()
