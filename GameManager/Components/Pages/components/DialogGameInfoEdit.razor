@@ -28,14 +28,14 @@
                                            Color="Color.Primary"
                                            Variant="Variant.Outlined"
                                            StartIcon="@Icons.Material.Filled.Download">
-                                    Fetch
+                                    @Resources.GameEditorDialog_Button_Fetch
                                 </MudButton>
                             }
-                            <MudSpacer />
+                            <MudSpacer/>
                         </MudToolBar>
-                        <MudTextField @bind-Value="Model.GameName" For="@(() => Model.GameName)" Label="@Resources.GameEditorDialog_Caption_GameName" />
+                        <MudTextField @bind-Value="Model.GameName" For="@(() => Model.GameName)" Label="@Resources.GameEditorDialog_Caption_GameName"/>
                         <MudToolBar Class="pa-0">
-                            <MudTextField @bind-Value="Model.Vendor" For="@(() => Model.Vendor)" Label="@Resources.GameEditorDialog_Caption_Developer" />
+                            <MudTextField @bind-Value="Model.Vendor" For="@(() => Model.Vendor)" Label="@Resources.GameEditorDialog_Caption_Developer"/>
                             <MudDatePicker @bind-Date="Model.DateTime"
                                            For="@(() => Model.DateTime)"
                                            Label="@Resources.GameEditorDialog_Caption_ReleaseDate"
@@ -44,12 +44,12 @@
                                            Placeholder="yyyy/MM/dd"
                                            DateFormat="yyyy/MM/dd"
                                            TextChanged="DatePickerTextChanged"
-                                           Clearable="true" />
+                                           Clearable="true"/>
                         </MudToolBar>
                         <MudToolBar Class="pa-0 ma-0">
                             <MudTextField ReadOnly="true" @bind-Value="Model.ExePath"
                                           For="@(() => Model.ExePath)"
-                                          Label="@Resources.GameEditorDialog_Caption_ExecutionFilePath" />
+                                          Label="@Resources.GameEditorDialog_Caption_ExecutionFilePath"/>
                             <MudSelect Class="mt-2 mb-2"
                                        @bind-Value="Model.ExeFile"
                                        AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined"
@@ -63,9 +63,9 @@
                         <MudToolBar Class="pa-0 ma-0">
                             <MudTextField @bind-Value="Model.SaveFilePath"
                                           For="@(() => Model.SaveFilePath)"
-                                          Label="@Resources.GameEditorDialog_SavePath" />
+                                          Label="@Resources.GameEditorDialog_SavePath"/>
                             <MudButton Variant="Variant.Outlined"
-                            OnClick="OnSaveBrowseClick"
+                                       OnClick="OnSaveBrowseClick"
                                        Color="Color.Primary">
                                 @Resources.GameEditorDialog_Browse
                             </MudButton>
@@ -87,7 +87,7 @@
                                         AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
                                         @foreach (var config in LeConfigs)
                                         {
-                                            <MudSelectItem Value="config" />
+                                            <MudSelectItem Value="config"/>
                                         }
                                     </MudSelect>
                                 </MudPaper>
@@ -100,7 +100,7 @@
                                                  Label="@Resources.GameEditorDialog_RunWithSandboxie">
                                     </MudCheckBox>
                                     <MudTextField T="string" @bind-Value="@Model.SandboxieBoxName"
-                                                  For="() => Model.SandboxieBoxName" Variant="Variant.Outlined" >
+                                                  For="() => Model.SandboxieBoxName" Variant="Variant.Outlined">
                                     </MudTextField>
                                 </MudToolBar>
                             }

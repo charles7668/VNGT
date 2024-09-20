@@ -1,5 +1,4 @@
 ﻿@using GameManager.Enums
-@using GameManager.Properties
 @inherits MudComponentBase
 
 <MudPaper @attributes="UserAttributes!" Class="@Class">
@@ -41,7 +40,12 @@
                       OnAdornmentClick="(() => { SearchText = string.Empty; })"
                       Placeholder="Search">
         </MudTextField>
-        <MudButton Class="ml-2" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Search" OnClick="OnSearch">Search</MudButton>
+        <MudButton Class="ml-2"
+                   Variant="Variant.Outlined"
+                   StartIcon="@Icons.Material.Filled.Search"
+                   OnClick="OnSearch">
+            @Resources.Home_Search
+        </MudButton>
         <MudSpacer></MudSpacer>
         <MudButton Variant="Variant.Outlined"
                    Color="Color.Primary"
@@ -60,34 +64,29 @@
                        @bind-Value="SortBy">
                 @foreach (KeyValuePair<SortOrder, string> item in SortOrderDict)
                 {
-                    <MudSelectItem Value="@item.Key">@item.Value</MudSelectItem>
+                <MudSelectItem Value="@item.Key">@item.Value</MudSelectItem>
                 }
             </MudSelect>
         </MudPaper>
-        <MudMenu Label="Add"
+        <MudMenu Label="@Resources.Home_Add"
                  StartIcon="@Icons.Material.Filled.Add"
                  AnchorOrigin="Origin.BottomLeft"
                  Color="Color.Primary"
                  Variant="Variant.Outlined">
-            <MudMenuItem OnClick="OnAddNewGame">Add From Local</MudMenuItem>
-            <MudMenuItem OnClick="OnAddNewGameFromArchive">Add From Archive</MudMenuItem>
-            <MudMenuItem OnClick="OnInstallGameClick">Install Game</MudMenuItem>
+            <MudMenuItem OnClick="OnAddNewGame">@Resources.Home_AddFromLocal</MudMenuItem>
+            <MudMenuItem OnClick="OnAddNewGameFromArchive">@Resources.Home_AddFromArchive</MudMenuItem>
+            <MudMenuItem OnClick="OnInstallGameClick">@Resources.Home_InstallGame</MudMenuItem>
         </MudMenu>
-        <MudButton Class="ma-3" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Close" OnClick="OnDeleteClick">@Resources.Home_DeleteGame</MudButton>
+        <MudButton Class="ma-3" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Close"
+                   OnClick="OnDeleteClick">@Resources.Home_DeleteGame</MudButton>
     </MudToolBar>
 </MudPaper>
 
 <style>
-    .mud-text-field {
-        padding: 0px;
-    }
-    
+
     .mud-input-adornment > button {
-        padding: 0px;
+        padding: 0;
         margin-right: 5px;
     }
 
-    .mud-select {
-        width: 150px;
-    }
 </style>

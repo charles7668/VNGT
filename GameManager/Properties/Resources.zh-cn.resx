@@ -165,6 +165,9 @@
   <data name="GameEditorDialog.Browse" xml:space="preserve">
     <value>浏览</value>
   </data>
+  <data name="GameEditorDialog.Button.Fetch" xml:space="preserve">
+    <value>截取资讯</value>
+  </data>
   <data name="GameEditorDialog.Caption.Desciption" xml:space="preserve">
     <value>简介</value>
   </data>
@@ -207,6 +210,18 @@
   <data name="GameEditorDialog.VNGTTranslatorNeedAdmin" xml:space="preserve">
     <value>VNGT翻译器需要管理员权限</value>
   </data>
+  <data name="HelpPage.ExportLog" xml:space="preserve">
+    <value>汇出日志</value>
+  </data>
+  <data name="Home.Add" xml:space="preserve">
+    <value>加入</value>
+  </data>
+  <data name="Home.AddFromArchive" xml:space="preserve">
+    <value>从压缩档加入</value>
+  </data>
+  <data name="Home.AddFromLocal" xml:space="preserve">
+    <value>从本地加入</value>
+  </data>
   <data name="Home.AddGame" xml:space="preserve">
     <value>加入</value>
   </data>
@@ -225,8 +240,14 @@
   <data name="Home.Filter.Tag" xml:space="preserve">
     <value>标签</value>
   </data>
+  <data name="Home.InstallGame" xml:space="preserve">
+    <value>安装游戏</value>
+  </data>
   <data name="Home.Refresh" xml:space="preserve">
     <value>刷新</value>
+  </data>
+  <data name="Home.Search" xml:space="preserve">
+    <value>搜寻</value>
   </data>
   <data name="Home.SelectAll" xml:space="preserve">
     <value>全选</value>
@@ -323,5 +344,17 @@
   </data>
   <data name="TagSetPage.Title" xml:space="preserve">
     <value>标签集</value>
+  </data>
+  <data name="ToolsPage.Builtin" xml:space="preserve">
+    <value>内建</value>
+  </data>
+  <data name="ToolsPage.Custom" xml:space="preserve">
+    <value>自订</value>
+  </data>
+  <data name="ToolsPage.OpenToolsFolder" xml:space="preserve">
+    <value>打开工具资料夹</value>
+  </data>
+  <data name="ToolsPage.Title" xml:space="preserve">
+    <value>工具集</value>
   </data>
 </root>

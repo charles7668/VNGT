@@ -2,21 +2,21 @@
 
 <div>
     <MudStack Row="true">
-        <h1>Tools</h1>
+        <h1>@Resources.ToolsPage_Title</h1>
         <MudButton Color="Color.Default" Variant="Variant.Outlined"
                    ButtonType="ButtonType.Reset"
                    OnClick="OnOpenToolsFolderClick">
-            Open Tools Folder
+            @Resources.ToolsPage_OpenToolsFolder
         </MudButton>
     </MudStack>
-    <MudDivider />
+    <MudDivider/>
     <MudStack>
-        <h2>Built-in</h2>
+        <h2>@Resources.ToolsPage_Builtin</h2>
         @foreach (var builtinToolInfo in _BuiltinToolInfos)
         {
             <MudPaper Outlined="true" Class="d-flex flex-row pa-2">
                 <MudText Typo="Typo.h6" Align="Align.Center">@builtinToolInfo.Name</MudText>
-                <MudSpacer />
+                <MudSpacer/>
                 @if (Directory.Exists(Path.Combine(AppPathService.ToolsDirPath, builtinToolInfo.Name)))
                 {
                     <MudButton OnClick="builtinToolInfo.Launch">
@@ -32,7 +32,7 @@
                 {
                     @if (builtinToolInfo.IsDownloading)
                     {
-                        <MudProgressCircular Color="Color.Success" Value="@builtinToolInfo.Progress" />
+                        <MudProgressCircular Color="Color.Success" Value="@builtinToolInfo.Progress"/>
                         <MudButton OnClick="@(_ => { builtinToolInfo.CancellationTokenSource.Cancel(); })">
                             <MudIcon Icon="@Icons.Material.Filled.Close" Style="@($"color:{Colors.Green.Default}")"></MudIcon>
                             Cancel
@@ -48,14 +48,14 @@
                 }
             </MudPaper>
         }
-        <h2>Custom</h2>
+        <h2>@Resources.ToolsPage_Custom</h2>
         @if (CustomToolInfos != null)
         {
             @foreach (var customToolInfo in CustomToolInfos)
             {
                 <MudPaper Outlined="true" Class="d-flex flex-row pa-2">
                     <MudText Typo="Typo.h6" Align="Align.Center">@customToolInfo.Name</MudText>
-                    <MudSpacer />
+                    <MudSpacer/>
                     <MudButton OnClick="customToolInfo.Launch">
                         <MudIcon Icon="@Icons.Material.Filled.ArrowRight" Style="@($"color:{Colors.Green.Default}")"></MudIcon>
                         Run

@@ -205,6 +205,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Fetch 的當地語系化字串。
+        /// </summary>
+        internal static string GameEditorDialog_Button_Fetch {
+            get {
+                return ResourceManager.GetString("GameEditorDialog.Button.Fetch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Description 的當地語系化字串。
         /// </summary>
         internal static string GameEditorDialog_Caption_Desciption {
@@ -331,6 +340,42 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 EXPORT LOG 的當地語系化字串。
+        /// </summary>
+        internal static string HelpPage_ExportLog {
+            get {
+                return ResourceManager.GetString("HelpPage.ExportLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Add 的當地語系化字串。
+        /// </summary>
+        internal static string Home_Add {
+            get {
+                return ResourceManager.GetString("Home.Add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Add From Archive 的當地語系化字串。
+        /// </summary>
+        internal static string Home_AddFromArchive {
+            get {
+                return ResourceManager.GetString("Home.AddFromArchive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Add From Local 的當地語系化字串。
+        /// </summary>
+        internal static string Home_AddFromLocal {
+            get {
+                return ResourceManager.GetString("Home.AddFromLocal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Add 的當地語系化字串。
         /// </summary>
         internal static string Home_AddGame {
@@ -385,11 +430,29 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Install Game 的當地語系化字串。
+        /// </summary>
+        internal static string Home_InstallGame {
+            get {
+                return ResourceManager.GetString("Home.InstallGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Refresh 的當地語系化字串。
         /// </summary>
         internal static string Home_Refresh {
             get {
                 return ResourceManager.GetString("Home.Refresh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Search 的當地語系化字串。
+        /// </summary>
+        internal static string Home_Search {
+            get {
+                return ResourceManager.GetString("Home.Search", resourceCulture);
             }
         }
         
@@ -484,7 +547,7 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
-        ///   查詢類似 Directory does not exist. 的當地語系化字串。
+        ///   查詢類似 Directory does not exist 的當地語系化字串。
         /// </summary>
         internal static string Message_DirectoryNotExist {
             get {
@@ -678,6 +741,42 @@ namespace GameManager.Properties {
         internal static string TagSetPage_Title {
             get {
                 return ResourceManager.GetString("TagSetPage.Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Built-in 的當地語系化字串。
+        /// </summary>
+        internal static string ToolsPage_Builtin {
+            get {
+                return ResourceManager.GetString("ToolsPage.Builtin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Custom 的當地語系化字串。
+        /// </summary>
+        internal static string ToolsPage_Custom {
+            get {
+                return ResourceManager.GetString("ToolsPage.Custom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Open Tools Folder 的當地語系化字串。
+        /// </summary>
+        internal static string ToolsPage_OpenToolsFolder {
+            get {
+                return ResourceManager.GetString("ToolsPage.OpenToolsFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Tools 的當地語系化字串。
+        /// </summary>
+        internal static string ToolsPage_Title {
+            get {
+                return ResourceManager.GetString("ToolsPage.Title", resourceCulture);
             }
         }
     }
