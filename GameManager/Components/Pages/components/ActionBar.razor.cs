@@ -363,7 +363,7 @@ namespace GameManager.Components.Pages.components
                 await OnSortByChangeEvent.InvokeAsync(SortBy);
         }
 
-        private async Task OnAddNewGameFromZip()
+        private async Task OnAddNewGameFromArchive()
         {
             IReadOnlyList<string> supportExtensions =
                 App.ServiceProvider.GetRequiredService<ExtractorFactory>().SupportedExtensions;

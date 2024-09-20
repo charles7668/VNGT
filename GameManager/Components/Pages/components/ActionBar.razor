@@ -69,9 +69,9 @@
                  AnchorOrigin="Origin.BottomLeft"
                  Color="Color.Primary"
                  Variant="Variant.Outlined">
-            <MudMenuItem OnClick="OnInstallGameClick">Install Game</MudMenuItem>
             <MudMenuItem OnClick="OnAddNewGame">Add From Local</MudMenuItem>
-            <MudMenuItem OnClick="OnAddNewGameFromZip">Add From ZIP</MudMenuItem>
+            <MudMenuItem OnClick="OnAddNewGameFromArchive">Add From Archive</MudMenuItem>
+            <MudMenuItem OnClick="OnInstallGameClick">Install Game</MudMenuItem>
         </MudMenu>
         <MudButton Class="ma-3" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Close" OnClick="OnDeleteClick">@Resources.Home_DeleteGame</MudButton>
     </MudToolBar>
