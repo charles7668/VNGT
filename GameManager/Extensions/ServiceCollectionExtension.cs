@@ -6,7 +6,6 @@ namespace GameManager.Extensions
     {
         public static IServiceCollection AddExtractors(this IServiceCollection services)
         {
-            services.AddSingleton<IExtractor, ZipExtractor>();
             services.AddSingleton<IExtractor, SevenZipExtractor>();
 
             services.AddSingleton<ExtractorFactory, ExtractorFactory>();
