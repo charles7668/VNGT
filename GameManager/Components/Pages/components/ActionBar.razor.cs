@@ -365,9 +365,11 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnAddNewGameFromZip()
         {
+            IReadOnlyList<string> supportExtensions =
+                App.ServiceProvider.GetRequiredService<ExtractorFactory>().SupportedExtensions;
             var customFileType = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
             {
-                { DevicePlatform.WinUI, [".zip", ".rar", ".7z"] }
+                { DevicePlatform.WinUI, supportExtensions }
             });
 
             var options = new PickOptions

@@ -11,9 +11,13 @@
                     _extractors.TryAdd(extractorSupportExtension, extractor);
                 }
             }
+
+            SupportedExtensions = _extractors.Keys.ToList();
         }
 
         private readonly Dictionary<string, IExtractor> _extractors = [];
+
+        public IReadOnlyList<string> SupportedExtensions { get; private set; }
 
         public IExtractor? GetExtractor(string extension)
         {
