@@ -23,12 +23,21 @@ namespace GameManager.Extractor
                 string destPath = tempPath;
                 if (option.CreateNewFolder)
                     destPath = Path.Combine(destPath, Path.GetFileNameWithoutExtension(filePath));
-                var extractTask = Task.Run(() =>
+                var extractTask = Task.Run(async () =>
                 {
                     SevenZip.SevenZipExtractor extractor = string.IsNullOrEmpty(option.Password)
                         ? new SevenZip.SevenZipExtractor(filePath)
                         : new SevenZip.SevenZipExtractor(filePath, option.Password);
-                    extractor.ExtractArchive(destPath);
+                    if (option.ProgressChanged != null)
+                        extractor.Extracting += (sender, args) =>
+                            option.ProgressChanged.Invoke(sender, args.PercentDone);
+                    bool finish = false;
+                    extractor.ExtractionFinished += (_, _) => finish = true;
+                    extractor.BeginExtractArchive(destPath);
+                    while (!finish)
+                    {
+                        await Task.Delay(10);
+                    }
                 });
                 await extractTask;
 

@@ -409,7 +409,13 @@ namespace GameManager.Components.Pages.components
             string tempPath =
                 Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetTempFileName()));
             Directory.CreateDirectory(tempPath);
+            var dialogParameters = new DialogParameters<ProgressDialog>
+            {
+                { x => x.ProgressText, "0 %" },
+                { x => x.IsDeterminateProgress, true } 
+            };
             IDialogReference dialogReferenceProgress = await DialogService.ShowAsync<ProgressDialog>("Extracting",
+                dialogParameters,
                 new DialogOptions
                 {
                     FullWidth = true,
@@ -421,7 +427,13 @@ namespace GameManager.Components.Pages.components
                 {
                     CreateNewFolder = false,
                     Password = extractOption.ArchivePassword ?? "",
-                    TargetPath = tempPath
+                    TargetPath = tempPath,
+                    ProgressChanged = (_, progress) =>
+                    {
+                        var dialog = (ProgressDialog?)dialogReferenceProgress.Dialog;
+                        if (dialog == null) return;
+                        dialog.ProgressValue = progress;
+                    }
                 });
                 if (!extractResult.Success)
                 {

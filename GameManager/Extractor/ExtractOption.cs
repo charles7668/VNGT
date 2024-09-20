@@ -6,6 +6,8 @@
 
         public string TargetPath { get; set; } = string.Empty;
 
-        public bool CreateNewFolder { get; set; } = false;
+        public bool CreateNewFolder { get; set; }
+
+        public EventHandler<int>? ProgressChanged { get; set; }
     }
 }
