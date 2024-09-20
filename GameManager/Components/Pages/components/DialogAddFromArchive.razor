@@ -18,6 +18,7 @@
             <MudTextField Label="Game Name"
                           Immediate="true"
                           T="string"
+                          HelperText="You can use \ to create nested folder"
                           @bind-Value="Result.GameName"
                           Required="true"
                           Validation="@(new Func<string, Task<IEnumerable<string>>>(GameNameValidate))">
