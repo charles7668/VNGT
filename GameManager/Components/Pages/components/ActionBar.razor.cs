@@ -472,13 +472,21 @@ namespace GameManager.Components.Pages.components
                 Snackbar.Add($"Failed to copy directory to target path : {e.Message}", Severity.Error);
                 try
                 {
-                    Directory.Delete(tempPath, true);
                     Directory.Delete(targetPath, true);
                 }
                 catch
                 {
                     // ignore
                 }
+            }
+
+            try
+            {
+                Directory.Delete(tempPath, true);
+            }
+            catch
+            {
+                // ignore
             }
 
             Logger.LogInformation("Finish add game info from archive");
