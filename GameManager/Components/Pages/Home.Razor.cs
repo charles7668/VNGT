@@ -111,15 +111,18 @@ namespace GameManager.Components.Pages
         }
 
         #endregion
+        
         private async Task AddNewGame(string exePath)
         {
             if (IsDeleting)
                 return;
             Logger.LogInformation("Add new game button clicked");
+            string? saveFilePath = await ScanSaveFilePath();
             var inputModel = new DialogGameInfoEdit.FormModel
             {
                 GameName = Path.GetFileName(Path.GetDirectoryName(exePath)) ?? "null",
-                ExePath = Path.GetDirectoryName(exePath)
+                ExePath = Path.GetDirectoryName(exePath),
+                SaveFilePath = saveFilePath
             };
             var parameters = new DialogParameters<DialogGameInfoEdit>
             {
@@ -184,6 +187,40 @@ namespace GameManager.Components.Pages
             });
             IsLoading = false;
             _ = InvokeAsync(StateHasChanged);
+
+            return;
+
+            Task<string?> ScanSaveFilePath()
+            {
+                List<string> possibleSaveDirNames = ["save", "savedata"];
+                int level = 0;
+                Queue<string> dirQueue = new();
+                string? exeDir = Path.GetDirectoryName(exePath);
+                if (exeDir == null)
+                    return Task.FromResult<string?>(null);
+                dirQueue.Enqueue(exeDir);
+                while (level < 3)
+                {
+                    while (dirQueue.Count > 0)
+                    {
+                        string currentDir = dirQueue.Dequeue();
+                        foreach (string dir in Directory.EnumerateDirectories(currentDir))
+                        {
+                            if (possibleSaveDirNames.Contains(Path.GetFileName(dir)))
+                            {
+                                return Task.FromResult<string?>(dir);
+                            }
+
+                            if (level + 1 < 3)
+                                dirQueue.Enqueue(dir);
+                        }
+                    }
+
+                    level++;
+                }
+
+                return Task.FromResult<string?>(null);
+            }
         }
 
         private async Task OnDeleteGameCard(int id)
