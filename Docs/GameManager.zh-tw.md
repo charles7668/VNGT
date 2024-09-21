@@ -7,6 +7,7 @@
     - [手動添加遊戲](#手動添加遊戲)
     - [自動掃描遊戲](#自動掃描遊戲)
     - [整合 Locale Emulator](#整合-locale-emulator)
+    - [整合 Sandboxie-Plus](#整合-sandboxie-plus)
     - [整合 VNGTTranslator](#整合-vngttranslator)
     - [整合您的自訂工具](#整合您的自訂工具)
     - [備份和還原存檔文件](#備份和還原存檔文件)
@@ -20,7 +21,27 @@
 
 ### 手動添加遊戲
 
-- 點擊添加按鈕並選擇 exe 文件。
+1. **從本地加入**
+
+   - 點擊 `加入` 按鈕。
+   - 選擇 `從本地加入`。
+   - 選擇可執行檔（exe）文件。
+
+2. **從壓縮檔加入**
+
+   - 點擊 `加入` 按鈕。
+   - 選擇 `從壓縮檔加入`。
+   - 選擇壓縮檔案。
+   - 設定目標資料庫和遊戲路徑。
+   - 壓縮檔案將會解壓縮到 `目標資料庫/遊戲路徑` 資料夾中。
+
+3. **安裝遊戲**
+   - 從工具頁面安裝 `ProcessTracer`。
+   - 點擊 `加入` 按鈕。
+   - 點擊 `安裝遊戲`。
+   - 選擇是否使用 `Locale-Emulator`。
+   - 選擇安裝文件。
+   - 完成安裝過程。
 
 ### 自動掃描遊戲
 
@@ -32,6 +53,13 @@
 - 在`設置`頁面設置 Locale Emulator 位置。
 - 點擊編輯遊戲。
 - 選擇`LE Config`設置。
+
+### 整合 Sandboxie-Plus
+
+- 在 `設定` 頁面中設置 Sandboxie-Plus 的路徑。
+- 點擊 **編輯**。
+- 啟用選項 `使用 Sandboxie 執行`。
+- 編輯 `Box Name` 欄位以指定目標的 Sandboxie 沙盒名稱。
 
 ### 整合 [VNGTTranslator](https://github.com/charles7668/VNGTTranslator)
 

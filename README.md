@@ -10,13 +10,16 @@ Game management tool: easily manage your games and integrate various assistive t
 ![main](./Docs/img/main.png)
 
 - Automatically scan folders for games
-- Automatically download game information (currently supported: [vndb](https://vndb.org/))
+- Automatically download game information (currently supported: [vndb](https://vndb.org/) , [DLSite](https://www.dlsite.com))
 - Support multiple languages
 - Integrate Locale Emulator to support non-Japanese OS
 - Integrate [VNGTTranslator](https://github.com/charles7668/VNGTTranslator) to help users translate game text
 - Save patcher can replace save data to unlock game CG
 - Support execution of your game tool
 - Support backup and restore of save files (up to 10 backup files)
+- Support tracing game installation
+- Support adding new games from archives
+- Support using [Sandboxie-Plus](https://sandboxie-plus.com/) to launch games
 
 ## Guide
 

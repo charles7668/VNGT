@@ -7,6 +7,7 @@
     - [Manual Add Game](#manual-add-game)
     - [Auto Scan Game](#auto-scan-game)
     - [Integrate Locale Emulator](#integrate-locale-emulator)
+    - [Integrate Sandboxie-Plus](#integrate-sandboxie-plus)
     - [Integrate VNGTTranslator](#integrate-vngttranslator)
     - [Integrate Your Custom Tools](#integrate-your-custom-tools)
     - [Backup and restore save file](#backup-and-restore-save-file)
@@ -20,7 +21,29 @@
 
 ### Manual Add Game
 
-- Click the Add button and select the exe file.
+There are three ways to add a new game:
+
+1. **Add From Local**
+
+   - Click the `Add` button.
+   - Select `Add From Local`.
+   - Select the executable (exe) file.
+
+2. **Add From Archive**
+
+   - Click the `Add` button.
+   - Select `Add From Archive`.
+   - Select the archive file.
+   - Set the target library and game path.
+   - The archive file will be extracted to the `target library/game path` folder.
+
+3. **Install Game**
+   - Install `ProcessTracer` from the tools page.
+   - Click the `Add` button.
+   - Click `Install Game`.
+   - Choose whether to use `Locale-Emulator` or not.
+   - Select the installation file.
+   - Complete the installation procedure.
 
 ### Auto Scan Game
 
@@ -32,6 +55,13 @@
 - Set up Locale Emulator location in the `Settings` page.
 - Click Edit Game.
 - Select the `LE Config` setting.
+
+### Integrate Sandboxie-Plus
+
+- Set up the Sandboxie-Plus location in the `Settings` page.
+- Click **Edit**.
+- Enable the option `Run with Sandboxie`.
+- Edit the `Box Name` field to specify your target Sandboxie box name.
 
 ### Integrate [VNGTTranslator](https://github.com/charles7668/VNGTTranslator)
 
