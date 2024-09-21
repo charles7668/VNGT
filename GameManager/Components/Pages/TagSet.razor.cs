@@ -15,9 +15,12 @@ namespace GameManager.Components.Pages
 
         private List<string> Tags { get; set; } = [];
 
+        private List<string> _originalTags = [];
+
         protected override async Task OnInitializedAsync()
         {
-            Tags = (await ConfigService.GetTagsAsync()).ToList();
+            _originalTags = (await ConfigService.GetTagsAsync()).ToList();
+            Tags = _originalTags;
             await base.OnInitializedAsync();
         }
 
@@ -25,6 +28,14 @@ namespace GameManager.Components.Pages
         {
             string encode = HttpUtility.UrlEncode(tag);
             NavigationManager.NavigateTo($"/home/{encode}");
+        }
+
+        private Task OnFilterValueChanged(string input)
+        {
+            Tags = string.IsNullOrWhiteSpace(input)
+                ? _originalTags
+                : _originalTags.Where(x => x.Contains(input, StringComparison.OrdinalIgnoreCase)).ToList();
+            return Task.CompletedTask;
         }
     }
 }

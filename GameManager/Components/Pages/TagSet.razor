@@ -3,7 +3,10 @@
 <div id="tag-set">
     <MudStack id="tag-set-stack">
         <h1 class="flex-grow-0">@Resources.TagSetPage_Title</h1>
-        <MudDivider Class="flex-grow-0" />
+        <MudTextField T="string" Placeholder="Filter" Variant="Variant.Outlined"
+                      ValueChanged="OnFilterValueChanged">
+        </MudTextField>
+        <MudDivider Class="flex-grow-0"/>
         <div class="scrollable flex-grow-1">
             <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
                 @foreach (var tag in Tags)
