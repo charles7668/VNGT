@@ -50,15 +50,23 @@
                             <MudTextField ReadOnly="true" @bind-Value="Model.ExePath"
                                           For="@(() => Model.ExePath)"
                                           Label="@Resources.GameEditorDialog_Caption_ExecutionFilePath"/>
-                            <MudSelect Class="mt-2 mb-2"
-                                       @bind-Value="Model.ExeFile"
-                                       AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined"
-                                       Label="@Resources.GameEditorDialog_Caption_ExecutionFile">
-                                @foreach (var file in ExeFiles)
-                                {
-                                    <MudSelectItem Value="file"></MudSelectItem>
-                                }
-                            </MudSelect>
+                            @if (_scanningExecutionFileTask.IsCompleted)
+                            {
+                                <MudSelect Class="mt-2 mb-2"
+                                           @bind-Value="Model.ExeFile"
+                                           AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined"
+                                           Label="@Resources.GameEditorDialog_Caption_ExecutionFile">
+                                    @foreach (string file in ExeFiles)
+                                    {
+                                        <MudSelectItem Value="file"></MudSelectItem>
+                                    }
+                                </MudSelect>
+                            }
+                            else
+                            {
+                                <MudProgressCircular Color="Color.Primary" Indeterminate="true"/>
+                                <MudText>Loading exe files...</MudText>
+                            }
                         </MudToolBar>
                         <MudToolBar Class="pa-0 ma-0">
                             <MudTextField @bind-Value="Model.SaveFilePath"
