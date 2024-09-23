@@ -51,5 +51,9 @@ namespace GameManager.Services
         Task UpdateGameInfoTags(int gameId, IEnumerable<string> tags);
 
         Task UpdateLastPlayedByIdAsync(int id, DateTime time);
+
+        Task BackupSettings(string path);
+        
+        Task RestoreSettings(string path);
     }
 }

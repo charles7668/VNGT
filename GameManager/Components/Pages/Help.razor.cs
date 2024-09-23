@@ -66,5 +66,69 @@ namespace GameManager.Components.Pages
                 Directory.Delete(tempDir);
             }
         }
+
+        private async Task OnBackupSettingsClick()
+        {
+            var savePicker = new FileSavePicker
+            {
+                SuggestedStartLocation = PickerLocationId.Downloads,
+                SuggestedFileName = $"{DateTime.Now:MM-dd-yyyy HH-mm-ss}"
+            };
+            savePicker.FileTypeChoices.Add("json", [".json"]);
+            Window? currWin = Application.Current?.Windows.FirstOrDefault();
+            IntPtr? hwnd = (currWin?.Handler?.PlatformView as MauiWinUIWindow)?.WindowHandle;
+            if (hwnd is null)
+                return;
+
+            InitializeWithWindow.Initialize(savePicker, hwnd.Value);
+            try
+            {
+                StorageFile? file = await savePicker.PickSaveFileAsync();
+                if (file == null)
+                    return;
+
+                IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
+                await configService.BackupSettings(file.Path);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to backup settings");
+                Snackbar.Add("Failed to backup settings", Severity.Error);
+            }
+        }
+
+        private async Task OnRestoreSettingsClick()
+        {
+            var customFileType = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+            {
+                { DevicePlatform.WinUI, [".json"] }
+            });
+
+            var options = new PickOptions
+            {
+                PickerTitle = "Please select json file",
+                FileTypes = customFileType
+            };
+
+            try
+            {
+                FileResult? result = await FilePicker.PickAsync(options);
+                if (result == null)
+                {
+                    return;
+                }
+
+                IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
+                await configService.RestoreSettings(result.FullPath);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to restore settings");
+                Snackbar.Add("Failed to restore settings", Severity.Error);
+                return;
+            }
+
+            Snackbar.Add("Restore settings success", Severity.Info);
+        }
     }
 }

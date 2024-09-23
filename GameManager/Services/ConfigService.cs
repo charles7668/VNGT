@@ -3,6 +3,7 @@ using GameManager.DB.Models;
 using GameManager.Enums;
 using Microsoft.Extensions.Caching.Memory;
 using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace GameManager.Services
 {
@@ -219,6 +220,22 @@ namespace GameManager.Services
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             await unitOfWork.GameInfoRepository.UpdateLastPlayedByIdAsync(id, time);
             await unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task BackupSettings(string path)
+        {
+            AppSetting setting = await _unitOfWork.AppSettingRepository.GetAppSettingAsync();
+            await using FileStream fileStream = new(path, FileMode.Create);
+            await JsonSerializer.SerializeAsync(fileStream, setting);
+        }
+
+        public async Task RestoreSettings(string path)
+        {
+            await using FileStream fileStream = new(path, FileMode.Open);
+            AppSetting? setting = await JsonSerializer.DeserializeAsync<AppSetting>(fileStream);
+            if (setting == null)
+                return;
+            await UpdateAppSettingAsync(setting);
         }
 
         public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)
