@@ -52,6 +52,8 @@ namespace GameManager.Components.Pages
         private Virtualize<IEnumerable<ViewInfo>>? VirtualizeComponent { get; set; }
 
         private SortOrder _currentOrder = SortOrder.UPLOAD_TIME;
+
+        private static bool _IsVersionChecked;
         
         public void Dispose()
         {
@@ -89,6 +91,7 @@ namespace GameManager.Components.Pages
                     ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
                     CardListWidth = await getWidthTask;
                 }, _loadingCancellationTokenSource.Token);
+                _ = DetectNewerVersion();
             }
             catch (Exception ex)
             {
@@ -111,6 +114,26 @@ namespace GameManager.Components.Pages
         }
 
         #endregion
+
+        private async Task DetectNewerVersion()
+        {
+            if (_IsVersionChecked)
+                return;
+            IVersionService versionService = App.ServiceProvider.GetRequiredService<IVersionService>();
+            string? newestVersion = await versionService.DetectNewestVersion();
+            if (string.IsNullOrWhiteSpace(newestVersion))
+                return;
+            ShowUpdateNotify(newestVersion);
+
+            _IsVersionChecked = true;
+
+            return;
+
+            void ShowUpdateNotify(string version)
+            {
+                SnakeBar.Add($"New version {version} available", Severity.Info);
+            }
+        }
         
         private async Task AddNewGame(string exePath)
         {

@@ -52,6 +52,8 @@ namespace GameManager
             builder.Services.AddScoped<IGameInfoProvider, VndbProvider>();
             builder.Services.AddScoped<IGameInfoProvider, DLSiteProvider>();
             builder.Services.AddScoped<GameInfoProviderFactory, GameInfoProviderFactory>();
+            
+            builder.Services.AddScoped<IVersionService, VersionService>();
 
             builder.Services.AddExtractors();
 
