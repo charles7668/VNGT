@@ -1,9 +1,11 @@
 # VNGT
 
-![版本徽章](https://img.shields.io/github/v/release/charles7668/VNGT)
-![下載次數](https://img.shields.io/github/downloads/charles7668/VNGT/total)
+[![最新版本](https://img.shields.io/github/v/release/charles7668/VNGT)](https://github.com/charles7668/VNGT/releases/)
+[![下載次數](https://img.shields.io/github/downloads/charles7668/VNGT/total)](https://github.com/charles7668/VNGT/releases/)
 
 [English](../README.md) | [简体中文](./README.zh-cn.md)
+
+下載 : [點我](https://github.com/charles7668/VNGT/releases/)
 
 遊戲管理工具：輕鬆管理您的遊戲，並集成多種遊戲輔助工具。
 

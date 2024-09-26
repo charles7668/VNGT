@@ -1,9 +1,11 @@
 # VNGT
 
-![release badge](https://img.shields.io/github/v/release/charles7668/VNGT)
-![Downloads](https://img.shields.io/github/downloads/charles7668/VNGT/total)
+[![release badge](https://img.shields.io/github/v/release/charles7668/VNGT)](https://github.com/charles7668/VNGT/releases/)
+[![Downloads](https://img.shields.io/github/downloads/charles7668/VNGT/total)](https://github.com/charles7668/VNGT/releases/)
 
 [繁體中文](./Docs/README.zh-tw.md) | [简体中文](./Docs/README.zh-cn.md)
+
+Download : [Click Me](https://github.com/charles7668/VNGT/releases/)
 
 Game management tool: easily manage your games and integrate various assistive tools for gaming.
 
