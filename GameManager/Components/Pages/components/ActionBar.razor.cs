@@ -144,7 +144,7 @@ namespace GameManager.Components.Pages.components
                 FileName = "cmd.exe",
                 WorkingDirectory = AppPathService.AppDirPath,
                 Arguments =
-                    $"/c {processTracingToolPath} --hide --file \"{installFileResult.FullPath}\" > \"{tempConsoleOutputPath}\" 2>\"{tempConsoleErrorPath}\"",
+                    $"/c {processTracingToolPath} --hide --file \"{installFileResult.FullPath}\" > \"{tempConsoleOutputPath}\" 2>\"{tempConsoleErrorPath}\" --wait 5000",
                 RedirectStandardOutput = false,
                 RedirectStandardError = false,
                 UseShellExecute = true,

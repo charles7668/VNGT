@@ -26,7 +26,7 @@ namespace GameManager.Components.Pages
                 _Is64Bit ? "VNGTTranslator.x86.7z" : "VNGTTranslator.x64.7z", "0.1.1"),
             new BuiltinToolInfo("ProcessTracer", "ProcessTracer.exe",
                 "https://api.github.com/repos/charles7668/ProcessTracer/releases",
-                _Is64Bit ? "ProcessTracer.x86.7z" : "ProcessTracer.7z", "0.2.0")
+                _Is64Bit ? "ProcessTracer.x86.7z" : "ProcessTracer.7z", "0.3.0")
         ];
 
         private static List<CustomToolInfo>? CustomToolInfos { get; set; }
