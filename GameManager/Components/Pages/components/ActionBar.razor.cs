@@ -228,7 +228,8 @@ namespace GameManager.Components.Pages.components
                     [
                         Environment.GetFolderPath(Environment.SpecialFolder.Windows),
                         Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                        Path.GetDirectoryName(installFileResult.FullPath)!
+                        Path.GetDirectoryName(installFileResult.FullPath)!,
+                        "C:\\Program Files\\Sandboxie-Plus"
                     ];
                     Dictionary<string, int> pathCounter = new();
                     using (var sr = new StreamReader(tempConsoleOutputPath, Encoding.UTF8))
