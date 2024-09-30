@@ -150,6 +150,15 @@ namespace GameManager.Models.ToolInfo
                 Progress = 0;
                 DownloadTask = Task.CompletedTask;
                 OnProgressUpdate(ToolName, 100);
+
+                // write info to config file
+                IAppPathService appPathService = App.ServiceProvider.GetRequiredService<IAppPathService>();
+                string confPath = Path.Combine(appPathService.ToolsDirPath, ToolName, "conf.vngt.yaml");
+                using StreamWriter writer = new(confPath);
+                writer.WriteLine("Name: " + ToolName);
+                writer.WriteLine("Version: " + ToolVersion);
+                writer.WriteLine("ExePath: " + ExePath);
+                writer.WriteLine("RunAsAdmin: false");
             });
         }
 
