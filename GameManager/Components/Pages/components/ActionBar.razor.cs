@@ -7,6 +7,8 @@ using GameManager.Services;
 using Helper;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Yaml;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
 using System.Diagnostics;
@@ -73,10 +75,30 @@ namespace GameManager.Components.Pages.components
         private async Task OnInstallGameClick()
         {
             string toolPath = AppPathService.ToolsDirPath;
-            string processTracingToolPath = Path.Combine(toolPath, "ProcessTracer", "ProcessTracer.exe");
+            string processTracingToolDir = Path.Combine(toolPath, "ProcessTracer");
+            string processTracingToolPath = Path.Combine(processTracingToolDir, "ProcessTracer.exe");
             if (!File.Exists(processTracingToolPath))
             {
                 Snackbar.Add("Please install ProcessTracer tool first", Severity.Warning);
+                return;
+            }
+
+            const string confFileName = "conf.vngt.yaml";
+            const string reinstallMessage = "Please reinstall ProcessTracer tool to update";
+            if (!File.Exists(Path.Combine(processTracingToolDir, confFileName)))
+            {
+                Snackbar.Add(reinstallMessage, Severity.Warning);
+                return;
+            }
+
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(Path.GetDirectoryName(processTracingToolPath)!)
+                .AddYamlFile(confFileName, false, false)
+                .Build();
+            string version = configuration.GetValue("Version", "") ?? "";
+            if (string.IsNullOrWhiteSpace(version) || new Version(version) < new Version("0.3.0"))
+            {
+                Snackbar.Add(reinstallMessage, Severity.Warning);
                 return;
             }
 
