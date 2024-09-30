@@ -9,7 +9,7 @@ namespace GameManager.Components.Pages.components
     {
         private string _displayImageLink = string.Empty;
 
-        private string? InputUrlError { get; set; } = null;
+        private string? InputUrlError { get; set; }
 
         [CascadingParameter]
         public MudDialogInstance? MudDialog { get; set; }

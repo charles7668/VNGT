@@ -1,10 +1,9 @@
 ﻿@page "/setting"
-@using GameManager.Properties
 
 <div>
     <MudForm Class="d-flex flex-column pa-2" Model="@AppSetting">
         <MudText Typo="Typo.h6" Class="flex-grow-0">@Resources.Settings_Caption_Setting</MudText>
-        <MudDivider Class="flex-grow-0" />
+        <MudDivider Class="flex-grow-0"/>
         <MudPaper Elevation="0" Class="setting-box flex-grow-1">
             <MudStack Class="flex-grow-1" Elevation="0">
                 <MudElement Class="mt-2">
@@ -42,10 +41,10 @@
                             <MudText>@Resources.Settings_Caption_GuideSite</MudText>
                             <MudIconButton Icon="@Icons.Material.Filled.Add"
                                            OnClick="OnAddGuideSiteClick"
-                                           Style="color: green;" />
+                                           Style="color: green;"/>
                             <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                            OnClick="OnDeleteGuideSiteClick"
-                                           Style="color: red;" />
+                                           Style="color: red;"/>
                         </MudToolBar>
                         <MudTable T="GuideSite" Items="@GuideSites"
                                   Hover="true"
@@ -70,10 +69,10 @@
                             <MudText>@Resources.Settings_Caption_TextMapping</MudText>
                             <MudIconButton Icon="@Icons.Material.Filled.Add"
                                            OnClick="OnAddTextMappingClick"
-                                           Style="color: green;" />
+                                           Style="color: green;"/>
                             <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                            OnClick="OnDeleteTextMappingClick"
-                                           Style="color: red;" />
+                                           Style="color: red;"/>
                         </MudToolBar>
                         <MudTable T="TextMapping" Items="@TextMappings"
                                   Hover="true"

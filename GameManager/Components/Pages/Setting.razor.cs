@@ -102,7 +102,7 @@ namespace GameManager.Components.Pages
         {
             List<DialogInputBox.InputModel> inputModel =
             [
-                new DialogInputBox.InputModel
+                new()
                 {
                     Label = "Name",
                     Validate = s =>
@@ -117,7 +117,7 @@ namespace GameManager.Components.Pages
                         return null;
                     }
                 },
-                new DialogInputBox.InputModel
+                new()
                 {
                     Label = "Site URL",
                     Validate = s => string.IsNullOrEmpty(s) ? "URL is required" : null
@@ -179,7 +179,7 @@ namespace GameManager.Components.Pages
         {
             List<DialogInputBox.InputModel> inputModel =
             [
-                new DialogInputBox.InputModel
+                new()
                 {
                     Label = "Original",
                     Validate = s =>
@@ -194,7 +194,7 @@ namespace GameManager.Components.Pages
                         return null;
                     }
                 },
-                new DialogInputBox.InputModel
+                new()
                 {
                     Label = "Replace",
                     Validate = s => string.IsNullOrEmpty(s) ? "Replace is required" : null

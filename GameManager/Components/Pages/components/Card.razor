@@ -6,14 +6,14 @@
             <MudIconButton Class="@("card-star " + (GameInfo is { IsFavorite: true } ? "marked" : ""))"
                            OnClick="OnCardFavoriteClick"
                            Icon="@Icons.Material.Filled.Star"
-                           Size="Size.Large" />
+                           Size="Size.Large"/>
             <MudImage Height="300" Width="250"
                       Src="@ImageSrc" loading="lazy"
-                      Alt="No Image" ObjectFit="ObjectFit.Contain" />
+                      Alt="No Image" ObjectFit="ObjectFit.Contain"/>
             <MudPaper Width="250px" MaxWidth="250px" MaxHeight="50px"
                       Elevation="0" Class="card-labels">
                 <MudStack Spacing="1" Row="true">
-                    @foreach (var developer in DeveloperList)
+                    @foreach (string developer in DeveloperList)
                     {
                         <MudChip T="string"
                                  OnClick="() => OnChipClick(developer)"
@@ -67,7 +67,7 @@
                                             </MudButton>
                                         </ActivatorContent>
                                         <ChildContent>
-                                            @foreach (var backupFile in BackupSaveFiles)
+                                            @foreach (string backupFile in BackupSaveFiles)
                                             {
                                                 <MudButton Variant="Variant.Text"
                                                            Class="ma-0 pa-2"
@@ -83,7 +83,7 @@
                             </ChildContent>
                         </MudMenu>
                     </MudMenuItem>
-                    <MudDivider />
+                    <MudDivider/>
                     <MudMenuItem Class="ma-0 pa-0">
                         <MudMenu ActivationEvent="MouseEvent.LeftClick"
                                  AnchorOrigin="Origin.TopRight"
@@ -97,7 +97,7 @@
                             </ActivatorContent>
 
                             <ChildContent>
-                                @foreach (var site in GuideSites)
+                                @foreach (GuideSite site in GuideSites)
                                 {
                                     <MudButton Variant="Variant.Text"
                                                Class="ma-0 pa-2"
@@ -110,7 +110,7 @@
                             </ChildContent>
                         </MudMenu>
                     </MudMenuItem>
-                    <MudDivider />
+                    <MudDivider/>
                     <MudButton OnClick="OnDelete" Variant="Variant.Text" Color="Color.Secondary" FullWidth="true">@Resources.Card_Delete</MudButton>
                 </MudMenu>
             </MudToolBar>

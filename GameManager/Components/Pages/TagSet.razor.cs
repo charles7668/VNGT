@@ -1,12 +1,13 @@
 ﻿using GameManager.Services;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using System.Web;
 
 namespace GameManager.Components.Pages
 {
     public partial class TagSet
     {
+        private List<string> _originalTags = [];
+
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;
 
@@ -14,8 +15,6 @@ namespace GameManager.Components.Pages
         private NavigationManager NavigationManager { get; set; } = null!;
 
         private List<string> Tags { get; set; } = [];
-
-        private List<string> _originalTags = [];
 
         protected override async Task OnInitializedAsync()
         {

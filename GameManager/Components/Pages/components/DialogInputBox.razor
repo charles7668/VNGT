@@ -1,13 +1,12 @@
-﻿@using GameManager.Properties
-<MudDialog>
+﻿<MudDialog>
     <DialogContent>
         <MudForm @bind-IsValid="IsValid" @ref="Form">
-            @foreach (var input in Inputs)
+            @foreach (InputModel input in Inputs)
             {
                 <MudTextField Label="@input.Label"
                               @bind-Value="input.Value"
                               Immediate="true"
-                              Validation="@(new Func<string, string>(input.Validate!))" />
+                              Validation="@(new Func<string, string>(input.Validate!))"/>
             }
         </MudForm>
     </DialogContent>

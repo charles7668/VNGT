@@ -18,13 +18,13 @@ namespace GameManager.Components.Pages
 
         private static readonly BuiltinToolInfo[] _BuiltinToolInfos =
         [
-            new BuiltinToolInfo("SavePatcher", "SavePatcher.exe",
+            new("SavePatcher", "SavePatcher.exe",
                 "https://api.github.com/repos/charles7668/VNGT/releases",
                 _Is64Bit ? "SavePatcher.x86.7z" : "SavePatcher.x64.7z", "0.4.0.0"),
-            new BuiltinToolInfo("VNGTTranslator", "VNGTTranslator.exe",
+            new("VNGTTranslator", "VNGTTranslator.exe",
                 "https://api.github.com/repos/charles7668/VNGTTranslator/releases",
                 _Is64Bit ? "VNGTTranslator.x86.7z" : "VNGTTranslator.x64.7z", "0.1.1"),
-            new BuiltinToolInfo("ProcessTracer", "ProcessTracer.exe",
+            new("ProcessTracer", "ProcessTracer.exe",
                 "https://api.github.com/repos/charles7668/ProcessTracer/releases",
                 _Is64Bit ? "ProcessTracer.x86.7z" : "ProcessTracer.7z", "0.3.0")
         ];
@@ -120,6 +120,24 @@ namespace GameManager.Components.Pages
             });
         }
 
+        private void RemoveTool(string name)
+        {
+            string toolsPath = AppPathService.ToolsDirPath;
+            string toolPath = Path.Combine(toolsPath, name);
+            if (!Directory.Exists(toolPath)) return;
+            try
+            {
+                Directory.Delete(toolPath, true);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to remove {Name} , {Excep}", name, e.ToString());
+                SnakeBar.Add($"Failed to remove {name} : {e.Message}", Severity.Error);
+            }
+
+            StateHasChanged();
+        }
+
         private class CustomToolInfo(string name, string exePath, bool runAsAdmin = false)
         {
             public string Name { get; } = name;
@@ -154,24 +172,6 @@ namespace GameManager.Components.Pages
             {
                 OnFailedHandler?.Invoke(name, message);
             }
-        }
-
-        private void RemoveTool(string name)
-        {
-            string toolsPath = AppPathService.ToolsDirPath;
-            string toolPath = Path.Combine(toolsPath, name);
-            if (!Directory.Exists(toolPath)) return;
-            try
-            {
-
-                Directory.Delete(toolPath, true);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e, "Failed to remove {Name} , {Excep}", name, e.ToString());
-                SnakeBar.Add($"Failed to remove {name} : {e.Message}", Severity.Error);
-            }
-            StateHasChanged();
         }
 
         private class BuiltinToolInfo(

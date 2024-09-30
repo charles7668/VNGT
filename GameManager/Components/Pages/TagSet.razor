@@ -9,7 +9,7 @@
         <MudDivider Class="flex-grow-0"/>
         <div class="scrollable flex-grow-1">
             <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
-                @foreach (var tag in Tags)
+                @foreach (string tag in Tags)
                 {
                     <MudChip T="string"
                              Variant="Variant.Filled"

@@ -37,7 +37,7 @@
                       OnKeyDown="OnKeyDown"
                       Adornment="Adornment.End"
                       AdornmentIcon="@Icons.Material.Filled.Close"
-                      OnAdornmentClick="(() => { SearchText = string.Empty; })"
+                      OnAdornmentClick="() => { SearchText = string.Empty; }"
                       Placeholder="Search">
         </MudTextField>
         <MudButton Class="ml-2"
@@ -64,7 +64,7 @@
                        @bind-Value="SortBy">
                 @foreach (KeyValuePair<SortOrder, string> item in SortOrderDict)
                 {
-                <MudSelectItem Value="@item.Key">@item.Value</MudSelectItem>
+                    <MudSelectItem Value="@item.Key">@item.Value</MudSelectItem>
                 }
             </MudSelect>
         </MudPaper>
@@ -78,7 +78,9 @@
             <MudMenuItem OnClick="OnInstallGameClick">@Resources.Home_InstallGame</MudMenuItem>
         </MudMenu>
         <MudButton Class="ma-3" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Close"
-                   OnClick="OnDeleteClick">@Resources.Home_DeleteGame</MudButton>
+                   OnClick="OnDeleteClick">
+            @Resources.Home_DeleteGame
+        </MudButton>
     </MudToolBar>
 </MudPaper>
 

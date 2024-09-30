@@ -26,7 +26,7 @@ namespace GameManager.Services
         Task DeleteLibraryByIdAsync(int id);
 
         Task EditGameInfo(GameInfo info);
-        
+
         Task<bool> IsGameInfoExistAsync(Expression<Func<GameInfo, bool>> query);
 
         AppSetting GetAppSetting();
@@ -53,7 +53,7 @@ namespace GameManager.Services
         Task UpdateLastPlayedByIdAsync(int id, DateTime time);
 
         Task BackupSettings(string path);
-        
+
         Task RestoreSettings(string path);
     }
 }

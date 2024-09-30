@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
-using Serilog;
 using System.Diagnostics;
 using System.Text;
 using System.Xml.Linq;
@@ -53,7 +52,7 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private ISnackbar Snackbar { get; set; } = null!;
-        
+
         [Inject]
         private new ILogger<ActionBar> Logger { get; set; } = null!;
 
@@ -413,7 +412,7 @@ namespace GameManager.Components.Pages.components
             var dialogParameters = new DialogParameters<ProgressDialog>
             {
                 { x => x.ProgressText, "0 %" },
-                { x => x.IsDeterminateProgress, true } 
+                { x => x.IsDeterminateProgress, true }
             };
             IDialogReference dialogReferenceProgress = await DialogService.ShowAsync<ProgressDialog>("Extracting",
                 dialogParameters,

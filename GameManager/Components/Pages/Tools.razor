@@ -12,7 +12,7 @@
     <MudDivider/>
     <MudStack>
         <h2>@Resources.ToolsPage_Builtin</h2>
-        @foreach (var builtinToolInfo in _BuiltinToolInfos)
+        @foreach (BuiltinToolInfo builtinToolInfo in _BuiltinToolInfos)
         {
             <MudPaper Outlined="true" Class="d-flex flex-row pa-2">
                 <MudText Typo="Typo.h6" Align="Align.Center">@builtinToolInfo.Name</MudText>
@@ -51,7 +51,7 @@
         <h2>@Resources.ToolsPage_Custom</h2>
         @if (CustomToolInfos != null)
         {
-            @foreach (var customToolInfo in CustomToolInfos)
+            @foreach (CustomToolInfo customToolInfo in CustomToolInfos)
             {
                 <MudPaper Outlined="true" Class="d-flex flex-row pa-2">
                     <MudText Typo="Typo.h6" Align="Align.Center">@customToolInfo.Name</MudText>

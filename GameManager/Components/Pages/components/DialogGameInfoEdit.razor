@@ -93,7 +93,7 @@
                                         Label="@Resources.GameEditorDialog_LEOption"
                                         @bind-Value="Model.LeConfig"
                                         AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
-                                        @foreach (var config in LeConfigs)
+                                        @foreach (string config in LeConfigs)
                                         {
                                             <MudSelectItem Value="config"/>
                                         }
@@ -136,7 +136,7 @@
                             </MudStack>
                             <MudPaper MaxHeight="100px" Elevation="0" Outlined="true" Class="label-set">
                                 <MudStack Spacing="1" Row="true" Wrap="Wrap.Wrap">
-                                    @foreach (var tag in Model.Tags)
+                                    @foreach (string tag in Model.Tags)
                                     {
                                         <MudChip T="string" Color="Color.Info"
                                                  OnClose="OnTagRemoveClick" Value="tag">

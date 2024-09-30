@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using WinRT.Interop;
 
 namespace GameManager.Components.Pages.components
 {

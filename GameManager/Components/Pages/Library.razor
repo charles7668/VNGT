@@ -1,9 +1,8 @@
 ﻿@page "/library"
-@using GameManager.Properties
 
 <div class="d-flex flex-column">
     <MudToolBar>
-        <MudSpacer />
+        <MudSpacer/>
 
         @if (ScanTask == null || ScanTask.IsCompleted)
         {
@@ -17,7 +16,7 @@
         {
             <MudButton OnClick="OnScan"
                        Variant="Variant.Filled">
-                <MudProgressCircular Size="Size.Small" Color="Color.Default" Indeterminate="true" />
+                <MudProgressCircular Size="Size.Small" Color="Color.Default" Indeterminate="true"/>
             </MudButton>
         }
 
@@ -33,12 +32,12 @@
             @Resources.Library_Button_DeleteSelection
         </MudButton>
     </MudToolBar>
-    <MudDivider />
+    <MudDivider/>
     <MudPaper class="flex-grow-1">
         <MudList T="int" @bind-SelectedValue="SelectionIndex">
-            @for (var i = 0; i < Libraries.Count; i++)
+            @for (int i = 0; i < Libraries.Count; i++)
             {
-                var folder = Libraries[i].FolderPath;
+                string? folder = Libraries[i].FolderPath;
                 <MudListItem Value="@i">@folder</MudListItem>
             }
         </MudList>

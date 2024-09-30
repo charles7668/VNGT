@@ -17,7 +17,7 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private IDialogService DialogService { get; set; } = null!;
 
-        private Model Result { get; } = new ();
+        private Model Result { get; } = new();
         public bool IsInputValid { get; set; }
         public string[]? Errors { get; set; }
         public MudForm FormInstance { get; set; } = null!;

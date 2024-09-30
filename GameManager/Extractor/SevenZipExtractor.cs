@@ -6,7 +6,7 @@ namespace GameManager.Extractor
 {
     public class SevenZipExtractor : IExtractor
     {
-        public string[] SupportExtensions { get; } = [".7z" , ".rar" , ".001" , ".zip"];
+        public string[] SupportExtensions { get; } = [".7z", ".rar", ".001", ".zip"];
 
         public async Task<Result<string>> ExtractAsync(string filePath, ExtractOption option)
         {

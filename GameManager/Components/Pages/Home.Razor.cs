@@ -15,6 +15,9 @@ namespace GameManager.Components.Pages
 {
     public partial class Home : IDisposable
     {
+        private static bool _IsVersionChecked;
+
+        private SortOrder _currentOrder = SortOrder.UPLOAD_TIME;
         private CancellationTokenSource _deleteTaskCancellationTokenSource = new();
         private CancellationTokenSource _loadingCancellationTokenSource = new();
         private DotNetObjectReference<Home> _objRef = null!;
@@ -51,69 +54,12 @@ namespace GameManager.Components.Pages
 
         private Virtualize<IEnumerable<ViewInfo>>? VirtualizeComponent { get; set; }
 
-        private SortOrder _currentOrder = SortOrder.UPLOAD_TIME;
-
-        private static bool _IsVersionChecked;
-        
         public void Dispose()
         {
             JsRuntime.InvokeVoidAsync("resizeHandlers.removeResizeListener");
             _deleteTaskCancellationTokenSource.Cancel();
             _loadingCancellationTokenSource.Cancel();
         }
-
-        #region Lifecycle
-
-        protected override async Task OnInitializedAsync()
-        {
-            try
-            {
-                _objRef = DotNetObjectReference.Create(this);
-                await JsRuntime.InvokeVoidAsync("resizeHandlers.addResizeListener", _objRef);
-                await base.OnInitializedAsync();
-                _loadingCancellationTokenSource = new CancellationTokenSource();
-                _ = Task.Run(async () =>
-                {
-                    Task loadTask = ConfigService.GetGameInfoForEachAsync(info =>
-                    {
-                        ViewGameInfos.Add(new ViewInfo
-                        {
-                            Info = info,
-                            Display = string.IsNullOrEmpty(InitFilter) ||
-                                      ConfigService.CheckGameInfoHasTag(info.Id, HttpUtility.UrlDecode(InitFilter))
-                                          .Result
-                        });
-                    }, _loadingCancellationTokenSource.Token);
-
-                    await loadTask;
-                    IsLoading = false;
-                    await InvokeAsync(StateHasChanged);
-                    ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
-                    CardListWidth = await getWidthTask;
-                }, _loadingCancellationTokenSource.Token);
-                _ = DetectNewerVersion();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Error occurred when initializing Home page : {Exception}", ex.ToString());
-                throw;
-            }
-        }
-
-        protected override void OnParametersSet()
-        {
-            try
-            {
-                base.OnParametersSet();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Error occurred when setting parameters : {Exception}", ex.ToString());
-                throw;
-            }
-        }
-
-        #endregion
 
         private async Task DetectNewerVersion()
         {
@@ -134,7 +80,7 @@ namespace GameManager.Components.Pages
                 SnakeBar.Add($"New version {version} available", Severity.Info);
             }
         }
-        
+
         private async Task AddNewGame(string exePath)
         {
             if (IsDeleting)
@@ -505,5 +451,58 @@ namespace GameManager.Components.Pages
 
             public bool IsSelected { get; set; }
         }
+
+        #region Lifecycle
+
+        protected override async Task OnInitializedAsync()
+        {
+            try
+            {
+                _objRef = DotNetObjectReference.Create(this);
+                await JsRuntime.InvokeVoidAsync("resizeHandlers.addResizeListener", _objRef);
+                await base.OnInitializedAsync();
+                _loadingCancellationTokenSource = new CancellationTokenSource();
+                _ = Task.Run(async () =>
+                {
+                    Task loadTask = ConfigService.GetGameInfoForEachAsync(info =>
+                    {
+                        ViewGameInfos.Add(new ViewInfo
+                        {
+                            Info = info,
+                            Display = string.IsNullOrEmpty(InitFilter) ||
+                                      ConfigService.CheckGameInfoHasTag(info.Id, HttpUtility.UrlDecode(InitFilter))
+                                          .Result
+                        });
+                    }, _loadingCancellationTokenSource.Token);
+
+                    await loadTask;
+                    IsLoading = false;
+                    await InvokeAsync(StateHasChanged);
+                    ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
+                    CardListWidth = await getWidthTask;
+                }, _loadingCancellationTokenSource.Token);
+                _ = DetectNewerVersion();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error occurred when initializing Home page : {Exception}", ex.ToString());
+                throw;
+            }
+        }
+
+        protected override void OnParametersSet()
+        {
+            try
+            {
+                base.OnParametersSet();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error occurred when setting parameters : {Exception}", ex.ToString());
+                throw;
+            }
+        }
+
+        #endregion
     }
 }

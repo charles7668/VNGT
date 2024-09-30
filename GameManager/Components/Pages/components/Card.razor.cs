@@ -251,7 +251,7 @@ namespace GameManager.Components.Pages.components
                 Logger.LogError("Error : {Message}", e.ToString());
                 Snackbar.Add(e.Message, Severity.Error);
             }
-            
+
             return;
 
             void TryStartVNGTTranslator(int pid)
@@ -300,6 +300,7 @@ namespace GameManager.Components.Pages.components
                 Logger.LogError("Error : {Message}", ex.ToString());
                 DialogService.ShowMessageBox("Error", ex.Message, cancelText: Resources.Dialog_Button_Cancel);
             }
+
             _menuRef?.CloseMenuAsync();
         }
 
@@ -376,6 +377,7 @@ namespace GameManager.Components.Pages.components
                 string relativePath = Path.GetRelativePath(GameInfo.SaveFilePath, filePath);
                 zipArchive.CreateEntryFromFile(filePath, relativePath);
             }
+
             _menuRef?.CloseMenuAsync();
         }
 
@@ -454,6 +456,7 @@ namespace GameManager.Components.Pages.components
                 Logger.LogError("Error to copy file : {Message}", e.ToString());
                 Snackbar.Add(e.Message, Severity.Error);
             }
+
             _menuRef?.CloseMenuAsync();
         }
     }

@@ -4,7 +4,7 @@
             <MudList @bind-SelectedValue="_selectedIndex">
                 @if (DisplayInfos != null)
                 {
-                    @for (var i = 0; i < DisplayInfos.Count; i++)
+                    @for (int i = 0; i < DisplayInfos.Count; i++)
                     {
                         <MudListItem Value="@i" Text="@DisplayInfos[i].GameName"/>
                     }

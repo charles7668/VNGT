@@ -42,7 +42,7 @@
                                 OverscanCount="10"
                                 Context="rowViewInfo">
                         <MudStack Row="true">
-                            @foreach (var viewInfo in rowViewInfo)
+                            @foreach (ViewInfo viewInfo in rowViewInfo)
                             {
                                 <Card OnClick="_ => OnCardClick(viewInfo)"
                                       OnChipTagClickEvent="OnChipTagClick"

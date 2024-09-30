@@ -14,9 +14,8 @@ namespace GameManager.Components.Pages
 {
     public partial class Library : IDisposable
     {
-        private readonly HashSet<string> _patHashSet = new();
-
         private readonly CancellationTokenSource _loadLibraryCancellationTokenSource = new();
+        private readonly HashSet<string> _patHashSet = new();
 
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;
