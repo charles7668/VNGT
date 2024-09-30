@@ -1,4 +1,5 @@
 ﻿@page "/tools"
+@using GameManager.Models.ToolInfo
 
 <div>
     <MudStack Row="true">
@@ -15,15 +16,24 @@
         @foreach (BuiltinToolInfo builtinToolInfo in _BuiltinToolInfos)
         {
             <MudPaper Outlined="true" Class="d-flex flex-row pa-2">
-                <MudText Typo="Typo.h6" Align="Align.Center">@builtinToolInfo.Name</MudText>
+                <MudText Typo="Typo.h6" Align="Align.Center">
+                    @if (!string.IsNullOrWhiteSpace(builtinToolInfo.ToolVersion))
+                    {
+                        @(builtinToolInfo.ToolName + " Version " + builtinToolInfo.ToolVersion)
+                    }
+                    else
+                    {
+                        @builtinToolInfo.ToolName
+                    }
+                </MudText>
                 <MudSpacer/>
-                @if (Directory.Exists(Path.Combine(AppPathService.ToolsDirPath, builtinToolInfo.Name)))
+                @if (Directory.Exists(Path.Combine(AppPathService.ToolsDirPath, builtinToolInfo.ToolName)))
                 {
-                    <MudButton OnClick="builtinToolInfo.Launch">
+                    <MudButton OnClick="() => LaunchToolAsync(builtinToolInfo)">
                         <MudIcon Icon="@Icons.Material.Filled.ArrowRight" Style="@($"color:{Colors.Green.Default}")"></MudIcon>
                         Run
                     </MudButton>
-                    <MudButton OnClick="() => RemoveTool(builtinToolInfo.Name)">
+                    <MudButton OnClick="() => RemoveTool(builtinToolInfo.ToolName)">
                         <MudIcon Icon="@Icons.Material.Filled.Close" Style="@($"color:{Colors.Red.Default}")"></MudIcon>
                         Remove
                     </MudButton>
@@ -51,12 +61,21 @@
         <h2>@Resources.ToolsPage_Custom</h2>
         @if (CustomToolInfos != null)
         {
-            @foreach (CustomToolInfo customToolInfo in CustomToolInfos)
+            @foreach (IToolInfo customToolInfo in CustomToolInfos)
             {
                 <MudPaper Outlined="true" Class="d-flex flex-row pa-2">
-                    <MudText Typo="Typo.h6" Align="Align.Center">@customToolInfo.Name</MudText>
+                    <MudText Typo="Typo.h6" Align="Align.Center">
+                        @if (!string.IsNullOrWhiteSpace(customToolInfo.ToolVersion))
+                        {
+                            @(customToolInfo.ToolName + " Version " + customToolInfo.ToolVersion)
+                        }
+                        else
+                        {
+                            @customToolInfo.ToolName
+                        }
+                    </MudText>
                     <MudSpacer/>
-                    <MudButton OnClick="customToolInfo.Launch">
+                    <MudButton OnClick="() => LaunchToolAsync(customToolInfo)">
                         <MudIcon Icon="@Icons.Material.Filled.ArrowRight" Style="@($"color:{Colors.Green.Default}")"></MudIcon>
                         Run
                     </MudButton>
