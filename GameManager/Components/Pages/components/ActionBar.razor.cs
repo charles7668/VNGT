@@ -227,7 +227,14 @@ namespace GameManager.Components.Pages.components
                     {
                         FileName = installFileResult.FullPath
                     };
-                    Process.Start(processStartInfo);
+                    try
+                    {
+                        Process.Start(processStartInfo);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.LogError(e, "Failed to start install program");
+                    }
                 }
 
                 await processTracerProc.WaitForExitAsync();
