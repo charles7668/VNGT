@@ -107,7 +107,7 @@ namespace GameManager.Components.Pages
             }
         }
 
-        private void OnDownloadProgressUpdate(int progress)
+        private void OnDownloadProgressUpdate(string toolName, int progress)
         {
             InvokeAsync(StateHasChanged);
         }
@@ -199,7 +199,7 @@ namespace GameManager.Components.Pages
 
             public bool IsDownloading => DownloadTask != null && DownloadTask != Task.CompletedTask;
 
-            public static event Action<int>? OnProgressUpdateHandler;
+            public static event Action<string, int>? OnProgressUpdateHandler;
             public static event Action<string, string>? OnFailedHandler;
 
             public void Launch()
@@ -282,13 +282,13 @@ namespace GameManager.Components.Pages
                                 if ((int)Math.Floor(progress) != Progress)
                                 {
                                     Progress = (int)Math.Floor(progress);
-                                    OnProgressUpdate(Progress);
+                                    OnProgressUpdate(Name, Progress);
                                 }
                             }
                             else
                             {
                                 Progress = 100;
-                                OnProgressUpdate(Progress);
+                                OnProgressUpdate(Name, Progress);
                             }
                         }
 
@@ -338,13 +338,13 @@ namespace GameManager.Components.Pages
                         OnFailed(Name, "Task is canceled.");
                     Progress = 0;
                     DownloadTask = Task.CompletedTask;
-                    OnProgressUpdate(100);
+                    OnProgressUpdate(Name, 100);
                 });
             }
 
-            private static void OnProgressUpdate(int obj)
+            private static void OnProgressUpdate(string toolName, int obj)
             {
-                OnProgressUpdateHandler?.Invoke(obj);
+                OnProgressUpdateHandler?.Invoke(toolName, obj);
             }
 
             private static void OnFailed(string toolName, string message)
