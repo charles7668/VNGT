@@ -2,6 +2,7 @@
 using GameManager.Enums;
 using GameManager.Extractor;
 using GameManager.Models;
+using GameManager.Models.GameInstallAnalyzer;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;
@@ -12,7 +13,6 @@ using Microsoft.Extensions.Configuration.Yaml;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
 using System.Diagnostics;
-using System.Text;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
@@ -245,80 +245,45 @@ namespace GameManager.Components.Pages.components
                     errors = await File.ReadAllTextAsync(tempConsoleErrorPath);
                 }
 
-                if (!string.IsNullOrEmpty(errors))
-                {
-                    Snackbar.Add(errors, Severity.Error);
-                }
-                else if (File.Exists(tempConsoleOutputPath))
-                {
-                    HashSet<string> candidateFilePaths = [];
-                    List<string> excludePath =
-                    [
-                        Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-                        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                        Path.GetDirectoryName(installFileResult.FullPath)!,
-                        "C:\\Program Files\\Sandboxie-Plus"
-                    ];
-                    Dictionary<string, int> pathCounter = new();
-                    using (var sr = new StreamReader(tempConsoleOutputPath, Encoding.UTF8))
-                    {
-                        do
-                        {
-                            string? line = await sr.ReadLineAsync();
-                            // only find FileIOWrite event data
-                            if (line == null ||
-                                (!line.StartsWith("[FileIOWrite]") && !line.StartsWith("[FileIOCreate]")))
-                            {
-                                continue;
-                            }
-
-                            int startIndex = line.LastIndexOf(", File: ", StringComparison.Ordinal);
-                            string filePath = line.Substring(startIndex + 8);
-                            // if the file path is in the exclude path, skip it
-                            if (excludePath.Any(p => filePath.StartsWith(p)))
-                            {
-                                continue;
-                            }
-
-
-                            string? dirPath = Path.GetDirectoryName(filePath);
-                            if (filePath.EndsWith('\\'))
-                                dirPath = filePath;
-                            string ext = Path.GetExtension(filePath);
-                            // only find for exe path
-                            if (dirPath != null && ext == ".exe")
-                            {
-                                pathCounter[dirPath] = pathCounter.GetValueOrDefault(dirPath) + 1;
-                                candidateFilePaths.Add(filePath);
-                            }
-                        } while (!sr.EndOfStream);
-                    }
-
-                    if (candidateFilePaths.Count < 1)
-                    {
-                        Snackbar.Add("Can't find the executable file of game", Severity.Error);
-                        return;
-                    }
-
-                    var candidates = candidateFilePaths.ToList();
-                    target = candidates[0];
-                    int targetCount = pathCounter!.GetValueOrDefault(Path.GetDirectoryName(candidates[0]));
-                    for (int i = 1; i < candidates.Count; ++i)
-                    {
-                        string? dirPath = Path.GetDirectoryName(candidates[i]);
-                        if (string.IsNullOrEmpty(dirPath) || pathCounter[dirPath] <= targetCount) continue;
-                        targetCount = pathCounter[dirPath];
-                        target = candidates[i];
-                    }
-                }
-
                 try
                 {
-                    Directory.Delete(tempPath);
+                    if (!string.IsNullOrEmpty(errors))
+                    {
+                        Snackbar.Add(errors, Severity.Error);
+                    }
+                    else
+                    {
+                        IGameInstallAnalyzer gameInstallAnalyzer =
+                            App.ServiceProvider.GetRequiredService<IGameInstallAnalyzer>();
+                        Result<string?> analyzeResult =
+                            await gameInstallAnalyzer.AnalyzeFromFileAsync(tempConsoleOutputPath,
+                                installFileResult.FullPath);
+                        if (!analyzeResult.Success)
+                        {
+                            Snackbar.Add(analyzeResult.Message, Severity.Error);
+                            return;
+                        }
+                        else if (analyzeResult.Value == null)
+                        {
+                            Snackbar.Add("Can't find the executable file of game", Severity.Error);
+                            return;
+                        }
+                        else
+                        {
+                            target = analyzeResult.Value;
+                        }
+                    }
                 }
-                catch (Exception)
+                finally
                 {
-                    // ignore
+                    try
+                    {
+                        Directory.Delete(tempPath);
+                    }
+                    catch (Exception)
+                    {
+                        // ignore
+                    }
                 }
 
                 // if the target is empty, return

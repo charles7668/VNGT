@@ -2,6 +2,7 @@
 using GameManager.DB;
 using GameManager.Extensions;
 using GameManager.GameInfoProvider;
+using GameManager.Models.GameInstallAnalyzer;
 using GameManager.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -54,6 +55,8 @@ namespace GameManager
             builder.Services.AddScoped<GameInfoProviderFactory, GameInfoProviderFactory>();
 
             builder.Services.AddScoped<IVersionService, VersionService>();
+
+            builder.Services.AddScoped<IGameInstallAnalyzer, ProcessTracerGameInstallAnalyzer>();
 
             builder.Services.AddExtractors();
 
