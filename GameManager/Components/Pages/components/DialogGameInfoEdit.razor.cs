@@ -19,11 +19,13 @@ namespace GameManager.Components.Pages.components
 {
     public partial class DialogGameInfoEdit : ComponentBase, IAsyncDisposable
     {
+        private readonly CancellationTokenSource _scanningExecutionFileCts = new();
         private bool _isFetching;
         private bool _isSandboxieInstalled;
 
         private bool _isVNGTTranslatorInstalled;
-        private readonly CancellationTokenSource _scanningExecutionFileCts = new();
+
+        private MudAutocomplete<string> _sandboxieBoxAutoComplete = null!;
         private Task _scanningExecutionFileTask = Task.CompletedTask;
         private HashSet<string> _tagHashSet = [];
 
@@ -256,6 +258,34 @@ namespace GameManager.Components.Pages.components
                 return;
             string? cover = dialogResult.Data as string;
             Model.Cover = cover;
+        }
+
+        private async Task<IEnumerable<string>> SandboxieBoxSearchFunc(string searchText,
+            CancellationToken cancellationToken)
+        {
+            Model.SandboxieBoxName = searchText;
+            const string sandboxieIni = "C:\\Windows\\Sandboxie.ini";
+            if (!File.Exists(sandboxieIni))
+                return [];
+            using StreamReader streamReader = new(sandboxieIni);
+            const string searchField = "BoxGrouping=:";
+            string fieldValue = "DefaultBox";
+            while (await streamReader.ReadLineAsync(CancellationToken.None) is { } line)
+            {
+                if (line.StartsWith(searchField))
+                {
+                    fieldValue = line[searchField.Length..];
+                }
+            }
+
+            var result = fieldValue.Split(',').ToList();
+            return result;
+        }
+
+        private async Task OnSandboxieBoxNameAdornmentClick()
+        {
+            if (_sandboxieBoxAutoComplete.IsOpen)
+                await _sandboxieBoxAutoComplete.CloseMenuAsync();
         }
 
         public class FormModel

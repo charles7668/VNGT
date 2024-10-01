@@ -107,9 +107,15 @@
                                                  @bind-Value="@Model.RunWithSandboxie"
                                                  Label="@Resources.GameEditorDialog_RunWithSandboxie">
                                     </MudCheckBox>
-                                    <MudTextField T="string" @bind-Value="@Model.SandboxieBoxName"
-                                                  For="() => Model.SandboxieBoxName" Variant="Variant.Outlined">
-                                    </MudTextField>
+                                    <MudAutocomplete T="string" CoerceValue="false" CoerceText="false"
+                                                     @ref="_sandboxieBoxAutoComplete"
+                                                     @bind-Value="@Model.SandboxieBoxName"
+                                                     OnAdornmentClick="OnSandboxieBoxNameAdornmentClick"
+                                                     For="() => Model.SandboxieBoxName"
+                                                     Variant="Variant.Outlined"
+                                                     ResetValueOnEmptyText="false"
+                                                     SearchFunc="SandboxieBoxSearchFunc">
+                                    </MudAutocomplete>
                                 </MudToolBar>
                             }
                             @if (_isVNGTTranslatorInstalled)
