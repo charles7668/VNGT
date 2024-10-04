@@ -1,4 +1,5 @@
-﻿using GameManager.Models.ToolInfo;
+﻿using GameManager.Models;
+using GameManager.Models.ToolInfo;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +7,8 @@ using Microsoft.Extensions.Configuration.Yaml;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
 using System.Diagnostics;
+using System.Reflection;
+using System.Resources;
 using System.Runtime.InteropServices;
 
 namespace GameManager.Components.Pages
@@ -24,7 +27,32 @@ namespace GameManager.Components.Pages
                 _Is64Bit ? "VNGTTranslator.x86.7z" : "VNGTTranslator.x64.7z", "0.1.1"),
             new("ProcessTracer", "ProcessTracer.exe",
                 "https://api.github.com/repos/charles7668/ProcessTracer/releases",
-                _Is64Bit ? "ProcessTracer.x86.7z" : "ProcessTracer.7z", "0.3.0")
+                _Is64Bit ? "ProcessTracer.x86.7z" : "ProcessTracer.7z", "0.3.0"),
+            new("Locale-Emulator", "LEGUI.exe",
+                "https://api.github.com/repos/xupefei/Locale-Emulator/releases",
+                "Locale.Emulator.2.5.0.1.zip", "v2.5.0.1")
+            {
+                OnDownloadComplete = toolPath =>
+                {
+                    var assembly = Assembly.LoadFrom(Path.Combine(toolPath, "LEInstaller.exe"));
+                    var resourceManager = new ResourceManager("LEInstaller.Properties.Resources", assembly);
+                    byte[]? commonLibrary = (byte[]?)resourceManager.GetObject("LECommonLibrary");
+                    byte[]? contextMenuHandler = (byte[]?)resourceManager.GetObject("LEContextMenuHandler");
+                    if (commonLibrary == null || contextMenuHandler == null)
+                        return Result.Failure("Failed to load LECommonLibrary.dll or LEContextMenuHandler.dll");
+                    try
+                    {
+                        File.WriteAllBytes(Path.Combine(toolPath, "LECommonLibrary.dll"), commonLibrary);
+                        File.WriteAllBytes(Path.Combine(toolPath, "LEContextMenuHandler.dll"), contextMenuHandler);
+                    }
+                    catch (Exception)
+                    {
+                        return Result.Failure("Failed to write LECommonLibrary.dll or LEContextMenuHandler.dll");
+                    }
+
+                    return Result.Ok();
+                }
+            }
         ];
 
         private static List<CustomToolInfo>? CustomToolInfos { get; set; }

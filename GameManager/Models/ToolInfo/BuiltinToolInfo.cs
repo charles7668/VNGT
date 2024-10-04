@@ -29,6 +29,7 @@ namespace GameManager.Models.ToolInfo
         public CancellationTokenSource CancellationTokenSource { get; private set; } = new();
 
         public bool IsDownloading => DownloadTask != null && DownloadTask != Task.CompletedTask;
+        public Func<string, Result>? OnDownloadComplete { get; set; }
 
         public static event Action<string, int>? OnProgressUpdateHandler;
         public static event Action<string, string>? OnFailedHandler;
@@ -146,13 +147,25 @@ namespace GameManager.Models.ToolInfo
             }, CancellationTokenSource.Token).ContinueWith(task =>
             {
                 if (task.IsCanceled)
+                {
                     OnFailed(ToolName, "Task is canceled.");
+                    return;
+                }
+
+                IAppPathService appPathService = App.ServiceProvider.GetRequiredService<IAppPathService>();
+                Result? isCompleteTaskSuccess =
+                    OnDownloadComplete?.Invoke(Path.Combine(appPathService.ToolsDirPath, ToolName));
+                if (isCompleteTaskSuccess is { Success: false })
+                {
+                    OnFailed(ToolName, isCompleteTaskSuccess.Message);
+                    return;
+                }
+
                 Progress = 0;
                 DownloadTask = Task.CompletedTask;
                 OnProgressUpdate(ToolName, 100);
 
                 // write info to config file
-                IAppPathService appPathService = App.ServiceProvider.GetRequiredService<IAppPathService>();
                 string confPath = Path.Combine(appPathService.ToolsDirPath, ToolName, "conf.vngt.yaml");
                 using StreamWriter writer = new(confPath);
                 writer.WriteLine("Name: " + ToolName);
