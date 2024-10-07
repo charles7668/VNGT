@@ -1,4 +1,5 @@
-﻿using GameManager.Models;
+﻿using GameManager.DB.Models;
+using GameManager.Models;
 using GameManager.Models.ToolInfo;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;
@@ -49,6 +50,16 @@ namespace GameManager.Components.Pages
                     {
                         return Result.Failure("Failed to write LECommonLibrary.dll or LEContextMenuHandler.dll");
                     }
+
+                    IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
+                    AppSetting appSetting = configService.GetAppSetting();
+                    if (!string.IsNullOrWhiteSpace(appSetting.LocaleEmulatorPath))
+                        return Result.Ok();
+                    string configLeExePath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEProc.exe");
+                    if (File.Exists(configLeExePath))
+                        return Result.Ok();
+                    appSetting.LocaleEmulatorPath = toolPath;
+                    configService.UpdateAppSettingAsync(appSetting);
 
                     return Result.Ok();
                 }
