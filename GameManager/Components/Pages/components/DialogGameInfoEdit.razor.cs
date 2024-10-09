@@ -20,6 +20,8 @@ namespace GameManager.Components.Pages.components
     public partial class DialogGameInfoEdit : ComponentBase, IAsyncDisposable
     {
         private readonly CancellationTokenSource _scanningExecutionFileCts = new();
+
+        private string _fetchProvider = "VNDB";
         private bool _isFetching;
         private bool _isSandboxieInstalled;
 
@@ -117,27 +119,18 @@ namespace GameManager.Components.Pages.components
             _isFetching = true;
             try
             {
-                List<string> providers = ["VNDB", "DLSite"];
-                List<GameInfo>? infoList = [];
-                bool hasMore = false;
-                IGameInfoProvider? gameInfoProvider = null;
-                foreach (string provider in providers)
+                string provider = _fetchProvider;
+                IGameInfoProvider? gameInfoProvider = GameInfoProviderFactory.GetProvider(provider);
+                if (gameInfoProvider == null)
                 {
-                    gameInfoProvider = GameInfoProviderFactory.GetProvider(provider);
-                    if (gameInfoProvider == null)
-                    {
-                        Logger.LogError("Provider {Provider} not found", provider);
-                        continue;
-                    }
-
-                    (infoList, hasMore) =
-                        await gameInfoProvider.FetchGameSearchListAsync(Model.GameName, 10, 1);
-
-                    if (infoList is { Count: > 0 })
-                        break;
+                    Logger.LogError("Provider {Provider} not found", provider);
+                    return;
                 }
 
-                if (infoList == null || infoList.Count == 0 || gameInfoProvider == null)
+                (List<GameInfo>? infoList, bool hasMore) =
+                    await gameInfoProvider.FetchGameSearchListAsync(Model.GameName, 10, 1);
+
+                if (infoList == null || infoList.Count == 0)
                 {
                     await DialogService.ShowMessageBox("Error", Resources.Message_RelatedGameNotFound,
                         Resources.Dialog_Button_Cancel);
@@ -209,6 +202,12 @@ namespace GameManager.Components.Pages.components
             }
         }
 
+        private async Task OnSandboxieBoxNameAdornmentClick()
+        {
+            if (_sandboxieBoxAutoComplete.IsOpen)
+                await _sandboxieBoxAutoComplete.CloseMenuAsync();
+        }
+
         private void OnSave()
         {
             MudDialog?.Close(DialogResult.Ok(Model));
@@ -238,28 +237,6 @@ namespace GameManager.Components.Pages.components
             _tagHashSet.Remove(chip.Value);
         }
 
-        private void TryAddTag(string tag)
-        {
-            if (_tagHashSet.Contains(tag)) return;
-            Model.Tags.Add(tag);
-            _tagHashSet.Add(tag);
-        }
-
-        private async Task UploadByUrl()
-        {
-            Debug.Assert(DialogService != null);
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogImageChange>("Change Cover",
-                new DialogOptions
-                {
-                    BackdropClick = false
-                });
-            DialogResult? dialogResult = await dialogReference.Result;
-            if (dialogResult.Canceled)
-                return;
-            string? cover = dialogResult.Data as string;
-            Model.Cover = cover;
-        }
-
         private async Task<IEnumerable<string>> SandboxieBoxSearchFunc(string searchText,
             CancellationToken cancellationToken)
         {
@@ -282,10 +259,26 @@ namespace GameManager.Components.Pages.components
             return result;
         }
 
-        private async Task OnSandboxieBoxNameAdornmentClick()
+        private void TryAddTag(string tag)
         {
-            if (_sandboxieBoxAutoComplete.IsOpen)
-                await _sandboxieBoxAutoComplete.CloseMenuAsync();
+            if (_tagHashSet.Contains(tag)) return;
+            Model.Tags.Add(tag);
+            _tagHashSet.Add(tag);
+        }
+
+        private async Task UploadByUrl()
+        {
+            Debug.Assert(DialogService != null);
+            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogImageChange>("Change Cover",
+                new DialogOptions
+                {
+                    BackdropClick = false
+                });
+            DialogResult? dialogResult = await dialogReference.Result;
+            if (dialogResult.Canceled)
+                return;
+            string? cover = dialogResult.Data as string;
+            Model.Cover = cover;
         }
 
         public class FormModel

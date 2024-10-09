@@ -12,6 +12,8 @@
 
         private readonly Dictionary<string, IGameInfoProvider> _providers = [];
 
+        public IEnumerable<string> SupportedProviders => _providers.Keys;
+
         public IGameInfoProvider? GetProvider(string providerName)
         {
             _providers.TryGetValue(providerName, out IGameInfoProvider? provider);
