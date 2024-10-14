@@ -63,7 +63,14 @@ namespace GameManager.Components.Pages
             }
             finally
             {
-                Directory.Delete(tempDir);
+                try
+                {
+                    Directory.Delete(tempDir);
+                }
+                catch
+                {
+                    // ignore
+                }
             }
         }
 
