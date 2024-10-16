@@ -18,7 +18,9 @@ namespace GameManager.Components.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            _originalTags = (await ConfigService.GetTagsAsync()).ToList();
+            _originalTags = (await ConfigService.GetTagsAsync())
+                .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+                .ToList();
             Tags = _originalTags;
             await base.OnInitializedAsync();
         }
