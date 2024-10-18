@@ -50,9 +50,21 @@
 
 ### 整合 Locale Emulator
 
-- 在`設置`頁面設置 Locale Emulator 位置。
-- 點擊編輯遊戲。
-- 選擇`LE Config`設置。
+整合 Locale Emulator 的兩種方式：
+
+1. **通過安裝整合 Locale Emulator**
+
+   - 在 `設定` 頁面中設置 `Locale Emulator 路徑`。
+   - 在`遊戲`頁面點擊`編輯`。
+   - 選擇 `LE 設定` 選項，使用 Locale Emulator 啟動遊戲。
+
+2. **無需安裝整合 Locale Emulator**
+
+   - 前往 `工具` 頁面。
+   - 點擊 `下載` `Locale-Emulator` 工具。
+   - 如果 `設定` 頁面中的 `Locale Emulator 路徑` 尚未設置，則下載工具後會自動配置。
+   - 在`遊戲`頁面點擊`編輯`。
+   - 選擇 `LE 設定` 選項，使用 Locale Emulator 啟動遊戲。
 
 ### 整合 Sandboxie-Plus
 

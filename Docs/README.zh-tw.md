@@ -12,7 +12,7 @@
 ![主界面](./img/main.png)
 
 - 自動掃描資料夾以查找遊戲
-- 自動下載遊戲資訊（目前支援：[vndb](https://vndb.org/)）
+- 自動下載遊戲資訊（目前支援：[vndb](https://vndb.org/) , [DLSite](https://www.dlsite.com) , [ymgal](https://www.ymgal.games/developer#%E6%90%9C%E7%B4%A2%E6%B8%B8%E6%88%8F%E5%88%97%E8%A1%A8)）
 - 支援多種語言
 - 整合 Locale Emulator 以支援非日文操作系統
 - 整合[VNGTTranslator](https://github.com/charles7668/VNGTTranslator)以幫助用戶翻譯遊戲文本
@@ -22,6 +22,7 @@
 - 支援追蹤遊戲安裝
 - 支援從壓縮檔中新增新遊戲
 - 支持使用 [Sandboxie-Plus](https://sandboxie-plus.com/) 開啟遊戲
+- 支持備份設定及還原
 
 ## 使用指南
 
