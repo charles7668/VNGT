@@ -216,6 +216,7 @@ namespace GameManager.GameInfoProvider
                         try
                         {
                             coverUrl = mainImgProp.GetString() ?? "";
+                            coverUrl = "cors://" + coverUrl;
                         }
                         catch
                         {

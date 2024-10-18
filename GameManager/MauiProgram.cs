@@ -51,6 +51,8 @@ namespace GameManager
 
             builder.Services.AddGameInfoProviders();
 
+            builder.Services.AddScoped<IImageService, ImageService>();
+
             builder.Services.AddScoped<IVersionService, VersionService>();
 
             builder.Services.AddScoped<IGameInstallAnalyzer, ProcessTracerGameInstallAnalyzer>();

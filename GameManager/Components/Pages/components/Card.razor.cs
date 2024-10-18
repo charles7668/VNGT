@@ -5,7 +5,6 @@ using GameManager.Models.LaunchProgramStrategies;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;
-using Helper.Image;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
@@ -39,6 +38,9 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;
+        
+        [Inject]
+        private IImageService ImageService { get; set; } = null!;
 
         [Parameter]
         public GameInfo? GameInfo { get; set; }
@@ -81,17 +83,8 @@ namespace GameManager.Components.Pages.components
             }
         }
 
-        private string ImageSrc
-        {
-            get
-            {
-                if (GameInfo == null || string.IsNullOrEmpty(GameInfo.CoverPath))
-                    return "/images/no-image.webp";
-                return GameInfo.CoverPath.IsHttpLink()
-                    ? GameInfo.CoverPath
-                    : ImageHelper.GetDisplayUrl(ConfigService.GetCoverFullPath(GameInfo.CoverPath).Result!);
-            }
-        }
+        private string ImageSrc =>
+            ImageService.UriResolve(GameInfo?.CoverPath);
 
         private void OnCardClick()
         {
@@ -135,7 +128,7 @@ namespace GameManager.Components.Pages.components
             var inputModel = new DialogGameInfoEdit.FormModel();
             DataMapService.Map(GameInfo, inputModel);
             inputModel.Tags = (await ConfigService.GetGameTagsAsync(GameInfo.Id)).ToList();
-            if (GameInfo.CoverPath != null && GameInfo.CoverPath.IsHttpLink())
+            if (GameInfo.CoverPath != null && !CoverIsLocalFile(GameInfo.CoverPath))
                 inputModel.Cover = GameInfo.CoverPath;
             else
                 inputModel.Cover = ConfigService.GetCoverFullPath(GameInfo.CoverPath).Result;
@@ -161,17 +154,18 @@ namespace GameManager.Components.Pages.components
             try
             {
                 if ((resultModel.Cover == null && GameInfo.CoverPath != null)
-                    || (resultModel.Cover.IsHttpLink() && !GameInfo.CoverPath.IsHttpLink()))
+                    || (CoverIsLocalFile(resultModel.Cover) && !CoverIsLocalFile(GameInfo.CoverPath)))
                 {
                     await ConfigService.DeleteCoverImage(GameInfo.CoverPath);
                 }
-                else if (resultModel.Cover != null && (GameInfo.CoverPath.IsHttpLink() || GameInfo.CoverPath == null) &&
-                         !resultModel.Cover.IsHttpLink())
+                else if (resultModel.Cover != null &&
+                         (!CoverIsLocalFile(GameInfo.CoverPath) || GameInfo.CoverPath == null) &&
+                         CoverIsLocalFile(resultModel.Cover))
                 {
                     resultModel.Cover = await ConfigService.AddCoverImage(resultModel.Cover);
                 }
                 else if (resultModel.Cover != null &&
-                         !resultModel.Cover.IsHttpLink())
+                         CoverIsLocalFile(resultModel.Cover))
                 {
                     await ConfigService.ReplaceCoverImage(resultModel.Cover, GameInfo.CoverPath);
                 }
@@ -186,6 +180,14 @@ namespace GameManager.Components.Pages.components
             await ConfigService.EditGameInfo(GameInfo);
             await ConfigService.UpdateGameInfoTags(GameInfo.Id, resultModel.Tags);
             StateHasChanged();
+            return;
+
+            bool CoverIsLocalFile(string? coverUri)
+            {
+                if (coverUri == null)
+                    return false;
+                return !coverUri.IsHttpLink() && !coverUri.StartsWith("cors://");
+            }
         }
 
         private Task OnGuideSearchClick(GuideSite site)

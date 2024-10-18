@@ -2,7 +2,6 @@
 using GameManager.GameInfoProvider;
 using GameManager.Properties;
 using GameManager.Services;
-using Helper.Image;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
@@ -39,13 +38,14 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private ILogger<DialogGameInfoEdit> Logger { get; set; } = null!;
+        
+        [Inject]
+        private IImageService ImageService { get; set; } = null!;
 
         [Inject]
         private GameInfoProviderFactory GameInfoProviderFactory { get; set; } = null!;
 
-        private string CoverPath => string.IsNullOrEmpty(Model.Cover)
-            ? "/images/no-image.webp"
-            : ImageHelper.GetDisplayUrl(Model.Cover);
+        private string CoverPath => ImageService.UriResolve(Model.Cover);
 
         [CascadingParameter]
         public MudDialogInstance? MudDialog { get; set; }

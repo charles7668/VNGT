@@ -1,4 +1,5 @@
-﻿using Helper;
+﻿using GameManager.Services;
+using Helper;
 using Helper.Image;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -14,11 +15,19 @@ namespace GameManager.Components.Pages.components
         [CascadingParameter]
         public MudDialogInstance? MudDialog { get; set; }
 
+        [Inject]
+        private IImageService ImageService { get; set; } = null!;
+
         private string InputUrl { get; set; } = string.Empty;
 
         private string DisplayUrl
         {
-            get => ImageHelper.GetDisplayUrl(_displayImageLink);
+            get
+            {
+                if (_displayImageLink.IsHttpLink() || _displayImageLink.StartsWith("cors://"))
+                    return ImageService.UriResolve(_displayImageLink);
+                return ImageHelper.GetDisplayUrl(_displayImageLink);
+            }
             set => _displayImageLink = value;
         }
 
