@@ -3,7 +3,7 @@
 <div>
     <h1>Help</h1>
     <MudDivider/>
-    <MudText Typo="Typo.h6">@("Version : " + Assembly.GetExecutingAssembly().GetName().Version)</MudText>
+    <MudText Typo="Typo.h6">@("Version : " + Assembly.GetExecutingAssembly().GetName().Version?.ToString(3))</MudText>
     <MudText Typo="Typo.h6">
         Project Site : <a style="color: aqua" href="https://github.com/charles7668/VNGT">@("Github")</a>
     </MudText>
