@@ -204,7 +204,7 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnSandboxieBoxNameAdornmentClick()
         {
-            if (_sandboxieBoxAutoComplete.IsOpen)
+            if (_sandboxieBoxAutoComplete.Open)
                 await _sandboxieBoxAutoComplete.CloseMenuAsync();
         }
 
