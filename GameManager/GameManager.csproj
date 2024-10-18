@@ -63,7 +63,6 @@
     </ItemGroup>
 
     <ItemGroup>
-	    <PackageReference Include="DotNetZip" Version="1.16.0" />
 	    <PackageReference Include="HtmlAgilityPack" Version="1.11.63" />
 	    <PackageReference Include="HtmlAgilityPack.CssSelectors.NetCore" Version="1.2.1" />
 	    <PackageReference Include="Microsoft.Extensions.Configuration.Yaml" Version="2.0.0-preview2" />

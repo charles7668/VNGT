@@ -1,7 +1,8 @@
-﻿using Ionic.Zip;
-using SavePatcher.Extractor;
+﻿using SavePatcher.Extractor;
 using SavePatcher.Models;
 using SevenZip;
+using CompressionLevel = SevenZip.CompressionLevel;
+using CompressionMode = SevenZip.CompressionMode;
 using SevenZipExtractor = SavePatcher.Extractor.SevenZipExtractor;
 
 namespace SavePatcherTest
@@ -25,10 +26,15 @@ namespace SavePatcherTest
                 File.Create(file).Close();
             }
 
-            var zip = new ZipFile();
-            zip.AddFiles(testFiles);
-            zip.Save("test.zip");
-            IExtractor extractor = new ZipExtractor();
+            SevenZipBase.SetLibraryPath("7z.dll");
+            var compressor = new SevenZipCompressor
+            {
+                ArchiveFormat = OutArchiveFormat.Zip,
+                CompressionMode = CompressionMode.Create,
+                CompressionLevel = CompressionLevel.Normal
+            };
+            compressor.CompressFiles("test.zip", testFiles);
+            IExtractor extractor = new SevenZipExtractor();
             Task<Result<string>> testTask = extractor.ExtractAsync("test.zip", new ExtractOption());
             testTask.Wait();
             Result<string> resultPath = testTask.Result;
@@ -76,13 +82,16 @@ namespace SavePatcherTest
                 File.Create(file).Close();
             }
 
-            var zip = new ZipFile
+            SevenZipBase.SetLibraryPath("7z.dll");
+            var compressor = new SevenZipCompressor
             {
-                Password = "test_password"
+                ArchiveFormat = OutArchiveFormat.Zip,
+                CompressionMode = CompressionMode.Create,
+                CompressionLevel = CompressionLevel.Normal,
+                EncryptHeaders = true
             };
-            zip.AddFiles(testFiles);
-            zip.Save("test_password.zip");
-            IExtractor extractor = new ZipExtractor();
+            compressor.CompressFilesEncrypted("test_password.zip", "test_password", testFiles);
+            IExtractor extractor = new SevenZipExtractor();
             Task<Result<string>> testTask =
                 extractor.ExtractAsync("test_password.zip", new ExtractOption
                 {

@@ -7,7 +7,7 @@ namespace SavePatcher.Extractor
     [Export(typeof(IExtractor))]
     public class SevenZipExtractor : IExtractor
     {
-        public string[] SupportExtensions { get; } = [".7z"];
+        public string[] SupportExtensions { get; } = [".7z" , ".zip"];
 
         public async Task<Result<string>> ExtractAsync(string filePath, ExtractOption option)
         {
