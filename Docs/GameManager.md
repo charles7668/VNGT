@@ -52,9 +52,21 @@ There are three ways to add a new game:
 
 ### Integrate Locale Emulator
 
-- Set up Locale Emulator location in the `Settings` page.
-- Click Edit Game.
-- Select the `LE Config` setting.
+There are two ways to integrate Locale Emulator:
+
+1. **Integrate Locale Emulator with Installation**
+
+   - Set up the `Locale Emulator Path` in the **Settings** page.
+   - Click `Edit` in the `Game` page.
+   - Select the `LE Config` setting to use Locale Emulator with the game.
+
+2. **Integrate Locale Emulator without Installation**
+
+   - Go to the **Tools** page.
+   - Click **Download** for the `Locale-Emulator` tool.
+   - If the `Locale Emulator Path` in the **Settings** page is not set, it will be automatically configured after downloading the tool.
+   - Click `Edit` in the `Game` page.
+   - Select the `LE Config` setting to use Locale Emulator with the game.
 
 ### Integrate Sandboxie-Plus
 
