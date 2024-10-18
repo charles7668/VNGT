@@ -1,7 +1,6 @@
 ﻿using GameManager.Database;
 using GameManager.DB;
 using GameManager.Extensions;
-using GameManager.GameInfoProvider;
 using GameManager.Models.GameInstallAnalyzer;
 using GameManager.Services;
 using Microsoft.EntityFrameworkCore;
@@ -50,9 +49,7 @@ namespace GameManager
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            builder.Services.AddScoped<IGameInfoProvider, VndbProvider>();
-            builder.Services.AddScoped<IGameInfoProvider, DLSiteProvider>();
-            builder.Services.AddScoped<GameInfoProviderFactory, GameInfoProviderFactory>();
+            builder.Services.AddGameInfoProviders();
 
             builder.Services.AddScoped<IVersionService, VersionService>();
 
