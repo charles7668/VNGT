@@ -31,6 +31,8 @@ namespace GameManager.DB.Migrations
                 name: "IX_GameInfos_GameUniqeId",
                 table: "GameInfos",
                 column: "GameUniqeId");
+
+            migrationBuilder.Sql("UPDATE GameInfos SET GameUniqeId = lower(hex(randomblob(16)))");
         }
 
         /// <inheritdoc />

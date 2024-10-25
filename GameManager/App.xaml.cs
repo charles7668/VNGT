@@ -38,16 +38,6 @@ namespace GameManager
                     foreach (string migration in pendingMigrations)
                     {
                         migrator.Migrate(migration);
-                        if (migration == "20241025035509_AddGameUniqueID")
-                        {
-                            foreach (GameInfo item in dbContext.GameInfos.Where(e => true))
-                            {
-                                item.GameUniqeId = Guid.NewGuid();
-                            }
-
-                            dbContext.SaveChanges();
-                        }
-
                         logger.LogInformation("Applying migration {Migration}", migration);
                     }
                 }
