@@ -54,10 +54,12 @@ namespace GameManager.Components.Pages
                     IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
                     AppSetting appSetting = configService.GetAppSetting();
                     if (!string.IsNullOrWhiteSpace(appSetting.LocaleEmulatorPath))
-                        return Result.Ok();
-                    string configLeExePath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEProc.exe");
-                    if (File.Exists(configLeExePath))
-                        return Result.Ok();
+                    {
+                        string configLeExePath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEProc.exe");
+                        if (File.Exists(configLeExePath))
+                            return Result.Ok();
+                    }
+
                     appSetting.LocaleEmulatorPath = toolPath;
                     configService.UpdateAppSettingAsync(appSetting);
 
