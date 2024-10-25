@@ -61,7 +61,7 @@ namespace GameManager.GameInfoProvider
                     var gameInfo = new GameInfo
                     {
                         GameName = title,
-                        GameInfoId = id,
+                        GameInfoFetchId = id,
                         CoverPath = img
                     };
                     gameInfos.Add(gameInfo);
@@ -121,7 +121,7 @@ namespace GameManager.GameInfoProvider
                 string img = imgNode?.Attributes["srcset"] == null ? "" : "https:" + imgNode.Attributes["srcset"].Value;
 
                 gameInfo.GameName = title;
-                gameInfo.GameInfoId = gameId;
+                gameInfo.GameInfoFetchId = gameId;
                 gameInfo.Developer = brand;
                 gameInfo.CoverPath = img;
                 bool dateParseSuccess = DateTime.TryParse(releaseDate, out DateTime time);

@@ -14,8 +14,9 @@ namespace GameManager.DB.Models
         [Description("Unique ID for each game , used to identify the game")]
         public Guid GameUniqeId { get; set; }
 
+        [Description("Fetch ID , used to fetch info from the internet")]
         [MaxLength(100)]
-        public string? GameInfoId { get; set; }
+        public string? GameInfoFetchId { get; set; }
 
         [MaxLength(100)]
         public string? GameName { get; set; }

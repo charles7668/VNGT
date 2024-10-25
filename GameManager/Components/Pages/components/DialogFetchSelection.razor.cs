@@ -79,7 +79,7 @@ namespace GameManager.Components.Pages.components
                 return Task.CompletedTask;
             }
 
-            MudDialog.Close(DisplayInfos[_selectedIndex].GameInfoId);
+            MudDialog.Close(DisplayInfos[_selectedIndex].GameInfoFetchId);
             return Task.CompletedTask;
         }
 

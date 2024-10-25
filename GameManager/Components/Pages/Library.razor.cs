@@ -195,7 +195,7 @@ namespace GameManager.Components.Pages
                                             await provider.FetchGameSearchListAsync(info.GameName, 1, 1);
                                         if (searchList.infoList?.Count > 0)
                                         {
-                                            string? id = searchList.infoList[0].GameInfoId;
+                                            string? id = searchList.infoList[0].GameInfoFetchId;
                                             Logger.LogInformation("Scan result id : {Id}", id);
                                             if (id == null)
                                                 continue;

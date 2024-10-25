@@ -43,7 +43,7 @@ namespace GameManager.GameInfoProvider
                         gameInfos.Add(new GameInfo
                         {
                             GameName = title,
-                            GameInfoId = id,
+                            GameInfoFetchId = id,
                             CoverPath = image
                         });
                     }
@@ -150,7 +150,7 @@ namespace GameManager.GameInfoProvider
 
                         gameInfo.CoverPath = image;
                         gameInfo.GameName = title;
-                        gameInfo.GameInfoId = id;
+                        gameInfo.GameInfoFetchId = id;
                         gameInfo.Developer = develop;
                         gameInfo.Description = description;
                         gameInfo.DateTime = released;

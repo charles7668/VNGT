@@ -90,7 +90,7 @@ namespace GameManager.GameInfoProvider
 
                         gameInfoList.Add(new GameInfo
                         {
-                            GameInfoId = id,
+                            GameInfoFetchId = id,
                             GameName = name
                         });
                     }
@@ -226,7 +226,7 @@ namespace GameManager.GameInfoProvider
 
                     var resultGameInfo = new GameInfo
                     {
-                        GameInfoId = gameId,
+                        GameInfoFetchId = gameId,
                         GameName = name,
                         Description = introduction,
                         Developer = developer,

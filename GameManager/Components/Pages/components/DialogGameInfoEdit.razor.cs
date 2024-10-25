@@ -137,7 +137,7 @@ namespace GameManager.Components.Pages.components
                     return;
                 }
 
-                string gameId = infoList[0].GameInfoId ?? "";
+                string gameId = infoList[0].GameInfoFetchId ?? "";
                 if (infoList.Count > 1)
                 {
                     var parameters = new DialogParameters<DialogFetchSelection>
