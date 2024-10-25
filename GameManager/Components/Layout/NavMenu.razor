@@ -1,14 +1,27 @@
-﻿<div>
-    <MudNavMenu>
-        <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.GridView" Href="/">@Resources.NavMenu_Game</MudNavLink>
-        <MudDivider/>
+﻿<MudNavMenu Class="mud-height-full d-flex flex-column">
+    <MudTooltip Text="@Resources.NavMenu_Game">
+        <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.GridView" Href="/"></MudNavLink>
+    </MudTooltip>
+    <MudDivider Class="flex-grow-0"/>
+    <MudTooltip Text="@Resources.NavMenu_Library">
         <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Folder" Href="/library">@Resources.NavMenu_Library</MudNavLink>
-        <MudDivider/>
+    </MudTooltip>
+    <MudDivider Class="flex-grow-0"/>
+    <MudTooltip Text="@Resources.NavMenu_Tools">
         <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AllInbox" Href="/tools">@Resources.NavMenu_Tools</MudNavLink>
-        <MudDivider/>
+    </MudTooltip>
+    <MudDivider Class="flex-grow-0"/>
+    <MudTooltip Text="@Resources.NavMenu_TagSet">
         <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Tag" Href="/tagset">@Resources.NavMenu_TagSet</MudNavLink>
+    </MudTooltip>
+    <div class="flex-grow-1 flex-shrink-1">
         <MudSpacer/>
+    </div>
+    <MudTooltip Text="@Resources.NavMenu_Help">
         <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Help" Href="/help">@Resources.NavMenu_Help</MudNavLink>
+    </MudTooltip>
+    <MudDivider Class="flex-grow-0"/>
+    <MudTooltip Text="@Resources.NavMenu_Setting">
         <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Settings" Href="/setting">@Resources.NavMenu_Setting</MudNavLink>
-    </MudNavMenu>
-</div>
+    </MudTooltip>
+</MudNavMenu>

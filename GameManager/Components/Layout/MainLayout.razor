@@ -7,7 +7,7 @@
 <MudPopoverProvider/>
 
 <MudLayout>
-    <MudDrawer Open="true">
+    <MudDrawer Variant="DrawerVariant.Mini">
         <NavMenu></NavMenu>
     </MudDrawer>
     <MudMainContent>
@@ -17,12 +17,12 @@
 
 @code
 {
-    protected override void OnInitialized()
-    {
-        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomLeft;
-        Snackbar.Configuration.PreventDuplicates = false;
-        Snackbar.Configuration.VisibleStateDuration = 5000;
-    }
+protected override void OnInitialized()
+{
+Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomLeft;
+Snackbar.Configuration.PreventDuplicates = false;
+Snackbar.Configuration.VisibleStateDuration = 5000;
+}
 }
 
 <style>
