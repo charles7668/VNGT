@@ -10,24 +10,17 @@
     <MudDrawer Variant="DrawerVariant.Mini">
         <NavMenu></NavMenu>
     </MudDrawer>
-    <MudMainContent>
+    <MudMainContent Class="pt-0">
         @Body
     </MudMainContent>
 </MudLayout>
 
 @code
 {
-protected override void OnInitialized()
-{
-Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomLeft;
-Snackbar.Configuration.PreventDuplicates = false;
-Snackbar.Configuration.VisibleStateDuration = 5000;
-}
-}
-
-<style>
-    .mud-main-content {
-        padding: 0px;
-        margin: 0px;
+    protected override void OnInitialized()
+    {
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomLeft;
+        Snackbar.Configuration.PreventDuplicates = false;
+        Snackbar.Configuration.VisibleStateDuration = 5000;
     }
-</style>
+}
