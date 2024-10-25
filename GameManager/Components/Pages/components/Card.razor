@@ -1,7 +1,7 @@
 ﻿@inherits MudComponentBase
 
 <div class="card-item">
-    <MudPaper Elevation="0" @attributes="UserAttributes" Style="@Style" Class="@ClassName" @onclick="OnCardClick">
+    <MudPaper Elevation="5" @attributes="UserAttributes" Style="@Style" Class="@ClassName" @onclick="OnCardClick">
         <MudPaper Elevation="0" Class="d-flex flex-column">
             <MudIconButton Class="@("card-star " + (GameInfo is { IsFavorite: true } ? "marked" : ""))"
                            OnClick="OnCardFavoriteClick"
