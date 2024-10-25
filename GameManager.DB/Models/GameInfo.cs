@@ -12,7 +12,7 @@ namespace GameManager.DB.Models
         public int Id { get; set; }
 
         [Description("Unique ID for each game , used to identify the game")]
-        public Guid GameUniqeId { get; set; }
+        public Guid GameUniqeId { get; set; } = Guid.NewGuid();
 
         [Description("Fetch ID , used to fetch info from the internet")]
         [MaxLength(100)]

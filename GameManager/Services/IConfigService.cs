@@ -1,6 +1,5 @@
 ﻿using GameManager.DB.Models;
 using GameManager.Enums;
-using System.Linq.Expressions;
 
 namespace GameManager.Services
 {
@@ -26,8 +25,6 @@ namespace GameManager.Services
         Task DeleteLibraryByIdAsync(int id);
 
         Task EditGameInfo(GameInfo info);
-
-        Task<bool> IsGameInfoExistAsync(Expression<Func<GameInfo, bool>> query);
 
         AppSetting GetAppSetting();
 

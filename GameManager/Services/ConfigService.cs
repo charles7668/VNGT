@@ -2,7 +2,6 @@
 using GameManager.DB.Models;
 using GameManager.Enums;
 using Microsoft.Extensions.Caching.Memory;
-using System.Linq.Expressions;
 using System.Text.Json;
 
 namespace GameManager.Services
@@ -138,6 +137,13 @@ namespace GameManager.Services
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             string[] tagArray = info.Tags.Select(x => x.Name).ToArray();
             info.Tags = [];
+            do
+            {
+                info.GameUniqeId = Guid.NewGuid();
+                if(await unitOfWork.GameInfoRepository.AnyAsync(x => x.GameUniqeId == info.GameUniqeId))
+                    continue;
+                break;
+            } while (true);
             GameInfo gameInfoEntity = await unitOfWork.GameInfoRepository.AddAsync(info);
             await unitOfWork.SaveChangesAsync();
             info.Id = gameInfoEntity.Id;
@@ -160,11 +166,6 @@ namespace GameManager.Services
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             await unitOfWork.GameInfoRepository.EditAsync(info);
             await unitOfWork.SaveChangesAsync();
-        }
-
-        public Task<bool> IsGameInfoExistAsync(Expression<Func<GameInfo, bool>> query)
-        {
-            return _unitOfWork.GameInfoRepository.HasGameInfo(query);
         }
 
         public AppSetting GetAppSetting()

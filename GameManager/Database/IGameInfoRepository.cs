@@ -15,13 +15,13 @@ namespace GameManager.Database
 
         Task<GameInfo> AddAsync(GameInfo info);
 
+        Task<bool> AnyAsync(Expression<Func<GameInfo, bool>> query);
+
         Task EditAsync(GameInfo info);
 
         Task<GameInfo?> DeleteByIdAsync(int id);
 
         Task<bool> CheckExePathExist(string path);
-
-        Task<bool> HasGameInfo(Expression<Func<GameInfo, bool>> query);
 
         Task UpdateLastPlayedByIdAsync(int id, DateTime time);
 

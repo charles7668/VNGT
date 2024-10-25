@@ -34,13 +34,14 @@ namespace GameManager.Database
 
         public async Task<GameInfo> AddAsync(GameInfo info)
         {
-            if (await context.GameInfos
-                    .AsNoTracking()
-                    .AnyAsync(x => x.ExePath == info.ExePath))
-                throw new InvalidOperationException("Game already exists");
             info.UploadTime = DateTime.UtcNow;
             EntityEntry<GameInfo> entityEntry = await context.GameInfos.AddAsync(info);
             return entityEntry.Entity;
+        }
+
+        public Task<bool> AnyAsync(Expression<Func<GameInfo, bool>> query)
+        {
+            return context.GameInfos.AnyAsync(query);
         }
 
         public Task EditAsync(GameInfo info)
@@ -65,11 +66,6 @@ namespace GameManager.Database
         {
             return context.GameInfos
                 .AnyAsync(x => x.ExePath == path);
-        }
-
-        public Task<bool> HasGameInfo(Expression<Func<GameInfo, bool>> query)
-        {
-            return context.GameInfos.AnyAsync(query);
         }
 
         public async Task UpdateLastPlayedByIdAsync(int id, DateTime time)

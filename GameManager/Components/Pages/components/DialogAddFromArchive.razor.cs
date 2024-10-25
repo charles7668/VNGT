@@ -77,8 +77,7 @@ namespace GameManager.Components.Pages.components
             {
                 string targetPath = Path.Combine(Result.TargetLibrary, gameName);
                 _ = new DirectoryInfo(targetPath);
-                if (Directory.Exists(targetPath) ||
-                    await ConfigService.IsGameInfoExistAsync(x => x.ExePath == targetPath))
+                if (Directory.Exists(targetPath))
                 {
                     return ["Game already exists"];
                 }
