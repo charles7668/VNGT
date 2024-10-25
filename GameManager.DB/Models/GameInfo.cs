@@ -1,14 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GameManager.DB.Models
 {
-    [Index(nameof(ExePath), IsUnique = true)]
+    [Index(nameof(GameUniqeId), IsUnique = true)]
+    [Index(nameof(ExePath), IsUnique = false)]
     [Index(nameof(UploadTime), nameof(GameName), IsUnique = false)]
     public class GameInfo
     {
         public int Id { get; set; }
+
+        [Description("Unique ID for each game , used to identify the game")]
+        public Guid GameUniqeId { get; set; }
 
         [MaxLength(100)]
         public string? GameInfoId { get; set; }

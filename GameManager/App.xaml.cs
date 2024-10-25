@@ -1,6 +1,9 @@
 ﻿using GameManager.DB;
+using GameManager.DB.Models;
 using GameManager.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 
@@ -16,7 +19,8 @@ namespace GameManager
             ILogger<App> logger = serviceProvider.GetRequiredService<ILogger<App>>();
             AppDbContext dbContext = dbContextFactory.CreateDbContext();
             dbContext.Database.ExecuteSql($"PRAGMA foreign_keys=OFF;");
-            if (dbContext.Database.GetPendingMigrations().Any())
+            var pendingMigrations = dbContext.Database.GetPendingMigrations().ToList();
+            if (pendingMigrations.Any())
             {
                 try
                 {
@@ -30,7 +34,22 @@ namespace GameManager
 
                 try
                 {
-                    dbContext.Database.Migrate();
+                    IMigrator migrator = dbContext.Database.GetService<IMigrator>();
+                    foreach (string migration in pendingMigrations)
+                    {
+                        migrator.Migrate(migration);
+                        if (migration == "20241025035509_AddGameUniqueID")
+                        {
+                            foreach (GameInfo item in dbContext.GameInfos.Where(e => true))
+                            {
+                                item.GameUniqeId = Guid.NewGuid();
+                            }
+
+                            dbContext.SaveChanges();
+                        }
+
+                        logger.LogInformation("Applying migration {Migration}", migration);
+                    }
                 }
                 catch (Exception e)
                 {
