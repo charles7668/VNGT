@@ -1,5 +1,4 @@
 ﻿using GameManager.DB;
-using GameManager.DB.Models;
 using GameManager.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -67,5 +66,16 @@ namespace GameManager
         }
 
         public static IServiceProvider ServiceProvider { get; private set; } = null!;
+
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            Window window = base.CreateWindow(activationState);
+
+            const int newWidth = 1286;
+
+            window.Width = newWidth;
+
+            return window;
+        }
     }
 }
