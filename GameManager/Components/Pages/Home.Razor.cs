@@ -46,7 +46,9 @@ namespace GameManager.Components.Pages
 
         private int CardListWidth { get; set; }
 
-        private int CardItemWidth { get; } = 275;
+        private int CardGapPixel { get; set; } = 0;
+
+        private int CardItemWidth { get; } = 230;
 
         private bool IsDeleting { get; set; }
 
@@ -403,7 +405,9 @@ namespace GameManager.Components.Pages
         public async Task OnResizeEvent(int width, int height)
         {
             ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
+            ValueTask<float> getRemToPixels = JsRuntime.InvokeAsync<float>("remToPixels", 0.5);
             CardListWidth = await getWidthTask;
+            CardGapPixel = (int)Math.Ceiling(await getRemToPixels); 
             _ = VirtualizeComponent?.RefreshDataAsync();
         }
 
@@ -412,7 +416,7 @@ namespace GameManager.Components.Pages
         {
             List<IEnumerable<ViewInfo>> items = [];
             const int paddingLeft = 15;
-            int countOfCard = (CardListWidth - paddingLeft) / CardItemWidth;
+            int countOfCard = (CardListWidth - paddingLeft) / (CardItemWidth + CardGapPixel);
             var displayItem = ViewGameInfos.Where(info => info.Display).ToList();
             int start = request.StartIndex * countOfCard;
             int end = Math.Min(start + (request.Count * countOfCard), displayItem.Count);

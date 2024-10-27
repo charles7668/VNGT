@@ -31,7 +31,11 @@ namespace GameManager.Components.Pages.components
 
         private string ClassName => new CssBuilder(Class)
             .AddClass(IsSelected ? "selection" : "")
+            .AddClass("ma-0 pa-0")
             .Build();
+
+        [Parameter]
+        public int CardItemWidth { get; set; } = 230;
 
         [Inject]
         private ISnackbar Snackbar { get; set; } = null!;

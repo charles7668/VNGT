@@ -41,11 +41,12 @@
                                 ItemsProvider="CardItemProvider"
                                 OverscanCount="10"
                                 Context="rowViewInfo">
-                        <MudStack Row="true">
+                        <MudStack Row="true" Spacing="2">
                             @foreach (ViewInfo viewInfo in rowViewInfo)
                             {
                                 <Card OnClick="_ => OnCardClick(viewInfo)"
                                       OnChipTagClickEvent="OnChipTagClick"
+                                      CardItemWidth="CardItemWidth"
                                       IsSelected="@(viewInfo is { Display: true, IsSelected: true } && IsSelectionMode)"
                                       GameInfo="viewInfo.Info"
                                       Class="@(viewInfo.Display ? "card" : "card card-hidden")"

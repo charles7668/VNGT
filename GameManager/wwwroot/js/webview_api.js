@@ -30,3 +30,7 @@ function getCardListWidth() {
     let cardListDiv = document.getElementById('card-list');
     return cardListDiv.clientWidth;
 }
+
+function remToPixels(rem) {
+    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
