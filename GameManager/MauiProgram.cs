@@ -1,14 +1,16 @@
-﻿using GameManager.Database;
+﻿using GameManager.Builders;
+using GameManager.Database;
 using GameManager.DB;
 using GameManager.Extensions;
+using GameManager.Models;
 using GameManager.Models.GameInstallAnalyzer;
 using GameManager.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 using Serilog;
-using Serilog.Filters;
 using Serilog.Formatting.Compact;
+using Serilog.Filters;
 
 namespace GameManager
 {
@@ -16,6 +18,22 @@ namespace GameManager
     {
         public static MauiApp CreateMauiApp()
         {
+            string[] args = Environment.GetCommandLineArgs();
+            var programArgBuilder = new ProgramArgBuilder();
+            foreach (string arg in args)
+            {
+                if (arg == "--debug")
+                {
+                    programArgBuilder.WithDebugMode();
+                }
+            }
+
+#if DEBUG
+            programArgBuilder.WithDebugMode();
+#endif
+
+            ProgramArg programArg = programArgBuilder.Build();
+
             MauiAppBuilder builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
@@ -28,10 +46,11 @@ namespace GameManager
             builder.Services.AddMudServices();
 
 
-#if DEBUG
-            builder.Services.AddBlazorWebViewDeveloperTools();
-            builder.Logging.AddDebug();
-#endif
+            if (programArg.IsDebugMode)
+            {
+                builder.Services.AddBlazorWebViewDeveloperTools();
+                builder.Logging.AddDebug();
+            }
 
             builder.Services.AddSingleton<IConfigService, ConfigService>();
 
@@ -59,19 +78,29 @@ namespace GameManager
 
             builder.Services.AddExtractors();
 
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-#if DEBUG
-                .MinimumLevel.Debug()
-                .Filter.ByExcluding(Matching.FromSource("Microsoft.AspNetCore.Components"))
-#else
-                .MinimumLevel.Information()
-#endif
-                .WriteTo.File(new CompactJsonFormatter()
-                    , Path.Combine(appPathService.LogDirPath, ".log")
-                    , rollingInterval: RollingInterval.Day
-                    , retainedFileCountLimit: 30)
-                .CreateLogger();
+            if (programArg.IsDebugMode)
+            {
+                Log.Logger = new LoggerConfiguration()
+                    .Enrich.FromLogContext()
+                    .MinimumLevel.Debug()
+                    .Filter.ByExcluding(Matching.FromSource("Microsoft.AspNetCore.Components"))
+                    .WriteTo.File(new CompactJsonFormatter()
+                        , Path.Combine(appPathService.LogDirPath, ".log")
+                        , rollingInterval: RollingInterval.Day
+                        , retainedFileCountLimit: 30)
+                    .CreateLogger();
+            }
+            else
+            {
+                Log.Logger = new LoggerConfiguration()
+                    .Enrich.FromLogContext()
+                    .MinimumLevel.Information()
+                    .WriteTo.File(new CompactJsonFormatter()
+                        , Path.Combine(appPathService.LogDirPath, ".log")
+                        , rollingInterval: RollingInterval.Day
+                        , retainedFileCountLimit: 30)
+                    .CreateLogger();
+            }
 
             builder.Services.AddLogging(loggingBuilder =>
             {
