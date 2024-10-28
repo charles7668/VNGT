@@ -76,7 +76,7 @@ namespace GameManager.GameInfoProvider
             while (tryCount < 3)
             {
                 string queryString = BuildQueryString(["id", "=", gameId],
-                    "id , titles.title , developers.name , image.url , description , released , staff{name,original,role}",
+                    "id , titles.title , titles.lang , developers.name , image.url , description , released , staff{name,original,role}",
                     1);
                 HttpResponseMessage response = await Request(queryString);
                 logger.LogDebug("Status Code : {StatusCode}", response.StatusCode);
@@ -94,7 +94,33 @@ namespace GameManager.GameInfoProvider
                     {
                         string? title = null, image = null, id = null, description = null;
                         if (item.TryGetProperty("titles", out JsonElement titles))
-                            title = titles[0].GetProperty("title").GetString();
+                        {
+                            bool findJaTitle = false;
+                            string enCandidate = "";
+                            foreach (object titleDynamic in from titleProp in titles.EnumerateArray() let titleTemplate = new
+                                     {
+                                         title = "",
+                                         lang = ""
+                                     } select titleProp.Deserialize(titleTemplate.GetType())! into titleObj select titleObj)
+                            {
+                                if (((dynamic)titleDynamic).lang == "ja")
+                                {
+                                    findJaTitle = true;
+                                    title = ((dynamic)titleDynamic).title;
+                                    break;
+                                }
+
+                                if (((dynamic)titleDynamic).lang == "en")
+                                {
+                                    enCandidate = ((dynamic)titleDynamic).title;
+                                }
+                            }
+
+                            if (!findJaTitle)
+                                title = string.IsNullOrEmpty(enCandidate)
+                                    ? titles[0].GetProperty("title").GetString()
+                                    : enCandidate;
+                        }
                         if (item.TryGetProperty("image", out JsonElement imageProp))
                             if (imageProp.TryGetProperty("url", out JsonElement urlProp))
                                 image = urlProp.GetString();
