@@ -4,6 +4,10 @@
     {
         IGameInfoRepository GameInfoRepository { get; }
 
+        IStaffRoleRepository StaffRoleRepository { get; }
+
+        IStaffRepository StaffRepository { get; }
+
         ILibraryRepository LibraryRepository { get; }
 
         IAppSettingRepository AppSettingRepository { get; }

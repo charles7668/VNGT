@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
 using MudBlazor.Utilities;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Web;
@@ -42,7 +43,7 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;
-        
+
         [Inject]
         private IImageService ImageService { get; set; } = null!;
 
@@ -54,6 +55,9 @@ namespace GameManager.Components.Pages.components
 
         [Parameter]
         public EventCallback<int> OnDeleteEventCallback { get; set; }
+
+        [Parameter]
+        public EventCallback<int> OnShowDetail { get; set; }
 
         [Parameter]
         public EventCallback<int> OnClick { get; set; }
@@ -181,8 +185,18 @@ namespace GameManager.Components.Pages.components
             }
 
             DataMapService.Map(resultModel, GameInfo);
-            await ConfigService.EditGameInfo(GameInfo);
-            await ConfigService.UpdateGameInfoTags(GameInfo.Id, resultModel.Tags);
+            GameInfo.Tags = [];
+            try
+            {
+                await ConfigService.EditGameInfo(GameInfo);
+                await ConfigService.UpdateGameInfoTags(GameInfo.Id, resultModel.Tags);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Error to edit game info");
+                await DialogService.ShowMessageBox("Error", e.Message, cancelText: "Cancel");
+            }
+
             StateHasChanged();
             return;
 
@@ -464,6 +478,13 @@ namespace GameManager.Components.Pages.components
             }
 
             _menuRef?.CloseMenuAsync();
+        }
+
+        private Task ShowDetail()
+        {
+            if (GameInfo == null)
+                return Task.CompletedTask;
+            return OnShowDetail.HasDelegate ? OnShowDetail.InvokeAsync(GameInfo.Id) : Task.CompletedTask;
         }
     }
 }

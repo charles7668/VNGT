@@ -1,0 +1,99 @@
+﻿.game-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    width: 100%;
+}
+
+.left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+section {
+    padding: 20px;
+    background-color: #2a475e;
+    border-radius: 8px;
+}
+
+h2, h3 {
+    margin-bottom: 10px;
+    color: #ffffff;
+    border-bottom: 1px solid #4a6b7f;
+    padding-bottom: 5px;
+}
+
+p {
+    line-height: 1.6;
+    margin-bottom: 10px;
+    color: #c7d5e0;
+}
+
+.release-list, .release-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.release-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #4a6b7f;
+    padding: 0;
+}
+
+.release-item p {
+    margin-bottom: 5px;
+}
+
+.platform {
+    background-color: #4a6b7f;
+    color: #ffffff;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 3px;
+    margin-right: 5px;
+}
+
+.release-ext-link {
+    background-color: #10FF1F;
+    color: #ffffff;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 3px;
+    margin-right: 5px;
+}
+
+.rating {
+    background-color: #a23b3b;
+    color: #ffffff;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 3px;
+    margin-right: 5px;
+}
+
+.related-links ul {
+    list-style: none;
+}
+
+.related-links li {
+    margin-bottom: 10px;
+}
+
+.related-links a {
+    text-decoration: none;
+    color: #4a8fba;
+}
+
+.related-links a:hover {
+    color: #66c0f4;
+}

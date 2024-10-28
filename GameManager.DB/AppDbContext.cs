@@ -13,11 +13,21 @@ namespace GameManager.DB
 
         public DbSet<TextMapping> TextMappings { get; set; }
 
+        public DbSet<GameInfoStaff> GameInfoStaffs { get; set; }
+
         public DbSet<GameInfoTag> GameInfoTags { get; set; }
-        
+
         public DbSet<LaunchOption> LaunchOptions { get; set; }
 
+        public DbSet<Staff> Staffs { get; set; }
+
+        public DbSet<Character> Characters { get; set; }
+
         public DbSet<Tag> Tags { get; set; }
+
+        public DbSet<StaffRole> StaffRoles { get; set; }
+
+        public DbSet<ReleaseInfo> ReleaseInfos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,9 +41,24 @@ namespace GameManager.DB
                 .HasMany(x => x.Tags)
                 .WithMany(x => x.GameInfos)
                 .UsingEntity<GameInfoTag>();
+            modelBuilder.Entity<GameInfo>()
+                .HasMany(x => x.Staffs)
+                .WithMany(x => x.GameInfos)
+                .UsingEntity<GameInfoStaff>();
+            modelBuilder.Entity<GameInfo>()
+                .HasMany(x => x.RelatedSites)
+                .WithOne(x => x.GameInfo)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ReleaseInfo>()
+                .HasMany(x => x.ExternalLinks)
+                .WithOne(x => x.ReleaseInfo)
+                .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<LaunchOption>()
                 .Property(x => x.SandboxieBoxName)
                 .HasDefaultValue("DefaultBox");
+
+            modelBuilder.Entity<StaffRole>()
+                .HasData(Seed.SeedStaffRoles());
 
             base.OnModelCreating(modelBuilder);
         }

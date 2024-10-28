@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using MudBlazor;
+using MudBlazor.Utilities;
 using System.Diagnostics;
 using System.Web;
 
@@ -21,6 +22,9 @@ namespace GameManager.Components.Pages
         private CancellationTokenSource _deleteTaskCancellationTokenSource = new();
         private CancellationTokenSource _loadingCancellationTokenSource = new();
         private DotNetObjectReference<Home> _objRef = null!;
+
+        private bool IsShowDetail { get; set; }
+        private int _showDetailId = -1;
 
         [Inject]
         public ISnackbar SnakeBar { get; set; } = null!;
@@ -55,6 +59,15 @@ namespace GameManager.Components.Pages
         private bool IsLoading { get; set; } = true;
 
         private Virtualize<IEnumerable<ViewInfo>>? VirtualizeComponent { get; set; }
+
+        private string CardListCss => CssBuilder
+            .Default(IsDeleting ? "deleting justify-center align-center d-flex" : "" + " flex-grow-1")
+            .Build();
+
+        private string ListConainderCss => CssBuilder
+            .Default("d-flex flex-column")
+            .AddClass("inactive", IsShowDetail)
+            .Build();
 
         public void Dispose()
         {
@@ -407,7 +420,7 @@ namespace GameManager.Components.Pages
             ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
             ValueTask<float> getRemToPixels = JsRuntime.InvokeAsync<float>("remToPixels", 0.5);
             CardListWidth = await getWidthTask;
-            CardGapPixel = (int)Math.Ceiling(await getRemToPixels); 
+            CardGapPixel = (int)Math.Ceiling(await getRemToPixels);
             _ = VirtualizeComponent?.RefreshDataAsync();
         }
 
@@ -445,6 +458,21 @@ namespace GameManager.Components.Pages
                 SearchExePath = false,
                 SearchName = false
             }));
+        }
+
+        private async Task OnShowDetail(int id)
+        {
+            IsShowDetail = true;
+            _showDetailId = id;
+            await JsRuntime.InvokeVoidAsync("disableHtmlOverflow");
+            StateHasChanged();
+        }
+
+        private async Task OnCloseDetail()
+        {
+            IsShowDetail = false;
+            await JsRuntime.InvokeVoidAsync("enableHtmlOverflow");
+            StateHasChanged();
         }
 
         private class ViewInfo

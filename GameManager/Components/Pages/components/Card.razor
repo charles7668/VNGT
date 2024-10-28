@@ -1,4 +1,5 @@
 ﻿@inherits MudComponentBase
+@inject NavigationManager Navigation
 
 <div class="card-item mt-1">
     <MudPaper Elevation="5" @attributes="UserAttributes" Style="@Style" Class="@ClassName" @onclick="OnCardClick">
@@ -25,7 +26,9 @@
             </MudPaper>
             <MudPaper Elevation="0" MaxWidth="@(CardItemWidth + "px")">
                 <MudTooltip Text="@GameInfo?.ExePath">
-                    <MudText Typo="Typo.h6" Class="card-game-name">@GameInfo?.GameName</MudText>
+                    <a onclick="@ShowDetail">
+                        <MudText Typo="Typo.h6" Class="card-game-name">@GameInfo?.GameName</MudText>
+                    </a>
                 </MudTooltip>
             </MudPaper>
             <MudToolBar Class="pa-0">

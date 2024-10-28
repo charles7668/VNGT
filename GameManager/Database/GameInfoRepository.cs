@@ -39,6 +39,14 @@ namespace GameManager.Database
             return entityEntry.Entity;
         }
 
+        public Task<GameInfo?> GetAsync(Expression<Func<GameInfo, bool>> query)
+        {
+            return context.GameInfos
+                .AsNoTracking()
+                .Include(info => info.LaunchOption)
+                .FirstOrDefaultAsync(query);
+        }
+
         public Task<bool> AnyAsync(Expression<Func<GameInfo, bool>> query)
         {
             return context.GameInfos.AnyAsync(query);
@@ -100,6 +108,128 @@ namespace GameManager.Database
                 return;
             info.Tags.Add(tag);
             context.GameInfos.Update(info);
+        }
+
+        public async Task UpdateStaffsAsync(Expression<Func<GameInfo, bool>> query, IEnumerable<Staff> staffs)
+        {
+            GameInfo? gameInfo = await context.GameInfos
+                .Include(x => x.Staffs)
+                .ThenInclude(x => x.StaffRole)
+                .FirstOrDefaultAsync(query);
+            if (gameInfo == null)
+                return;
+            gameInfo.Staffs.RemoveAll(_ => true);
+            Dictionary<int, HashSet<string>> cache = new();
+            foreach (Staff staff in staffs)
+            {
+                int staffId = staff.StaffRole.Id;
+                string staffName = staff.Name;
+                if (cache.TryGetValue(staffId, out HashSet<string>? secondHash) &&
+                    secondHash.Contains(staffName))
+                    continue;
+                if (!cache.ContainsKey(staffId))
+                    cache.Add(staffId, []);
+                cache[staffId].Add(staffName);
+                Staff existStaff =
+                    await context.Staffs.FirstOrDefaultAsync(x =>
+                        x.Name == staffName && x.StaffRoleId == staffId) ?? (await context.Staffs.AddAsync(
+                        new Staff
+                        {
+                            Name = staffName,
+                            StaffRoleId = staffId
+                        })).Entity;
+                gameInfo.Staffs.Add(existStaff);
+            }
+
+            context.GameInfos.Update(gameInfo);
+        }
+
+        public async Task UpdateCharactersAsync(Expression<Func<GameInfo, bool>> query,
+            IEnumerable<Character> characters)
+        {
+            GameInfo? gameInfo = await context.GameInfos
+                .Include(x => x.Characters)
+                .FirstOrDefaultAsync(query);
+            if (gameInfo == null)
+                return;
+            gameInfo.Characters.RemoveAll(_ => true);
+            gameInfo.Characters.AddRange(characters);
+            context.GameInfos.Update(gameInfo);
+        }
+
+        public async Task UpdateReleaseInfosAsync(Expression<Func<GameInfo, bool>> query,
+            IEnumerable<ReleaseInfo> releaseInfos)
+        {
+            GameInfo? gameInfo = await context.GameInfos
+                .Include(x => x.ReleaseInfos)
+                .ThenInclude(x => x.ExternalLinks)
+                .FirstOrDefaultAsync(query);
+            if (gameInfo == null)
+                return;
+            foreach (ReleaseInfo releaseInfo in gameInfo.ReleaseInfos)
+            {
+                releaseInfo.ExternalLinks.RemoveAll(_ => true);
+            }
+
+            gameInfo.ReleaseInfos.RemoveAll(_ => true);
+            gameInfo.ReleaseInfos.AddRange(releaseInfos);
+            context.GameInfos.Update(gameInfo);
+        }
+
+        public async Task UpdateReltedSitesAsync(Expression<Func<GameInfo, bool>> query,
+            IEnumerable<RelatedSite> relatedSites)
+        {
+            GameInfo? gameInfo = await context.GameInfos
+                .Include(x => x.RelatedSites)
+                .FirstOrDefaultAsync(query);
+            if (gameInfo == null)
+                return;
+            gameInfo.RelatedSites.RemoveAll(_ => true);
+            gameInfo.RelatedSites.AddRange(relatedSites);
+            context.GameInfos.Update(gameInfo);
+        }
+
+        public async Task<IEnumerable<Staff>> GetStaffsAsync(Expression<Func<GameInfo, bool>> query)
+        {
+            List<Staff> result = await context.GameInfos
+                .Include(x => x.Staffs)
+                .ThenInclude(x => x.StaffRole)
+                .AsNoTracking()
+                .Where(query)
+                .SelectMany(x => x.Staffs)
+                .ToListAsync();
+            return result;
+        }
+
+        public async Task<IEnumerable<Character>> GetCharactersAsync(Expression<Func<GameInfo, bool>> query)
+        {
+            return await context.GameInfos
+                .Include(x => x.Characters)
+                .AsNoTracking()
+                .Where(query)
+                .SelectMany(x => x.Characters)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query)
+        {
+            return await context.GameInfos
+                .Include(x => x.ReleaseInfos)
+                .ThenInclude(x => x.ExternalLinks)
+                .AsNoTracking()
+                .Where(query)
+                .SelectMany(x => x.ReleaseInfos)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query)
+        {
+            return await context.GameInfos
+                .Include(x => x.RelatedSites)
+                .AsNoTracking()
+                .Where(query)
+                .SelectMany(x => x.RelatedSites)
+                .ToListAsync();
         }
 
         public async Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,

@@ -34,3 +34,15 @@ function getCardListWidth() {
 function remToPixels(rem) {
     return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
 }
+
+function disableHtmlOverflow(){
+    window.scrollTo({
+        top: 0,
+        behavior: 'instant'
+    })
+    document.querySelector("html").classList.add("overflow-y-hidden");
+}
+
+function enableHtmlOverflow(){
+    document.querySelector("html").classList.remove("overflow-y-hidden");
+}

@@ -1,5 +1,6 @@
 ﻿using GameManager.DB.Models;
 using GameManager.Enums;
+using System.Linq.Expressions;
 
 namespace GameManager.Services
 {
@@ -8,6 +9,8 @@ namespace GameManager.Services
         Task<string> AddCoverImage(string srcFile);
 
         Task AddGameInfoAsync(GameInfo info);
+
+        Task<GameInfo?> GetGameInfoAsync(Expression<Func<GameInfo, bool>> queryExpression);
 
         Task AddLibraryAsync(Library library);
 
@@ -52,5 +55,17 @@ namespace GameManager.Services
         Task BackupSettings(string path);
 
         Task RestoreSettings(string path);
+
+        Task<IEnumerable<StaffRole>> GetStaffRolesAsync();
+
+        Task<Staff?> GetStaffAsync(Expression<Func<Staff, bool>> query);
+
+        Task<IEnumerable<Staff>> GetGameInfoStaffs(Expression<Func<GameInfo, bool>> query);
+
+        Task<IEnumerable<Character>> GetGameInfoCharacters(Expression<Func<GameInfo, bool>> query);
+
+        Task<IEnumerable<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query);
+
+        Task<IEnumerable<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query);
     }
 }

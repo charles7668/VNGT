@@ -1,0 +1,33 @@
+﻿<div>
+    @foreach (CharacterViewModel character in View.Characters)
+    {
+        <div class="character-container">
+            <div class="left-panel">
+                <img src="@character.DisplayImage" alt="character-image" class="character-image">
+                <div class="character-description">
+                    <h2>@character.Name</h2>
+                    <p>
+                        @character.Description
+                    </p>
+                </div>
+            </div>
+            <div class="right-panel">
+                <h3>Information</h3>
+                <ul class="character-info">
+                    <li>
+                        <strong>@("Birthday")：</strong>@character.Birthday
+                    </li>
+                    <li>
+                        <strong>@("Gender")：</strong>@character.Sex
+                    </li>
+                    <li>
+                        <strong>@("Age")：</strong>@character.Age
+                    </li>
+                    <li>
+                        <strong>@("Blood Type")：</strong>@character.BloodType
+                    </li>
+                </ul>
+            </div>
+        </div>
+    }
+</div>

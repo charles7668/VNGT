@@ -9,6 +9,8 @@ namespace GameManager.Services
         {
             dest.CoverPath = src.Cover;
             dest.GameName = src.GameName;
+            dest.GameChineseName = src.GameChineseName;
+            dest.GameEnglishName = src.GameEnglishName;
             dest.Developer = src.Vendor;
             dest.Description = src.Description;
             dest.DateTime = src.DateTime;
@@ -22,12 +24,19 @@ namespace GameManager.Services
             dest.LaunchOption.IsVNGTTranslatorNeedAdmin = src.IsVNGTTranslatorNeedAdmin;
             dest.LaunchOption.RunWithSandboxie = src.RunWithSandboxie;
             dest.LaunchOption.SandboxieBoxName = src.SandboxieBoxName;
+            dest.Staffs = src.Staffs;
+            dest.Characters = src.Characters;
+            dest.ReleaseInfos = src.ReleaseInfos;
+            dest.RelatedSites = src.RelatedSites;
+            dest.ScreenShots = src.ScreenShots;
         }
 
         public static void Map(GameInfo src, DialogGameInfoEdit.FormModel dest)
         {
             dest.Cover = src.CoverPath;
             dest.GameName = src.GameName;
+            dest.GameChineseName = src.GameChineseName;
+            dest.GameEnglishName = src.GameEnglishName;
             dest.Vendor = src.Developer;
             dest.Description = src.Description;
             dest.ExePath = src.ExePath;
@@ -40,6 +49,11 @@ namespace GameManager.Services
             dest.IsVNGTTranslatorNeedAdmin = src.LaunchOption?.IsVNGTTranslatorNeedAdmin ?? false;
             dest.RunWithSandboxie = src.LaunchOption?.RunWithSandboxie ?? false;
             dest.SandboxieBoxName = src.LaunchOption?.SandboxieBoxName ?? "DefaultBox";
+            dest.Staffs = src.Staffs;
+            dest.Characters = src.Characters;
+            dest.ReleaseInfos = src.ReleaseInfos;
+            dest.RelatedSites = src.RelatedSites;
+            dest.ScreenShots = src.ScreenShots;
         }
     }
 }

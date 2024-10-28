@@ -2,6 +2,7 @@
 using GameManager.DB.Models;
 using GameManager.Enums;
 using Microsoft.Extensions.Caching.Memory;
+using System.Linq.Expressions;
 using System.Text.Json;
 
 namespace GameManager.Services
@@ -140,14 +141,20 @@ namespace GameManager.Services
             do
             {
                 info.GameUniqeId = Guid.NewGuid();
-                if(await unitOfWork.GameInfoRepository.AnyAsync(x => x.GameUniqeId == info.GameUniqeId))
+                if (await unitOfWork.GameInfoRepository.AnyAsync(x => x.GameUniqeId == info.GameUniqeId))
                     continue;
                 break;
             } while (true);
+
             GameInfo gameInfoEntity = await unitOfWork.GameInfoRepository.AddAsync(info);
             await unitOfWork.SaveChangesAsync();
             info.Id = gameInfoEntity.Id;
             await UpdateGameInfoTags(info.Id, tagArray);
+        }
+
+        public Task<GameInfo?> GetGameInfoAsync(Expression<Func<GameInfo, bool>> queryExpression)
+        {
+            return _unitOfWork.GameInfoRepository.GetAsync(queryExpression);
         }
 
         public Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
@@ -164,7 +171,19 @@ namespace GameManager.Services
         {
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            List<Staff> staffs = info.Staffs;
+            List<Character> characters = info.Characters;
+            List<ReleaseInfo> releaseInfos = info.ReleaseInfos;
+            List<RelatedSite> relatedSites = info.RelatedSites;
+            info.Staffs = [];
+            info.Characters = [];
+            info.ReleaseInfos = [];
+            info.RelatedSites = [];
             await unitOfWork.GameInfoRepository.EditAsync(info);
+            await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == info.Id, staffs);
+            await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == info.Id, characters);
+            await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == info.Id, releaseInfos);
+            await unitOfWork.GameInfoRepository.UpdateReltedSitesAsync(x => x.Id == info.Id, relatedSites);
             await unitOfWork.SaveChangesAsync();
         }
 
@@ -237,6 +256,37 @@ namespace GameManager.Services
             if (setting == null)
                 return;
             await UpdateAppSettingAsync(setting);
+        }
+
+        public async Task<IEnumerable<StaffRole>> GetStaffRolesAsync()
+        {
+            IEnumerable<StaffRole> roles = await _unitOfWork.StaffRoleRepository.GetAsync(_ => true);
+            return roles;
+        }
+
+        public Task<Staff?> GetStaffAsync(Expression<Func<Staff, bool>> query)
+        {
+            return _unitOfWork.StaffRepository.GetAsync(query);
+        }
+
+        public Task<IEnumerable<Staff>> GetGameInfoStaffs(Expression<Func<GameInfo, bool>> query)
+        {
+            return _unitOfWork.GameInfoRepository.GetStaffsAsync(query);
+        }
+
+        public Task<IEnumerable<Character>> GetGameInfoCharacters(Expression<Func<GameInfo, bool>> query)
+        {
+            return _unitOfWork.GameInfoRepository.GetCharactersAsync(query);
+        }
+
+        public Task<IEnumerable<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query)
+        {
+            return _unitOfWork.GameInfoRepository.GetGameInfoReleaseInfos(query);
+        }
+
+        public Task<IEnumerable<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query)
+        {
+            return _unitOfWork.GameInfoRepository.GetGameInfoRelatedSites(query);
         }
 
         public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)

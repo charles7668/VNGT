@@ -38,7 +38,7 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private ILogger<DialogGameInfoEdit> Logger { get; set; } = null!;
-        
+
         [Inject]
         private IImageService ImageService { get; set; } = null!;
 
@@ -285,6 +285,10 @@ namespace GameManager.Components.Pages.components
         {
             public string? GameName { get; set; }
 
+            public string? GameChineseName { get; set; }
+
+            public string? GameEnglishName { get; set; }
+
             public string? Vendor { get; set; }
 
             public string? ExePath { get; set; }
@@ -313,6 +317,16 @@ namespace GameManager.Components.Pages.components
             public string? LeConfig { get; set; }
 
             public List<string> Tags { get; set; } = [];
+
+            public List<Staff> Staffs { get; set; } = [];
+
+            public List<Character> Characters { get; set; } = [];
+
+            public List<ReleaseInfo> ReleaseInfos { get; set; } = [];
+
+            public List<RelatedSite> RelatedSites { get; set; } = [];
+
+            public List<string> ScreenShots { get; set; } = [];
         }
 
         #region Lifecycle

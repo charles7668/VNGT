@@ -22,6 +22,12 @@ namespace GameManager.DB.Models
         public string? GameName { get; set; }
 
         [MaxLength(100)]
+        public string? GameChineseName { get; set; }
+
+        [MaxLength(100)]
+        public string? GameEnglishName { get; set; }
+
+        [MaxLength(100)]
         public string? Developer { get; set; }
 
         [MaxLength(260)]
@@ -50,6 +56,16 @@ namespace GameManager.DB.Models
 
         public DateTime? LastPlayed { get; set; }
 
+        public List<Staff> Staffs { get; set; } = [];
+
+        public List<Character> Characters { get; set; } = [];
+
+        public List<ReleaseInfo> ReleaseInfos { get; set; } = [];
+
+        public List<RelatedSite> RelatedSites { get; set; } = [];
+
         public List<Tag> Tags { get; set; } = [];
+
+        public List<string> ScreenShots { get; set; } = [];
     }
 }
