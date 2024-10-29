@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GameManager.GameInfoProvider
 {
@@ -21,7 +22,8 @@ namespace GameManager.GameInfoProvider
             int tryCount = 0;
             while (tryCount < 3)
             {
-                string queryString = BuildQueryString(["search", "=", searchText], "id , image.url , titles.title",
+                string queryString = BuildQueryString(["search", "=", searchText],
+                    "id , image.url , titles.title , titles.lang",
                     itemPerPage, pageNum);
                 HttpResponseMessage response = await Request(queryString);
                 if (response.IsSuccessStatusCode)
@@ -37,7 +39,14 @@ namespace GameManager.GameInfoProvider
                         return ([], false);
                     foreach (JsonElement item in items.EnumerateArray())
                     {
-                        string? title = item.GetProperty("titles")[0].GetProperty("title").GetString();
+                        string? title = null;
+                        if (item.TryGetProperty("titles", out JsonElement titlesProp))
+                        {
+                            List<TitleModel> titlesDeserialized = titlesProp.Deserialize<List<TitleModel>>() ?? [];
+                            title = titlesDeserialized.FirstOrDefault(x => x.Language == "ja")?.Title
+                                    ?? titlesDeserialized.FirstOrDefault(x => x.Language == "en")?.Title
+                                    ?? titlesDeserialized.FirstOrDefault()?.Title;
+                        }
                         string? image = item.GetProperty("image").GetProperty("url").GetString();
                         string? id = item.GetProperty("id").GetString();
                         gameInfos.Add(new GameInfo
@@ -93,33 +102,12 @@ namespace GameManager.GameInfoProvider
                     foreach (JsonElement item in items.EnumerateArray())
                     {
                         string? title = null, image = null, id = null, description = null;
-                        if (item.TryGetProperty("titles", out JsonElement titles))
+                        if (item.TryGetProperty("titles", out JsonElement titlesProp))
                         {
-                            bool findJaTitle = false;
-                            string enCandidate = "";
-                            foreach (object titleDynamic in from titleProp in titles.EnumerateArray() let titleTemplate = new
-                                     {
-                                         title = "",
-                                         lang = ""
-                                     } select titleProp.Deserialize(titleTemplate.GetType())! into titleObj select titleObj)
-                            {
-                                if (((dynamic)titleDynamic).lang == "ja")
-                                {
-                                    findJaTitle = true;
-                                    title = ((dynamic)titleDynamic).title;
-                                    break;
-                                }
-
-                                if (((dynamic)titleDynamic).lang == "en")
-                                {
-                                    enCandidate = ((dynamic)titleDynamic).title;
-                                }
-                            }
-
-                            if (!findJaTitle)
-                                title = string.IsNullOrEmpty(enCandidate)
-                                    ? titles[0].GetProperty("title").GetString()
-                                    : enCandidate;
+                            List<TitleModel> titlesDeserialized = titlesProp.Deserialize<List<TitleModel>>() ?? [];
+                            title = titlesDeserialized.FirstOrDefault(x => x.Language == "ja")?.Title
+                                    ?? titlesDeserialized.FirstOrDefault(x => x.Language == "en")?.Title
+                                    ?? titlesDeserialized.FirstOrDefault()?.Title;
                         }
                         if (item.TryGetProperty("image", out JsonElement imageProp))
                             if (imageProp.TryGetProperty("url", out JsonElement urlProp))
@@ -245,6 +233,15 @@ namespace GameManager.GameInfoProvider
             };
             HttpResponseMessage response = await _httpClient.SendAsync(request);
             return response;
+        }
+
+        private class TitleModel
+        {
+            [JsonPropertyName("lang")]
+            public string? Language { get; set; }
+
+            [JsonPropertyName("title")]
+            public string? Title { get; set; }
         }
     }
 }
