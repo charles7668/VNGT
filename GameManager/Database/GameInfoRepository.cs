@@ -233,6 +233,18 @@ namespace GameManager.Database
                 .ToListAsync();
         }
 
+        public Task<GameInfo> UpdateBackgroundImageAsync(int id, string? backgroundImage)
+        {
+            var entity = new GameInfo
+            {
+                Id = id
+            };
+            context.Attach(entity);
+            entity.BackgroundImageUrl = backgroundImage;
+            context.Entry(entity).Property(x => x.BackgroundImageUrl).IsModified = true;
+            return Task.FromResult(entity);
+        }
+
         public async Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
             SortOrder order = SortOrder.UPLOAD_TIME)
         {

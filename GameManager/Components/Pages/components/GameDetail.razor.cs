@@ -14,6 +14,8 @@ namespace GameManager.Components.Pages.components
     {
         private GameInfo _gameInfo = null!;
 
+        private string _selectedTab = "info";
+
         [Inject]
         private IImageService ImageService { get; set; } = null!;
 
@@ -42,22 +44,20 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private ILogger<GameDetail> Logger { get; set; } = null!;
 
-        private string _selectedTab = "info";
-
         protected override async Task OnInitializedAsync()
         {
             _ = RefreshData();
             await base.OnInitializedAsync();
         }
 
-        private Task RefreshData()
+        private Task RefreshData(GameInfo? inputGameInfo = null)
         {
             IsLoading = true;
             StateHasChanged();
             return Task.Run(async () =>
             {
-                GameInfo gameInfo = await ConfigService.GetGameInfoAsync(x => x.Id == InitGameId) ??
-                                    throw new ArgumentException("Game info not found with id " + InitGameId);
+                GameInfo gameInfo = inputGameInfo ?? await ConfigService.GetGameInfoAsync(x => x.Id == InitGameId) ??
+                    throw new ArgumentException("Game info not found with id " + InitGameId);
                 gameInfo.Staffs = (await ConfigService.GetGameInfoStaffs(x => x.Id == gameInfo.Id)).ToList();
                 gameInfo.ReleaseInfos =
                     (await ConfigService.GetGameInfoReleaseInfos(x => x.Id == gameInfo.Id)).ToList();
@@ -76,6 +76,7 @@ namespace GameManager.Components.Pages.components
                     ChineseName = gameInfo.GameChineseName,
                     EnglishName = gameInfo.GameEnglishName,
                     CoverImage = ImageService.UriResolve(gameInfo.CoverPath),
+                    BackgroundImage = gameInfo.BackgroundImageUrl,
                     ScreenShots = gameInfo.ScreenShots,
                     LastPlayed = gameInfo.LastPlayed?.ToString("yyyy-MM-dd") ?? "Never",
                     HasCharacters = gameInfo.Characters.Count != 0
@@ -91,6 +92,14 @@ namespace GameManager.Components.Pages.components
             {
                 await OnReturnClick.InvokeAsync();
             }
+        }
+
+        /// <summary>
+        /// this method is call by child component
+        /// </summary>
+        private async Task OnUpdateNeededHandler()
+        {
+            await RefreshData(_gameInfo);
         }
 
         private async Task OnEditGameInfo()
@@ -162,31 +171,26 @@ namespace GameManager.Components.Pages.components
             }
         }
 
-        private class ViewModel(IImageService imageService)
-        {
-            public string? OriginalName { get; init; }
-            public string? ChineseName { get; init; }
-            public string? EnglishName { get; init; }
-
-            public string? CoverImage { get; init; }
-
-            public List<string> ScreenShots { get; init; } = [];
-
-            public string BackGroundImage => ScreenShots.FirstOrDefault() is not null
-                ? imageService.UriResolve(ScreenShots.First(), "")
-                : "";
-
-            public string LastPlayed { get; init; } = "Never";
-
-            public bool HasCharacters { get; init; }
-        }
-
         private void OnTabChangeClick(string tabName)
         {
             if (_selectedTab == tabName)
                 return;
             _selectedTab = tabName;
             InvokeAsync(StateHasChanged);
+        }
+
+        private class ViewModel(IImageService imageService)
+        {
+            public string? OriginalName { get; init; }
+            public string? ChineseName { get; init; }
+            public string? EnglishName { get; init; }
+            public string? CoverImage { get; init; }
+            public string DisplayBackgroundImage => imageService.UriResolve(BackgroundImage, "");
+            public string DisplayCoverImage => imageService.UriResolve(CoverImage);
+            public string? BackgroundImage { get; init; }
+            public List<string> ScreenShots { get; init; } = [];
+            public string LastPlayed { get; init; } = "Never";
+            public bool HasCharacters { get; init; }
         }
     }
 }

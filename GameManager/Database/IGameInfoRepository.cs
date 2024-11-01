@@ -46,5 +46,7 @@ namespace GameManager.Database
         Task<IEnumerable<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query);
         
         Task<IEnumerable<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query);
+        
+        Task<GameInfo> UpdateBackgroundImageAsync(int id, string? backgroundImage);
     }
 }

@@ -56,6 +56,8 @@ namespace GameManager.Services
 
         Task RestoreSettings(string path);
 
+        Task UpdateGameInfoBackgroundImageAsync(int gameInfoId, string? backgroundImage);
+
         Task<IEnumerable<StaffRole>> GetStaffRolesAsync();
 
         Task<Staff?> GetStaffAsync(Expression<Func<Staff, bool>> query);

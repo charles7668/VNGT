@@ -283,6 +283,14 @@ namespace GameManager.Services
             await UpdateAppSettingAsync(setting);
         }
 
+        public async Task UpdateGameInfoBackgroundImageAsync(int gameInfoId, string? backgroundImage)
+        {
+            GameInfo entity =
+                await _unitOfWork.GameInfoRepository.UpdateBackgroundImageAsync(gameInfoId, backgroundImage);
+            await _unitOfWork.SaveChangesAsync();
+            _unitOfWork.DetachEntity(entity);
+        }
+
         public async Task<IEnumerable<StaffRole>> GetStaffRolesAsync()
         {
             IEnumerable<StaffRole> roles = await _unitOfWork.StaffRoleRepository.GetAsync(_ => true);

@@ -1,4 +1,5 @@
 ﻿using GameManager.DB;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameManager.Database
 {
@@ -23,6 +24,11 @@ namespace GameManager.Database
         public Task<int> SaveChangesAsync()
         {
             return context.SaveChangesAsync();
+        }
+
+        public void DetachEntity<TEntity>(TEntity entity) where TEntity : class
+        {
+            context.Entry(entity).State = EntityState.Detached;
         }
     }
 }

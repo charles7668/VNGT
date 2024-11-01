@@ -13,12 +13,12 @@
         <a onclick="@OnReturnClick" class="back-button">← Back</a>
         <div class="game-details-header">
             <div class="game-background">
-                <img src="@GameInfoViewModel.BackGroundImage" onerror="this.style.display='none';" alt="game screenshot">
+                <img src="@GameInfoViewModel.DisplayBackgroundImage" onerror="this.style.display='none';" alt="game screenshot">
             </div>
             <div class="game-status-container">
                 <div class="d-flex flex-row">
                     <div class="game-thumbnail">
-                        <img src="@GameInfoViewModel.CoverImage" alt="game cover">
+                        <img src="@GameInfoViewModel.DisplayCoverImage" alt="game cover">
                     </div>
                     <div class="flex-grow-1 pa-1">
                         <h1 class="game-title">@GameInfoViewModel.OriginalName</h1>
@@ -71,17 +71,17 @@
         </div>
         <div class="padding-block"></div>
 
-        @if (_selectedTab == "info")
+        @switch (_selectedTab)
         {
-            <GameDetailInformation GameInfo="_gameInfo"/>
-        }
-        else if (_selectedTab == "character")
-        {
-            <GameDetailCharacter GameInfo="_gameInfo"/>
-        }
-        else if (_selectedTab == "screenshots")
-        {
-            <GameDetailScreenShots GameInfo="_gameInfo"/>
+            case "info":
+                <GameDetailInformation GameInfo="_gameInfo"/>
+                break;
+            case "character":
+                <GameDetailCharacter GameInfo="_gameInfo"/>
+                break;
+            case "screenshots":
+                <GameDetailScreenShots GameInfo="_gameInfo" OnUpdateNeeded="OnUpdateNeededHandler"/>
+                break;
         }
     }
 </div>

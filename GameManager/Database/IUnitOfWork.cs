@@ -19,5 +19,7 @@
         ILaunchOptionRepository LaunchOptionRepository { get; }
 
         Task<int> SaveChangesAsync();
+
+        void DetachEntity<TEntity>(TEntity entity) where TEntity : class;
     }
 }
