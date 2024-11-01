@@ -1,0 +1,18 @@
+﻿<div id="game-detail-screenshots">
+    <MudButton Class="game-detail-screenshots-btn"
+               Variant="Variant.Outlined">
+        Set As Default Background Image
+    </MudButton>
+    @if (!IsLoading)
+    {
+        <div class="image-list-container">
+            @foreach (ScreenShotViewModel screenShot in GameInfoVo.ScreenShots)
+            {
+                <div class="@(GetImageContainerClass(screenShot))" onclick="@(() => OnImageClick(screenShot))">
+                    <img src="@screenShot.Display" onerror="this.style.display='none';"
+                         alt="screenshot"/>
+                </div>
+            }
+        </div>
+    }
+</div>

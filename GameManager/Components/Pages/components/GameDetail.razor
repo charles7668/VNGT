@@ -63,6 +63,9 @@
                         <input type="radio" id="radio-character" name="tab" onclick="@(() => OnTabChangeClick("character"))">
                         <label for="radio-character">Character</label>
                     }
+
+                    <input type="radio" id="radio-screenshots" name="tab" onclick="@(() => OnTabChangeClick("screenshots"))">
+                    <label for="radio-screenshots">Screenshots</label>
                 </div>
             </div>
         </div>
@@ -75,6 +78,10 @@
         else if (_selectedTab == "character")
         {
             <GameDetailCharacter GameInfo="_gameInfo"/>
+        }
+        else if (_selectedTab == "screenshots")
+        {
+            <GameDetailScreenShots GameInfo="_gameInfo"/>
         }
     }
 </div>
