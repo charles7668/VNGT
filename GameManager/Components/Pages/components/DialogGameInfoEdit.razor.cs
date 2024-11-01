@@ -117,29 +117,25 @@ namespace GameManager.Components.Pages.components
             if (string.IsNullOrEmpty(Model.GameName))
                 return;
             _isFetching = true;
-            try
+            _ = InvokeAsync(StateHasChanged);
+            await Task.Run(async () =>
             {
-                string provider = _fetchProvider;
-                IGameInfoProvider? gameInfoProvider = GameInfoProviderFactory.GetProvider(provider);
-                if (gameInfoProvider == null)
+                try
                 {
-                    Logger.LogError("Provider {Provider} not found", provider);
-                    return;
-                }
+                    string provider = _fetchProvider;
+                    IGameInfoProvider? gameInfoProvider = GameInfoProviderFactory.GetProvider(provider);
+                    if (gameInfoProvider == null)
+                    {
+                        Logger.LogError("Provider {Provider} not found", provider);
+                        return;
+                    }
 
-                (List<GameInfo>? infoList, bool hasMore) =
-                    await gameInfoProvider.FetchGameSearchListAsync(Model.GameName, 10, 1);
+                    (List<GameInfo>? infoList, bool hasMore) =
+                        await gameInfoProvider.FetchGameSearchListAsync(Model.GameName, 10, 1);
 
-                if (infoList == null || infoList.Count == 0)
-                {
-                    await DialogService.ShowMessageBox("Error", Resources.Message_RelatedGameNotFound,
-                        Resources.Dialog_Button_Cancel);
-                    return;
-                }
+                    if (infoList == null || infoList.Count == 0)
+                        throw new FileNotFoundException();
 
-                string gameId = infoList[0].GameInfoFetchId ?? "";
-                if (infoList.Count > 1)
-                {
                     var parameters = new DialogParameters<DialogFetchSelection>
                     {
                         { x => x.DisplayInfos, infoList },
@@ -147,59 +143,70 @@ namespace GameManager.Components.Pages.components
                         { x => x.SearchName, Model.GameName },
                         { x => x.ProviderName, gameInfoProvider.ProviderName }
                     };
-                    IDialogReference? dialogReference = await DialogService.ShowAsync<DialogFetchSelection>("",
+                    IDialogReference dialogReference = await DialogService.ShowAsync<DialogFetchSelection>("",
                         parameters,
                         new DialogOptions
                         {
                             BackdropClick = false
                         });
                     DialogResult? dialogResult = await dialogReference.Result;
-                    if (dialogResult.Canceled)
+                    if ((dialogResult?.Canceled ?? true) || dialogResult.Data is not string gameId)
+                        throw new TaskCanceledException();
+                    if (gameId == null)
+                        throw new FileNotFoundException("Game ID not found");
+
+                    GameInfo? info = await gameInfoProvider.FetchGameDetailByIdAsync(gameId);
+                    if (info == null)
                         return;
-                    gameId = dialogResult.Data as string ?? "";
-                }
-
-                GameInfo? info = await gameInfoProvider.FetchGameDetailByIdAsync(gameId);
-                if (info == null)
-                    return;
-                List<string> replaceList = [];
-                string[]? split = info.Developer?.Split(',');
-                if (split is { Length: > 0 })
-                {
-                    foreach (string s in split)
+                    List<string> replaceList = [];
+                    string[]? split = info.Developer?.Split(',');
+                    if (split is { Length: > 0 })
                     {
-                        TryAddTag(s);
-                        TextMapping? mapping = await ConfigService.SearchTextMappingByOriginalText(s);
-                        string? mappingResult = mapping is { Replace: not null } ? mapping.Replace : s;
-                        replaceList.Add(mappingResult);
-                        TryAddTag(mappingResult);
+                        foreach (string s in split)
+                        {
+                            TryAddTag(s);
+                            TextMapping? mapping = await ConfigService.SearchTextMappingByOriginalText(s);
+                            string? mappingResult = mapping is { Replace: not null } ? mapping.Replace : s;
+                            replaceList.Add(mappingResult);
+                            TryAddTag(mappingResult);
+                        }
                     }
-                }
 
-                info.Developer = string.Join(",", replaceList);
-                info.ExePath = Model.ExePath;
-                info.ExeFile = Model.ExeFile;
-                info.LaunchOption ??= new LaunchOption();
-                info.LaunchOption.RunAsAdmin = Model.RunAsAdmin;
-                info.LaunchOption.LaunchWithLocaleEmulator = Model.LeConfig;
-                info.LaunchOption.RunWithSandboxie = Model.RunWithSandboxie;
-                info.LaunchOption.SandboxieBoxName = Model.SandboxieBoxName;
-                info.LaunchOption.RunWithVNGTTranslator = Model.RunWithVNGTTranslator;
-                info.LaunchOption.IsVNGTTranslatorNeedAdmin = Model.IsVNGTTranslatorNeedAdmin;
-                foreach (Tag tag in info.Tags)
-                    TryAddTag(tag.Name);
-                DataMapService.Map(info, Model);
-                StateHasChanged();
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e, "Failed to fetch game info {Exception}", e.ToString());
-                await DialogService.ShowMessageBox("Error", e.Message, Resources.Dialog_Button_Cancel);
-            }
-            finally
-            {
-                _isFetching = false;
-            }
+                    info.Developer = string.Join(",", replaceList);
+                    info.ExePath = Model.ExePath;
+                    info.ExeFile = Model.ExeFile;
+                    info.LaunchOption ??= new LaunchOption();
+                    info.LaunchOption.RunAsAdmin = Model.RunAsAdmin;
+                    info.LaunchOption.LaunchWithLocaleEmulator = Model.LeConfig;
+                    info.LaunchOption.RunWithSandboxie = Model.RunWithSandboxie;
+                    info.LaunchOption.SandboxieBoxName = Model.SandboxieBoxName;
+                    info.LaunchOption.RunWithVNGTTranslator = Model.RunWithVNGTTranslator;
+                    info.LaunchOption.IsVNGTTranslatorNeedAdmin = Model.IsVNGTTranslatorNeedAdmin;
+                    foreach (Tag tag in info.Tags)
+                        TryAddTag(tag.Name);
+                    DataMapService.Map(info, Model);
+                }
+                catch (FileNotFoundException e)
+                {
+                    Logger.LogError(e, "Failed to fetch game info");
+                    await DialogService.ShowMessageBox("Error", Resources.Message_RelatedGameNotFound,
+                        Resources.Dialog_Button_Cancel);
+                }
+                catch (TaskCanceledException)
+                {
+                    Logger.LogInformation("Fetch game info canceled");
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError(e, "Failed to fetch game info");
+                    await DialogService.ShowMessageBox("Error", e.Message, Resources.Dialog_Button_Cancel);
+                }
+                finally
+                {
+                    _isFetching = false;
+                    _ = InvokeAsync(StateHasChanged);
+                }
+            });
         }
 
         private async Task OnSandboxieBoxNameAdornmentClick()
