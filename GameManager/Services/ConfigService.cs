@@ -322,6 +322,15 @@ namespace GameManager.Services
             return _unitOfWork.GameInfoRepository.GetGameInfoRelatedSites(query);
         }
 
+        public async Task RemoveScreenshotAsync(int gameInfoId, string url)
+        {
+            GameInfo? entity = await _unitOfWork.GameInfoRepository.RemoveScreenshotAsync(gameInfoId, url);
+            if (entity == null)
+                return;
+            await _unitOfWork.SaveChangesAsync();
+            _unitOfWork.DetachEntity(entity);
+        }
+
         public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)
         {
             string key = "TextMapping::" + original;

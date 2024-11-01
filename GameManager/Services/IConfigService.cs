@@ -69,5 +69,7 @@ namespace GameManager.Services
         Task<IEnumerable<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query);
 
         Task<IEnumerable<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query);
+        
+        Task RemoveScreenshotAsync(int gameInfoId, string url);
     }
 }

@@ -71,16 +71,30 @@ namespace GameManager.Components.Pages.components
             {
                 await ConfigService.UpdateGameInfoBackgroundImageAsync(GameInfo.Id, screenshotVo.Url);
                 GameInfo.BackgroundImageUrl = screenshotVo.Url;
+                if (OnUpdateNeeded.HasDelegate)
+                    await OnUpdateNeeded.InvokeAsync();
             }
             catch (Exception e)
             {
                 Logger.LogError(e, "Failed to update background image");
                 Snackbar.Add("Failed to update background image", Severity.Error);
             }
-            finally
+        }
+
+        private async Task RemoveScreenshot()
+        {
+            ScreenShotViewModel? screenshotVo = GameInfoVo.ScreenShots.FirstOrDefault(x => x.IsSelected);
+            if (screenshotVo == null)
+                return;
+            try
             {
-                if (OnUpdateNeeded.HasDelegate)
-                    await OnUpdateNeeded.InvokeAsync();
+                await ConfigService.RemoveScreenshotAsync(GameInfo.Id, screenshotVo.Url);
+                GameInfoVo.ScreenShots.Remove(screenshotVo);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to remove screenshot");
+                Snackbar.Add("Failed to remove screenshot", Severity.Error);
             }
         }
 

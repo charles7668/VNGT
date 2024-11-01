@@ -5,6 +5,11 @@
     width: 100%;
 }
 
+.tool-bar {
+    display: flex;
+    flex-direction: row;
+}
+
 #game-detail-screenshots ::deep .game-detail-screenshots-btn {
     padding: 5px;
     margin-bottom: 15px;

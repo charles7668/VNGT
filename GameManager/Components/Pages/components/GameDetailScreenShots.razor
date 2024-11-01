@@ -1,9 +1,17 @@
 ﻿<div id="game-detail-screenshots">
-    <MudButton Class="game-detail-screenshots-btn"
-               Variant="Variant.Outlined"
-               OnClick="UpdateBackgroundImage">
-        Set As Default Background Image
-    </MudButton>
+    <div class="tool-bar">
+        <MudButton Class="game-detail-screenshots-btn"
+                   Variant="Variant.Outlined"
+                   OnClick="UpdateBackgroundImage">
+            Set As Default Background Image
+        </MudButton>
+        <MudButton Class="game-detail-screenshots-btn"
+                   Variant="Variant.Outlined"
+                   Color="Color.Error"
+                   OnClick="RemoveScreenshot">
+            Delete
+        </MudButton>
+    </div>
     @if (!IsLoading)
     {
         <div class="image-list-container">

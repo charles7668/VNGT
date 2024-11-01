@@ -245,6 +245,15 @@ namespace GameManager.Database
             return Task.FromResult(entity);
         }
 
+        public async Task<GameInfo?> RemoveScreenshotAsync(int id, string url)
+        {
+            GameInfo? entity = await context.GameInfos.FindAsync(id);
+            if (entity == null)
+                return null;
+            entity.ScreenShots.RemoveAll(x => x == url);
+            return entity;
+        }
+
         public async Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
             SortOrder order = SortOrder.UPLOAD_TIME)
         {

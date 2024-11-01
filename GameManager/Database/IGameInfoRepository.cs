@@ -48,5 +48,7 @@ namespace GameManager.Database
         Task<IEnumerable<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query);
         
         Task<GameInfo> UpdateBackgroundImageAsync(int id, string? backgroundImage);
+        
+        Task<GameInfo?> RemoveScreenshotAsync(int id, string url);
     }
 }

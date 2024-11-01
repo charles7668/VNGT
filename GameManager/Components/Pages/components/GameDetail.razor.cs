@@ -75,7 +75,7 @@ namespace GameManager.Components.Pages.components
                     OriginalName = gameInfo.GameName,
                     ChineseName = gameInfo.GameChineseName,
                     EnglishName = gameInfo.GameEnglishName,
-                    CoverImage = ImageService.UriResolve(gameInfo.CoverPath),
+                    CoverImage = gameInfo.CoverPath,
                     BackgroundImage = gameInfo.BackgroundImageUrl,
                     ScreenShots = gameInfo.ScreenShots,
                     LastPlayed = gameInfo.LastPlayed?.ToString("yyyy-MM-dd") ?? "Never",
