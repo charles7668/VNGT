@@ -339,6 +339,14 @@ namespace GameManager.Services
             unitOfWork.DetachEntity(entity);
         }
 
+        public async Task AddScreenshotsAsync(int gameInfoId, List<string> urls)
+        {
+            AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            await unitOfWork.GameInfoRepository.AddScreenshotsAsync(gameInfoId, urls);
+            await unitOfWork.SaveChangesAsync();
+        }
+
         public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)
         {
             string key = "TextMapping::" + original;

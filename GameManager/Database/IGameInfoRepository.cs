@@ -50,5 +50,7 @@ namespace GameManager.Database
         Task<GameInfo> UpdateBackgroundImageAsync(int id, string? backgroundImage);
         
         Task<GameInfo?> RemoveScreenshotAsync(int id, string url);
+
+        Task<GameInfo?> AddScreenshotsAsync(int id, List<string> urls);
     }
 }

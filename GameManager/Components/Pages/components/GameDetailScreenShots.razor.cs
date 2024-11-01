@@ -22,6 +22,9 @@ namespace GameManager.Components.Pages.components
         private IConfigService ConfigService { get; set; } = null!;
 
         [Inject]
+        private IDialogService DialogService { get; set; } = null!;
+
+        [Inject]
         private ILogger<GameDetailScreenShots> Logger { get; set; } = null!;
 
         [Inject]
@@ -83,6 +86,37 @@ namespace GameManager.Components.Pages.components
             {
                 Logger.LogError(e, "Failed to update background image");
                 Snackbar.Add("Failed to update background image", Severity.Error);
+            }
+        }
+
+        private async Task AddScreenshotsByUrl()
+        {
+            IDialogReference dialogReference = await DialogService.ShowAsync<DialogMultiLineInputBox>();
+            DialogResult? dialogResult = await dialogReference.Result;
+            if (dialogResult is { Canceled: true })
+            {
+                return;
+            }
+
+            string? inputText = dialogResult?.Data as string;
+            string[] splitText = inputText?.Split('\n') ?? [];
+            for (int i = 0; i < splitText.Length; i++)
+            {
+                splitText[i] = splitText[i].Trim().Trim('\r');
+            }
+
+            try
+            {
+                await ConfigService.AddScreenshotsAsync(GameInfo.Id, splitText.ToList());
+                GameInfoVo.ScreenShots.AddRange(splitText.Select(x => new ScreenShotViewModel(ImageService)
+                {
+                    Url = x
+                }));
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to add screenshots");
+                Snackbar.Add("Failed to add screenshots", Severity.Error);
             }
         }
 

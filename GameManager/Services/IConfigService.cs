@@ -71,5 +71,7 @@ namespace GameManager.Services
         Task<List<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query);
         
         Task RemoveScreenshotAsync(int gameInfoId, string url);
+        
+        Task AddScreenshotsAsync(int gameInfoId, List<string> urls);
     }
 }

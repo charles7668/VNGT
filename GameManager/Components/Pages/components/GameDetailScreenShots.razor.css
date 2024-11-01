@@ -6,6 +6,7 @@
 }
 
 .tool-bar {
+    width: 800px;
     display: flex;
     flex-direction: row;
 }

@@ -254,6 +254,17 @@ namespace GameManager.Database
             return entity;
         }
 
+        public async Task<GameInfo?> AddScreenshotsAsync(int id, List<string> urls)
+        {
+            GameInfo? entity = await context.GameInfos.FindAsync(id);
+            if (entity == null)
+                return null;
+            entity.ScreenShots.AddRange(urls);
+            entity.ScreenShots = entity.ScreenShots.Distinct().ToList();
+            context.GameInfos.Update(entity);
+            return entity;
+        }
+
         public async Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
             SortOrder order = SortOrder.UPLOAD_TIME)
         {
