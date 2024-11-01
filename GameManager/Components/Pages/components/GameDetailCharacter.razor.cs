@@ -13,27 +13,41 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private IImageService ImageService { get; set; } = null!;
 
-        private ViewModel View { get; set; } = new();
+        private ViewModel GameInfoVo { get; set; } = new();
+
+        private bool IsLoading { get; set; } = true;
+        private Task LoadingTask { get; set; } = Task.CompletedTask;
 
         protected override Task OnInitializedAsync()
         {
-            Task.Run(() =>
-            {
-                List<Character> characters = GameInfo.Characters;
-                View.Characters = characters.Select(x => new CharacterViewModel(ImageService)
-                {
-                    Name = x.OriginalName ?? x.Name ?? "Unknown",
-                    Description = x.Description ?? "",
-                    ImageUrl = x.ImageUrl,
-                    Age = x.Age,
-                    Birthday = ConvertDisplayBirthday(x.Birthday),
-                    BloodType = x.BloodType,
-                    Sex = x.Sex
-                }).ToList();
-                InvokeAsync(StateHasChanged);
-            });
+            IsLoading = true;
             _ = base.OnInitializedAsync();
             return Task.CompletedTask;
+        }
+
+        protected override Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (IsLoading && LoadingTask.IsCompleted)
+            {
+                LoadingTask = Task.Run(() =>
+                {
+                    List<Character> characters = GameInfo.Characters;
+                    GameInfoVo.Characters = characters.Select(x => new CharacterViewModel(ImageService)
+                    {
+                        Name = x.OriginalName ?? x.Name ?? "Unknown",
+                        Description = x.Description ?? "",
+                        ImageUrl = x.ImageUrl,
+                        Age = x.Age,
+                        Birthday = ConvertDisplayBirthday(x.Birthday),
+                        BloodType = x.BloodType,
+                        Sex = x.Sex
+                    }).ToList();
+                    InvokeAsync(StateHasChanged);
+                    IsLoading = false;
+                });
+            }
+
+            return base.OnAfterRenderAsync(firstRender);
 
             string? ConvertDisplayBirthday(string? birthday)
             {

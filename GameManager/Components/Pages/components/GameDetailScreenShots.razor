@@ -5,6 +5,7 @@
                    OnClick="UpdateBackgroundImage">
             Set As Default Background Image
         </MudButton>
+        <MudSpacer/>
         <MudButton Class="game-detail-screenshots-btn"
                    Variant="Variant.Outlined"
                    Color="Color.Error"
@@ -12,7 +13,16 @@
             Delete
         </MudButton>
     </div>
-    @if (!IsLoading)
+    @if (IsLoading)
+    {
+        <div class="justify-center align-center d-flex">
+            <MudProgressCircular Color="Color.Primary"
+                                 Indeterminate="true"
+                                 Style="width:300px; height: 300px; ">
+            </MudProgressCircular>
+        </div>
+    }
+    else
     {
         <div class="image-list-container">
             @foreach (ScreenShotViewModel screenShot in GameInfoVo.ScreenShots)

@@ -1,6 +1,5 @@
 ﻿using GameManager.DB.Enums;
 using GameManager.DB.Models;
-using GameManager.Enums;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -20,60 +19,49 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;
 
-        protected override async Task OnInitializedAsync()
+        protected override Task OnInitializedAsync()
         {
-            GameInfoViewModel.Introduction = GameInfo.Description ?? "";
-            GameInfoViewModel.OriginalGameName = GameInfo.GameName ?? "";
-            GameInfoViewModel.ChineseGameName = GameInfo.GameChineseName ?? "";
-            GameInfoViewModel.EnglishGameName = GameInfo.GameEnglishName ?? "";
-            GameInfoViewModel.ReleaseDate = GameInfo.DateTime?.ToString("yyyy-MM-dd") ??
-                                            DateTime.MinValue.ToString("yyyy-MM-dd");
-            GameInfoViewModel.Developer = GameInfo.Developer ?? "Unknown";
-            GameInfoViewModel.Staffs = GameInfo.Staffs
-                .Where(x => StaffService.GetStaffRoleEnumByName(x.StaffRole.RoleName).Result != StaffRoleEnum.STAFF)
-                .Select(
-                    x => new StaffViewModel
-                    {
-                        Role = GetRoleName(x.StaffRole.RoleName),
-                        Name = x.Name
-                    }).OrderBy(x => x.Role).ToList();
-
-            GameInfoViewModel.Characters = GameInfo.Characters.Select(x => new CharacterViewModel
+            Task.Run(() =>
             {
-                Name = x.Name,
-                OriginalName = x.OriginalName,
-                Alias = x.Alias,
-                Description = x.Description,
-                ImageUrl = x.ImageUrl,
-                Age = x.Age,
-                Birthday = x.Birthday,
-                BloodType = x.BloodType,
-                Sex = x.Sex
-            }).ToList();
+                GameInfoViewModel.Introduction = GameInfo.Description ?? "";
+                GameInfoViewModel.OriginalGameName = GameInfo.GameName ?? "";
+                GameInfoViewModel.ChineseGameName = GameInfo.GameChineseName ?? "";
+                GameInfoViewModel.EnglishGameName = GameInfo.GameEnglishName ?? "";
+                GameInfoViewModel.ReleaseDate = GameInfo.DateTime?.ToString("yyyy-MM-dd") ??
+                                                DateTime.MinValue.ToString("yyyy-MM-dd");
+                GameInfoViewModel.Developer = GameInfo.Developer ?? "Unknown";
+                GameInfoViewModel.Staffs = GameInfo.Staffs
+                    .Where(x => StaffService.GetStaffRoleEnumByName(x.StaffRole.RoleName).Result != StaffRoleEnum.STAFF)
+                    .Select(
+                        x => new StaffViewModel
+                        {
+                            Role = GetRoleName(x.StaffRole.RoleName),
+                            Name = x.Name
+                        }).OrderBy(x => x.Role).ToList();
 
-            GameInfoViewModel.RelatedSites = GameInfo.RelatedSites.Select(x => new RelatedSiteViewModel
-            {
-                Name = x.Name,
-                Url = x.Url
-            }).ToList();
-
-            GameInfoViewModel.ReleaseInfoViewModels = GameInfo.ReleaseInfos.Select(x => new ReleaseInfoViewModel
-            {
-                ReleaseName = x.ReleaseName,
-                ReleaseLanguage = x.ReleaseLanguage,
-                ReleaseDate = x.ReleaseDate == DateTime.MinValue ? "Unknown" : x.ReleaseDate.ToString("yyyy-MM-dd"),
-                Platforms = x.Platforms.Select(GetPlatformString).ToList(),
-                AgeRating = "R" + x.AgeRating + "+",
-                ExternalLinks = x.ExternalLinks.Select(y => new ExternalLinkViewModel
+                GameInfoViewModel.RelatedSites = GameInfo.RelatedSites.Select(x => new RelatedSiteViewModel
                 {
-                    Url = y.Url,
-                    Label = y.Label
-                }).ToList()
-            }).ToList();
+                    Name = x.Name,
+                    Url = x.Url
+                }).ToList();
 
-            GameInfoViewModel.Tags = GameInfo.Tags.Select(x => x.Name).ToList();
-
-            await base.OnInitializedAsync();
+                GameInfoViewModel.ReleaseInfoViewModels = GameInfo.ReleaseInfos.Select(x => new ReleaseInfoViewModel
+                {
+                    ReleaseName = x.ReleaseName,
+                    ReleaseLanguage = x.ReleaseLanguage,
+                    ReleaseDate = x.ReleaseDate == DateTime.MinValue ? "Unknown" : x.ReleaseDate.ToString("yyyy-MM-dd"),
+                    Platforms = x.Platforms.Select(GetPlatformString).ToList(),
+                    AgeRating = "R" + x.AgeRating + "+",
+                    ExternalLinks = x.ExternalLinks.Select(y => new ExternalLinkViewModel
+                    {
+                        Url = y.Url,
+                        Label = y.Label
+                    }).ToList()
+                }).ToList();
+                GameInfoViewModel.Tags = GameInfo.Tags.Select(x => x.Name).ToList();
+            });
+            _ = base.OnInitializedAsync();
+            return Task.CompletedTask;
         }
 
         private string GetPlatformString(PlatformEnum platformEnum)
@@ -123,8 +111,6 @@ namespace GameManager.Components.Pages.components
             public string Developer { get; set; } = string.Empty;
 
             public List<StaffViewModel> Staffs { get; set; } = [];
-
-            public List<CharacterViewModel> Characters { get; set; } = [];
 
             public List<ReleaseInfoViewModel> ReleaseInfoViewModels { get; set; } = [];
 

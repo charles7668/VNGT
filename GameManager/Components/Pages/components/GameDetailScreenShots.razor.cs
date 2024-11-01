@@ -31,6 +31,7 @@ namespace GameManager.Components.Pages.components
         public EventCallback OnUpdateNeeded { get; set; }
 
         private bool IsLoading { get; set; } = true;
+        private Task LoadingTask { get; set; } = Task.CompletedTask;
 
         private string GetImageContainerClass(ScreenShotViewModel model)
         {
@@ -48,18 +49,22 @@ namespace GameManager.Components.Pages.components
             InvokeAsync(StateHasChanged);
         }
 
-        protected override Task OnInitializedAsync()
+        protected override Task OnAfterRenderAsync(bool firstRender)
         {
-            _ = Task.Run(() =>
+            if (IsLoading)
             {
-                GameInfoVo.ScreenShots = GameInfo.ScreenShots.Select(x => new ScreenShotViewModel(ImageService)
+                LoadingTask = Task.Run(() =>
                 {
-                    Url = x
-                }).ToList();
-                IsLoading = false;
-                _ = InvokeAsync(StateHasChanged);
-            });
-            return base.OnInitializedAsync();
+                    GameInfoVo.ScreenShots = GameInfo.ScreenShots.Select(x => new ScreenShotViewModel(ImageService)
+                    {
+                        Url = x
+                    }).ToList();
+                    IsLoading = false;
+                    InvokeAsync(StateHasChanged);
+                });
+            }
+
+            return base.OnAfterRenderAsync(firstRender);
         }
 
         private async Task UpdateBackgroundImage()

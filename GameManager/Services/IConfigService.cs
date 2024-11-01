@@ -36,11 +36,11 @@ namespace GameManager.Services
         Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
             SortOrder order = SortOrder.UPLOAD_TIME);
 
-        Task<IEnumerable<string>> GetGameTagsAsync(int gameId);
+        Task<List<string>> GetGameTagsAsync(int gameId);
 
         Task<List<Library>> GetLibrariesAsync(CancellationToken cancellationToken);
 
-        Task<IEnumerable<string>> GetTagsAsync();
+        Task<List<string>> GetTagsAsync();
 
         Task ReplaceCoverImage(string? srcFile, string? coverName);
 
@@ -62,13 +62,13 @@ namespace GameManager.Services
 
         Task<Staff?> GetStaffAsync(Expression<Func<Staff, bool>> query);
 
-        Task<IEnumerable<Staff>> GetGameInfoStaffs(Expression<Func<GameInfo, bool>> query);
+        Task<List<Staff>> GetGameInfoStaffs(Expression<Func<GameInfo, bool>> query);
 
-        Task<IEnumerable<Character>> GetGameInfoCharacters(Expression<Func<GameInfo, bool>> query);
+        Task<List<Character>> GetGameInfoCharacters(Expression<Func<GameInfo, bool>> query);
 
-        Task<IEnumerable<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query);
+        Task<List<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query);
 
-        Task<IEnumerable<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query);
+        Task<List<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query);
         
         Task RemoveScreenshotAsync(int gameInfoId, string url);
     }

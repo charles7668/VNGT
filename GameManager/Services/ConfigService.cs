@@ -285,10 +285,12 @@ namespace GameManager.Services
 
         public async Task UpdateGameInfoBackgroundImageAsync(int gameInfoId, string? backgroundImage)
         {
+            AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             GameInfo entity =
-                await _unitOfWork.GameInfoRepository.UpdateBackgroundImageAsync(gameInfoId, backgroundImage);
-            await _unitOfWork.SaveChangesAsync();
-            _unitOfWork.DetachEntity(entity);
+                await unitOfWork.GameInfoRepository.UpdateBackgroundImageAsync(gameInfoId, backgroundImage);
+            await unitOfWork.SaveChangesAsync();
+            unitOfWork.DetachEntity(entity);
         }
 
         public async Task<IEnumerable<StaffRole>> GetStaffRolesAsync()
@@ -302,33 +304,39 @@ namespace GameManager.Services
             return _unitOfWork.StaffRepository.GetAsync(query);
         }
 
-        public Task<IEnumerable<Staff>> GetGameInfoStaffs(Expression<Func<GameInfo, bool>> query)
+        public async Task<List<Staff>> GetGameInfoStaffs(Expression<Func<GameInfo, bool>> query)
         {
-            return _unitOfWork.GameInfoRepository.GetStaffsAsync(query);
+            IEnumerable<Staff> result = await _unitOfWork.GameInfoRepository.GetStaffsAsync(query);
+            return result.ToList();
         }
 
-        public Task<IEnumerable<Character>> GetGameInfoCharacters(Expression<Func<GameInfo, bool>> query)
+        public async Task<List<Character>> GetGameInfoCharacters(Expression<Func<GameInfo, bool>> query)
         {
-            return _unitOfWork.GameInfoRepository.GetCharactersAsync(query);
+            IEnumerable<Character> result = await _unitOfWork.GameInfoRepository.GetCharactersAsync(query);
+            return result.ToList();
         }
 
-        public Task<IEnumerable<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query)
+        public async Task<List<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query)
         {
-            return _unitOfWork.GameInfoRepository.GetGameInfoReleaseInfos(query);
+            IEnumerable<ReleaseInfo> result = await _unitOfWork.GameInfoRepository.GetGameInfoReleaseInfos(query);
+            return result.ToList();
         }
 
-        public Task<IEnumerable<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query)
+        public async Task<List<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query)
         {
-            return _unitOfWork.GameInfoRepository.GetGameInfoRelatedSites(query);
+            IEnumerable<RelatedSite> result = await _unitOfWork.GameInfoRepository.GetGameInfoRelatedSites(query);
+            return result.ToList();
         }
 
         public async Task RemoveScreenshotAsync(int gameInfoId, string url)
         {
-            GameInfo? entity = await _unitOfWork.GameInfoRepository.RemoveScreenshotAsync(gameInfoId, url);
+            AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            GameInfo? entity = await unitOfWork.GameInfoRepository.RemoveScreenshotAsync(gameInfoId, url);
             if (entity == null)
                 return;
-            await _unitOfWork.SaveChangesAsync();
-            _unitOfWork.DetachEntity(entity);
+            await unitOfWork.SaveChangesAsync();
+            unitOfWork.DetachEntity(entity);
         }
 
         public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)
@@ -347,12 +355,12 @@ namespace GameManager.Services
             return mapping;
         }
 
-        public async Task<IEnumerable<string>> GetGameTagsAsync(int gameId)
+        public async Task<List<string>> GetGameTagsAsync(int gameId)
         {
             IEnumerable<Tag> tags = await _unitOfWork.GameInfoRepository
                 .GetTagsByIdAsync(gameId);
             IEnumerable<string> result = tags.Select(x => x.Name);
-            return result;
+            return result.ToList();
         }
 
         public async Task UpdateGameInfoTags(int gameId, IEnumerable<string> tags)
@@ -395,7 +403,7 @@ namespace GameManager.Services
             return hasTag;
         }
 
-        public async Task<IEnumerable<string>> GetTagsAsync()
+        public async Task<List<string>> GetTagsAsync()
         {
             return await _unitOfWork.TagRepository.GetAllTagsAsync();
         }

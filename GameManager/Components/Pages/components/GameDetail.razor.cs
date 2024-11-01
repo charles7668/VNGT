@@ -44,10 +44,16 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private ILogger<GameDetail> Logger { get; set; } = null!;
 
-        protected override async Task OnInitializedAsync()
+        private Task LoadingTask { get; set; } = Task.CompletedTask;
+
+        protected override Task OnAfterRenderAsync(bool firstRender)
         {
-            _ = RefreshData();
-            await base.OnInitializedAsync();
+            if (IsLoading && LoadingTask.IsCompleted)
+            {
+                LoadingTask = RefreshData();
+            }
+
+            return base.OnAfterRenderAsync(firstRender);
         }
 
         private Task RefreshData(GameInfo? inputGameInfo = null)
@@ -56,33 +62,47 @@ namespace GameManager.Components.Pages.components
             StateHasChanged();
             return Task.Run(async () =>
             {
-                GameInfo gameInfo = inputGameInfo ?? await ConfigService.GetGameInfoAsync(x => x.Id == InitGameId) ??
-                    throw new ArgumentException("Game info not found with id " + InitGameId);
-                gameInfo.Staffs = (await ConfigService.GetGameInfoStaffs(x => x.Id == gameInfo.Id)).ToList();
-                gameInfo.ReleaseInfos =
-                    (await ConfigService.GetGameInfoReleaseInfos(x => x.Id == gameInfo.Id)).ToList();
-                gameInfo.RelatedSites =
-                    (await ConfigService.GetGameInfoRelatedSites(x => x.Id == gameInfo.Id)).ToList();
-                gameInfo.Characters =
-                    (await ConfigService.GetGameInfoCharacters(x => x.Id == gameInfo.Id)).ToList();
-                gameInfo.Tags = (await ConfigService.GetGameTagsAsync(gameInfo.Id)).Select(x => new Tag
+                try
                 {
-                    Name = x
-                }).ToList();
-                _gameInfo = gameInfo;
-                GameInfoViewModel = new ViewModel(ImageService)
+                    Logger.LogInformation("start loading game info");
+                    _ = JsRuntime.InvokeVoidAsync("disableHtmlOverflow");
+                    GameInfo gameInfo = inputGameInfo ??
+                                        await ConfigService.GetGameInfoAsync(x => x.Id == InitGameId) ??
+                                        throw new ArgumentException("Game info not found with id " + InitGameId);
+                    gameInfo.Staffs = (await ConfigService.GetGameInfoStaffs(x => x.Id == gameInfo.Id)).ToList();
+                    gameInfo.ReleaseInfos =
+                        (await ConfigService.GetGameInfoReleaseInfos(x => x.Id == gameInfo.Id)).ToList();
+                    gameInfo.RelatedSites =
+                        (await ConfigService.GetGameInfoRelatedSites(x => x.Id == gameInfo.Id)).ToList();
+                    gameInfo.Characters =
+                        (await ConfigService.GetGameInfoCharacters(x => x.Id == gameInfo.Id)).ToList();
+                    gameInfo.Tags = (await ConfigService.GetGameTagsAsync(gameInfo.Id)).Select(x => new Tag
+                    {
+                        Name = x
+                    }).ToList();
+                    _gameInfo = gameInfo;
+                    GameInfoViewModel = new ViewModel(ImageService)
+                    {
+                        OriginalName = gameInfo.GameName,
+                        ChineseName = gameInfo.GameChineseName,
+                        EnglishName = gameInfo.GameEnglishName,
+                        CoverImage = gameInfo.CoverPath,
+                        BackgroundImage = gameInfo.BackgroundImageUrl,
+                        ScreenShots = gameInfo.ScreenShots,
+                        LastPlayed = gameInfo.LastPlayed?.ToString("yyyy-MM-dd") ?? "Never",
+                        HasCharacters = gameInfo.Characters.Count != 0
+                    };
+                    IsLoading = false;
+                    _ = InvokeAsync(StateHasChanged);
+                }
+                catch (Exception e)
                 {
-                    OriginalName = gameInfo.GameName,
-                    ChineseName = gameInfo.GameChineseName,
-                    EnglishName = gameInfo.GameEnglishName,
-                    CoverImage = gameInfo.CoverPath,
-                    BackgroundImage = gameInfo.BackgroundImageUrl,
-                    ScreenShots = gameInfo.ScreenShots,
-                    LastPlayed = gameInfo.LastPlayed?.ToString("yyyy-MM-dd") ?? "Never",
-                    HasCharacters = gameInfo.Characters.Count != 0
-                };
-                IsLoading = false;
-                _ = InvokeAsync(StateHasChanged);
+                    Logger.LogError(e, "Failed to load game info");
+                }
+                finally
+                {
+                    Logger.LogInformation("finish loading game info");
+                }
             });
         }
 

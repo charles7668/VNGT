@@ -55,16 +55,16 @@
                     </div>
                 </div>
                 <div class="tabs">
-                    <input type="radio" id="radio-detail" name="tab" checked onclick="@(() => OnTabChangeClick("info"))">
+                    <input type="radio" id="radio-detail" name="tab" checked="@(_selectedTab == "info")" onclick="@(() => OnTabChangeClick("info"))">
                     <label for="radio-detail">Detail</label>
 
                     @if (GameInfoViewModel.HasCharacters)
                     {
-                        <input type="radio" id="radio-character" name="tab" onclick="@(() => OnTabChangeClick("character"))">
+                        <input type="radio" id="radio-character" name="tab" checked="@(_selectedTab == "character")" onclick="@(() => OnTabChangeClick("character"))">
                         <label for="radio-character">Character</label>
                     }
 
-                    <input type="radio" id="radio-screenshots" name="tab" onclick="@(() => OnTabChangeClick("screenshots"))">
+                    <input type="radio" id="radio-screenshots" name="tab" checked="@(_selectedTab == "screenshots")" onclick="@(() => OnTabChangeClick("screenshots"))">
                     <label for="radio-screenshots">Screenshots</label>
                 </div>
             </div>

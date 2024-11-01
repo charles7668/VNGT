@@ -460,12 +460,12 @@ namespace GameManager.Components.Pages
             }));
         }
 
-        private async Task OnShowDetail(int id)
+        private Task OnShowDetail(int id)
         {
             IsShowDetail = true;
             _showDetailId = id;
-            await JsRuntime.InvokeVoidAsync("disableHtmlOverflow");
-            StateHasChanged();
+            _ = InvokeAsync(StateHasChanged);
+            return Task.CompletedTask;
         }
 
         private async Task OnCloseDetail()
