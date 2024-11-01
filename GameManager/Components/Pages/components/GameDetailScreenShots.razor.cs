@@ -1,4 +1,6 @@
 ﻿using GameManager.DB.Models;
+using GameManager.GameInfoProvider;
+using GameManager.Properties;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
@@ -7,8 +9,13 @@ using MudBlazor.Utilities;
 
 namespace GameManager.Components.Pages.components
 {
-    public partial class GameDetailScreenShots
+    public partial class GameDetailScreenShots : IAsyncDisposable
     {
+        private string _fetchProvider = "VNDB";
+
+        private string _fetchSearchText = string.Empty;
+        private CancellationTokenSource _fetchTaskCts = new();
+
         [Parameter]
         [EditorRequired]
         public GameInfo GameInfo { get; set; } = null!;
@@ -35,6 +42,16 @@ namespace GameManager.Components.Pages.components
 
         private bool IsLoading { get; set; } = true;
         private Task LoadingTask { get; set; } = Task.CompletedTask;
+        private Task FetchTask { get; set; } = Task.CompletedTask;
+
+        [Inject]
+        private GameInfoProviderFactory GameInfoProviderFactory { get; set; } = null!;
+
+        public ValueTask DisposeAsync()
+        {
+            _fetchTaskCts.Cancel();
+            return ValueTask.CompletedTask;
+        }
 
         private string GetImageContainerClass(ScreenShotViewModel model)
         {
@@ -54,10 +71,11 @@ namespace GameManager.Components.Pages.components
 
         protected override Task OnAfterRenderAsync(bool firstRender)
         {
-            if (IsLoading)
+            if (IsLoading && LoadingTask.IsCompleted)
             {
                 LoadingTask = Task.Run(() =>
                 {
+                    _fetchSearchText = GameInfo.GameName ?? "";
                     GameInfoVo.ScreenShots = GameInfo.ScreenShots.Select(x => new ScreenShotViewModel(ImageService)
                     {
                         Url = x
@@ -89,6 +107,27 @@ namespace GameManager.Components.Pages.components
             }
         }
 
+        private async Task TryAddScreenShotsToGameInfo(List<string> urls)
+        {
+            try
+            {
+                await ConfigService.AddScreenshotsAsync(GameInfo.Id, urls);
+                List<string> screenshots = GameInfo.ScreenShots;
+                screenshots.AddRange(urls);
+                screenshots = screenshots.Distinct().ToList();
+                GameInfo.ScreenShots = screenshots;
+                GameInfoVo.ScreenShots = screenshots.Select(x => new ScreenShotViewModel(ImageService)
+                {
+                    Url = x
+                }).ToList();
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to add screenshots");
+                Snackbar.Add("Failed to add screenshots", Severity.Error);
+            }
+        }
+
         private async Task AddScreenshotsByUrl()
         {
             IDialogReference dialogReference = await DialogService.ShowAsync<DialogMultiLineInputBox>();
@@ -105,19 +144,7 @@ namespace GameManager.Components.Pages.components
                 splitText[i] = splitText[i].Trim().Trim('\r');
             }
 
-            try
-            {
-                await ConfigService.AddScreenshotsAsync(GameInfo.Id, splitText.ToList());
-                GameInfoVo.ScreenShots.AddRange(splitText.Select(x => new ScreenShotViewModel(ImageService)
-                {
-                    Url = x
-                }));
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e, "Failed to add screenshots");
-                Snackbar.Add("Failed to add screenshots", Severity.Error);
-            }
+            await TryAddScreenShotsToGameInfo(splitText.ToList());
         }
 
         private async Task RemoveScreenshot()
@@ -135,6 +162,87 @@ namespace GameManager.Components.Pages.components
                 Logger.LogError(e, "Failed to remove screenshot");
                 Snackbar.Add("Failed to remove screenshot", Severity.Error);
             }
+        }
+
+        private Task OnFetchButtonClick()
+        {
+            if (!FetchTask.IsCompleted)
+                return Task.CompletedTask;
+            string fetchProviderName = _fetchProvider;
+            string searchText = _fetchSearchText;
+            Logger.LogInformation("Start fetch game info from {Provider} with search text {SearchText}",
+                fetchProviderName,
+                searchText);
+            _fetchTaskCts = new CancellationTokenSource();
+            FetchTask = Task.Run<Task>(async () =>
+            {
+                CancellationToken cancellationToken = _fetchTaskCts.Token;
+                try
+                {
+                    IGameInfoProvider? provider = GameInfoProviderFactory.GetProvider(fetchProviderName);
+                    if (provider is null)
+                    {
+                        Logger.LogError("Provider {Provider} not found", fetchProviderName);
+                        return;
+                    }
+
+                    (List<GameInfo>? infoList, bool hasMore) =
+                        await provider.FetchGameSearchListAsync(searchText, 10, 1);
+
+                    if (cancellationToken.IsCancellationRequested)
+                        throw new TaskCanceledException();
+
+                    if (infoList == null || infoList.Count == 0)
+                        throw new FileNotFoundException();
+
+                    var parameters = new DialogParameters<DialogFetchSelection>
+                    {
+                        { x => x.DisplayInfos, infoList },
+                        { x => x.HasMore, hasMore },
+                        { x => x.SearchName, searchText },
+                        { x => x.ProviderName, provider.ProviderName }
+                    };
+                    IDialogReference dialogReference = await DialogService.ShowAsync<DialogFetchSelection>("",
+                        parameters,
+                        new DialogOptions
+                        {
+                            BackdropClick = false
+                        });
+                    DialogResult? dialogResult = await dialogReference.Result;
+                    if ((dialogResult?.Canceled ?? true) || dialogResult.Data is not string gameId)
+                        throw new TaskCanceledException();
+                    if (gameId == null)
+                        throw new FileNotFoundException("Game ID not found");
+
+                    GameInfo? info = await provider.FetchGameDetailByIdAsync(gameId);
+                    if (info == null)
+                        return;
+                    if (cancellationToken.IsCancellationRequested)
+                        throw new TaskCanceledException();
+                    await TryAddScreenShotsToGameInfo(info.ScreenShots);
+                }
+                catch (FileNotFoundException e)
+                {
+                    Logger.LogError(e, "Failed to fetch game info");
+                    await DialogService.ShowMessageBox("Error", Resources.Message_RelatedGameNotFound,
+                        Resources.Dialog_Button_Cancel);
+                }
+                catch (TaskCanceledException)
+                {
+                    Logger.LogInformation("Fetch game info canceled");
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError(e, "Failed to fetch game info");
+                    await DialogService.ShowMessageBox("Error", e.Message, Resources.Dialog_Button_Cancel);
+                }
+                finally
+                {
+                    Logger.LogInformation("Fetch game info finished");
+                    _ = InvokeAsync(StateHasChanged);
+                }
+            }, _fetchTaskCts.Token);
+            return Task.CompletedTask;
         }
 
         private class ScreenShotViewModel(IImageService imageService)

@@ -12,6 +12,38 @@
             Add image urls
         </MudButton>
         <MudSpacer/>
+        <MudTextField T="string" @bind-Value="_fetchSearchText" Placeholder="SearchText"></MudTextField>
+        @if (!FetchTask.IsCompleted)
+        {
+            <MudButton Class="ml-2"
+                       Color="Color.Primary"
+                       Variant="Variant.Outlined">
+                <MudProgressCircular Size="Size.Small" Color="Color.Success" Indeterminate="true"/>
+            </MudButton>
+        }
+        else
+        {
+            <MudButton Class="game-detail-screenshots-btn"
+                       Variant="Variant.Outlined"
+                       StartIcon="@Icons.Material.Filled.Download"
+                       OnClick="OnFetchButtonClick">
+                Fetch
+            </MudButton>
+        }
+        <MudSelect Label="Source"
+                   Class="mx-2"
+                   Variant="Variant.Outlined"
+                   T="string"
+                   @bind-Value="_fetchProvider"
+                   Margin="Margin.Dense"
+                   Immediate="true"
+                   AnchorOrigin="Origin.BottomCenter">
+            @foreach (string provider in GameInfoProviderFactory.SupportedProviders)
+            {
+                <MudSelectItem Value="provider"></MudSelectItem>
+            }
+        </MudSelect>
+        <MudSpacer/>
         <MudButton Class="game-detail-screenshots-btn"
                    Variant="Variant.Outlined"
                    Color="Color.Error"
@@ -21,11 +53,12 @@
     </div>
     @if (IsLoading)
     {
-        <div class="justify-center align-center d-flex">
-            <MudProgressCircular Color="Color.Primary"
-                                 Indeterminate="true"
-                                 Style="width:300px; height: 300px; ">
-            </MudProgressCircular>
+        <div class="progress-container">
+            <div class="justify-center align-center d-flex">
+                <MudProgressCircular Color="Color.Primary"
+                                     Indeterminate="true">
+                </MudProgressCircular>
+            </div>
         </div>
     }
     else
@@ -34,8 +67,7 @@
             @foreach (ScreenShotViewModel screenShot in GameInfoVo.ScreenShots)
             {
                 <div class="@(GetImageContainerClass(screenShot))" onclick="@(() => OnImageClick(screenShot))">
-                    <img src="@screenShot.Display" onerror="this.style.display='none';"
-                         alt="screenshot"/>
+                    <img src="@screenShot.Display" alt="can't load" onerror="this.style.backgroundColor='red';"/>
                 </div>
             }
         </div>
