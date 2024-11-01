@@ -190,6 +190,9 @@ namespace GameManager.Services
         {
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            GameInfo? currentEntity = await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == info.Id);
+            if (currentEntity == null)
+                return;
             List<Staff> staffs = info.Staffs;
             List<Character> characters = info.Characters;
             List<ReleaseInfo> releaseInfos = info.ReleaseInfos;
@@ -198,6 +201,9 @@ namespace GameManager.Services
             info.Characters = [];
             info.ReleaseInfos = [];
             info.RelatedSites = [];
+            // add new screenshots and remove duplicate
+            info.ScreenShots.AddRange(currentEntity.ScreenShots);
+            info.ScreenShots = info.ScreenShots.Distinct().ToList();
             // set default background image
             if (string.IsNullOrEmpty(info.BackgroundImageUrl) && info.ScreenShots.Count > 0)
             {
