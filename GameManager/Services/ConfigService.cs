@@ -146,7 +146,26 @@ namespace GameManager.Services
                 break;
             } while (true);
 
+            // set default background image
+            if (string.IsNullOrEmpty(info.BackgroundImageUrl) && info.ScreenShots.Count > 0)
+            {
+                info.BackgroundImageUrl = info.ScreenShots[0];
+            }
+
+            List<Staff> staffs = info.Staffs;
+            List<Character> characters = info.Characters;
+            List<ReleaseInfo> releaseInfos = info.ReleaseInfos;
+            List<RelatedSite> relatedSites = info.RelatedSites;
+            info.Staffs = [];
+            info.Characters = [];
+            info.ReleaseInfos = [];
+            info.RelatedSites = [];
+
             GameInfo gameInfoEntity = await unitOfWork.GameInfoRepository.AddAsync(info);
+            await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == gameInfoEntity.Id, staffs);
+            await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == gameInfoEntity.Id, characters);
+            await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == gameInfoEntity.Id, releaseInfos);
+            await unitOfWork.GameInfoRepository.UpdateReltedSitesAsync(x => x.Id == gameInfoEntity.Id, relatedSites);
             await unitOfWork.SaveChangesAsync();
             info.Id = gameInfoEntity.Id;
             await UpdateGameInfoTags(info.Id, tagArray);
@@ -179,6 +198,12 @@ namespace GameManager.Services
             info.Characters = [];
             info.ReleaseInfos = [];
             info.RelatedSites = [];
+            // set default background image
+            if (string.IsNullOrEmpty(info.BackgroundImageUrl) && info.ScreenShots.Count > 0)
+            {
+                info.BackgroundImageUrl = info.ScreenShots[0];
+            }
+
             await unitOfWork.GameInfoRepository.EditAsync(info);
             await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == info.Id, staffs);
             await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == info.Id, characters);
