@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GameManager.DB.Models
 {
-    [Index(nameof(GameUniqeId), IsUnique = true)]
+    [Index(nameof(GameUniqueId), IsUnique = true)]
     [Index(nameof(ExePath), IsUnique = false)]
     [Index(nameof(UploadTime), nameof(GameName), IsUnique = false)]
     public class GameInfo
@@ -12,7 +12,7 @@ namespace GameManager.DB.Models
         public int Id { get; set; }
 
         [Description("Unique ID for each game , used to identify the game")]
-        public Guid GameUniqeId { get; set; } = Guid.NewGuid();
+        public Guid GameUniqueId { get; set; } = Guid.NewGuid();
 
         [Description("Fetch ID , used to fetch info from the internet")]
         [MaxLength(100)]
@@ -67,5 +67,9 @@ namespace GameManager.DB.Models
         public List<Tag> Tags { get; set; } = [];
 
         public List<string> ScreenShots { get; set; } = [];
+
+        [MaxLength(200)]
+        [Description("Background image url")]
+        public string? BackgroundImageUrl { get; set; } = string.Empty;
     }
 }

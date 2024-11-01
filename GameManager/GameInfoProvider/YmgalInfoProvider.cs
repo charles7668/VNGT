@@ -605,8 +605,8 @@ namespace GameManager.GameInfoProvider
                 string name = fetchStaff.Name ?? "";
                 if (string.IsNullOrEmpty(name))
                     continue;
-                int roleId = roleMapping[fetchStaff.JobName!].Id;
-                Staff? staff = await staffService.GetStaffAsync(x => x.Name == name && x.StaffRoleId == roleId);
+                StaffRoleEnum roleId = roleMapping[fetchStaff.JobName!].Id;
+                Staff? staff = await staffService.GetStaffAsync(x => x.Name == name && x.StaffRole.Id == roleId);
                 if (staff != null)
                     result.Add(staff);
                 else

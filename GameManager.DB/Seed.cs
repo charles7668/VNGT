@@ -1,4 +1,5 @@
-﻿using GameManager.DB.Models;
+﻿using GameManager.DB.Enums;
+using GameManager.DB.Models;
 
 namespace GameManager.DB
 {
@@ -10,37 +11,37 @@ namespace GameManager.DB
             [
                 new StaffRole
                 {
-                    Id = 99,
+                    Id = StaffRoleEnum.STAFF,
                     RoleName = "staff"
                 },
                 new StaffRole
                 {
-                    Id = 1,
+                    Id = StaffRoleEnum.SCENARIO,
                     RoleName = "scenario"
                 },
                 new StaffRole
                 {
-                    Id = 2,
+                    Id = StaffRoleEnum.DIRECTOR,
                     RoleName = "director"
                 },
                 new StaffRole
                 {
-                    Id = 3,
+                    Id = StaffRoleEnum.CHARACTER_DESIGN,
                     RoleName = "character design"
                 },
                 new StaffRole
                 {
-                    Id = 4,
+                    Id = StaffRoleEnum.ARTIST,
                     RoleName = "artist"
                 },
                 new StaffRole
                 {
-                    Id = 5,
+                    Id = StaffRoleEnum.MUSIC,
                     RoleName = "music"
                 },
                 new StaffRole
                 {
-                    Id = 6,
+                    Id = StaffRoleEnum.SONG,
                     RoleName = "song"
                 }
             ];

@@ -1,4 +1,5 @@
 ﻿using GameManager.DB;
+using GameManager.DB.Enums;
 using GameManager.DB.Models;
 using GameManager.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -119,10 +120,10 @@ namespace GameManager.Database
             if (gameInfo == null)
                 return;
             gameInfo.Staffs.RemoveAll(_ => true);
-            Dictionary<int, HashSet<string>> cache = new();
+            Dictionary<StaffRoleEnum, HashSet<string>> cache = new();
             foreach (Staff staff in staffs)
             {
-                int staffId = staff.StaffRole.Id;
+                StaffRoleEnum staffId = staff.StaffRole.Id;
                 string staffName = staff.Name;
                 if (cache.TryGetValue(staffId, out HashSet<string>? secondHash) &&
                     secondHash.Contains(staffName))

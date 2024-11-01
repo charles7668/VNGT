@@ -1,6 +1,5 @@
 ﻿using GameManager.DB.Enums;
 using GameManager.DB.Models;
-using GameManager.Enums;
 using GameManager.Services;
 using Helper.Web;
 using Microsoft.Extensions.Logging;
@@ -281,7 +280,7 @@ namespace GameManager.GameInfoProvider
                 string name = fetchStaff.Original ?? fetchStaff.Name ?? "";
                 if (string.IsNullOrEmpty(name))
                     continue;
-                int roleId = roleMapping[fetchStaff.Role!].Id;
+                StaffRoleEnum roleId = roleMapping[fetchStaff.Role!].Id;
                 Staff? staff = await staffService.GetStaffAsync(x => x.Name == name && x.StaffRoleId == roleId);
                 if (staff != null)
                     result.Add(staff);

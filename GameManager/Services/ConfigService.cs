@@ -140,8 +140,8 @@ namespace GameManager.Services
             info.Tags = [];
             do
             {
-                info.GameUniqeId = Guid.NewGuid();
-                if (await unitOfWork.GameInfoRepository.AnyAsync(x => x.GameUniqeId == info.GameUniqeId))
+                info.GameUniqueId = Guid.NewGuid();
+                if (await unitOfWork.GameInfoRepository.AnyAsync(x => x.GameUniqueId == info.GameUniqueId))
                     continue;
                 break;
             } while (true);

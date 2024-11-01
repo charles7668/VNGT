@@ -1,5 +1,5 @@
-﻿using GameManager.DB.Models;
-using GameManager.Enums;
+﻿using GameManager.DB.Enums;
+using GameManager.DB.Models;
 using System.Linq.Expressions;
 
 namespace GameManager.Services

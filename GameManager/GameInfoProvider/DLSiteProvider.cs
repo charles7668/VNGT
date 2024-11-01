@@ -1,6 +1,5 @@
 ﻿using GameManager.DB.Enums;
 using GameManager.DB.Models;
-using GameManager.Enums;
 using GameManager.Services;
 using Helper.Web;
 using HtmlAgilityPack;

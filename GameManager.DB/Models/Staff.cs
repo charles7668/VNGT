@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using GameManager.DB.Enums;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace GameManager.DB.Models
@@ -11,7 +12,7 @@ namespace GameManager.DB.Models
     {
         public int Id { get; set; }
 
-        public int StaffRoleId { get; set; }
+        public StaffRoleEnum StaffRoleId { get; set; }
         public StaffRole StaffRole { get; set; } = null!;
 
         [MaxLength(100)]
