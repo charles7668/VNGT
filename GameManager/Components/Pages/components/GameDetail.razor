@@ -13,24 +13,24 @@
         <a onclick="@OnReturnClick" class="back-button">← Back</a>
         <div class="game-details-header">
             <div class="game-background">
-                <img src="@GameInfoViewModel.DisplayBackgroundImage" onerror="this.style.display='none';" alt="game screenshot">
+                <img src="@GameInfoVo.DisplayBackgroundImage" onerror="this.style.display='none';" alt="game screenshot">
             </div>
             <div class="game-status-container">
                 <div class="d-flex flex-row">
                     <div class="game-thumbnail">
-                        <img src="@GameInfoViewModel.DisplayCoverImage" alt="game cover">
+                        <img src="@GameInfoVo.DisplayCoverImage" alt="game cover">
                     </div>
                     <div class="flex-grow-1 pa-1">
-                        <h1 class="game-title">@GameInfoViewModel.OriginalName</h1>
-                        @if (!string.IsNullOrWhiteSpace(GameInfoViewModel.ChineseName))
+                        <h1 class="game-title">@GameInfoVo.OriginalName</h1>
+                        @if (!string.IsNullOrWhiteSpace(GameInfoVo.ChineseName))
                         {
-                            <h3 class="game-subtitle">@GameInfoViewModel.ChineseName</h3>
+                            <h3 class="game-subtitle">@GameInfoVo.ChineseName</h3>
                         }
-                        @if (!string.IsNullOrWhiteSpace(GameInfoViewModel.EnglishName))
+                        @if (!string.IsNullOrWhiteSpace(GameInfoVo.EnglishName))
                         {
-                            <h3 class="game-subtitle">@GameInfoViewModel.EnglishName</h3>
+                            <h3 class="game-subtitle">@GameInfoVo.EnglishName</h3>
                         }
-                        <button class="play-button">Start</button>
+                        <button class="play-button" @onclick="OnStartGameClick">Start</button>
                     </div>
                 </div>
                 <div class="game-status">
@@ -42,7 +42,7 @@
                     <div class="status-item">
                         <span class="icon">📅</span>
                         <span>Last Play Time</span>
-                        <span class="status">@GameInfoViewModel.LastPlayed</span>
+                        <span class="status">@GameInfoVo.LastPlayed</span>
                     </div>
                     <MudSpacer/>
                     <div class="button-container">
@@ -58,7 +58,7 @@
                     <input type="radio" id="radio-detail" name="tab" checked="@(_selectedTab == "info")" onclick="@(() => OnTabChangeClick("info"))">
                     <label for="radio-detail">Detail</label>
 
-                    @if (GameInfoViewModel.HasCharacters)
+                    @if (GameInfoVo.HasCharacters)
                     {
                         <input type="radio" id="radio-character" name="tab" checked="@(_selectedTab == "character")" onclick="@(() => OnTabChangeClick("character"))">
                         <label for="radio-character">Character</label>

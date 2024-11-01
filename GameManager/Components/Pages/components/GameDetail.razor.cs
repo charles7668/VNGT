@@ -1,4 +1,6 @@
 ﻿using GameManager.DB.Models;
+using GameManager.Models;
+using GameManager.Models.LaunchProgramStrategies;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;
@@ -6,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using MudBlazor;
+using System.Diagnostics;
 using ArgumentException = System.ArgumentException;
 
 namespace GameManager.Components.Pages.components
@@ -20,12 +23,15 @@ namespace GameManager.Components.Pages.components
         private IImageService ImageService { get; set; } = null!;
 
         [Inject]
+        private IAppPathService AppPathService { get; set; } = null!;
+
+        [Inject]
         private IConfigService ConfigService { get; set; } = null!;
 
         [Parameter]
         public int InitGameId { get; set; }
 
-        private ViewModel GameInfoViewModel { get; set; } = null!;
+        private ViewModel GameInfoVo { get; set; } = null!;
 
         private bool IsLoading { get; set; } = true;
 
@@ -45,6 +51,9 @@ namespace GameManager.Components.Pages.components
         private ILogger<GameDetail> Logger { get; set; } = null!;
 
         private Task LoadingTask { get; set; } = Task.CompletedTask;
+
+        [Inject]
+        private ISnackbar Snackbar { get; set; } = null!;
 
         protected override Task OnAfterRenderAsync(bool firstRender)
         {
@@ -81,7 +90,7 @@ namespace GameManager.Components.Pages.components
                         Name = x
                     }).ToList();
                     _gameInfo = gameInfo;
-                    GameInfoViewModel = new ViewModel(ImageService)
+                    GameInfoVo = new ViewModel(ImageService)
                     {
                         OriginalName = gameInfo.GameName,
                         ChineseName = gameInfo.GameChineseName,
@@ -199,6 +208,76 @@ namespace GameManager.Components.Pages.components
             InvokeAsync(StateHasChanged);
         }
 
+        private async Task OnStartGameClick()
+        {
+            try
+            {
+                string? exePath = _gameInfo.ExePath;
+                if (string.IsNullOrWhiteSpace(exePath) || !Directory.Exists(_gameInfo.ExePath))
+                {
+                    throw new FileNotFoundException(Resources.Message_NoExecutionFile);
+                }
+
+                string? exeFile = _gameInfo.ExeFile;
+
+                if (exeFile is null or "Not Set")
+                {
+                    throw new FileNotFoundException(Resources.Message_PleaseSetExeFirst);
+                }
+
+                Logger.LogInformation("Start game click : {GameName}", _gameInfo.GameName);
+
+                IStrategy launchStrategy = LaunchProgramStrategyFactory.Create(_gameInfo, TryStartVNGTTranslator);
+                await launchStrategy.ExecuteAsync();
+                _gameInfo.LastPlayed = DateTime.Now;
+                GameInfoVo.LastPlayed = _gameInfo.LastPlayed?.ToString("yyyy-MM-dd") ?? "Never";
+            }
+            catch (FileNotFoundException e)
+            {
+                Snackbar.Add(e.Message, Severity.Warning);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError("Error : {Message}", e.ToString());
+                Snackbar.Add(e.Message, Severity.Error);
+            }
+            finally
+            {
+                Logger.LogInformation("Finish start game click : {GameName}", _gameInfo.GameName);
+            }
+
+            return;
+
+            void TryStartVNGTTranslator(int pid)
+            {
+                if (_gameInfo.LaunchOption is not { RunWithVNGTTranslator: true })
+                    return;
+                if (!File.Exists(Path.Combine(AppPathService.ToolsDirPath,
+                        "VNGTTranslator/VNGTTranslator.exe")))
+                {
+                    Snackbar.Add($"{Resources.Message_VNGTTranslatorNotInstalled}");
+                    return;
+                }
+
+                _ = Task.Run(() =>
+                {
+                    var translatorInfo = new ProcessStartInfo
+                    {
+                        FileName = Path.Combine(AppPathService.ToolsDirPath,
+                            "VNGTTranslator/VNGTTranslator.exe"),
+                        Arguments = $"{pid}"
+                    };
+                    if (_gameInfo.LaunchOption is { IsVNGTTranslatorNeedAdmin: true })
+                    {
+                        translatorInfo.UseShellExecute = true;
+                        translatorInfo.Verb = "runas";
+                    }
+
+                    Process.Start(translatorInfo);
+                });
+            }
+        }
+
         private class ViewModel(IImageService imageService)
         {
             public string? OriginalName { get; init; }
@@ -209,7 +288,7 @@ namespace GameManager.Components.Pages.components
             public string DisplayCoverImage => imageService.UriResolve(CoverImage);
             public string? BackgroundImage { get; init; }
             public List<string> ScreenShots { get; init; } = [];
-            public string LastPlayed { get; init; } = "Never";
+            public string LastPlayed { get; set; } = "Never";
             public bool HasCharacters { get; init; }
         }
     }
