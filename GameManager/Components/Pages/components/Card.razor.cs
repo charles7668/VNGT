@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
 using MudBlazor.Utilities;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Web;
@@ -145,7 +144,7 @@ namespace GameManager.Components.Pages.components
             {
                 { x => x.Model, inputModel }
             };
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>(
+            IDialogReference dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>(
                 Resources.Dialog_Title_EditGameInfo,
                 parameters,
                 new DialogOptions
@@ -155,7 +154,7 @@ namespace GameManager.Components.Pages.components
                     BackdropClick = false
                 });
             DialogResult? dialogResult = await dialogReference.Result;
-            if (dialogResult.Canceled)
+            if (dialogResult is null or { Canceled: true })
                 return;
             if (dialogResult.Data is not DialogGameInfoEdit.FormModel resultModel)
                 return;

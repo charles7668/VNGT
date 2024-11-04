@@ -278,6 +278,26 @@ namespace GameManager.Components.Pages.components
             }
         }
 
+        private void OnOpenInExplorerClick()
+        {
+            Logger.LogInformation("Open in explorer click");
+            if (string.IsNullOrWhiteSpace(_gameInfo.ExePath))
+            {
+                Snackbar.Add(Resources.Message_DirectoryNotExist, Severity.Warning);
+                return;
+            }
+
+            try
+            {
+                Process.Start("explorer.exe", _gameInfo.ExePath);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error : {Message}", ex.ToString());
+                DialogService.ShowMessageBox("Error", ex.Message, cancelText: Resources.Dialog_Button_Cancel);
+            }
+        }
+
         private class ViewModel(IImageService imageService)
         {
             public string? OriginalName { get; init; }

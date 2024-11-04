@@ -49,22 +49,34 @@
                         <button class="icon-button" onclick="@(async () => { await OnEditGameInfo(); })">
                             <MudIcon Icon="@Icons.Material.Filled.Settings"/>
                         </button>
-                        <button class="icon-button">
-                            <MudIcon Icon="@Icons.Material.Filled.MoreHoriz"></MudIcon>
-                        </button>
+                        <MudMenu AnchorOrigin="Origin.BottomRight">
+                            <ActivatorContent>
+                                <button class="icon-button">
+                                    <MudIcon Icon="@Icons.Material.Filled.MoreHoriz"></MudIcon>
+                                </button>
+                            </ActivatorContent>
+                            <ChildContent>
+                                <MudMenuItem Class="icon-menu-item" OnClick="OnOpenInExplorerClick">
+                                    Open in Explorer
+                                </MudMenuItem>
+                            </ChildContent>
+                        </MudMenu>
                     </div>
                 </div>
                 <div class="tabs">
-                    <input type="radio" id="radio-detail" name="tab" checked="@(_selectedTab == "info")" onclick="@(() => OnTabChangeClick("info"))">
+                    <input type="radio" id="radio-detail" name="tab" checked="@(_selectedTab == "info")"
+                           onclick="@(() => OnTabChangeClick("info"))">
                     <label for="radio-detail">Detail</label>
 
                     @if (GameInfoVo.HasCharacters)
                     {
-                        <input type="radio" id="radio-character" name="tab" checked="@(_selectedTab == "character")" onclick="@(() => OnTabChangeClick("character"))">
+                        <input type="radio" id="radio-character" name="tab" checked="@(_selectedTab == "character")"
+                               onclick="@(() => OnTabChangeClick("character"))">
                         <label for="radio-character">Character</label>
                     }
 
-                    <input type="radio" id="radio-screenshots" name="tab" checked="@(_selectedTab == "screenshots")" onclick="@(() => OnTabChangeClick("screenshots"))">
+                    <input type="radio" id="radio-screenshots" name="tab" checked="@(_selectedTab == "screenshots")"
+                           onclick="@(() => OnTabChangeClick("screenshots"))">
                     <label for="radio-screenshots">Screenshots</label>
                 </div>
             </div>
@@ -85,3 +97,18 @@
         }
     }
 </div>
+
+<style>
+    .icon-menu-item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        min-width: 100px;
+        background-color: #3c4f5e;
+    }
+
+    .icon-menu-item:hover {
+        background-color: #2e3d4b;
+    }
+</style>
