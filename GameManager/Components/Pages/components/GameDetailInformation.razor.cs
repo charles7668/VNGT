@@ -20,51 +20,56 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;
 
-        protected override Task OnInitializedAsync()
+        protected override Task OnAfterRenderAsync(bool firstRender)
         {
-            Task.Run(() =>
+            if (firstRender)
             {
-                GameInfoViewModel.Introduction = GameInfo.Description ?? "";
-                GameInfoViewModel.OriginalGameName = GameInfo.GameName ?? "";
-                GameInfoViewModel.ChineseGameName = GameInfo.GameChineseName ?? "";
-                GameInfoViewModel.EnglishGameName = GameInfo.GameEnglishName ?? "";
-                GameInfoViewModel.ReleaseDate = GameInfo.DateTime?.ToString("yyyy-MM-dd") ??
-                                                DateTime.MinValue.ToString("yyyy-MM-dd");
-                GameInfoViewModel.Developer = GameInfo.Developer ?? Resources.Common_Unknown;
-                GameInfoViewModel.Staffs = GameInfo.Staffs
-                    .Where(x => StaffService.GetStaffRoleEnumByName(x.StaffRole.RoleName).Result != StaffRoleEnum.STAFF)
-                    .Select(
-                        x => new StaffViewModel
-                        {
-                            Role = GetRoleName(x.StaffRole.RoleName),
-                            Name = x.Name
-                        }).OrderBy(x => x.Role).ToList();
-
-                GameInfoViewModel.RelatedSites = GameInfo.RelatedSites.Select(x => new RelatedSiteViewModel
+                Task.Run(() =>
                 {
-                    Name = x.Name,
-                    Url = x.Url
-                }).ToList();
+                    GameInfoViewModel.Introduction = GameInfo.Description ?? "";
+                    GameInfoViewModel.OriginalGameName = GameInfo.GameName ?? "";
+                    GameInfoViewModel.ChineseGameName = GameInfo.GameChineseName ?? "";
+                    GameInfoViewModel.EnglishGameName = GameInfo.GameEnglishName ?? "";
+                    GameInfoViewModel.ReleaseDate = GameInfo.DateTime?.ToString("yyyy-MM-dd") ??
+                                                    DateTime.MinValue.ToString("yyyy-MM-dd");
+                    GameInfoViewModel.Developer = GameInfo.Developer ?? Resources.Common_Unknown;
+                    GameInfoViewModel.Staffs = GameInfo.Staffs
+                        .Where(x => StaffService.GetStaffRoleEnumByName(x.StaffRole.RoleName).Result !=
+                                    StaffRoleEnum.STAFF)
+                        .Select(
+                            x => new StaffViewModel
+                            {
+                                Role = GetRoleName(x.StaffRole.RoleName),
+                                Name = x.Name
+                            }).OrderBy(x => x.Role).ToList();
 
-                GameInfoViewModel.ReleaseInfoViewModels = GameInfo.ReleaseInfos.Select(x => new ReleaseInfoViewModel
-                {
-                    ReleaseName = x.ReleaseName,
-                    ReleaseLanguage = x.ReleaseLanguage,
-                    ReleaseDate = x.ReleaseDate == DateTime.MinValue
-                        ? Resources.Common_Unknown
-                        : x.ReleaseDate.ToString("yyyy-MM-dd"),
-                    Platforms = x.Platforms.Select(GetPlatformString).ToList(),
-                    AgeRating = "R" + x.AgeRating + "+",
-                    ExternalLinks = x.ExternalLinks.Select(y => new ExternalLinkViewModel
+                    GameInfoViewModel.RelatedSites = GameInfo.RelatedSites.Select(x => new RelatedSiteViewModel
                     {
-                        Url = y.Url,
-                        Label = y.Label
-                    }).ToList()
-                }).ToList();
-                GameInfoViewModel.Tags = GameInfo.Tags.Select(x => x.Name).ToList();
-            });
-            _ = base.OnInitializedAsync();
-            return Task.CompletedTask;
+                        Name = x.Name,
+                        Url = x.Url
+                    }).ToList();
+
+                    GameInfoViewModel.ReleaseInfoViewModels = GameInfo.ReleaseInfos.Select(x => new ReleaseInfoViewModel
+                    {
+                        ReleaseName = x.ReleaseName,
+                        ReleaseLanguage = x.ReleaseLanguage,
+                        ReleaseDate = x.ReleaseDate == DateTime.MinValue
+                            ? Resources.Common_Unknown
+                            : x.ReleaseDate.ToString("yyyy-MM-dd"),
+                        Platforms = x.Platforms.Select(GetPlatformString).ToList(),
+                        AgeRating = "R" + x.AgeRating + "+",
+                        ExternalLinks = x.ExternalLinks.Select(y => new ExternalLinkViewModel
+                        {
+                            Url = y.Url,
+                            Label = y.Label
+                        }).ToList()
+                    }).ToList();
+                    GameInfoViewModel.Tags = GameInfo.Tags.Select(x => x.Name).ToList();
+                    _ = InvokeAsync(StateHasChanged);
+                });
+            }
+
+            return base.OnAfterRenderAsync(firstRender);
         }
 
         private string GetPlatformString(PlatformEnum platformEnum)
