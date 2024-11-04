@@ -1,5 +1,6 @@
 ﻿using GameManager.DB.Enums;
 using GameManager.DB.Models;
+using GameManager.Properties;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -29,7 +30,7 @@ namespace GameManager.Components.Pages.components
                 GameInfoViewModel.EnglishGameName = GameInfo.GameEnglishName ?? "";
                 GameInfoViewModel.ReleaseDate = GameInfo.DateTime?.ToString("yyyy-MM-dd") ??
                                                 DateTime.MinValue.ToString("yyyy-MM-dd");
-                GameInfoViewModel.Developer = GameInfo.Developer ?? "Unknown";
+                GameInfoViewModel.Developer = GameInfo.Developer ?? Resources.Common_Unknown;
                 GameInfoViewModel.Staffs = GameInfo.Staffs
                     .Where(x => StaffService.GetStaffRoleEnumByName(x.StaffRole.RoleName).Result != StaffRoleEnum.STAFF)
                     .Select(
@@ -49,7 +50,9 @@ namespace GameManager.Components.Pages.components
                 {
                     ReleaseName = x.ReleaseName,
                     ReleaseLanguage = x.ReleaseLanguage,
-                    ReleaseDate = x.ReleaseDate == DateTime.MinValue ? "Unknown" : x.ReleaseDate.ToString("yyyy-MM-dd"),
+                    ReleaseDate = x.ReleaseDate == DateTime.MinValue
+                        ? Resources.Common_Unknown
+                        : x.ReleaseDate.ToString("yyyy-MM-dd"),
                     Platforms = x.Platforms.Select(GetPlatformString).ToList(),
                     AgeRating = "R" + x.AgeRating + "+",
                     ExternalLinks = x.ExternalLinks.Select(y => new ExternalLinkViewModel
@@ -76,7 +79,7 @@ namespace GameManager.Components.Pages.components
                 PlatformEnum.NDS => "NDS",
                 PlatformEnum.VNDS => "VNDS",
                 PlatformEnum.PSP => "PSP",
-                _ => "Unknown"
+                _ => Resources.Common_Unknown
             };
         }
 
@@ -85,14 +88,14 @@ namespace GameManager.Components.Pages.components
             StaffRoleEnum roleEnum = StaffService.GetStaffRoleEnumByName(roleNameInDb).Result;
             return roleEnum switch
             {
-                StaffRoleEnum.SCENARIO => "Scenario",
-                StaffRoleEnum.SONG => "Song",
-                StaffRoleEnum.MUSIC => "Music",
-                StaffRoleEnum.ARTIST => "Artist",
-                StaffRoleEnum.CHARACTER_DESIGN => "Character Design",
-                StaffRoleEnum.DIRECTOR => "Director",
-                StaffRoleEnum.STAFF => "Staff",
-                _ => "Unknown"
+                StaffRoleEnum.SCENARIO => Resources.DetailPage_Staff_Scenario,
+                StaffRoleEnum.SONG => Resources.DetailPage_Staff_Song,
+                StaffRoleEnum.MUSIC => Resources.DetailPage_Staff_Music,
+                StaffRoleEnum.ARTIST => Resources.DetailPage_Staff_Artist,
+                StaffRoleEnum.CHARACTER_DESIGN => Resources.DetailPage_Staff_CharacterDesign,
+                StaffRoleEnum.DIRECTOR => Resources.DetailPage_Staff_Director,
+                StaffRoleEnum.STAFF => Resources.DetailPage_Staff_Staff,
+                _ => Resources.Common_Unknown
             };
         }
 
@@ -153,7 +156,7 @@ namespace GameManager.Components.Pages.components
 
             public string ReleaseLanguage { get; set; } = string.Empty;
 
-            public string ReleaseDate { get; set; } = "Unknown";
+            public string ReleaseDate { get; set; } = Resources.Common_Unknown;
 
             public List<string> Platforms { get; set; } = [];
 

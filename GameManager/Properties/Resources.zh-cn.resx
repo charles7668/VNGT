@@ -144,6 +144,117 @@
   <data name="Card.SearchGuide" xml:space="preserve">
     <value>搜寻攻略</value>
   </data>
+  <data name="Common.Backup" xml:space="preserve">
+    <value>备份</value>
+  </data>
+  <data name="Common.Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Common.Disabled" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="Common.Fetch" xml:space="preserve">
+    <value>撷取</value>
+  </data>
+  <data name="Common.Restore" xml:space="preserve">
+    <value>还原</value>
+  </data>
+  <data name="Common.Unknown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="DetailPage.Back" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="DetailPage.Character.Age" xml:space="preserve">
+    <value>年龄</value>
+  </data>
+  <data name="DetailPage.Character.Birthday" xml:space="preserve">
+    <value>生日</value>
+  </data>
+  <data name="DetailPage.Character.BloodType" xml:space="preserve">
+    <value>血型</value>
+  </data>
+  <data name="DetailPage.Character.Gender" xml:space="preserve">
+    <value>性别</value>
+  </data>
+  <data name="DetailPage.Character.Information" xml:space="preserve">
+    <value>角色资讯</value>
+  </data>
+  <data name="DetailPage.Inforamtion.Tags" xml:space="preserve">
+    <value>标签</value>
+  </data>
+  <data name="DetailPage.Information.GameInformation" xml:space="preserve">
+    <value>游戏资讯</value>
+  </data>
+  <data name="DetailPage.Information.GameIntroduction" xml:space="preserve">
+    <value>游戏介绍</value>
+  </data>
+  <data name="DetailPage.Information.Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="DetailPage.Information.RelatedSites" xml:space="preserve">
+    <value>相关网站</value>
+  </data>
+  <data name="DetailPage.Information.ReleaseDate" xml:space="preserve">
+    <value>发行日期</value>
+  </data>
+  <data name="DetailPage.Information.Releases" xml:space="preserve">
+    <value>发行列表</value>
+  </data>
+  <data name="DetailPage.Information.Staff" xml:space="preserve">
+    <value>工作人员</value>
+  </data>
+  <data name="DetailPage.LastPlayTime" xml:space="preserve">
+    <value>最后游玩时间</value>
+  </data>
+  <data name="DetailPage.OpenInExplorer" xml:space="preserve">
+    <value>档案管理员开启</value>
+  </data>
+  <data name="DetailPage.OpenSaveFilePath" xml:space="preserve">
+    <value>打开存档资料夹</value>
+  </data>
+  <data name="DetailPage.Screenshots.AddFromUrl" xml:space="preserve">
+    <value>从网址加入</value>
+  </data>
+  <data name="DetailPage.Screenshots.SetToBackground" xml:space="preserve">
+    <value>设为背景</value>
+  </data>
+  <data name="DetailPage.SearchGuide" xml:space="preserve">
+    <value>搜寻攻略</value>
+  </data>
+  <data name="DetailPage.Staff.Artist" xml:space="preserve">
+    <value>画师</value>
+  </data>
+  <data name="DetailPage.Staff.CharacterDesign" xml:space="preserve">
+    <value>角色设计</value>
+  </data>
+  <data name="DetailPage.Staff.Director" xml:space="preserve">
+    <value>导演</value>
+  </data>
+  <data name="DetailPage.Staff.Music" xml:space="preserve">
+    <value>音乐</value>
+  </data>
+  <data name="DetailPage.Staff.Scenario" xml:space="preserve">
+    <value>脚本</value>
+  </data>
+  <data name="DetailPage.Staff.Song" xml:space="preserve">
+    <value>歌手</value>
+  </data>
+  <data name="DetailPage.Staff.Staff" xml:space="preserve">
+    <value>工作人员</value>
+  </data>
+  <data name="DetailPage.Tab.Character" xml:space="preserve">
+    <value>角色资讯</value>
+  </data>
+  <data name="DetailPage.Tab.Detail" xml:space="preserve">
+    <value>详细资讯</value>
+  </data>
+  <data name="DetailPage.Tab.SaveManage" xml:space="preserve">
+    <value>存档管理</value>
+  </data>
+  <data name="DetailPage.Tab.Screenshots" xml:space="preserve">
+    <value>游戏截图</value>
+  </data>
   <data name="Dialog.Button.Cancel" xml:space="preserve">
     <value>取消</value>
   </data>
@@ -281,6 +392,15 @@
   </data>
   <data name="Message.DirectoryNotExist" xml:space="preserve">
     <value>资料夹不存在</value>
+  </data>
+  <data name="Message.FailedToAddScreenshots" xml:space="preserve">
+    <value>加入游戏截图失败</value>
+  </data>
+  <data name="Message.FailedToRemoveScreenshots" xml:space="preserve">
+    <value>删除游戏截图失败</value>
+  </data>
+  <data name="Message.FailedToUpdateBackgroundImage" xml:space="preserve">
+    <value>设定背景失败</value>
   </data>
   <data name="Message.LENotFound" xml:space="preserve">
     <value>未找到 Locale Emulator</value>

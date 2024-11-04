@@ -103,7 +103,7 @@ namespace GameManager.Components.Pages.components
             catch (Exception e)
             {
                 Logger.LogError(e, "Failed to update background image");
-                Snackbar.Add("Failed to update background image", Severity.Error);
+                Snackbar.Add(Resources.Message_FailedToUpdateBackgroundImage, Severity.Error);
             }
         }
 
@@ -124,7 +124,7 @@ namespace GameManager.Components.Pages.components
             catch (Exception e)
             {
                 Logger.LogError(e, "Failed to add screenshots");
-                Snackbar.Add("Failed to add screenshots", Severity.Error);
+                Snackbar.Add(Resources.Message_FailedToAddScreenshots, Severity.Error);
             }
         }
 
@@ -160,7 +160,7 @@ namespace GameManager.Components.Pages.components
             catch (Exception e)
             {
                 Logger.LogError(e, "Failed to remove screenshot");
-                Snackbar.Add("Failed to remove screenshot", Severity.Error);
+                Snackbar.Add(Resources.Message_FailedToRemoveScreenshots, Severity.Error);
             }
         }
 

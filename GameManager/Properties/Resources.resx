@@ -144,6 +144,117 @@
   <data name="Card.SearchGuide" xml:space="preserve">
     <value>Search Guide</value>
   </data>
+  <data name="Common.Backup" xml:space="preserve">
+    <value>Backup</value>
+  </data>
+  <data name="Common.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Common.Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="Common.Fetch" xml:space="preserve">
+    <value>Fetch</value>
+  </data>
+  <data name="Common.Restore" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="Common.Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="DetailPage.Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="DetailPage.Character.Age" xml:space="preserve">
+    <value>Age</value>
+  </data>
+  <data name="DetailPage.Character.Birthday" xml:space="preserve">
+    <value>Birthday</value>
+  </data>
+  <data name="DetailPage.Character.BloodType" xml:space="preserve">
+    <value>Blood Type</value>
+  </data>
+  <data name="DetailPage.Character.Gender" xml:space="preserve">
+    <value>Gender</value>
+  </data>
+  <data name="DetailPage.Character.Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="DetailPage.Inforamtion.Tags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="DetailPage.Information.GameInformation" xml:space="preserve">
+    <value>Game Information</value>
+  </data>
+  <data name="DetailPage.Information.GameIntroduction" xml:space="preserve">
+    <value>Game Introduction</value>
+  </data>
+  <data name="DetailPage.Information.Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="DetailPage.Information.RelatedSites" xml:space="preserve">
+    <value>Related Sites</value>
+  </data>
+  <data name="DetailPage.Information.ReleaseDate" xml:space="preserve">
+    <value>Release Date</value>
+  </data>
+  <data name="DetailPage.Information.Releases" xml:space="preserve">
+    <value>Releases</value>
+  </data>
+  <data name="DetailPage.Information.Staff" xml:space="preserve">
+    <value>Staff</value>
+  </data>
+  <data name="DetailPage.LastPlayTime" xml:space="preserve">
+    <value>Last Play Time`</value>
+  </data>
+  <data name="DetailPage.OpenInExplorer" xml:space="preserve">
+    <value>Open in Explorer</value>
+  </data>
+  <data name="DetailPage.OpenSaveFilePath" xml:space="preserve">
+    <value>Open Save File Directory</value>
+  </data>
+  <data name="DetailPage.Screenshots.AddFromUrl" xml:space="preserve">
+    <value>Add From Urls</value>
+  </data>
+  <data name="DetailPage.Screenshots.SetToBackground" xml:space="preserve">
+    <value>Set To Background</value>
+  </data>
+  <data name="DetailPage.SearchGuide" xml:space="preserve">
+    <value>Search Guide</value>
+  </data>
+  <data name="DetailPage.Staff.Artist" xml:space="preserve">
+    <value>Artist</value>
+  </data>
+  <data name="DetailPage.Staff.CharacterDesign" xml:space="preserve">
+    <value>Character Design</value>
+  </data>
+  <data name="DetailPage.Staff.Director" xml:space="preserve">
+    <value>Director</value>
+  </data>
+  <data name="DetailPage.Staff.Music" xml:space="preserve">
+    <value>Music</value>
+  </data>
+  <data name="DetailPage.Staff.Scenario" xml:space="preserve">
+    <value>Scenario</value>
+  </data>
+  <data name="DetailPage.Staff.Song" xml:space="preserve">
+    <value>Song</value>
+  </data>
+  <data name="DetailPage.Staff.Staff" xml:space="preserve">
+    <value>Staff</value>
+  </data>
+  <data name="DetailPage.Tab.Character" xml:space="preserve">
+    <value>Character</value>
+  </data>
+  <data name="DetailPage.Tab.Detail" xml:space="preserve">
+    <value>Detail</value>
+  </data>
+  <data name="DetailPage.Tab.SaveManage" xml:space="preserve">
+    <value>Save Manage</value>
+  </data>
+  <data name="DetailPage.Tab.Screenshots" xml:space="preserve">
+    <value>Screenshots</value>
+  </data>
   <data name="Dialog.Button.Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -281,6 +392,15 @@
   </data>
   <data name="Message.DirectoryNotExist" xml:space="preserve">
     <value>Directory does not exist</value>
+  </data>
+  <data name="Message.FailedToAddScreenshots" xml:space="preserve">
+    <value>Failed to add screenshots</value>
+  </data>
+  <data name="Message.FailedToRemoveScreenshots" xml:space="preserve">
+    <value>Failed to remove screenshots</value>
+  </data>
+  <data name="Message.FailedToUpdateBackgroundImage" xml:space="preserve">
+    <value>Failed to update background image</value>
   </data>
   <data name="Message.LENotFound" xml:space="preserve">
     <value>Locale Emulator Not Found</value>

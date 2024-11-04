@@ -3,13 +3,13 @@
         <MudButton Class="game-detail-screenshots-btn"
                    Variant="Variant.Outlined"
                    OnClick="UpdateBackgroundImage">
-            Set As Default Background Image
+            @Resources.DetailPage_Screenshots_SetToBackground
         </MudButton>
         <MudButton Class="game-detail-screenshots-btn"
                    Variant="Variant.Outlined"
                    StartIcon="@Icons.Material.Filled.Add"
                    OnClick="AddScreenshotsByUrl">
-            Add image urls
+            @Resources.DetailPage_Screenshots_AddFromUrl
         </MudButton>
         <MudSpacer/>
         <MudTextField T="string" @bind-Value="_fetchSearchText" Placeholder="SearchText"></MudTextField>
@@ -27,7 +27,7 @@
                        Variant="Variant.Outlined"
                        StartIcon="@Icons.Material.Filled.Download"
                        OnClick="OnFetchButtonClick">
-                Fetch
+                @Resources.Common_Fetch
             </MudButton>
         }
         <MudSelect Label="Source"
@@ -48,7 +48,7 @@
                    Variant="Variant.Outlined"
                    Color="Color.Error"
                    OnClick="RemoveScreenshot">
-            Delete
+            @Resources.Common_Delete
         </MudButton>
     </div>
     @if (IsLoading)

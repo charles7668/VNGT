@@ -10,7 +10,7 @@
     }
     else
     {
-        <a onclick="@OnReturnClick" class="back-button">← Back</a>
+        <a onclick="@OnReturnClick" class="back-button">← @Resources.DetailPage_Back</a>
         <div class="game-details-header">
             <div class="game-background">
                 <img src="@GameInfoVo.DisplayBackgroundImage" onerror="this.style.display='none';" alt="game screenshot">
@@ -37,11 +37,11 @@
                     <div class="status-item">
                         <span class="icon">☁️</span>
                         <span>CloudSync</span>
-                        <span class="status">disabled</span>
+                        <span class="status">@Resources.Common_Disabled</span>
                     </div>
                     <div class="status-item">
                         <span class="icon">📅</span>
-                        <span>Last Play Time</span>
+                        <span>@Resources.DetailPage_LastPlayTime</span>
                         <span class="status">@GameInfoVo.LastPlayed</span>
                     </div>
                     <MudSpacer/>
@@ -57,10 +57,10 @@
                             </ActivatorContent>
                             <ChildContent>
                                 <MudMenuItem Class="icon-menu-item" OnClick="OnOpenInExplorerClick">
-                                    Open in Explorer
+                                    @Resources.DetailPage_OpenInExplorer
                                 </MudMenuItem>
                                 <MudMenuItem Class="icon-menu-item" OnClick="OnOpenSaveFilePathClick">
-                                    Open save file folder
+                                    @Resources.DetailPage_OpenSaveFilePath
                                 </MudMenuItem>
                                 <MudMenuItem Class="sub-menu-item">
                                     <MudMenu Class="h-100 w-100"
@@ -68,7 +68,7 @@
                                              ActivationEvent="MouseEvent.MouseOver">
                                         <ActivatorContent>
                                             <MudMenuItem Class="icon-menu-item">
-                                                Search Guide
+                                                @Resources.DetailPage_SearchGuide
                                             </MudMenuItem>
                                         </ActivatorContent>
                                         <ChildContent>
@@ -88,22 +88,22 @@
                 <div class="tabs">
                     <input type="radio" id="radio-detail" name="tab" checked="@(_selectedTab == "info")"
                            onclick="@(() => OnTabChangeClick("info"))">
-                    <label for="radio-detail">Detail</label>
+                    <label for="radio-detail">@Resources.DetailPage_Tab_Detail</label>
 
                     @if (GameInfoVo.HasCharacters)
                     {
                         <input type="radio" id="radio-character" name="tab" checked="@(_selectedTab == "character")"
                                onclick="@(() => OnTabChangeClick("character"))">
-                        <label for="radio-character">Character</label>
+                        <label for="radio-character">@Resources.DetailPage_Tab_Character</label>
                     }
 
                     <input type="radio" id="radio-screenshots" name="tab" checked="@(_selectedTab == "screenshots")"
                            onclick="@(() => OnTabChangeClick("screenshots"))">
-                    <label for="radio-screenshots">Screenshots</label>
-                    
+                    <label for="radio-screenshots">@Resources.DetailPage_Tab_Screenshots</label>
+
                     <input type="radio" id="radio-save-manager" name="tab" checked="@(_selectedTab == "save-manager")"
                            onclick="@(() => OnTabChangeClick("save-manager"))">
-                    <label for="radio-save-manager">Save Data</label>
+                    <label for="radio-save-manager">@Resources.DetailPage_Tab_SaveManage</label>
                 </div>
             </div>
         </div>

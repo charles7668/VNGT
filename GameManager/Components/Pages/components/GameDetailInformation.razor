@@ -1,19 +1,19 @@
 ﻿<div class="game-content">
     <div class="left-column">
         <section class="game-intro">
-            <h2>Game Introduction</h2>
+            <h2>@Resources.DetailPage_Information_GameIntroduction</h2>
             <p>
                 @GameInfoViewModel.Introduction
             </p>
         </section>
 
         <section class="release-list">
-            <h2>Releases</h2>
+            <h2>@Resources.DetailPage_Information_Releases</h2>
             @foreach (ReleaseInfoViewModel releaseInfo in GameInfoViewModel.ReleaseInfoViewModels)
             {
                 <div class="release-item">
                     <p>@releaseInfo.ReleaseName</p>
-                    <p>@("Release Date：" + releaseInfo.ReleaseDate)　@("Language：" + releaseInfo.ReleaseLanguage)</p>
+                    <p>@(Resources.DetailPage_Information_ReleaseDate + "：" + releaseInfo.ReleaseDate)　@(Resources.DetailPage_Information_Language + "：" + releaseInfo.ReleaseLanguage)</p>
                     <div class="d-flex flex-row">
                         @foreach (string platform in releaseInfo.Platforms)
                         {
@@ -36,7 +36,7 @@
 
     <div class="right-column">
         <section class="game-detail-info">
-            <h3>Game Information</h3>
+            <h3>@Resources.DetailPage_Information_GameInformation</h3>
             <p>@("Original Name : " + GameInfoViewModel.OriginalGameName)</p>
             @if (!string.IsNullOrWhiteSpace(GameInfoViewModel.ChineseGameName))
             {
@@ -51,7 +51,7 @@
         </section>
 
         <section class="related-links">
-            <h3>Related Sites</h3>
+            <h3>@Resources.DetailPage_Information_RelatedSites</h3>
             <ul>
                 @foreach (RelatedSiteViewModel relatedSite in GameInfoViewModel.RelatedSites)
                 {
@@ -63,7 +63,7 @@
         </section>
 
         <section class="staff-info">
-            <h3>STAFF</h3>
+            <h3>@Resources.DetailPage_Information_Staff</h3>
             @foreach (StaffViewModel staffView in GameInfoViewModel.Staffs)
             {
                 <p>@(staffView.Role) : @(staffView.Name)</p>
@@ -71,7 +71,7 @@
         </section>
 
         <section class="tag-container">
-            <h3>Tags</h3>
+            <h3>@Resources.DetailPage_Inforamtion_Tags</h3>
             @foreach (string? tag in GameInfoViewModel.Tags)
             {
                 <MudChip T="string" Variant="Variant.Filled" Color="Color.Success">

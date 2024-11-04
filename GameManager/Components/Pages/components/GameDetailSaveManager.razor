@@ -24,7 +24,7 @@
             {
                 <MudButton StartIcon="@Icons.Material.Filled.Download"
                            Class="backup-btn" OnClick="OnBackupClick">
-                    Backup
+                    @Resources.Common_Backup
                 </MudButton>
             }
             @foreach (string backup in _backupList)
@@ -33,10 +33,10 @@
                     <h4 class="backup-info-text">@backup</h4>
                     <MudSpacer/>
                     <MudButton Class="backup-info-restore-btn" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Upload">
-                        <h5 class="backup-info-text" onclick="@(() => OnRestoreClick(backup))">Restore</h5>
+                        <h5 class="backup-info-text" onclick="@(() => OnRestoreClick(backup))">@Resources.Common_Restore</h5>
                     </MudButton>
                     <MudButton Class="backup-info-delete-btn" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Close">
-                        <h5 class="backup-info-text" onclick="@(() => OnDeleteClick(backup))">Delete</h5>
+                        <h5 class="backup-info-text" onclick="@(() => OnDeleteClick(backup))">@Resources.Common_Delete</h5>
                     </MudButton>
                 </div>
             }
