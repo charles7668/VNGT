@@ -9,11 +9,14 @@
 
 游戏管理工具：轻松管理您的游戏，并集成多种游戏辅助工具。
 
-![主界面](./img/main.png)
+![主界面](./img/main.jpg)
+![screenshot](./img/screenshot1.jpg)
+![screenshot](./img/screenshot2.jpg)
+![screenshot](./img/screenshot3.jpg)
 
 - 自动扫描文件夹以查找游戏
 - 自动下载游戏信息（目前支持：[vndb](https://vndb.org/) , [DLSite](https://www.dlsite.com) , [ymgal](https://www.ymgal.games/developer#%E6%90%9C%E7%B4%A2%E6%B8%B8%E6%88%8F%E5%88%97%E8%A1%A8)）
-- 支持多种语言
+- 支持多种语言 (英文 , 简体中文 , 繁體中文)
 - 集成 Locale Emulator 以支持非日文操作系统
 - 集成[VNGTTranslator](https://github.com/charles7668/VNGTTranslator)以帮助用户翻译游戏文本
 - 存档修改器可以替换存档以解锁游戏 CG 或替换存档
