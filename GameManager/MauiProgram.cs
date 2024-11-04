@@ -4,6 +4,7 @@ using GameManager.DB;
 using GameManager.Extensions;
 using GameManager.Models;
 using GameManager.Models.GameInstallAnalyzer;
+using GameManager.Models.SaveDataManager;
 using GameManager.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -54,6 +55,7 @@ namespace GameManager
 
             builder.Services.AddSingleton<IConfigService, ConfigService>();
             builder.Services.AddSingleton<IStaffService, StaffService>();
+            builder.Services.AddSingleton<ISaveDataManager, SaveDataManager>();
 
 #if DEBUG
             IAppPathService appPathService = new DebugAppPathService();

@@ -1,6 +1,6 @@
 ﻿namespace GameManager.Services
 {
-    internal interface IAppPathService
+    public interface IAppPathService
     {
         string AppDirPath { get; }
         string ConfigDirPath { get; }

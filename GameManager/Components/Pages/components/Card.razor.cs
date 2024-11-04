@@ -1,7 +1,7 @@
 ﻿using GameManager.DB.Models;
-using GameManager.Extractor;
 using GameManager.Models;
 using GameManager.Models.LaunchProgramStrategies;
+using GameManager.Models.SaveDataManager;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;
@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using MudBlazor;
 using MudBlazor.Utilities;
 using System.Diagnostics;
-using System.IO.Compression;
 using System.Web;
 
 namespace GameManager.Components.Pages.components
@@ -45,6 +44,9 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private IImageService ImageService { get; set; } = null!;
+
+        [Inject]
+        private ISaveDataManager SaveDataManager { get; set; } = null!;
 
         [Parameter]
         public GameInfo? GameInfo { get; set; }
@@ -353,126 +355,46 @@ namespace GameManager.Components.Pages.components
             }
         }
 
-        private void OnSaveFileBackupClick(MouseEventArgs obj)
+        private void ShowSnackBarFromResult<T>(Result<T> result)
         {
-            if (GameInfo?.ExePath == null)
+            Severity severity = Severity.Warning;
+            if (result.Exception != null)
+                severity = Severity.Error;
+            Snackbar.Add(result.Message, severity);
+        }
+
+        private async Task OnSaveFileBackupClick(MouseEventArgs obj)
+        {
+            if (GameInfo == null)
                 return;
-            if (string.IsNullOrEmpty(GameInfo.SaveFilePath))
+            Result<string> result = await SaveDataManager.BackupSaveFileAsync(GameInfo);
+            if (!result.Success)
             {
-                Snackbar.Add(Resources.Message_ParameterNotSet, Severity.Warning);
-                return;
-            }
-
-            if (!Directory.Exists(GameInfo.SaveFilePath))
-            {
-                Snackbar.Add(GameInfo.SaveFilePath + Resources.Message_DirectoryNotExist, Severity.Warning);
-                return;
-            }
-
-            string backupDirHash = GameInfo.GameUniqueId.ToString();
-            string backupDir = Path.Combine(AppPathService.SaveFileBackupDirPath, backupDirHash);
-            Directory.CreateDirectory(backupDir);
-            IEnumerable<string> oldFiles = Directory.EnumerateFiles(backupDir, "*.zip")
-                .OrderByDescending(x => x).Skip(9);
-            foreach (string file in oldFiles)
-            {
-                try
-                {
-                    File.Delete(file);
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError("Error to delete old save backup {File} : {Message}", file, e.ToString());
-                }
-            }
-
-            using ZipArchive zipArchive =
-                ZipFile.Open(Path.Combine(backupDir, $"{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.zip"),
-                    ZipArchiveMode.Create);
-            string[] files = Directory.GetFiles(GameInfo.SaveFilePath, "*", SearchOption.AllDirectories);
-
-            foreach (string filePath in files)
-            {
-                string relativePath = Path.GetRelativePath(GameInfo.SaveFilePath, filePath);
-                zipArchive.CreateEntryFromFile(filePath, relativePath);
+                ShowSnackBarFromResult(result);
             }
 
             _menuRef?.CloseMenuAsync();
         }
 
-        private void OnSaveFileRestoreClick(MouseEventArgs obj)
+        private async Task OnSaveFileRestoreClick(MouseEventArgs obj)
         {
-            if (GameInfo?.ExePath == null)
+            if (GameInfo == null)
                 return;
-            string backupDir = Path.Combine(AppPathService.SaveFileBackupDirPath, GameInfo.GameUniqueId.ToString());
-            if (!Directory.Exists(backupDir))
-                return;
-            IEnumerable<string> files = Directory.EnumerateFiles(backupDir, "*.zip")
-                .OrderByDescending(x => x).Take(10);
-            BackupSaveFiles = files.Select(Path.GetFileNameWithoutExtension).ToList()!;
+
+            BackupSaveFiles = await SaveDataManager.GetBackupListAsync(GameInfo);
         }
 
         private async Task OnSaveFileStartRestore(string backupFile)
         {
-            if (GameInfo?.ExePath == null)
+            if (GameInfo == null)
             {
                 return;
             }
 
-            if (string.IsNullOrEmpty(GameInfo?.SaveFilePath))
+            Result result = await SaveDataManager.RestoreSaveFileAsync(GameInfo, backupFile);
+            if (!result.Success)
             {
-                Snackbar.Add(Resources.Message_ParameterNotSet, Severity.Warning);
-                return;
-            }
-
-            if (!Directory.Exists(GameInfo.SaveFilePath))
-            {
-                Snackbar.Add(GameInfo.SaveFilePath + Resources.Message_DirectoryNotExist, Severity.Warning);
-                return;
-            }
-
-            string filePath = Path.Combine(AppPathService.SaveFileBackupDirPath, GameInfo.GameUniqueId.ToString(),
-                backupFile + ".zip");
-            if (!File.Exists(filePath))
-            {
-                Snackbar.Add(backupFile + " " + Resources.Message_NotExist, Severity.Warning);
-                return;
-            }
-
-            ExtractorFactory extractorFactory = App.ServiceProvider.GetRequiredService<ExtractorFactory>();
-            IExtractor zipExtractor = extractorFactory.GetExtractor(".zip") ??
-                                      throw new ArgumentException(".zip extractor not found");
-            string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-
-            Result<string> extractResult = await zipExtractor.ExtractAsync(filePath,
-                new ExtractOption
-                {
-                    TargetPath = tempPath
-                });
-            if (!extractResult.Success)
-            {
-                Logger.LogError("extract file to temp path failed : {ErrorMessage}", extractResult.Message);
-                Snackbar.Add(extractResult.Message, Severity.Error);
-                try
-                {
-                    Directory.Delete(tempPath);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("error to delete file : {Exception}", ex.ToString());
-                }
-
-                return;
-            }
-
-            try
-            {
-                FileHelper.CopyDirectory(tempPath, GameInfo.SaveFilePath);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError("Error to copy file : {Message}", e.ToString());
-                Snackbar.Add(e.Message, Severity.Error);
+                ShowSnackBarFromResult(result);
             }
 
             _menuRef?.CloseMenuAsync();
