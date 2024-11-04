@@ -49,7 +49,7 @@
                         <button class="icon-button" onclick="@(async () => { await OnEditGameInfo(); })">
                             <MudIcon Icon="@Icons.Material.Filled.Settings"/>
                         </button>
-                        <MudMenu AnchorOrigin="Origin.BottomRight">
+                        <MudMenu AnchorOrigin="Origin.TopLeft" TransformOrigin="Origin.TopRight">
                             <ActivatorContent>
                                 <button class="icon-button">
                                     <MudIcon Icon="@Icons.Material.Filled.MoreHoriz"></MudIcon>
@@ -58,6 +58,25 @@
                             <ChildContent>
                                 <MudMenuItem Class="icon-menu-item" OnClick="OnOpenInExplorerClick">
                                     Open in Explorer
+                                </MudMenuItem>
+                                <MudMenuItem Class="sub-menu-item">
+                                    <MudMenu Class="h-100 w-100"
+                                             AnchorOrigin="Origin.TopLeft" TransformOrigin="Origin.TopRight"
+                                             ActivationEvent="MouseEvent.MouseOver">
+                                        <ActivatorContent>
+                                            <MudMenuItem Class="icon-menu-item">
+                                                Search Guide
+                                            </MudMenuItem>
+                                        </ActivatorContent>
+                                        <ChildContent>
+                                            @foreach (GuideSite guideSite in GuideSites)
+                                            {
+                                                <MudMenuItem Class="icon-menu-item" OnClick="() => OnGuideSearchClick(guideSite)">
+                                                    @guideSite.Name
+                                                </MudMenuItem>
+                                            }
+                                        </ChildContent>
+                                    </MudMenu>
                                 </MudMenuItem>
                             </ChildContent>
                         </MudMenu>
@@ -110,5 +129,10 @@
 
     .icon-menu-item:hover {
         background-color: #2e3d4b;
+    }
+    
+    .sub-menu-item , .sub-menu-item > .mud-list-item-text {
+        margin: 0;
+        padding: 0;
     }
 </style>

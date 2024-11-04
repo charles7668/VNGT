@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using MudBlazor;
 using System.Diagnostics;
+using System.Web;
 using ArgumentException = System.ArgumentException;
 
 namespace GameManager.Components.Pages.components
@@ -54,6 +55,17 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private ISnackbar Snackbar { get; set; } = null!;
+
+        private Lazy<AppSetting> AppSetting { get; set; } = null!;
+
+        private IEnumerable<GuideSite> GuideSites => AppSetting.Value.GuideSites;
+
+        protected override Task OnInitializedAsync()
+        {
+            AppSetting = new Lazy<AppSetting>(() => ConfigService.GetAppSetting());
+
+            return base.OnInitializedAsync();
+        }
 
         protected override Task OnAfterRenderAsync(bool firstRender)
         {
@@ -296,6 +308,19 @@ namespace GameManager.Components.Pages.components
                 Logger.LogError("Error : {Message}", ex.ToString());
                 DialogService.ShowMessageBox("Error", ex.Message, cancelText: Resources.Dialog_Button_Cancel);
             }
+        }
+
+        private Task OnGuideSearchClick(GuideSite site)
+        {
+            string searchUrl = "https://www.google.com/search?q="
+                               + HttpUtility.UrlEncode(_gameInfo.GameName + $" site:{site.SiteUrl}");
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = searchUrl,
+                UseShellExecute = true
+            };
+            Process.Start(startInfo);
+            return Task.CompletedTask;
         }
 
         private class ViewModel(IImageService imageService)
