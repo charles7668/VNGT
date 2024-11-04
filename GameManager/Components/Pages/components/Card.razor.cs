@@ -369,7 +369,7 @@ namespace GameManager.Components.Pages.components
                 return;
             }
 
-            string backupDirHash = HashHelper.GetMD5(GameInfo.ExePath);
+            string backupDirHash = GameInfo.GameUniqueId.ToString();
             string backupDir = Path.Combine(AppPathService.SaveFileBackupDirPath, backupDirHash);
             Directory.CreateDirectory(backupDir);
             IEnumerable<string> oldFiles = Directory.EnumerateFiles(backupDir, "*.zip")
@@ -404,8 +404,7 @@ namespace GameManager.Components.Pages.components
         {
             if (GameInfo?.ExePath == null)
                 return;
-            string backupDirHash = HashHelper.GetMD5(GameInfo.ExePath);
-            string backupDir = Path.Combine(AppPathService.SaveFileBackupDirPath, backupDirHash);
+            string backupDir = Path.Combine(AppPathService.SaveFileBackupDirPath, GameInfo.GameUniqueId.ToString());
             if (!Directory.Exists(backupDir))
                 return;
             IEnumerable<string> files = Directory.EnumerateFiles(backupDir, "*.zip")
@@ -432,8 +431,8 @@ namespace GameManager.Components.Pages.components
                 return;
             }
 
-            string backupDirHash = HashHelper.GetMD5(GameInfo.ExePath);
-            string filePath = Path.Combine(AppPathService.SaveFileBackupDirPath, backupDirHash, backupFile + ".zip");
+            string filePath = Path.Combine(AppPathService.SaveFileBackupDirPath, GameInfo.GameUniqueId.ToString(),
+                backupFile + ".zip");
             if (!File.Exists(filePath))
             {
                 Snackbar.Add(backupFile + " " + Resources.Message_NotExist, Severity.Warning);
