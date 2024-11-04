@@ -1,5 +1,6 @@
 ﻿using GameManager.Database;
 using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Enums;
 using Microsoft.Extensions.Caching.Memory;
 using System.Linq.Expressions;
@@ -26,7 +27,7 @@ namespace GameManager.Services
 
         private readonly IAppPathService _appPathService;
 
-        private readonly AppSetting _appSetting;
+        private AppSetting _appSetting;
 
         private readonly SemaphoreSlim _semaphore = new(1, 1);
 
@@ -229,6 +230,8 @@ namespace GameManager.Services
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             await unitOfWork.AppSettingRepository.UpdateAppSettingAsync(setting);
             await unitOfWork.SaveChangesAsync();
+            _appSetting = unitOfWork.AppSettingRepository.GetAppSettingAsync().Result;
+            unitOfWork.DetachEntity(_appSetting);
             // clear cache because the data has been changed
             _memoryCache.Dispose();
             _memoryCache = new MemoryCache(new MemoryCacheOptions
@@ -275,17 +278,21 @@ namespace GameManager.Services
 
         public async Task BackupSettings(string path)
         {
-            AppSetting setting = await _unitOfWork.AppSettingRepository.GetAppSettingAsync();
+            AppSetting setting = _appSetting;
+            var dto = AppSettingDTO.Create(setting);
+            dto.TextMappings = dto.TextMappings.DistinctBy(x => x.Id).ToList();
+            dto.GuideSites = dto.GuideSites.DistinctBy(x => x.Id).ToList();
             await using FileStream fileStream = new(path, FileMode.Create);
-            await JsonSerializer.SerializeAsync(fileStream, setting);
+            await JsonSerializer.SerializeAsync(fileStream, dto);
         }
 
         public async Task RestoreSettings(string path)
         {
             await using FileStream fileStream = new(path, FileMode.Open);
-            AppSetting? setting = await JsonSerializer.DeserializeAsync<AppSetting>(fileStream);
-            if (setting == null)
+            AppSettingDTO? dto = await JsonSerializer.DeserializeAsync<AppSettingDTO>(fileStream);
+            if (dto == null)
                 return;
+            AppSetting setting = dto.Convert();
             await UpdateAppSettingAsync(setting);
         }
 

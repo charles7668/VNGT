@@ -11,6 +11,7 @@ namespace GameManager.Database
         public async Task<AppSetting> GetAppSettingAsync()
         {
             AppSetting? appSetting = await dbContext.AppSettings
+                .AsNoTracking()
                 .Include(x => x.GuideSites)
                 .Include(x => x.TextMappings)
                 .FirstOrDefaultAsync();
@@ -24,10 +25,34 @@ namespace GameManager.Database
             return appSetting;
         }
 
-        public Task UpdateAppSettingAsync(AppSetting appSetting)
+        public async Task UpdateAppSettingAsync(AppSetting appSetting)
         {
-            dbContext.AppSettings.Update(appSetting);
-            return Task.CompletedTask;
+            AppSetting? entity = dbContext.AppSettings
+                .Include(x => x.GuideSites)
+                .Include(x => x.TextMappings)
+                .FirstOrDefault();
+            if (entity == null)
+            {
+                await dbContext.AppSettings.AddAsync(appSetting);
+                return;
+            }
+
+            dbContext.Entry(entity).CurrentValues.SetValues(appSetting);
+            entity.GuideSites.Clear();
+            foreach (GuideSite guideSite in appSetting.GuideSites)
+            {
+                guideSite.AppSettingId = entity.Id;
+                guideSite.Id = 0;
+                entity.GuideSites.Add(guideSite);
+            }
+
+            entity.TextMappings.Clear();
+            foreach (TextMapping textMapping in appSetting.TextMappings)
+            {
+                textMapping.AppSettingId = entity.Id;
+                textMapping.Id = 0;
+                entity.TextMappings.Add(textMapping);
+            }
         }
 
         public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)

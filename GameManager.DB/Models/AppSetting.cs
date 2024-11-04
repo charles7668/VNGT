@@ -17,8 +17,8 @@ namespace GameManager.DB.Models
         [MaxLength(10)]
         public string? Localization { get; set; }
 
-        public IList<GuideSite> GuideSites { get; set; } = [];
+        public List<GuideSite> GuideSites { get; set; } = [];
 
-        public IList<TextMapping> TextMappings { get; set; } = [];
+        public List<TextMapping> TextMappings { get; set; } = [];
     }
 }
