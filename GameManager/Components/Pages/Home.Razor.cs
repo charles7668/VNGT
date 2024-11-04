@@ -64,8 +64,8 @@ namespace GameManager.Components.Pages
             .Default(IsDeleting ? "deleting justify-center align-center d-flex" : "" + " flex-grow-1")
             .Build();
 
-        private string ListConainderCss => CssBuilder
-            .Default("d-flex flex-column")
+        private string ListContainerClass => CssBuilder
+            .Default("d-flex flex-column main-container")
             .AddClass("inactive", IsShowDetail)
             .Build();
 
