@@ -100,6 +100,10 @@
                     <input type="radio" id="radio-screenshots" name="tab" checked="@(_selectedTab == "screenshots")"
                            onclick="@(() => OnTabChangeClick("screenshots"))">
                     <label for="radio-screenshots">Screenshots</label>
+                    
+                    <input type="radio" id="radio-save-manager" name="tab" checked="@(_selectedTab == "save-manager")"
+                           onclick="@(() => OnTabChangeClick("save-manager"))">
+                    <label for="radio-save-manager">Save Data</label>
                 </div>
             </div>
         </div>
@@ -115,6 +119,9 @@
                 break;
             case "screenshots":
                 <GameDetailScreenShots GameInfo="_gameInfo" OnUpdateNeeded="OnUpdateNeededHandler"/>
+                break;
+            case "save-manager":
+                <GameDetailSaveManager GameInfo="_gameInfo"/>
                 break;
         }
     }

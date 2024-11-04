@@ -1,0 +1,47 @@
+﻿.progress-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    height: 2000px;
+}
+
+#save-files-container {
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 80%;
+    min-height: 500px;
+}
+
+#save-files-container ::deep .backup-btn {
+    color: #00b0ff;
+    margin-bottom: 1rem;
+}
+
+.backup-info-container {
+    width: 100%;
+    border-width: 3px;
+    border-style: solid;
+    border-color: #007bff;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.backup-info-container .backup-info-text {
+    margin: 0;
+}
+
+.backup-info-container ::deep .backup-info-restore-btn {
+    color: limegreen;
+}
+
+.backup-info-container ::deep .backup-info-delete-btn {
+    color: red;
+}

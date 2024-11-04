@@ -1,0 +1,45 @@
+﻿<div id="game-detail-save-manager">
+    @if (IsLoading)
+    {
+        <div class="progress-container">
+            <div class="justify-center align-center d-flex">
+                <MudProgressCircular Color="Color.Primary"
+                                     Indeterminate="true">
+                </MudProgressCircular>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div id="save-files-container">
+            @if (_isRunning)
+            {
+                <MudButton Class="ml-2"
+                           Color="Color.Primary"
+                           Variant="Variant.Outlined">
+                    <MudProgressCircular Size="Size.Small" Color="Color.Success" Indeterminate="true"/>
+                </MudButton>
+            }
+            else
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.Download"
+                           Class="backup-btn" OnClick="OnBackupClick">
+                    Backup
+                </MudButton>
+            }
+            @foreach (string backup in _backupList)
+            {
+                <div class="backup-info-container">
+                    <h4 class="backup-info-text">@backup</h4>
+                    <MudSpacer/>
+                    <MudButton Class="backup-info-restore-btn" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Upload">
+                        <h5 class="backup-info-text" onclick="@(() => OnRestoreClick(backup))">Restore</h5>
+                    </MudButton>
+                    <MudButton Class="backup-info-delete-btn" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Close">
+                        <h5 class="backup-info-text" onclick="@(() => OnDeleteClick(backup))">Delete</h5>
+                    </MudButton>
+                </div>
+            }
+        </div>
+    }
+</div>
