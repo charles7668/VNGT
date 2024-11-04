@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using MudBlazor;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Web;
 using ArgumentException = System.ArgumentException;
 
@@ -290,28 +291,34 @@ namespace GameManager.Components.Pages.components
             }
         }
 
-        private void OnOpenInExplorerClick()
+        private void OpenPath(string? path, [CallerMemberName] string? callerName = "")
         {
-            Logger.LogInformation("Open in explorer click");
-            if (string.IsNullOrWhiteSpace(_gameInfo.ExePath))
+            Logger.LogInformation("Open path {Path} called by {Caller}", path, callerName);
+            if (string.IsNullOrWhiteSpace(path))
             {
                 Snackbar.Add(Resources.Message_DirectoryNotExist, Severity.Warning);
                 return;
             }
 
-            try
-            {
-                Process.Start("explorer.exe", _gameInfo.ExePath);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error : {Message}", ex.ToString());
-                DialogService.ShowMessageBox("Error", ex.Message, cancelText: Resources.Dialog_Button_Cancel);
-            }
+            Result result = PathService.OpenPathInExplorer(path);
+            if (result.Success) return;
+            Logger.LogError(result.Exception, "Open Path Error : {Message}", result.Message);
+            Snackbar.Add(result.Message, Severity.Error);
+        }
+
+        private void OnOpenSaveFilePathClick()
+        {
+            OpenPath(_gameInfo.SaveFilePath);
+        }
+
+        private void OnOpenInExplorerClick()
+        {
+            OpenPath(_gameInfo.ExePath);
         }
 
         private Task OnGuideSearchClick(GuideSite site)
         {
+            Logger.LogInformation("Search guide for {GameName} on {SiteName}", _gameInfo.GameName, site.Name);
             string searchUrl = "https://www.google.com/search?q="
                                + HttpUtility.UrlEncode(_gameInfo.GameName + $" site:{site.SiteUrl}");
             var startInfo = new ProcessStartInfo
