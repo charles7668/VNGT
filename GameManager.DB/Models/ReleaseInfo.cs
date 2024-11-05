@@ -26,5 +26,8 @@ namespace GameManager.DB.Models
         public int AgeRating { get; set; } = 0;
 
         public List<ExternalLink> ExternalLinks { get; set; } = [];
+        
+        [MaxLength(100)]
+        public string? ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
     }
 }

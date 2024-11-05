@@ -14,5 +14,8 @@ namespace GameManager.DB.Models
 
         public int GameInfoId { get; set; }
         public GameInfo GameInfo { get; set; } = null!;
+        
+        [MaxLength(100)]
+        public string? ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
     }
 }

@@ -16,5 +16,8 @@ namespace GameManager.DB.Models
 
         public int AppSettingId { get; set; }
         public AppSetting? AppSetting { get; set; }
+        
+        [MaxLength(100)]
+        public string? ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
     }
 }

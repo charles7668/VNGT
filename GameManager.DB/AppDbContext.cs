@@ -26,8 +26,12 @@ namespace GameManager.DB
         public DbSet<Tag> Tags { get; set; }
 
         public DbSet<StaffRole> StaffRoles { get; set; }
-
+    
+        public DbSet<RelatedSite> RelatedSites { get; set; }
+        
         public DbSet<ReleaseInfo> ReleaseInfos { get; set; }
+        
+        public DbSet<ExternalLink> ExternalLinks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -17,5 +17,8 @@ namespace GameManager.DB.Models
         
         public int ReleaseInfoId { get; set; }
         public ReleaseInfo ReleaseInfo { get; set; } = null!;
+
+        [MaxLength(100)]
+        public string? ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
     }
 }
