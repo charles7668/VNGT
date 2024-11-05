@@ -393,6 +393,9 @@
   <data name="Message.DirectoryNotExist" xml:space="preserve">
     <value>资料夹不存在</value>
   </data>
+  <data name="Message.FailedToAddGameInfo" xml:space="preserve">
+    <value>加入游戏资讯失败</value>
+  </data>
   <data name="Message.FailedToAddScreenshots" xml:space="preserve">
     <value>加入游戏截图失败</value>
   </data>

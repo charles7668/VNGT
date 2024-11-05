@@ -889,6 +889,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to add game info.
+        /// </summary>
+        internal static string Message_FailedToAddGameInfo {
+            get {
+                return ResourceManager.GetString("Message.FailedToAddGameInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to add screenshots.
         /// </summary>
         internal static string Message_FailedToAddScreenshots {

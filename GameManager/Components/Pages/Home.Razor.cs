@@ -1,6 +1,7 @@
 ﻿using GameManager.Components.Pages.components;
 using GameManager.DB.Models;
 using GameManager.Enums;
+using GameManager.Properties;
 using GameManager.Services;
 using Helper;
 using Microsoft.AspNetCore.Components;
@@ -50,7 +51,7 @@ namespace GameManager.Components.Pages
 
         private int CardListWidth { get; set; }
 
-        private int CardGapPixel { get; set; } = 0;
+        private int CardGapPixel { get; set; }
 
         private int CardItemWidth { get; } = 230;
 
@@ -112,7 +113,7 @@ namespace GameManager.Components.Pages
             {
                 { x => x.Model, inputModel }
             };
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>("Add new game",
+            IDialogReference dialogReference = await DialogService.ShowAsync<DialogGameInfoEdit>("Add new game",
                 parameters,
                 new DialogOptions
                 {
@@ -121,7 +122,7 @@ namespace GameManager.Components.Pages
                     BackdropClick = false
                 });
             DialogResult? dialogResult = await dialogReference.Result;
-            if (dialogResult.Canceled)
+            if (dialogResult is null or { Canceled: true })
                 return;
             if (dialogResult.Data is not DialogGameInfoEdit.FormModel resultModel)
                 return;
@@ -147,10 +148,6 @@ namespace GameManager.Components.Pages
             }
 
             DataMapService.Map(resultModel, gameInfo);
-            gameInfo.Tags = resultModel.Tags.Select(x => new Tag
-            {
-                Name = x
-            }).ToList();
             try
             {
                 await ConfigService.AddGameInfoAsync(gameInfo);
@@ -158,7 +155,7 @@ namespace GameManager.Components.Pages
             catch (Exception e)
             {
                 Logger.LogError(e, "Error occurred when adding game info : {Exception}", e.ToString());
-                SnakeBar.Add(e.Message, Severity.Error);
+                SnakeBar.Add(Resources.Message_FailedToAddGameInfo, Severity.Error);
                 IsLoading = false;
                 _ = InvokeAsync(StateHasChanged);
                 return;
@@ -214,13 +211,13 @@ namespace GameManager.Components.Pages
             {
                 { x => x.Content, "Are you sure you want to delete?" }
             };
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogConfirm>("Warning", parameters,
+            IDialogReference dialogReference = await DialogService.ShowAsync<DialogConfirm>("Warning", parameters,
                 new DialogOptions
                 {
                     BackdropClick = false
                 });
             DialogResult? dialogResult = await dialogReference.Result;
-            if (dialogResult.Canceled)
+            if (dialogResult is null or { Canceled: true })
                 return;
 
             bool hasChange = false;
@@ -286,13 +283,13 @@ namespace GameManager.Components.Pages
             {
                 { x => x.Content, "Are you sure you want to delete?" }
             };
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogConfirm>("Warning", parameters,
+            IDialogReference dialogReference = await DialogService.ShowAsync<DialogConfirm>("Warning", parameters,
                 new DialogOptions
                 {
                     BackdropClick = false
                 });
             DialogResult? dialogResult = await dialogReference.Result;
-            if (dialogResult.Canceled)
+            if (dialogResult is null or { Canceled: true })
                 return;
             IsDeleting = true;
             StateHasChanged();

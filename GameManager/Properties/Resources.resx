@@ -393,6 +393,9 @@
   <data name="Message.DirectoryNotExist" xml:space="preserve">
     <value>Directory does not exist</value>
   </data>
+  <data name="Message.FailedToAddGameInfo" xml:space="preserve">
+    <value>Failed to add game info</value>
+  </data>
   <data name="Message.FailedToAddScreenshots" xml:space="preserve">
     <value>Failed to add screenshots</value>
   </data>

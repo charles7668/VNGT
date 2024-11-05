@@ -137,6 +137,7 @@ namespace GameManager.Services
         {
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            unitOfWork.BeginTransaction();
             do
             {
                 info.GameUniqueId = Guid.NewGuid();
@@ -162,14 +163,26 @@ namespace GameManager.Services
             info.ReleaseInfos = [];
             info.RelatedSites = [];
 
-            GameInfo gameInfoEntity = await unitOfWork.GameInfoRepository.AddAsync(info);
-            await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == gameInfoEntity.Id, staffs);
-            await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == gameInfoEntity.Id, characters);
-            await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == gameInfoEntity.Id, releaseInfos);
-            await unitOfWork.GameInfoRepository.UpdateRelatedSitesAsync(x => x.Id == gameInfoEntity.Id, relatedSites);
-            await unitOfWork.GameInfoRepository.UpdateTagsAsync(x => x.Id == gameInfoEntity.Id, tags);
-            await unitOfWork.SaveChangesAsync();
-            info.Id = gameInfoEntity.Id;
+            try
+            {
+                GameInfo gameInfoEntity = await unitOfWork.GameInfoRepository.AddAsync(info);
+                await unitOfWork.SaveChangesAsync();
+                await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == gameInfoEntity.Id, staffs);
+                await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == gameInfoEntity.Id, characters);
+                await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == gameInfoEntity.Id,
+                    releaseInfos);
+                await unitOfWork.GameInfoRepository.UpdateRelatedSitesAsync(x => x.Id == gameInfoEntity.Id,
+                    relatedSites);
+                await unitOfWork.GameInfoRepository.UpdateTagsAsync(x => x.Id == gameInfoEntity.Id, tags);
+                await unitOfWork.SaveChangesAsync();
+                unitOfWork.CommitTransaction();
+                info.Id = gameInfoEntity.Id;
+            }
+            catch (Exception)
+            {
+                unitOfWork.RollbackTransaction();
+                throw;
+            }
         }
 
         public Task<GameInfo?> GetGameInfoAsync(Expression<Func<GameInfo, bool>> queryExpression)
