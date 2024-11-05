@@ -29,6 +29,10 @@ namespace GameManager.Services
             dest.ReleaseInfos = src.ReleaseInfos;
             dest.RelatedSites = src.RelatedSites;
             dest.ScreenShots = src.ScreenShots;
+            dest.Tags = src.Tags.Select(x => new Tag()
+            {
+                Name = x
+            }).ToList();
         }
 
         public static void Map(GameInfo src, DialogGameInfoEdit.FormModel dest)
@@ -54,6 +58,7 @@ namespace GameManager.Services
             dest.ReleaseInfos = src.ReleaseInfos;
             dest.RelatedSites = src.RelatedSites;
             dest.ScreenShots = src.ScreenShots;
+            dest.Tags = src.Tags.Select(x => x.Name).ToList();
         }
     }
 }

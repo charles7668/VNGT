@@ -29,26 +29,26 @@ namespace GameManager.Database
 
         Task<IEnumerable<Tag>> GetTagsByIdAsync(int id);
 
-        Task AddTagAsync(int id, Tag tag);
+        Task UpdateStaffsAsync(Expression<Func<GameInfo, bool>> query, List<Staff> staffs);
 
-        Task UpdateStaffsAsync(Expression<Func<GameInfo, bool>> query, IEnumerable<Staff> staffs);
+        Task UpdateCharactersAsync(Expression<Func<GameInfo, bool>> query, List<Character> characters);
 
-        Task UpdateCharactersAsync(Expression<Func<GameInfo, bool>> query, IEnumerable<Character> characters);
+        Task UpdateReleaseInfosAsync(Expression<Func<GameInfo, bool>> query, List<ReleaseInfo> releaseInfos);
 
-        Task UpdateReleaseInfosAsync(Expression<Func<GameInfo, bool>> query, IEnumerable<ReleaseInfo> releaseInfos);
+        Task UpdateRelatedSitesAsync(Expression<Func<GameInfo, bool>> query, List<RelatedSite> relatedSites);
 
-        Task UpdateRelatedSitesAsync(Expression<Func<GameInfo, bool>> query, IEnumerable<RelatedSite> relatedSites);
+        Task UpdateTagsAsync(Expression<Func<GameInfo, bool>> query, List<Tag> tags);
 
         Task<IEnumerable<Staff>> GetStaffsAsync(Expression<Func<GameInfo, bool>> query);
 
         Task<IEnumerable<Character>> GetCharactersAsync(Expression<Func<GameInfo, bool>> query);
 
-        Task<IEnumerable<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query);
-        
+        Task<List<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query);
+
         Task<IEnumerable<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query);
-        
+
         Task<GameInfo> UpdateBackgroundImageAsync(int id, string? backgroundImage);
-        
+
         Task<GameInfo?> RemoveScreenshotAsync(int id, string url);
 
         Task<GameInfo?> AddScreenshotsAsync(int id, List<string> urls);

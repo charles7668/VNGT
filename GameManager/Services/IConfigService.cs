@@ -48,8 +48,6 @@ namespace GameManager.Services
 
         Task UpdateAppSettingAsync(AppSetting setting);
 
-        Task UpdateGameInfoTags(int gameId, IEnumerable<string> tags);
-
         Task UpdateLastPlayedByIdAsync(int id, DateTime time);
 
         Task BackupSettings(string path);

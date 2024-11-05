@@ -186,11 +186,9 @@ namespace GameManager.Components.Pages.components
             }
 
             DataMapService.Map(resultModel, GameInfo);
-            GameInfo.Tags = [];
             try
             {
                 await ConfigService.EditGameInfo(GameInfo);
-                await ConfigService.UpdateGameInfoTags(GameInfo.Id, resultModel.Tags);
             }
             catch (Exception e)
             {

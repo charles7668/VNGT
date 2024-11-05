@@ -91,13 +91,13 @@ namespace GameManager.Components.Pages.components
                     GameInfo gameInfo = inputGameInfo ??
                                         await ConfigService.GetGameInfoAsync(x => x.Id == InitGameId) ??
                                         throw new ArgumentException("Game info not found with id " + InitGameId);
-                    gameInfo.Staffs = (await ConfigService.GetGameInfoStaffs(x => x.Id == gameInfo.Id)).ToList();
+                    gameInfo.Staffs = await ConfigService.GetGameInfoStaffs(x => x.Id == gameInfo.Id);
                     gameInfo.ReleaseInfos =
-                        (await ConfigService.GetGameInfoReleaseInfos(x => x.Id == gameInfo.Id)).ToList();
+                        await ConfigService.GetGameInfoReleaseInfos(x => x.Id == gameInfo.Id);
                     gameInfo.RelatedSites =
-                        (await ConfigService.GetGameInfoRelatedSites(x => x.Id == gameInfo.Id)).ToList();
+                        await ConfigService.GetGameInfoRelatedSites(x => x.Id == gameInfo.Id);
                     gameInfo.Characters =
-                        (await ConfigService.GetGameInfoCharacters(x => x.Id == gameInfo.Id)).ToList();
+                        await ConfigService.GetGameInfoCharacters(x => x.Id == gameInfo.Id);
                     gameInfo.Tags = (await ConfigService.GetGameTagsAsync(gameInfo.Id)).Select(x => new Tag
                     {
                         Name = x
@@ -192,10 +192,8 @@ namespace GameManager.Components.Pages.components
                     await ConfigService.ReplaceCoverImage(resultModel.Cover, _gameInfo.CoverPath);
                 }
 
-                _gameInfo.Tags = [];
                 DataMapService.Map(resultModel, _gameInfo);
                 await ConfigService.EditGameInfo(_gameInfo);
-                await ConfigService.UpdateGameInfoTags(_gameInfo.Id, resultModel.Tags);
             }
             catch (Exception e)
             {

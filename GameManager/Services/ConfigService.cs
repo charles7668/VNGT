@@ -137,8 +137,6 @@ namespace GameManager.Services
         {
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            string[] tagArray = info.Tags.Select(x => x.Name).ToArray();
-            info.Tags = [];
             do
             {
                 info.GameUniqueId = Guid.NewGuid();
@@ -153,10 +151,12 @@ namespace GameManager.Services
                 info.BackgroundImageUrl = info.ScreenShots[0];
             }
 
+            List<Tag> tags = info.Tags;
             List<Staff> staffs = info.Staffs;
             List<Character> characters = info.Characters;
             List<ReleaseInfo> releaseInfos = info.ReleaseInfos;
             List<RelatedSite> relatedSites = info.RelatedSites;
+            info.Tags = [];
             info.Staffs = [];
             info.Characters = [];
             info.ReleaseInfos = [];
@@ -167,9 +167,9 @@ namespace GameManager.Services
             await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == gameInfoEntity.Id, characters);
             await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == gameInfoEntity.Id, releaseInfos);
             await unitOfWork.GameInfoRepository.UpdateRelatedSitesAsync(x => x.Id == gameInfoEntity.Id, relatedSites);
+            await unitOfWork.GameInfoRepository.UpdateTagsAsync(x => x.Id == gameInfoEntity.Id, tags);
             await unitOfWork.SaveChangesAsync();
             info.Id = gameInfoEntity.Id;
-            await UpdateGameInfoTags(info.Id, tagArray);
         }
 
         public Task<GameInfo?> GetGameInfoAsync(Expression<Func<GameInfo, bool>> queryExpression)
@@ -194,10 +194,12 @@ namespace GameManager.Services
             GameInfo? currentEntity = await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == info.Id);
             if (currentEntity == null)
                 return;
+            List<Tag> tags = info.Tags;
             List<Staff> staffs = info.Staffs;
             List<Character> characters = info.Characters;
             List<ReleaseInfo> releaseInfos = info.ReleaseInfos;
             List<RelatedSite> relatedSites = info.RelatedSites;
+            info.Tags = [];
             info.Staffs = [];
             info.Characters = [];
             info.ReleaseInfos = [];
@@ -216,6 +218,7 @@ namespace GameManager.Services
             await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == info.Id, characters);
             await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == info.Id, releaseInfos);
             await unitOfWork.GameInfoRepository.UpdateRelatedSitesAsync(x => x.Id == info.Id, relatedSites);
+            await unitOfWork.GameInfoRepository.UpdateTagsAsync(x => x.Id == info.Id, tags);
             await unitOfWork.SaveChangesAsync();
         }
 
@@ -331,8 +334,8 @@ namespace GameManager.Services
 
         public async Task<List<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query)
         {
-            IEnumerable<ReleaseInfo> result = await _unitOfWork.GameInfoRepository.GetGameInfoReleaseInfos(query);
-            return result.ToList();
+            List<ReleaseInfo> result = await _unitOfWork.GameInfoRepository.GetGameInfoReleaseInfos(query);
+            return result;
         }
 
         public async Task<List<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query)
@@ -382,32 +385,6 @@ namespace GameManager.Services
                 .GetTagsByIdAsync(gameId);
             IEnumerable<string> result = tags.Select(x => x.Name);
             return result.ToList();
-        }
-
-        public async Task UpdateGameInfoTags(int gameId, IEnumerable<string> tags)
-        {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            var tagSet = tags.ToArray().ToHashSet();
-            IEnumerable<Tag> originTags = await unitOfWork.GameInfoRepository.GetTagsByIdAsync(gameId);
-            foreach (Tag tag in originTags)
-            {
-                if (tagSet.Contains(tag.Name))
-                {
-                    tagSet.Remove(tag.Name);
-                    continue;
-                }
-
-                await unitOfWork.GameInfoTagRepository.RemoveGameInfoTagAsync(tag.Id, gameId);
-            }
-
-            foreach (string tag in tagSet)
-            {
-                Tag tagEntity = await unitOfWork.TagRepository.AddTagAsync(tag);
-                await unitOfWork.GameInfoRepository.AddTagAsync(gameId, tagEntity);
-            }
-
-            await unitOfWork.SaveChangesAsync();
         }
 
         public async Task<bool> CheckGameInfoHasTag(int gameId, string tagName)

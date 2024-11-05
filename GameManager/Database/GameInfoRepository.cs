@@ -97,29 +97,15 @@ namespace GameManager.Database
             return gameInfo == null ? [] : gameInfo.Tags;
         }
 
-        public async Task AddTagAsync(int id, Tag tag)
-        {
-            GameInfo? info = await context.GameInfos
-                .Include(x => x.Tags)
-                .FirstOrDefaultAsync(x => x.Id == id);
-            if (info == null)
-                return;
-            if (info.Tags.Any(x => x.Name == tag.Name))
-                return;
-            info.Tags.Add(tag);
-            context.GameInfos.Update(info);
-        }
-
-        public async Task UpdateStaffsAsync(Expression<Func<GameInfo, bool>> query, IEnumerable<Staff> staffs)
+        public async Task UpdateStaffsAsync(Expression<Func<GameInfo, bool>> query, List<Staff> staffs)
         {
             GameInfo? gameInfo = await context.GameInfos
                 .Include(x => x.Staffs)
                 .FirstOrDefaultAsync(query);
             if (gameInfo == null)
                 return;
-            var staffList = staffs.ToList();
-            var staffNames = staffList.Select(s => s.Name).Distinct().ToList();
-            var staffRoleIds = staffList.Select(s => s.StaffRole.Id).Distinct().ToList();
+            var staffNames = staffs.Select(s => s.Name).Distinct().ToList();
+            var staffRoleIds = staffs.Select(s => s.StaffRole.Id).Distinct().ToList();
             List<Staff> existingStaffs = await context.Staffs
                 .Where(s => staffNames.Contains(s.Name) && staffRoleIds.Contains(s.StaffRoleId))
                 .ToListAsync();
@@ -133,7 +119,7 @@ namespace GameManager.Database
                 .ToDictionary(g => g.Key, g => g.First());
             var newStaffs = new List<Staff>();
 
-            foreach (Staff staff in staffList)
+            foreach (Staff staff in staffs)
             {
                 var key = new
                 {
@@ -157,7 +143,7 @@ namespace GameManager.Database
             }
 
             gameInfo.Staffs.Clear();
-            foreach (var key in staffList.Select(staff => new
+            foreach (var key in staffs.Select(staff => new
                      {
                          staff.Name,
                          StaffRoleId = staff.StaffRole.Id
@@ -173,7 +159,7 @@ namespace GameManager.Database
         }
 
         public async Task UpdateCharactersAsync(Expression<Func<GameInfo, bool>> query,
-            IEnumerable<Character> characters)
+            List<Character> characters)
         {
             GameInfo? gameInfo = await context.GameInfos
                 .Include(x => x.Characters)
@@ -194,7 +180,7 @@ namespace GameManager.Database
         }
 
         public async Task UpdateReleaseInfosAsync(Expression<Func<GameInfo, bool>> query,
-            IEnumerable<ReleaseInfo> releaseInfos)
+            List<ReleaseInfo> releaseInfos)
         {
             GameInfo? gameInfo = await context.GameInfos
                 .Include(x => x.ReleaseInfos)
@@ -223,11 +209,10 @@ namespace GameManager.Database
             }
 
             gameInfo.ReleaseInfos.RemoveAll(x => x.ConcurrencyStamp != concurrencyStamp);
-            context.GameInfos.Update(gameInfo);
         }
 
         public async Task UpdateRelatedSitesAsync(Expression<Func<GameInfo, bool>> query,
-            IEnumerable<RelatedSite> relatedSites)
+            List<RelatedSite> relatedSites)
         {
             GameInfo? gameInfo = await context.GameInfos
                 .Include(x => x.RelatedSites)
@@ -245,6 +230,38 @@ namespace GameManager.Database
 
             gameInfo.RelatedSites.RemoveAll(x => x.ConcurrencyStamp != concurrencyStamp);
             context.GameInfos.Update(gameInfo);
+        }
+
+        public async Task UpdateTagsAsync(Expression<Func<GameInfo, bool>> query, List<Tag> tags)
+        {
+            GameInfo? gameInfo = await context.GameInfos
+                .Include(x => x.Tags)
+                .FirstOrDefaultAsync(query);
+            if (gameInfo == null)
+                return;
+            var tagNames = tags.Select(t => t.Name).Distinct().ToList();
+            Dictionary<string, Tag> existingTags = await context.Tags
+                .Where(t => tagNames.Contains(t.Name))
+                .ToDictionaryAsync(key => key.Name, value => value);
+            foreach (Tag tag in tags)
+            {
+                if (existingTags.ContainsKey(tag.Name))
+                    continue;
+                var newTag = new Tag
+                {
+                    Name = tag.Name
+                };
+                existingTags[tag.Name] = newTag;
+            }
+
+            gameInfo.Tags.Clear();
+            foreach (Tag tag in tags)
+            {
+                if (existingTags.TryGetValue(tag.Name, out Tag? existingTag))
+                {
+                    gameInfo.Tags.Add(existingTag);
+                }
+            }
         }
 
         public async Task<IEnumerable<Staff>> GetStaffsAsync(Expression<Func<GameInfo, bool>> query)
@@ -269,7 +286,7 @@ namespace GameManager.Database
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query)
+        public async Task<List<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query)
         {
             return await context.GameInfos
                 .Include(x => x.ReleaseInfos)
