@@ -191,6 +191,11 @@ namespace GameManager.Components.Pages.components
                 {
                     await ConfigService.ReplaceCoverImage(resultModel.Cover, _gameInfo.CoverPath);
                 }
+
+                _gameInfo.Tags = [];
+                DataMapService.Map(resultModel, _gameInfo);
+                await ConfigService.EditGameInfo(_gameInfo);
+                await ConfigService.UpdateGameInfoTags(_gameInfo.Id, resultModel.Tags);
             }
             catch (Exception e)
             {
@@ -198,10 +203,6 @@ namespace GameManager.Components.Pages.components
                 await DialogService.ShowMessageBox("Error", $"{e.Message}", cancelText: "Cancel");
             }
 
-            _gameInfo.Tags = [];
-            DataMapService.Map(resultModel, _gameInfo);
-            await ConfigService.EditGameInfo(_gameInfo);
-            await ConfigService.UpdateGameInfoTags(_gameInfo.Id, resultModel.Tags);
             await RefreshData();
             return;
 

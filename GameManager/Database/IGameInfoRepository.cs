@@ -37,7 +37,7 @@ namespace GameManager.Database
 
         Task UpdateReleaseInfosAsync(Expression<Func<GameInfo, bool>> query, IEnumerable<ReleaseInfo> releaseInfos);
 
-        Task UpdateReltedSitesAsync(Expression<Func<GameInfo, bool>> query, IEnumerable<RelatedSite> relatedSites);
+        Task UpdateRelatedSitesAsync(Expression<Func<GameInfo, bool>> query, IEnumerable<RelatedSite> relatedSites);
 
         Task<IEnumerable<Staff>> GetStaffsAsync(Expression<Func<GameInfo, bool>> query);
 

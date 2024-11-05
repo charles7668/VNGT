@@ -1,5 +1,4 @@
 ﻿using GameManager.DB;
-using GameManager.DB.Enums;
 using GameManager.DB.Models;
 using GameManager.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -115,31 +114,59 @@ namespace GameManager.Database
         {
             GameInfo? gameInfo = await context.GameInfos
                 .Include(x => x.Staffs)
-                .ThenInclude(x => x.StaffRole)
                 .FirstOrDefaultAsync(query);
             if (gameInfo == null)
                 return;
-            gameInfo.Staffs.RemoveAll(_ => true);
-            Dictionary<StaffRoleEnum, HashSet<string>> cache = new();
-            foreach (Staff staff in staffs)
+            var staffList = staffs.ToList();
+            var staffNames = staffList.Select(s => s.Name).Distinct().ToList();
+            var staffRoleIds = staffList.Select(s => s.StaffRole.Id).Distinct().ToList();
+            List<Staff> existingStaffs = await context.Staffs
+                .Where(s => staffNames.Contains(s.Name) && staffRoleIds.Contains(s.StaffRoleId))
+                .ToListAsync();
+
+            var existingStaffDict = existingStaffs
+                .GroupBy(s => new
+                {
+                    s.Name,
+                    s.StaffRoleId
+                })
+                .ToDictionary(g => g.Key, g => g.First());
+            var newStaffs = new List<Staff>();
+
+            foreach (Staff staff in staffList)
             {
-                StaffRoleEnum staffId = staff.StaffRole.Id;
-                string staffName = staff.Name;
-                if (cache.TryGetValue(staffId, out HashSet<string>? secondHash) &&
-                    secondHash.Contains(staffName))
+                var key = new
+                {
+                    staff.Name,
+                    StaffRoleId = staff.StaffRole.Id
+                };
+                if (existingStaffDict.ContainsKey(key))
                     continue;
-                if (!cache.ContainsKey(staffId))
-                    cache.Add(staffId, []);
-                cache[staffId].Add(staffName);
-                Staff existStaff =
-                    await context.Staffs.FirstOrDefaultAsync(x =>
-                        x.Name == staffName && x.StaffRoleId == staffId) ?? (await context.Staffs.AddAsync(
-                        new Staff
-                        {
-                            Name = staffName,
-                            StaffRoleId = staffId
-                        })).Entity;
-                gameInfo.Staffs.Add(existStaff);
+                var newStaff = new Staff
+                {
+                    Name = staff.Name,
+                    StaffRoleId = staff.StaffRole.Id
+                };
+                newStaffs.Add(newStaff);
+                existingStaffDict[key] = newStaff;
+            }
+
+            if (newStaffs.Count != 0)
+            {
+                await context.Staffs.AddRangeAsync(newStaffs);
+            }
+
+            gameInfo.Staffs.Clear();
+            foreach (var key in staffList.Select(staff => new
+                     {
+                         staff.Name,
+                         StaffRoleId = staff.StaffRole.Id
+                     }))
+            {
+                if (existingStaffDict.TryGetValue(key, out Staff? existingStaff))
+                {
+                    gameInfo.Staffs.Add(existingStaff);
+                }
             }
 
             context.GameInfos.Update(gameInfo);
@@ -153,8 +180,16 @@ namespace GameManager.Database
                 .FirstOrDefaultAsync(query);
             if (gameInfo == null)
                 return;
-            gameInfo.Characters.RemoveAll(_ => true);
-            gameInfo.Characters.AddRange(characters);
+            string concurrencyStamp = Guid.NewGuid().ToString();
+            foreach (Character character in characters)
+            {
+                character.Id = 0;
+                character.GameInfoId = gameInfo.Id;
+                character.ConcurrencyStamp = concurrencyStamp;
+                gameInfo.Characters.Add(character);
+            }
+
+            gameInfo.Characters.RemoveAll(x => x.ConcurrencyStamp != concurrencyStamp);
             context.GameInfos.Update(gameInfo);
         }
 
@@ -167,17 +202,31 @@ namespace GameManager.Database
                 .FirstOrDefaultAsync(query);
             if (gameInfo == null)
                 return;
-            foreach (ReleaseInfo releaseInfo in gameInfo.ReleaseInfos)
+            string concurrencyStamp = Guid.NewGuid().ToString();
+            foreach (ReleaseInfo releaseInfo in releaseInfos)
             {
-                releaseInfo.ExternalLinks.RemoveAll(_ => true);
+                releaseInfo.Id = 0;
+                releaseInfo.GameInfoId = gameInfo.Id;
+                releaseInfo.ConcurrencyStamp = concurrencyStamp;
+                foreach (ExternalLink externalLink in releaseInfo.ExternalLinks)
+                {
+                    externalLink.Id = 0;
+                    externalLink.ConcurrencyStamp = concurrencyStamp;
+                }
+
+                gameInfo.ReleaseInfos.Add(releaseInfo);
             }
 
-            gameInfo.ReleaseInfos.RemoveAll(_ => true);
-            gameInfo.ReleaseInfos.AddRange(releaseInfos);
+            foreach (ReleaseInfo releaseInfo in gameInfo.ReleaseInfos)
+            {
+                releaseInfo.ExternalLinks.RemoveAll(x => x.ConcurrencyStamp != concurrencyStamp);
+            }
+
+            gameInfo.ReleaseInfos.RemoveAll(x => x.ConcurrencyStamp != concurrencyStamp);
             context.GameInfos.Update(gameInfo);
         }
 
-        public async Task UpdateReltedSitesAsync(Expression<Func<GameInfo, bool>> query,
+        public async Task UpdateRelatedSitesAsync(Expression<Func<GameInfo, bool>> query,
             IEnumerable<RelatedSite> relatedSites)
         {
             GameInfo? gameInfo = await context.GameInfos
@@ -185,8 +234,16 @@ namespace GameManager.Database
                 .FirstOrDefaultAsync(query);
             if (gameInfo == null)
                 return;
-            gameInfo.RelatedSites.RemoveAll(_ => true);
-            gameInfo.RelatedSites.AddRange(relatedSites);
+            string concurrencyStamp = Guid.NewGuid().ToString();
+            foreach (RelatedSite relatedSite in relatedSites)
+            {
+                relatedSite.Id = 0;
+                relatedSite.GameInfoId = gameInfo.Id;
+                relatedSite.ConcurrencyStamp = concurrencyStamp;
+                gameInfo.RelatedSites.Add(relatedSite);
+            }
+
+            gameInfo.RelatedSites.RemoveAll(x => x.ConcurrencyStamp != concurrencyStamp);
             context.GameInfos.Update(gameInfo);
         }
 

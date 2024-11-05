@@ -166,7 +166,7 @@ namespace GameManager.Services
             await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == gameInfoEntity.Id, staffs);
             await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == gameInfoEntity.Id, characters);
             await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == gameInfoEntity.Id, releaseInfos);
-            await unitOfWork.GameInfoRepository.UpdateReltedSitesAsync(x => x.Id == gameInfoEntity.Id, relatedSites);
+            await unitOfWork.GameInfoRepository.UpdateRelatedSitesAsync(x => x.Id == gameInfoEntity.Id, relatedSites);
             await unitOfWork.SaveChangesAsync();
             info.Id = gameInfoEntity.Id;
             await UpdateGameInfoTags(info.Id, tagArray);
@@ -215,7 +215,7 @@ namespace GameManager.Services
             await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == info.Id, staffs);
             await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == info.Id, characters);
             await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == info.Id, releaseInfos);
-            await unitOfWork.GameInfoRepository.UpdateReltedSitesAsync(x => x.Id == info.Id, relatedSites);
+            await unitOfWork.GameInfoRepository.UpdateRelatedSitesAsync(x => x.Id == info.Id, relatedSites);
             await unitOfWork.SaveChangesAsync();
         }
 
