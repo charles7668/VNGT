@@ -289,6 +289,7 @@ namespace GameManager.GameInfoProvider
                             int ageRating = releaseModel.RestrictionLevel switch
                             {
                                 "R18+" => 18,
+                                "R18" => 18,
                                 "未分级" => 0,
                                 _ => 0
                             };
