@@ -134,6 +134,8 @@ namespace GameManager.GameInfoProvider
                     Url = queryString
                 };
                 List<string> screenShots = await GetScreenShot(document);
+                var tags = staffList.Where(x => x.StaffRole.Id != StaffRoleEnum.STAFF).Select(x => x.Name).ToList();
+                tags.Add(brand);
 
                 gameInfo.GameName = title;
                 gameInfo.GameInfoFetchId = gameId;
@@ -144,6 +146,10 @@ namespace GameManager.GameInfoProvider
                 gameInfo.ReleaseInfos = [releaseInfo];
                 gameInfo.RelatedSites = [relatedSite];
                 gameInfo.ScreenShots = screenShots;
+                gameInfo.Tags = tags.Select(x => new Tag
+                {
+                    Name = x
+                }).ToList();
                 return gameInfo;
             }
 

@@ -152,28 +152,9 @@ namespace GameManager.GameInfoProvider
                         List<StaffModel> fetchStaffList = staffElements.Deserialize<List<StaffModel>>() ?? [];
                         List<Staff> staffList = await FetchStaffListAsync(fetchStaffList);
                         gameInfo.Staffs = staffList;
-                        List<string> tags = [];
-                        foreach (JsonElement staffElement in staffElements.EnumerateArray())
-                        {
-                            if (!staffElement.TryGetProperty("role", out JsonElement roleProp) ||
-                                (roleProp.GetString() != "art" && roleProp.GetString() != "chardesign"))
-                                continue;
-                            if (staffElement.TryGetProperty("original", out JsonElement originalProp))
-                            {
-                                string? originString = originalProp.GetString();
-                                if (originString != null)
-                                {
-                                    tags.Add(originString);
-                                    continue;
-                                }
-                            }
-
-                            if (!staffElement.TryGetProperty("name", out JsonElement nameProp))
-                                continue;
-                            string? nameString = nameProp.GetString();
-                            if (nameString != null)
-                                tags.Add(nameString);
-                        }
+                        var tags = staffList.Where(x => x.StaffRole.Id != StaffRoleEnum.STAFF).Select(x => x.Name)
+                            .ToList();
+                        tags.AddRange(developerList);
 
                         List<RelatedSite> relatedSites =
                         [

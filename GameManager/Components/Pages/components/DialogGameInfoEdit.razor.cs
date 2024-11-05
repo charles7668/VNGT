@@ -85,13 +85,13 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnAddTagClick(MouseEventArgs obj)
         {
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogMultiLineInputBox>("Add Tags",
+            IDialogReference dialogReference = await DialogService.ShowAsync<DialogMultiLineInputBox>("Add Tags",
                 new DialogOptions
                 {
                     BackdropClick = false
                 });
             DialogResult? dialogResult = await dialogReference.Result;
-            if (dialogResult.Canceled)
+            if (dialogResult is null or { Canceled: true })
                 return;
             if (dialogResult.Data is not string tags)
                 return;
@@ -185,6 +185,10 @@ namespace GameManager.Components.Pages.components
                     info.LaunchOption.IsVNGTTranslatorNeedAdmin = Model.IsVNGTTranslatorNeedAdmin;
                     foreach (Tag tag in info.Tags)
                         TryAddTag(tag.Name);
+                    info.Tags = Model.Tags.Select(x => new Tag
+                    {
+                        Name = x
+                    }).ToList();
                     DataMapService.Map(info, Model);
                 }
                 catch (FileNotFoundException e)
@@ -277,13 +281,13 @@ namespace GameManager.Components.Pages.components
         private async Task UploadByUrl()
         {
             Debug.Assert(DialogService != null);
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogImageChange>("Change Cover",
+            IDialogReference dialogReference = await DialogService.ShowAsync<DialogImageChange>("Change Cover",
                 new DialogOptions
                 {
                     BackdropClick = false
                 });
             DialogResult? dialogResult = await dialogReference.Result;
-            if (dialogResult.Canceled)
+            if (dialogResult is null or { Canceled: true })
                 return;
             string? cover = dialogResult.Data as string;
             Model.Cover = cover;

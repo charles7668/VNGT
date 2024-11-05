@@ -1,6 +1,5 @@
 ﻿using GameManager.DB.Enums;
 using GameManager.DB.Models;
-using GameManager.Enums;
 using GameManager.Models;
 using GameManager.Services;
 using Microsoft.Extensions.Logging;
@@ -225,10 +224,11 @@ namespace GameManager.GameInfoProvider
                         if (staffModels != null)
                         {
                             staffList = await GetStaffListAsync(staffModels);
-                            tagList.AddRange(staffList.Select(x => new Tag
-                            {
-                                Name = x.Name
-                            }));
+                            tagList.AddRange(staffList.Where(x => x.StaffRole.Id != StaffRoleEnum.STAFF).Select(x =>
+                                new Tag
+                                {
+                                    Name = x.Name
+                                }));
                         }
                     }
 
