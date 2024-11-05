@@ -203,12 +203,11 @@ namespace GameManager.Database
                 gameInfo.ReleaseInfos.Add(releaseInfo);
             }
 
-            foreach (ReleaseInfo releaseInfo in gameInfo.ReleaseInfos)
-            {
-                releaseInfo.ExternalLinks.RemoveAll(x => x.ConcurrencyStamp != concurrencyStamp);
-            }
+            string? oldConcurrencyStamp = gameInfo.ReleaseInfos
+                .FirstOrDefault(x => x.ConcurrencyStamp != concurrencyStamp)?.ConcurrencyStamp;
 
-            gameInfo.ReleaseInfos.RemoveAll(x => x.ConcurrencyStamp != concurrencyStamp);
+            await context.ExternalLinks.Where(x => x.ConcurrencyStamp == oldConcurrencyStamp).ExecuteDeleteAsync();
+            await context.ReleaseInfos.Where(x => x.ConcurrencyStamp == oldConcurrencyStamp).ExecuteDeleteAsync();
         }
 
         public async Task UpdateRelatedSitesAsync(Expression<Func<GameInfo, bool>> query,
@@ -228,7 +227,9 @@ namespace GameManager.Database
                 gameInfo.RelatedSites.Add(relatedSite);
             }
 
-            gameInfo.RelatedSites.RemoveAll(x => x.ConcurrencyStamp != concurrencyStamp);
+            string? oldConcurrencyStamp = gameInfo.RelatedSites
+                .FirstOrDefault(x => x.ConcurrencyStamp != concurrencyStamp)?.ConcurrencyStamp;
+            await context.RelatedSites.Where(x => x.ConcurrencyStamp == oldConcurrencyStamp).ExecuteDeleteAsync();
             context.GameInfos.Update(gameInfo);
         }
 
