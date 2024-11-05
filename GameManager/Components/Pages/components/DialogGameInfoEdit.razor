@@ -61,6 +61,9 @@
                         </MudToolBar>
                         <MudToolBar Class="pa-0 ma-0">
                             <MudTextField ReadOnly="true" @bind-Value="Model.ExePath"
+                                          AdornmentIcon="@Icons.Material.Filled.Folder"
+                                          Adornment="Adornment.End"
+                                          OnAdornmentClick="OnExecutionPathSelectClick" 
                                           For="@(() => Model.ExePath)"
                                           Label="@Resources.GameEditorDialog_Caption_ExecutionFilePath" />
                             @if (_scanningExecutionFileTask.IsCompleted)

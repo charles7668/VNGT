@@ -10,9 +10,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using Windows.Storage;
-using Windows.Storage.Pickers;
-using WinRT.Interop;
 
 namespace GameManager.Components.Pages.components
 {
@@ -59,6 +56,9 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private IAppPathService AppPathService { get; set; } = null!;
+
+        [Inject]
+        private IPickFolderService PickFolderService { get; set; } = null!;
 
         private List<string> ExeFiles { get; set; } = [];
 
@@ -227,18 +227,7 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnSaveBrowseClick(MouseEventArgs obj)
         {
-            var folderPicker = new FolderPicker();
-            folderPicker.FileTypeFilter.Add("*");
-            IElementHandler? elementHandler = Application.Current?.Windows[0].Handler;
-            IntPtr? handle = ((MauiWinUIWindow?)elementHandler?.PlatformView)?.WindowHandle;
-            if (handle != null)
-            {
-                InitializeWithWindow.Initialize(folderPicker, (IntPtr)handle);
-                StorageFolder? result = await folderPicker.PickSingleFolderAsync();
-                if (result == null)
-                    return;
-                Model.SaveFilePath = result.Path;
-            }
+            await PickFolderService.PickFolderAsync(path => Model.SaveFilePath = path);
         }
 
         private void OnTagRemoveClick(MudChip<string> chip)
@@ -291,6 +280,45 @@ namespace GameManager.Components.Pages.components
                 return;
             string? cover = dialogResult.Data as string;
             Model.Cover = cover;
+        }
+
+        private async Task OnExecutionPathSelectClick()
+        {
+            await PickFolderService.PickFolderAsync(path =>
+            {
+                if (path == Model.ExePath)
+                    return;
+                Model.ExePath = path;
+                Model.ExeFile = null;
+                _scanningExecutionFileCts.Cancel();
+                _ = ReloadExeFilesAsync();
+            });
+        }
+
+        private Task ReloadExeFilesAsync()
+        {
+            ExeFiles = ["Not Set"];
+            _scanningExecutionFileTask = Task.Run(() =>
+            {
+                Queue<string> dirs = new();
+                if (!Directory.Exists(Model.ExePath)) return;
+                dirs.Enqueue(Model.ExePath);
+                while (dirs.Count > 0 && !_scanningExecutionFileCts.Token.IsCancellationRequested)
+                {
+                    string dir = dirs.Dequeue();
+                    string[] subDirs = Directory.GetDirectories(dir);
+                    foreach (string subDir in subDirs)
+                        dirs.Enqueue(subDir);
+                    foreach (string file in Directory.EnumerateFiles(dir, "*.exe"))
+                        ExeFiles.Add(Path.GetRelativePath(Model.ExePath, Path.GetFullPath(file)));
+                }
+
+                if (_scanningExecutionFileCts.Token.IsCancellationRequested)
+                    return;
+                Application.Current?.Dispatcher.Dispatch(StateHasChanged);
+            });
+            _ = InvokeAsync(StateHasChanged);
+            return Task.CompletedTask;
         }
 
         public class FormModel
@@ -365,26 +393,7 @@ namespace GameManager.Components.Pages.components
 
             Model.LeConfig ??= "None";
 
-            ExeFiles = ["Not Set"];
-            _scanningExecutionFileTask = Task.Run(() =>
-            {
-                Queue<string> dirs = new();
-                if (!Directory.Exists(Model.ExePath)) return;
-                dirs.Enqueue(Model.ExePath);
-                while (dirs.Count > 0 && !_scanningExecutionFileCts.Token.IsCancellationRequested)
-                {
-                    string dir = dirs.Dequeue();
-                    string[] subDirs = Directory.GetDirectories(dir);
-                    foreach (string subDir in subDirs)
-                        dirs.Enqueue(subDir);
-                    foreach (string file in Directory.EnumerateFiles(dir, "*.exe"))
-                        ExeFiles.Add(Path.GetRelativePath(Model.ExePath, Path.GetFullPath(file)));
-                }
-
-                if (_scanningExecutionFileCts.Token.IsCancellationRequested)
-                    return;
-                Application.Current?.Dispatcher.Dispatch(StateHasChanged);
-            });
+            _ = ReloadExeFilesAsync();
 
             _tagHashSet = Model.Tags.ToHashSet();
 

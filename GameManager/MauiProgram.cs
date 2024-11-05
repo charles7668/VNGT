@@ -56,6 +56,7 @@ namespace GameManager
             builder.Services.AddSingleton<IConfigService, ConfigService>();
             builder.Services.AddSingleton<IStaffService, StaffService>();
             builder.Services.AddSingleton<ISaveDataManager, SaveDataManager>();
+            builder.Services.AddSingleton<IPickFolderService, PickFolderService>();
 
 #if DEBUG
             IAppPathService appPathService = new DebugAppPathService();
