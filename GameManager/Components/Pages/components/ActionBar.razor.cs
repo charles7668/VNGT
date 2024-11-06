@@ -166,7 +166,7 @@ namespace GameManager.Components.Pages.components
                     FullWidth = true,
                     MaxWidth = MaxWidth.Small
                 });
-
+            var showProgressDialogTimeStamp = DateTime.Now;
             try
             {
                 Process? installProc = null;
@@ -337,6 +337,9 @@ namespace GameManager.Components.Pages.components
             }
             finally
             {
+                // dialog progress should be shown at least 1 second for avoid crash
+                TimeSpan waitingTime = TimeSpan.FromSeconds(1) - (DateTime.Now - showProgressDialogTimeStamp);
+                await Task.Delay(waitingTime.Milliseconds > 0 ? waitingTime : TimeSpan.Zero);
                 dialogReferenceProgress.Close();
             }
         }
