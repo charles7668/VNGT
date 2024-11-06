@@ -96,7 +96,7 @@ namespace GameManager.Components.Pages.components
                 .AddYamlFile(confFileName, false, false)
                 .Build();
             string version = configuration.GetValue("Version", "") ?? "";
-            if (string.IsNullOrWhiteSpace(version) || new Version(version) < new Version("0.3.0"))
+            if (string.IsNullOrWhiteSpace(version) || new Version(version) < new Version("0.4.0"))
             {
                 Snackbar.Add(reinstallMessage, Severity.Warning);
                 return;
@@ -160,35 +160,6 @@ namespace GameManager.Components.Pages.components
             string tempConsoleOutputPath = Path.Combine(tempPath, "output.txt");
             string tempConsoleErrorPath = Path.Combine(tempPath, "error.txt");
 
-            var processTracerStartInfo = new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                WorkingDirectory = AppPathService.AppDirPath,
-                Arguments =
-                    $"/c {processTracingToolPath} --hide --file \"{installFileResult.FullPath}\" > \"{tempConsoleOutputPath}\" 2>\"{tempConsoleErrorPath}\" --wait 5000",
-                RedirectStandardOutput = false,
-                RedirectStandardError = false,
-                UseShellExecute = true,
-                CreateNoWindow = true,
-                Verb = "runas"
-            };
-            Process? processTracerProc;
-            try
-            {
-                processTracerProc = Process.Start(processTracerStartInfo);
-                if (processTracerProc == null)
-                {
-                    Snackbar.Add("Failed to start ProcessTracer tool", Severity.Error);
-                    return;
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e, "Failed to start ProcessTracer tool : {Exception}", e.ToString());
-                Snackbar.Add("Failed to start ProcessTracer tool", Severity.Error);
-                return;
-            }
-
             IDialogReference? dialogReferenceProgress = await DialogService.ShowAsync<ProgressDialog>("Installing",
                 new DialogOptions
                 {
@@ -198,6 +169,7 @@ namespace GameManager.Components.Pages.components
 
             try
             {
+                Process? installProc = null;
                 if (!string.IsNullOrEmpty(guid))
                 {
                     var leProcessStartInfo = new ProcessStartInfo
@@ -207,6 +179,7 @@ namespace GameManager.Components.Pages.components
                         UseShellExecute = false
                     };
                     var leProc = Process.Start(leProcessStartInfo);
+                    installProc = leProc;
                     if (leProc != null)
                     {
                         var cancellationTokenSource = new CancellationTokenSource();
@@ -229,7 +202,7 @@ namespace GameManager.Components.Pages.components
                     };
                     try
                     {
-                        Process.Start(processStartInfo);
+                        installProc = Process.Start(processStartInfo);
                     }
                     catch (Exception e)
                     {
@@ -237,7 +210,41 @@ namespace GameManager.Components.Pages.components
                     }
                 }
 
-                await processTracerProc.WaitForExitAsync();
+                Process? processTracerProc = null;
+                if (installProc != null)
+                {
+                    var processTracerStartInfo = new ProcessStartInfo
+                    {
+                        FileName = "cmd.exe",
+                        WorkingDirectory = AppPathService.AppDirPath,
+                        Arguments =
+                            $"/c {processTracingToolPath} --hide --pid {installProc.Id} --file \"{installFileResult.FullPath}\" --disable-registry > \"{tempConsoleOutputPath}\" 2>\"{tempConsoleErrorPath}\" --wait 5000",
+                        RedirectStandardOutput = false,
+                        RedirectStandardError = false,
+                        UseShellExecute = true,
+                        CreateNoWindow = true,
+                        Verb = "runas"
+                    };
+
+                    try
+                    {
+                        processTracerProc = Process.Start(processTracerStartInfo);
+                        if (processTracerProc == null)
+                        {
+                            Snackbar.Add("Failed to start ProcessTracer tool", Severity.Error);
+                            return;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.LogError(e, "Failed to start ProcessTracer tool : {Exception}", e.ToString());
+                        Snackbar.Add("Failed to start ProcessTracer tool", Severity.Error);
+                        return;
+                    }
+                }
+
+                if (processTracerProc != null)
+                    await processTracerProc.WaitForExitAsync();
                 string target = "";
                 string errors = "";
                 if (File.Exists(tempConsoleErrorPath))

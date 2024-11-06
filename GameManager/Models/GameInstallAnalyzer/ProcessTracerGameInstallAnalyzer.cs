@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using ABI.Windows.Security.Isolation;
+using System.Text;
 
 namespace GameManager.Models.GameInstallAnalyzer
 {
@@ -8,6 +9,7 @@ namespace GameManager.Models.GameInstallAnalyzer
         [
             Environment.GetFolderPath(Environment.SpecialFolder.Windows),
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+            Path.GetTempPath(),
             "C:\\Program Files\\Sandboxie-Plus"
         ];
 
@@ -40,7 +42,7 @@ namespace GameManager.Models.GameInstallAnalyzer
                     int startIndex = line.LastIndexOf(", File: ", StringComparison.Ordinal);
                     string filePath = line.Substring(startIndex + 8);
                     // if the file path is in the exclude path, skip it
-                    if (excludePath.Any(p => filePath.StartsWith(p)))
+                    if (excludePath.Any(p => filePath.ToLower().StartsWith(p.ToLower())))
                     {
                         continue;
                     }
