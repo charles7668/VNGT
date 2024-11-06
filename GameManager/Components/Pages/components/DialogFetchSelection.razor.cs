@@ -30,7 +30,7 @@ namespace GameManager.Components.Pages.components
         public bool HasMore { get; set; }
 
         [Parameter]
-        public string ProviderName { get; set; }
+        public string ProviderName { get; set; } = null!;
 
         private bool PrevBtnDisabled => _page <= 1;
 
@@ -75,7 +75,7 @@ namespace GameManager.Components.Pages.components
         {
             if (DisplayInfos == null || DisplayInfos.Count == 0)
             {
-                MudDialog.Close(null);
+                MudDialog.Close();
                 return Task.CompletedTask;
             }
 

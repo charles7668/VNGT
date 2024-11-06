@@ -33,8 +33,8 @@ namespace GameManager.Components.Pages
         protected override void OnInitialized()
         {
             AppSetting = ConfigService.GetAppSetting();
-            GuideSites = AppSetting.GuideSites?.ToList() ?? new List<GuideSite>();
-            TextMappings = AppSetting.TextMappings?.ToList() ?? new List<TextMapping>();
+            GuideSites = AppSetting.GuideSites.ToList();
+            TextMappings = AppSetting.TextMappings.ToList();
             base.OnInitialized();
         }
 
@@ -112,9 +112,7 @@ namespace GameManager.Components.Pages
                             return "Name is required";
                         }
 
-                        if (AppSetting.GuideSites != null && AppSetting.GuideSites.Any(x => x.Name == s))
-                            return "Name is exist";
-                        return null;
+                        return AppSetting.GuideSites.Any(x => x.Name == s) ? "Name is exist" : null;
                     }
                 },
                 new()
@@ -128,18 +126,17 @@ namespace GameManager.Components.Pages
             {
                 { x => x.Inputs, inputModel }
             };
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogInputBox>("Add Guide Site",
+            IDialogReference dialogReference = await DialogService.ShowAsync<DialogInputBox>("Add Guide Site",
                 parameters, new DialogOptions
                 {
                     BackdropClick = false
                 });
-            DialogResult? dialogResult = await dialogReference?.Result;
-            if (dialogResult == null || dialogResult.Canceled)
+            DialogResult? dialogResult = await dialogReference.Result;
+            if (dialogResult is null or { Canceled: true })
             {
                 return;
             }
 
-            GuideSites ??= [];
             var guideSite = new GuideSite
             {
                 Name = inputModel[0].Value,
@@ -189,9 +186,7 @@ namespace GameManager.Components.Pages
                             return "Original is required";
                         }
 
-                        if (AppSetting.GuideSites != null && AppSetting.GuideSites.Any(x => x.Name == s))
-                            return "Original is exist";
-                        return null;
+                        return AppSetting.GuideSites.Any(x => x.Name == s) ? "Original is exist" : null;
                     }
                 },
                 new()
@@ -205,18 +200,17 @@ namespace GameManager.Components.Pages
             {
                 { x => x.Inputs, inputModel }
             };
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogInputBox>("Add Text Mapping",
+            IDialogReference dialogReference = await DialogService.ShowAsync<DialogInputBox>("Add Text Mapping",
                 parameters, new DialogOptions
                 {
                     BackdropClick = false
                 });
-            DialogResult? dialogResult = await dialogReference?.Result;
-            if (dialogResult == null || dialogResult.Canceled)
+            DialogResult? dialogResult = await dialogReference.Result;
+            if (dialogResult is null or { Canceled: true })
             {
                 return;
             }
 
-            TextMappings ??= [];
             var textMapping = new TextMapping
             {
                 Original = inputModel[0].Value,

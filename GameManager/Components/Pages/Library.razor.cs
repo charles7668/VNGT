@@ -110,13 +110,13 @@ namespace GameManager.Components.Pages
             {
                 { x => x.Content, "Are you sure you want to delete?" }
             };
-            IDialogReference? dialogReference = await DialogService.ShowAsync<DialogConfirm>("Warning", parameters,
+            IDialogReference dialogReference = await DialogService.ShowAsync<DialogConfirm>("Warning", parameters,
                 new DialogOptions
                 {
                     BackdropClick = false
                 });
             DialogResult? dialogResult = await dialogReference.Result;
-            if (dialogResult.Canceled)
+            if (dialogResult is null or { Canceled: true })
                 return;
 
             int id = Libraries[SelectionIndex].Id;
@@ -201,7 +201,7 @@ namespace GameManager.Components.Pages
                                                 continue;
                                             GameInfo? tempInfo =
                                                 await provider.FetchGameDetailByIdAsync(id);
-                                            Logger.LogInformation("Scan result {Info}", tempInfo);
+                                            Logger.LogInformation("Scan result {@Info}", tempInfo);
                                             if (tempInfo == null)
                                                 continue;
                                             tempInfo.ExePath = folder;

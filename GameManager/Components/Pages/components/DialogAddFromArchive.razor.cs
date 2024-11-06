@@ -61,16 +61,16 @@ namespace GameManager.Components.Pages.components
             DialogInstance.Cancel();
         }
 
-        private async Task<IEnumerable<string>> GameNameValidate(string? gameName)
+        private Task<IEnumerable<string>> GameNameValidate(string? gameName)
         {
             if (Result.TargetLibrary is null)
             {
-                return ["Please select a library"];
+                return Task.FromResult<IEnumerable<string>>(["Please select a library"]);
             }
 
             if (gameName is null)
             {
-                return ["Please enter a game name"];
+                return Task.FromResult<IEnumerable<string>>(["Please enter a game name"]);
             }
 
             try
@@ -79,16 +79,16 @@ namespace GameManager.Components.Pages.components
                 _ = new DirectoryInfo(targetPath);
                 if (Directory.Exists(targetPath))
                 {
-                    return ["Game already exists"];
+                    return Task.FromResult<IEnumerable<string>>(["Game already exists"]);
                 }
             }
             catch (Exception e)
             {
-                return [e.Message];
+                return Task.FromResult<IEnumerable<string>>([e.Message]);
             }
 
 
-            return [];
+            return Task.FromResult<IEnumerable<string>>([]);
         }
 
         private void OnLibraryChanged()

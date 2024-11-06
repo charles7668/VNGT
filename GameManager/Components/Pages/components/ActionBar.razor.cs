@@ -108,7 +108,7 @@ namespace GameManager.Components.Pages.components
             string guid = "";
             if (File.Exists(leExePath))
             {
-                IDialogReference? dialogReference = await DialogService.ShowAsync<DialogUseLECheck>("Information",
+                IDialogReference dialogReference = await DialogService.ShowAsync<DialogUseLECheck>("Information",
                     new DialogOptions
                     {
                         MaxWidth = MaxWidth.Small,
@@ -160,7 +160,7 @@ namespace GameManager.Components.Pages.components
             string tempConsoleOutputPath = Path.Combine(tempPath, "output.txt");
             string tempConsoleErrorPath = Path.Combine(tempPath, "error.txt");
 
-            IDialogReference? dialogReferenceProgress = await DialogService.ShowAsync<ProgressDialog>("Installing",
+            IDialogReference dialogReferenceProgress = await DialogService.ShowAsync<ProgressDialog>("Installing",
                 new DialogOptions
                 {
                     FullWidth = true,
@@ -427,7 +427,7 @@ namespace GameManager.Components.Pages.components
                     MaxWidth = MaxWidth.Small
                 });
             DialogResult? dialogResult = await dialogReference.Result;
-            if (dialogResult.Canceled)
+            if (dialogResult is null or { Canceled: true })
                 return;
             var extractOption = (DialogAddFromArchive.Model?)dialogResult.Data;
             if (extractOption?.GameName == null || extractOption.TargetLibrary == null)
