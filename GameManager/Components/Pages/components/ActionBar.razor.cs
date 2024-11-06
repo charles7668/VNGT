@@ -179,33 +179,65 @@ namespace GameManager.Components.Pages.components
                         UseShellExecute = false
                     };
                     var leProc = Process.Start(leProcessStartInfo);
-                    installProc = leProc;
-                    if (leProc != null)
+                    await Task.Delay(500);
+                    DateTime timeStamp = DateTime.UtcNow;
+                    while (leProc != null)
                     {
-                        var cancellationTokenSource = new CancellationTokenSource();
-                        cancellationTokenSource.CancelAfter(500);
+                        List<Process> childList = ProcessHelper.GetChildProcessesByParentPid(leProc.Id);
+                        Process? childLeProc = childList.FirstOrDefault(x =>
+                        {
+                            try
+                            {
+                                return x.ProcessName == "LEProc";
+                            }
+                            catch
+                            {
+                                return false;
+                            }
+                        });
                         try
                         {
-                            await leProc.WaitForExitAsync(cancellationTokenSource.Token);
+                            if (childLeProc == null)
+                            {
+                                Process? firstProc = childList.FirstOrDefault();
+                                installProc = firstProc ?? throw new Exception();
+                                break;
+                            }
+
+                            leProc = childLeProc;
                         }
-                        catch (TaskCanceledException)
+                        catch
                         {
-                            // ignore
+                            installProc = null;
+                            if (DateTime.UtcNow - timeStamp <= TimeSpan.FromSeconds(5))
+                            {
+                                await Task.Delay(500);
+                                continue;
+                            }
+
+                            break;
                         }
                     }
                 }
                 else
                 {
-                    var processStartInfo = new ProcessStartInfo
-                    {
-                        FileName = installFileResult.FullPath
-                    };
                     try
                     {
-                        installProc = Process.Start(processStartInfo);
+                        bool isRunAsAdmin = UACChecker.RequiresElevation(installFileResult.FullPath);
+                        var processStartInfo = new ProcessStartInfo
+                        {
+                            FileName = installFileResult.FullPath,
+                            UseShellExecute = isRunAsAdmin,
+                            Verb = isRunAsAdmin ? "runas" : ""
+                        };
+                        var proc = Process.Start(processStartInfo);
+                        proc?.WaitForInputIdle();
+                        // get process again
+                        installProc = proc != null ? Process.GetProcessById(proc.Id) : null;
                     }
                     catch (Exception e)
                     {
+                        installProc = null;
                         Logger.LogError(e, "Failed to start install program");
                     }
                 }
@@ -241,6 +273,9 @@ namespace GameManager.Components.Pages.components
                         Snackbar.Add("Failed to start ProcessTracer tool", Severity.Error);
                         return;
                     }
+
+                    IntPtr hwnd = installProc.MainWindowHandle;
+                    WindowsAPI.SetForegroundWindow(hwnd);
                 }
 
                 if (processTracerProc != null)
