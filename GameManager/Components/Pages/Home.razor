@@ -51,7 +51,7 @@
                                               OnShowDetail="OnShowDetail"
                                               CardItemWidth="CardItemWidth"
                                               IsSelected="@(viewInfo is { Display: true, IsSelected: true } && IsSelectionMode)"
-                                              GameInfo="viewInfo.Info"
+                                              GameInfoParam="viewInfo.Info"
                                               Class="@(viewInfo.Display ? "card" : "card card-hidden")"
                                               OnDeleteEventCallback="OnDeleteGameCard">
                                         </Card>

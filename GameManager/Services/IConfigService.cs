@@ -27,7 +27,7 @@ namespace GameManager.Services
 
         Task DeleteLibraryByIdAsync(int id);
 
-        Task EditGameInfo(GameInfo info);
+        Task<GameInfo> EditGameInfo(GameInfo info);
 
         AppSetting GetAppSetting();
 

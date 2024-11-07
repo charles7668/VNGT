@@ -200,13 +200,13 @@ namespace GameManager.Services
         }
 
 
-        public async Task EditGameInfo(GameInfo info)
+        public async Task<GameInfo> EditGameInfo(GameInfo info)
         {
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             GameInfo? currentEntity = await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == info.Id);
             if (currentEntity == null)
-                return;
+                throw new ArgumentException($"GameInfo of id {info.Id} not found");
             List<Tag> tags = info.Tags;
             List<Staff> staffs = info.Staffs;
             List<Character> characters = info.Characters;
@@ -226,13 +226,26 @@ namespace GameManager.Services
                 info.BackgroundImageUrl = info.ScreenShots[0];
             }
 
-            await unitOfWork.GameInfoRepository.EditAsync(info);
-            await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == info.Id, staffs);
-            await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == info.Id, characters);
-            await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == info.Id, releaseInfos);
-            await unitOfWork.GameInfoRepository.UpdateRelatedSitesAsync(x => x.Id == info.Id, relatedSites);
-            await unitOfWork.GameInfoRepository.UpdateTagsAsync(x => x.Id == info.Id, tags);
-            await unitOfWork.SaveChangesAsync();
+            try
+            {
+                unitOfWork.BeginTransaction();
+                await unitOfWork.GameInfoRepository.EditAsync(info);
+                await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == info.Id, staffs);
+                await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == info.Id, characters);
+                await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == info.Id, releaseInfos);
+                await unitOfWork.GameInfoRepository.UpdateRelatedSitesAsync(x => x.Id == info.Id, relatedSites);
+                await unitOfWork.GameInfoRepository.UpdateTagsAsync(x => x.Id == info.Id, tags);
+                await unitOfWork.SaveChangesAsync();
+                unitOfWork.CommitTransaction();
+            }
+            catch (Exception)
+            {
+                unitOfWork.RollbackTransaction();
+                throw;
+            }
+
+            GameInfo? returnGameInfo = await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == info.Id);
+            return returnGameInfo!;
         }
 
         public AppSetting GetAppSetting()

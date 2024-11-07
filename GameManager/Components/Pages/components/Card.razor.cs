@@ -49,6 +49,8 @@ namespace GameManager.Components.Pages.components
         private ISaveDataManager SaveDataManager { get; set; } = null!;
 
         [Parameter]
+        public GameInfo? GameInfoParam { get; set; }
+        
         public GameInfo? GameInfo { get; set; }
 
         [Parameter]
@@ -188,10 +190,11 @@ namespace GameManager.Components.Pages.components
             DataMapService.Map(resultModel, GameInfo);
             try
             {
-                await ConfigService.EditGameInfo(GameInfo);
+                GameInfo = await ConfigService.EditGameInfo(GameInfo);
             }
             catch (Exception e)
             {
+                GameInfo = await ConfigService.GetGameInfoAsync(x => x.Id == GameInfo.Id);
                 Logger.LogError(e, "Error to edit game info");
                 await DialogService.ShowMessageBox("Error", e.Message, cancelText: "Cancel");
             }
@@ -232,6 +235,7 @@ namespace GameManager.Components.Pages.components
         {
             try
             {
+                GameInfo = ConfigService.GetGameInfoAsync(x => x.Id == GameInfoParam!.Id).Result;
                 base.OnInitialized();
             }
             catch (Exception e)
