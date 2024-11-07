@@ -6,6 +6,8 @@ using GameManager.Models;
 using GameManager.Models.GameInstallAnalyzer;
 using GameManager.Models.SaveDataManager;
 using GameManager.Services;
+using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
@@ -46,6 +48,10 @@ namespace GameManager
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices();
 
+            // GlobalConfiguration.Configuration
+            //     .UseMemoryStorage();
+            builder.Services.AddHangfire(config => config.UseMemoryStorage());
+            builder.Services.AddHangfireServer();
 
             if (programArg.IsDebugMode)
             {
@@ -81,6 +87,7 @@ namespace GameManager
             builder.Services.AddScoped<IGameInstallAnalyzer, ProcessTracerGameInstallAnalyzer>();
 
             builder.Services.AddExtractors();
+            builder.Services.AddSynchronizers();
 
             if (programArg.IsDebugMode)
             {

@@ -46,7 +46,12 @@ namespace GameManager.DB.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("SyncInterval")
-                        .HasColumnType("INTEGER");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(1);
+
+                    b.Property<DateTime>("UpdatedTime")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UpdatedTime")
                         .HasColumnType("TEXT");

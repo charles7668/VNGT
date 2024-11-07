@@ -1,5 +1,8 @@
 ﻿using GameManager.Extractor;
 using GameManager.GameInfoProvider;
+using GameManager.Models.Synchronizer;
+using GameManager.Models.Synchronizer.Drivers;
+using GameManager.Models.TaskManager;
 using GameManager.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -23,6 +26,15 @@ namespace GameManager.Extensions
             services.AddScoped<IGameInfoProvider, DLSiteProvider>();
             services.AddScoped<IGameInfoProvider, YmgalInfoProvider>();
             services.AddScoped<GameInfoProviderFactory, GameInfoProviderFactory>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddSynchronizers(this IServiceCollection services)
+        {
+            services.TryAddSingleton<ITaskManager, TaskManager>();
+            services.AddSingleton<IWebDAVDriver, WebDAVWebDAVDriver>();
+            services.AddSingleton<ISynchronizer, Synchronizer>();
 
             return services;
         }

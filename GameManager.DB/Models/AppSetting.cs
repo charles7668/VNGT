@@ -33,10 +33,10 @@ namespace GameManager.DB.Models
         public string? WebDAVPassword { get; set; }
 
         /// <summary>
-        /// sync interval in seconds , default 60 seconds , min 5 seconds
+        /// sync interval in minutes , default is 1
         /// </summary>
-        [Range(5, int.MaxValue)]
-        public int SyncInterval { get; set; } = 60;
+        [Range(1, int.MaxValue)]
+        public int SyncInterval { get; set; } = 1;
 
         public DateTime UpdatedTime { get; set; } = DateTime.MinValue;
     }

@@ -465,6 +465,9 @@
   <data name="Settings.Caption.TextMapping" xml:space="preserve">
     <value>文字映射</value>
   </data>
+  <data name="Settings.EnableSync" xml:space="preserve">
+    <value>啟用同步</value>
+  </data>
   <data name="TagSetPage.Title" xml:space="preserve">
     <value>标签集</value>
   </data>

@@ -39,6 +39,9 @@ namespace GameManager.DB
                 .Property(x => x.IsAutoFetchInfoEnabled)
                 .HasDefaultValue(true);
             modelBuilder.Entity<AppSetting>()
+                .Property(x => x.SyncInterval)
+                .HasDefaultValue(1);
+            modelBuilder.Entity<AppSetting>()
                 .Property(x => x.Localization)
                 .HasDefaultValue("zh-tw");
             modelBuilder.Entity<GameInfo>()

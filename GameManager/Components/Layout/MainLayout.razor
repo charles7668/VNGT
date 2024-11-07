@@ -14,13 +14,3 @@
         @Body
     </MudMainContent>
 </MudLayout>
-
-@code
-{
-    protected override void OnInitialized()
-    {
-        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomLeft;
-        Snackbar.Configuration.PreventDuplicates = false;
-        Snackbar.Configuration.VisibleStateDuration = 5000;
-    }
-}

@@ -35,6 +35,43 @@
                 <MudElement>
                     <MudCheckBox T="bool" @bind-Value="AppSetting.IsAutoFetchInfoEnabled">@Resources.Settings_Button_EnableAutoFetchInfoOnScan</MudCheckBox>
                 </MudElement>
+                <MudElement Class="d-flex flex-row align-items-center w-25">
+                    <MudCheckBox T="bool"
+                                 Value="AppSetting.EnableSync"
+                                 ValueChanged="@(enable => { if (AppSetting.EnableSync == enable) { return; } AppSetting.EnableSync = enable; _syncSettingChange = true; })">
+                        @Resources.Settings_EnableSync
+                    </MudCheckBox>
+                    <MudNumericField T="int"
+                                     Value="AppSetting.SyncInterval"
+                                     Variant="Variant.Outlined"
+                                     FullWidth="false"
+                                     Label="Interval"
+                                     ValueChanged="@(i => { if (AppSetting.SyncInterval == i) { return; } AppSetting.SyncInterval = i; _syncSettingChange = true; })"
+                                     Min="1"
+                                     Max="int.MaxValue">
+                    </MudNumericField>
+                </MudElement>
+                <MudElement>
+                    <MudTextField T="string"
+                                  Label="WebDAV Url"
+                                  For="() => AppSetting.WebDAVUrl!"
+                                  @bind-Value="AppSetting.WebDAVUrl">
+                    </MudTextField>
+                </MudElement>
+                <MudElement>
+                    <MudTextField T="string"
+                                  Label="WebDAV User"
+                                  For="() => AppSetting.WebDAVUser!"
+                                  @bind-Value="AppSetting.WebDAVUser">
+                    </MudTextField>
+                </MudElement>
+                <MudElement>
+                    <MudTextField InputType="InputType.Password" T="string"
+                                  Label="WebDAV Password"
+                                  For="() => AppSetting.WebDAVPassword!"
+                                  @bind-Value="AppSetting.WebDAVPassword">
+                    </MudTextField>
+                </MudElement>
                 <MudStack Row="true">
                     <MudStack Class="list-container">
                         <MudToolBar Class="ma-0 pa-0">
@@ -96,7 +133,7 @@
             </MudStack>
         </MudPaper>
         <MudToolBar Class="flex-grow-0 justify-end">
-            <MudButton OnClick="UpdateSetting" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">@Resources.Dialog_Button_Save</MudButton>
+            <MudButton OnClick="OnSaveClick" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">@Resources.Dialog_Button_Save</MudButton>
         </MudToolBar>
     </MudForm>
 </div>

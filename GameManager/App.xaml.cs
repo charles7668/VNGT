@@ -1,4 +1,6 @@
 ﻿using GameManager.DB;
+using GameManager.DB.Models;
+using GameManager.Models.TaskManager;
 using GameManager.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -66,6 +68,8 @@ namespace GameManager
         }
 
         public static IServiceProvider ServiceProvider { get; private set; } = null!;
+
+        public static string SyncTaskJobName => "BackgroundSyncJob";
 
         protected override Window CreateWindow(IActivationState? activationState)
         {

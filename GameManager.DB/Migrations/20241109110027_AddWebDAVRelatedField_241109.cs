@@ -49,7 +49,7 @@ namespace GameManager.DB.Migrations
                 table: "AppSettings",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 1);
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "UpdatedTime",

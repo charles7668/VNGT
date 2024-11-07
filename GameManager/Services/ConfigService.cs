@@ -60,6 +60,11 @@ namespace GameManager.Services
             File.Copy(srcFile, coverPath, true);
         }
 
+        public AppSettingDTO GetAppSettingDTO()
+        {
+            return AppSettingDTO.Create(_appSetting);
+        }
+
         public Task<string?> GetCoverFullPath(string? coverName)
         {
             if (coverName == null)
@@ -267,6 +272,12 @@ namespace GameManager.Services
             {
                 SizeLimit = 200
             });
+        }
+
+        public Task UpdateAppSettingAsync(AppSettingDTO settingDto)
+        {
+            AppSetting appSetting = settingDto.Convert();
+            return UpdateAppSettingAsync(appSetting);
         }
 
         public Task<List<Library>> GetLibrariesAsync(CancellationToken cancellationToken)

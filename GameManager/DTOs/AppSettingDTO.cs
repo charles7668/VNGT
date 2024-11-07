@@ -1,9 +1,13 @@
 ﻿using GameManager.DB.Models;
+using JetBrains.Annotations;
+using System.Text.Json.Serialization;
 
 namespace GameManager.DTOs
 {
     public class AppSettingDTO : IConvertable<AppSetting>
     {
+        [JsonIgnore]
+        [UsedImplicitly]
         public int Id { get; set; }
 
         public string? LocaleEmulatorPath { get; set; }
@@ -14,9 +18,26 @@ namespace GameManager.DTOs
 
         public string? Localization { get; set; }
 
+        [JsonIgnore]
+        public DateTime UpdatedTime { get; set; }
+
         public List<GuideSiteDTO> GuideSites { get; set; } = [];
 
         public List<TextMappingDTO> TextMappings { get; set; } = [];
+
+        [JsonIgnore]
+        public string WebDAVUrl { get; set; } = "";
+
+        [JsonIgnore]
+        public string WebDAVUser { get; set; } = "";
+
+        [JsonIgnore]
+        public string WebDAVPassword { get; set; } = "";
+
+        [JsonIgnore]
+        public bool EnableSync { get; set; }
+
+        public int SyncInterval { get; set; } = 1;
 
         public AppSetting Convert()
         {
@@ -28,7 +49,13 @@ namespace GameManager.DTOs
                 IsAutoFetchInfoEnabled = IsAutoFetchInfoEnabled,
                 Localization = Localization,
                 GuideSites = GuideSites.Select(x => x.Convert()).ToList(),
-                TextMappings = TextMappings.Select(x => x.Convert()).ToList()
+                TextMappings = TextMappings.Select(x => x.Convert()).ToList(),
+                UpdatedTime = UpdatedTime,
+                WebDAVUrl = WebDAVUrl,
+                WebDAVUser = WebDAVUser,
+                WebDAVPassword = WebDAVPassword,
+                EnableSync = EnableSync,
+                SyncInterval = SyncInterval
             };
         }
 
@@ -42,7 +69,13 @@ namespace GameManager.DTOs
                 IsAutoFetchInfoEnabled = appSetting.IsAutoFetchInfoEnabled,
                 Localization = appSetting.Localization,
                 GuideSites = appSetting.GuideSites.Select(GuideSiteDTO.Create).ToList(),
-                TextMappings = appSetting.TextMappings.Select(TextMappingDTO.Create).ToList()
+                TextMappings = appSetting.TextMappings.Select(TextMappingDTO.Create).ToList(),
+                UpdatedTime = appSetting.UpdatedTime,
+                WebDAVUrl = appSetting.WebDAVUrl ?? "",
+                WebDAVUser = appSetting.WebDAVUser ?? "",
+                WebDAVPassword = appSetting.WebDAVPassword ?? "",
+                EnableSync = appSetting.EnableSync,
+                SyncInterval = appSetting.SyncInterval
             };
         }
     }

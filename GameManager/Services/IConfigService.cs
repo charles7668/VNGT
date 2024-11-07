@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Enums;
 using System.Linq.Expressions;
 
@@ -31,6 +32,8 @@ namespace GameManager.Services
 
         AppSetting GetAppSetting();
 
+        AppSettingDTO GetAppSettingDTO();
+
         Task<string?> GetCoverFullPath(string? coverName);
 
         Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
@@ -47,6 +50,8 @@ namespace GameManager.Services
         Task<TextMapping?> SearchTextMappingByOriginalText(string original);
 
         Task UpdateAppSettingAsync(AppSetting setting);
+        
+        Task UpdateAppSettingAsync(AppSettingDTO settingDto);
 
         Task UpdateLastPlayedByIdAsync(int id, DateTime time);
 
@@ -67,9 +72,9 @@ namespace GameManager.Services
         Task<List<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query);
 
         Task<List<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query);
-        
+
         Task RemoveScreenshotAsync(int gameInfoId, string url);
-        
+
         Task AddScreenshotsAsync(int gameInfoId, List<string> urls);
     }
 }

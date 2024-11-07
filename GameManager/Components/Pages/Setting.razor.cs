@@ -1,8 +1,11 @@
 ﻿using GameManager.Components.Pages.components;
 using GameManager.DB.Models;
+using GameManager.Models;
+using GameManager.Models.TaskManager;
 using GameManager.Properties;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using MudBlazor;
 
@@ -11,8 +14,8 @@ namespace GameManager.Components.Pages
     public partial class Setting
     {
         private int _selectedRowNumber = -1;
-
         private int _selectedTextMappingRowNumber = -1;
+        private bool _syncSettingChange;
 
         private AppSetting AppSetting { get; set; } = null!;
 
@@ -20,7 +23,16 @@ namespace GameManager.Components.Pages
         private IDialogService DialogService { get; set; } = null!;
 
         [Inject]
+        private ISnackbar Snackbar { get; set; } = null!;
+
+        [Inject]
+        private ILogger<Setting> Logger { get; set; } = null!;
+
+        [Inject]
         private IConfigService ConfigService { get; set; } = null!;
+
+        [Inject]
+        private ITaskManager TaskManager { get; set; } = null!;
 
         private MudTable<GuideSite> GuideSiteTable { get; set; } = null!;
 
@@ -38,13 +50,32 @@ namespace GameManager.Components.Pages
             base.OnInitialized();
         }
 
-        private async Task UpdateSetting()
+        private async Task OnSaveClick()
         {
             try
             {
                 AppSetting.GuideSites = GuideSites;
                 AppSetting.TextMappings = TextMappings;
+                AppSetting.UpdatedTime = DateTime.Now;
                 await ConfigService.UpdateAppSettingAsync(AppSetting);
+                if (_syncSettingChange)
+                {
+                    Logger.LogInformation(
+                        "sync setting has change {Enable} , {Interval}, will restart or stop sync task",
+                        AppSetting.EnableSync, AppSetting.SyncInterval);
+                    TaskManager.CancelTask(App.SyncTaskJobName);
+                    if (AppSetting.EnableSync)
+                    {
+                        Result result = await TaskManager.StartBackgroundIntervalTask(App.SyncTaskJobName,
+                            () => TaskExecutor.SyncTask(),
+                            TaskExecutor.CancelSyncTask, AppSetting.SyncInterval);
+                        if (!result.Success)
+                        {
+                            Logger.LogInformation("restart sync task failed : {Message}", result.Message);
+                            Snackbar.Add("error to restart sync task", Severity.Error);
+                        }
+                    }
+                }
             }
             catch (Exception e)
             {
