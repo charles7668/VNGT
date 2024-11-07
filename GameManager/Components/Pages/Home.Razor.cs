@@ -251,6 +251,8 @@ namespace GameManager.Components.Pages
         {
             if (IsDeleting)
                 return;
+            IsLoading = true;
+            await InvokeAsync(StateHasChanged);
             string pattern = parameter.SearchText?.Trim().ToLower() ?? "";
             await Parallel.ForEachAsync(ViewGameInfos, async (viewInfo, _) =>
             {
@@ -274,6 +276,8 @@ namespace GameManager.Components.Pages
             });
 
             _ = VirtualizeComponent?.RefreshDataAsync();
+            IsLoading = false;
+            _ = InvokeAsync(StateHasChanged);
         }
 
         private async Task OnDelete()
