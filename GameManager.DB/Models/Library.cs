@@ -8,5 +8,7 @@ namespace GameManager.DB.Models
 
         [MaxLength(260)]
         public string? FolderPath { get; set; }
+
+        public DateTime UpdatedTime { get; set; } = DateTime.MinValue;
     }
 }

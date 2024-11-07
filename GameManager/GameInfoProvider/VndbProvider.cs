@@ -197,7 +197,7 @@ namespace GameManager.GameInfoProvider
                         gameInfo.GameInfoFetchId = id;
                         gameInfo.Developer = develop;
                         gameInfo.Description = description;
-                        gameInfo.DateTime = released;
+                        gameInfo.ReleaseDate = released;
                         gameInfo.Tags.AddRange(tags.Select(x => new Tag
                         {
                             Name = x

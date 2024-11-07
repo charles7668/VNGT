@@ -12,7 +12,8 @@ namespace GameManager.DB.Models
         public int Id { get; set; }
 
         [Description("Unique ID for each game , used to identify the game")]
-        public Guid GameUniqueId { get; set; } = Guid.NewGuid();
+        [MaxLength(100)]
+        public string GameUniqueId { get; set; } = Guid.NewGuid().ToString();
 
         [Description("Fetch ID , used to fetch info from the internet")]
         [MaxLength(100)]
@@ -45,7 +46,7 @@ namespace GameManager.DB.Models
         [MaxLength(10000)]
         public string? Description { get; set; }
 
-        public DateTime? DateTime { get; set; }
+        public DateTime? ReleaseDate { get; set; }
 
         public int? LaunchOptionId { get; set; }
         public LaunchOption? LaunchOption { get; set; }
@@ -71,5 +72,9 @@ namespace GameManager.DB.Models
         [MaxLength(200)]
         [Description("Background image url")]
         public string? BackgroundImageUrl { get; set; } = string.Empty;
+
+        public DateTime UpdatedTime { get; set; } = DateTime.MinValue;
+        
+        public bool EnableSync { get; set; }
     }
 }

@@ -354,7 +354,7 @@ namespace GameManager.GameInfoProvider
                     {
                         GameInfoFetchId = gameId,
                         GameName = name,
-                        DateTime = gameReleaseDate,
+                        ReleaseDate = gameReleaseDate,
                         GameChineseName = chineseName,
                         GameEnglishName = englishName,
                         Description = introduction,

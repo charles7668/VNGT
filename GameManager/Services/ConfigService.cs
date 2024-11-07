@@ -140,7 +140,7 @@ namespace GameManager.Services
             unitOfWork.BeginTransaction();
             do
             {
-                info.GameUniqueId = Guid.NewGuid();
+                info.GameUniqueId = Guid.NewGuid().ToString();
                 if (await unitOfWork.GameInfoRepository.AnyAsync(x => x.GameUniqueId == info.GameUniqueId))
                     continue;
                 break;

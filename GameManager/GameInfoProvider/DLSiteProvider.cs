@@ -142,7 +142,7 @@ namespace GameManager.GameInfoProvider
                 gameInfo.Developer = brand;
                 gameInfo.CoverPath = img;
                 gameInfo.Staffs = staffList;
-                gameInfo.DateTime = dateParseSuccess ? time : null;
+                gameInfo.ReleaseDate = dateParseSuccess ? time : null;
                 gameInfo.ReleaseInfos = [releaseInfo];
                 gameInfo.RelatedSites = [relatedSite];
                 gameInfo.ScreenShots = screenShots;

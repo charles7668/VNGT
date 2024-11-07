@@ -30,7 +30,7 @@ namespace GameManager.Components.Pages.components
                     GameInfoViewModel.OriginalGameName = GameInfo.GameName ?? "";
                     GameInfoViewModel.ChineseGameName = GameInfo.GameChineseName ?? "";
                     GameInfoViewModel.EnglishGameName = GameInfo.GameEnglishName ?? "";
-                    GameInfoViewModel.ReleaseDate = GameInfo.DateTime?.ToString("yyyy-MM-dd") ??
+                    GameInfoViewModel.ReleaseDate = GameInfo.ReleaseDate?.ToString("yyyy-MM-dd") ??
                                                     DateTime.MinValue.ToString("yyyy-MM-dd");
                     GameInfoViewModel.Developer = GameInfo.Developer ?? Resources.Common_Unknown;
                     GameInfoViewModel.Staffs = GameInfo.Staffs

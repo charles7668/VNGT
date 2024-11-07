@@ -13,7 +13,7 @@ namespace GameManager.Services
             dest.GameEnglishName = src.GameEnglishName;
             dest.Developer = src.Vendor;
             dest.Description = src.Description;
-            dest.DateTime = src.DateTime;
+            dest.ReleaseDate = src.DateTime;
             dest.ExePath = src.ExePath;
             dest.SaveFilePath = src.SaveFilePath;
             dest.ExeFile = src.ExeFile;
@@ -46,7 +46,7 @@ namespace GameManager.Services
             dest.ExePath = src.ExePath;
             dest.SaveFilePath = src.SaveFilePath;
             dest.ExeFile = string.IsNullOrEmpty(src.ExeFile) ? "Not Set" : src.ExeFile;
-            dest.DateTime = src.DateTime;
+            dest.DateTime = src.ReleaseDate;
             dest.RunAsAdmin = src.LaunchOption?.RunAsAdmin ?? false;
             dest.LeConfig = src.LaunchOption?.LaunchWithLocaleEmulator ?? "None";
             dest.RunWithVNGTTranslator = src.LaunchOption?.RunWithVNGTTranslator ?? false;
