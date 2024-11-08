@@ -47,6 +47,12 @@ namespace GameManager.Database
                 .FirstOrDefaultAsync(query);
         }
 
+        public async Task<GameInfo?> GetAsync(int id)
+        {
+            GameInfo? entity = await context.GameInfos.FindAsync(id);
+            return entity;
+        }
+
         public Task<bool> AnyAsync(Expression<Func<GameInfo, bool>> query)
         {
             return context.GameInfos.AnyAsync(query);

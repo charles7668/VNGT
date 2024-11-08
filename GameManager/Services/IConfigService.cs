@@ -30,6 +30,8 @@ namespace GameManager.Services
 
         Task<GameInfo> EditGameInfo(GameInfo info);
 
+        Task UpdateGameInfoFavoriteAsync(int id, bool isFavorite);
+
         AppSetting GetAppSetting();
 
         AppSettingDTO GetAppSettingDTO();

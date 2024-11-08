@@ -1,4 +1,5 @@
 ﻿using GameManager.Database;
+using GameManager.DB;
 using GameManager.DB.Models;
 using GameManager.DTOs;
 using GameManager.Enums;
@@ -249,8 +250,29 @@ namespace GameManager.Services
                 throw;
             }
 
-            GameInfo? returnGameInfo = await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == info.Id);
-            return returnGameInfo!;
+            GameInfo returnGameInfo = (await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == info.Id))!;
+            returnGameInfo.Tags = tags;
+            returnGameInfo.Staffs = staffs;
+            returnGameInfo.Characters = characters;
+            returnGameInfo.ReleaseInfos = releaseInfos;
+            returnGameInfo.RelatedSites = relatedSites;
+            return returnGameInfo;
+        }
+
+        public async Task UpdateGameInfoFavoriteAsync(int id, bool isFavorite)
+        {
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var entity = new GameInfo()
+            {
+                Id = id
+            };
+            AppDbContext context = unitOfWork.Context;
+            context.Attach(entity);
+            entity.IsFavorite = isFavorite;
+            context.Entry(entity).Property(x => x.IsFavorite).IsModified = true;
+            await unitOfWork.SaveChangesAsync();
+            unitOfWork.DetachEntity(entity);
         }
 
         public AppSetting GetAppSetting()

@@ -17,6 +17,8 @@ namespace GameManager.Database
 
         Task<GameInfo?> GetAsync(Expression<Func<GameInfo, bool>> query);
 
+        Task<GameInfo?> GetAsync(int id);
+
         Task<bool> AnyAsync(Expression<Func<GameInfo, bool>> query);
 
         Task EditAsync(GameInfo info);

@@ -1,5 +1,7 @@
 div {
     max-width: 275px;
+    height: 470px;
+    max-height: 470px;
 }
 
     div ::deep .card-star {

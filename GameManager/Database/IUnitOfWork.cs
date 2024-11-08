@@ -1,7 +1,11 @@
-﻿namespace GameManager.Database
+﻿using GameManager.DB;
+
+namespace GameManager.Database
 {
     public interface IUnitOfWork
     {
+        AppDbContext Context { get; }
+        
         IGameInfoRepository GameInfoRepository { get; }
 
         IStaffRoleRepository StaffRoleRepository { get; }
@@ -19,11 +23,11 @@
         ILaunchOptionRepository LaunchOptionRepository { get; }
 
         Task<int> SaveChangesAsync();
-        
+
         void BeginTransaction();
-        
+
         void CommitTransaction();
-        
+
         void RollbackTransaction();
 
         void DetachEntity<TEntity>(TEntity entity) where TEntity : class;

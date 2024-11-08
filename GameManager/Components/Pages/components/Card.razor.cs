@@ -49,9 +49,10 @@ namespace GameManager.Components.Pages.components
         private ISaveDataManager SaveDataManager { get; set; } = null!;
 
         [Parameter]
-        public GameInfo? GameInfoParam { get; set; }
-        
-        public GameInfo? GameInfo { get; set; }
+        [EditorRequired]
+        public GameInfo GameInfoParam { get; set; } = null!;
+
+        // public GameInfo? GameInfo { get; set; }
 
         [Parameter]
         public bool IsSelected { get; set; }
@@ -87,7 +88,7 @@ namespace GameManager.Components.Pages.components
         {
             get
             {
-                var list = GameInfo?.Developer?.Split(',').ToList();
+                var list = GameInfoParam.Developer?.Split(',').ToList();
                 if (list == null || list.Count == 0)
                     return ["UnKnown"];
                 return list;
@@ -95,24 +96,28 @@ namespace GameManager.Components.Pages.components
         }
 
         private string ImageSrc =>
-            ImageService.UriResolve(GameInfo?.CoverPath);
+            ImageService.UriResolve(GameInfoParam.CoverPath);
 
         private void OnCardClick()
         {
-            if (GameInfo == null)
-                return;
             if (OnClick.HasDelegate)
-                OnClick.InvokeAsync(GameInfo.Id);
+                OnClick.InvokeAsync(GameInfoParam.Id);
         }
 
         private Task OnCardFavoriteClick()
         {
-            if (GameInfo == null)
-                return Task.CompletedTask;
-            GameInfo.IsFavorite = !GameInfo.IsFavorite;
-            ConfigService.EditGameInfo(GameInfo);
-            InvokeAsync(StateHasChanged);
-            return Task.CompletedTask;
+            GameInfoParam.IsFavorite = !GameInfoParam.IsFavorite;
+            try
+            {
+                ConfigService.UpdateGameInfoFavoriteAsync(GameInfoParam.Id, GameInfoParam.IsFavorite);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Update favorite error");
+                Snackbar.Add(e.Message, Severity.Error);
+            }
+
+            return InvokeAsync(StateHasChanged);
         }
 
         private Task OnChipClick(string developer)
@@ -124,25 +129,21 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnDelete()
         {
-            if (GameInfo == null)
-                return;
             Logger.LogInformation("Delete click");
             if (OnDeleteEventCallback.HasDelegate)
-                await OnDeleteEventCallback.InvokeAsync(GameInfo.Id);
+                await OnDeleteEventCallback.InvokeAsync(GameInfoParam.Id);
         }
 
         private async Task OnEdit()
         {
-            if (GameInfo == null)
-                return;
             Logger.LogInformation("on edit click");
             var inputModel = new DialogGameInfoEdit.FormModel();
-            DataMapService.Map(GameInfo, inputModel);
-            inputModel.Tags = (await ConfigService.GetGameTagsAsync(GameInfo.Id)).ToList();
-            if (GameInfo.CoverPath != null && !CoverIsLocalFile(GameInfo.CoverPath))
-                inputModel.Cover = GameInfo.CoverPath;
+            DataMapService.Map(GameInfoParam, inputModel);
+            inputModel.Tags = (await ConfigService.GetGameTagsAsync(GameInfoParam.Id)).ToList();
+            if (GameInfoParam.CoverPath != null && !CoverIsLocalFile(GameInfoParam.CoverPath))
+                inputModel.Cover = GameInfoParam.CoverPath;
             else
-                inputModel.Cover = ConfigService.GetCoverFullPath(GameInfo.CoverPath).Result;
+                inputModel.Cover = ConfigService.GetCoverFullPath(GameInfoParam.CoverPath).Result;
 
             var parameters = new DialogParameters<DialogGameInfoEdit>
             {
@@ -164,13 +165,13 @@ namespace GameManager.Components.Pages.components
                 return;
             try
             {
-                if ((resultModel.Cover == null && GameInfo.CoverPath != null)
-                    || (CoverIsLocalFile(resultModel.Cover) && !CoverIsLocalFile(GameInfo.CoverPath)))
+                if ((resultModel.Cover == null && GameInfoParam.CoverPath != null)
+                    || (CoverIsLocalFile(resultModel.Cover) && !CoverIsLocalFile(GameInfoParam.CoverPath)))
                 {
-                    await ConfigService.DeleteCoverImage(GameInfo.CoverPath);
+                    await ConfigService.DeleteCoverImage(GameInfoParam.CoverPath);
                 }
                 else if (resultModel.Cover != null &&
-                         (!CoverIsLocalFile(GameInfo.CoverPath) || GameInfo.CoverPath == null) &&
+                         (!CoverIsLocalFile(GameInfoParam.CoverPath) || GameInfoParam.CoverPath == null) &&
                          CoverIsLocalFile(resultModel.Cover))
                 {
                     resultModel.Cover = await ConfigService.AddCoverImage(resultModel.Cover);
@@ -178,7 +179,7 @@ namespace GameManager.Components.Pages.components
                 else if (resultModel.Cover != null &&
                          CoverIsLocalFile(resultModel.Cover))
                 {
-                    await ConfigService.ReplaceCoverImage(resultModel.Cover, GameInfo.CoverPath);
+                    await ConfigService.ReplaceCoverImage(resultModel.Cover, GameInfoParam.CoverPath);
                 }
             }
             catch (Exception e)
@@ -187,14 +188,14 @@ namespace GameManager.Components.Pages.components
                 await DialogService.ShowMessageBox("Error", $"{e.Message}", cancelText: "Cancel");
             }
 
-            DataMapService.Map(resultModel, GameInfo);
+            DataMapService.Map(resultModel, GameInfoParam);
             try
             {
-                GameInfo = await ConfigService.EditGameInfo(GameInfo);
+                GameInfoParam = await ConfigService.EditGameInfo(GameInfoParam);
             }
             catch (Exception e)
             {
-                GameInfo = await ConfigService.GetGameInfoAsync(x => x.Id == GameInfo.Id);
+                GameInfoParam = (await ConfigService.GetGameInfoAsync(x => x.Id == GameInfoParam.Id))!;
                 Logger.LogError(e, "Error to edit game info");
                 await DialogService.ShowMessageBox("Error", e.Message, cancelText: "Cancel");
             }
@@ -212,13 +213,8 @@ namespace GameManager.Components.Pages.components
 
         private Task OnGuideSearchClick(GuideSite site)
         {
-            if (GameInfo == null)
-            {
-                return Task.CompletedTask;
-            }
-
             string searchUrl = "https://www.google.com/search?q="
-                               + HttpUtility.UrlEncode(GameInfo.GameName + $" site:{site.SiteUrl}");
+                               + HttpUtility.UrlEncode(GameInfoParam.GameName + $" site:{site.SiteUrl}");
             var startInfo = new ProcessStartInfo
             {
                 FileName = searchUrl,
@@ -235,7 +231,6 @@ namespace GameManager.Components.Pages.components
         {
             try
             {
-                GameInfo = ConfigService.GetGameInfoAsync(x => x.Id == GameInfoParam!.Id).Result;
                 base.OnInitialized();
             }
             catch (Exception e)
@@ -249,7 +244,9 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnLaunch()
         {
-            if (GameInfo == null || string.IsNullOrEmpty(GameInfo.ExePath) || !Directory.Exists(GameInfo.ExePath))
+            string? exePath = GameInfoParam.ExePath;
+            string? exeFile = GameInfoParam.ExeFile;
+            if (string.IsNullOrEmpty(exePath) || !Directory.Exists(exePath))
             {
                 Snackbar.Add(Resources.Message_NoExecutionFile, Severity.Warning);
                 return;
@@ -257,17 +254,17 @@ namespace GameManager.Components.Pages.components
 
             Logger.LogInformation("Launch click");
 
-            if (GameInfo.ExeFile is null or "Not Set")
+            if (exeFile is null or "Not Set")
             {
                 Snackbar.Add(Resources.Message_PleaseSetExeFirst, Severity.Warning);
                 return;
             }
 
-            IStrategy launchStrategy = LaunchProgramStrategyFactory.Create(GameInfo, TryStartVNGTTranslator);
+            IStrategy launchStrategy = LaunchProgramStrategyFactory.Create(GameInfoParam, TryStartVNGTTranslator);
             try
             {
                 await launchStrategy.ExecuteAsync();
-                GameInfo.LastPlayed = DateTime.Now;
+                GameInfoParam.LastPlayed = DateTime.Now;
             }
             catch (Exception e)
             {
@@ -279,7 +276,7 @@ namespace GameManager.Components.Pages.components
 
             void TryStartVNGTTranslator(int pid)
             {
-                if (GameInfo?.LaunchOption is not { RunWithVNGTTranslator: true })
+                if (GameInfoParam.LaunchOption is not { RunWithVNGTTranslator: true })
                     return;
                 if (!File.Exists(Path.Combine(AppPathService.ToolsDirPath,
                         "VNGTTranslator/VNGTTranslator.exe")))
@@ -296,7 +293,7 @@ namespace GameManager.Components.Pages.components
                             "VNGTTranslator/VNGTTranslator.exe"),
                         Arguments = $"{pid}"
                     };
-                    if (GameInfo.LaunchOption is { IsVNGTTranslatorNeedAdmin: true })
+                    if (GameInfoParam.LaunchOption is { IsVNGTTranslatorNeedAdmin: true })
                     {
                         translatorInfo.UseShellExecute = true;
                         translatorInfo.Verb = "runas";
@@ -309,14 +306,13 @@ namespace GameManager.Components.Pages.components
 
         private void OnOpenInExplorer()
         {
-            Debug.Assert(GameInfo != null);
-            if (GameInfo.ExePath == null)
+            if (string.IsNullOrEmpty(GameInfoParam.ExePath))
                 return;
             Logger.LogInformation("Open in explorer click");
             try
             {
                 // using "explorer.exe" and send path
-                Process.Start("explorer.exe", GameInfo.ExePath);
+                Process.Start("explorer.exe", GameInfoParam.ExePath);
             }
             catch (Exception ex)
             {
@@ -329,9 +325,7 @@ namespace GameManager.Components.Pages.components
 
         private void OnOpenSaveFilePath(MouseEventArgs obj)
         {
-            if (GameInfo == null)
-                return;
-            string? dirPath = GameInfo.SaveFilePath;
+            string? dirPath = GameInfoParam.SaveFilePath;
             if (string.IsNullOrEmpty(dirPath))
             {
                 Snackbar.Add(Resources.Message_ParameterNotSet, Severity.Warning);
@@ -367,9 +361,7 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnSaveFileBackupClick(MouseEventArgs obj)
         {
-            if (GameInfo == null)
-                return;
-            Result<string> result = await SaveDataManager.BackupSaveFileAsync(GameInfo);
+            Result<string> result = await SaveDataManager.BackupSaveFileAsync(GameInfoParam);
             if (!result.Success)
             {
                 ShowSnackBarFromResult(result);
@@ -380,20 +372,12 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnSaveFileRestoreClick(MouseEventArgs obj)
         {
-            if (GameInfo == null)
-                return;
-
-            BackupSaveFiles = await SaveDataManager.GetBackupListAsync(GameInfo);
+            BackupSaveFiles = await SaveDataManager.GetBackupListAsync(GameInfoParam);
         }
 
         private async Task OnSaveFileStartRestore(string backupFile)
         {
-            if (GameInfo == null)
-            {
-                return;
-            }
-
-            Result result = await SaveDataManager.RestoreSaveFileAsync(GameInfo, backupFile);
+            Result result = await SaveDataManager.RestoreSaveFileAsync(GameInfoParam, backupFile);
             if (!result.Success)
             {
                 ShowSnackBarFromResult(result);
@@ -404,9 +388,7 @@ namespace GameManager.Components.Pages.components
 
         private Task ShowDetail()
         {
-            if (GameInfo == null)
-                return Task.CompletedTask;
-            return OnShowDetail.HasDelegate ? OnShowDetail.InvokeAsync(GameInfo.Id) : Task.CompletedTask;
+            return OnShowDetail.HasDelegate ? OnShowDetail.InvokeAsync(GameInfoParam.Id) : Task.CompletedTask;
         }
     }
 }

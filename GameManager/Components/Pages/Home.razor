@@ -23,7 +23,10 @@
                            SearchEvent="OnSearchInfo">
                 </ActionBar>
                 <MudToolBar Class="mt-0 flex-grow-0">
-                    <MudCheckBox T="bool" ValueChanged="OnSelectionModeChange" Class="ml-2 mr-2">@Resources.Home_SelectionMode</MudCheckBox>
+                    <MudCheckBox T="bool" ValueChanged="OnSelectionModeChange"
+                                 Class="ml-2 mr-2">
+                        @Resources.Home_SelectionMode
+                    </MudCheckBox>
                     <MudButton OnClick="OnSelectAllClick" Variant="Variant.Outlined">@Resources.Home_SelectAll</MudButton>
                 </MudToolBar>
                 <div id="card-list" class="@CardListCss">
@@ -38,7 +41,7 @@
                     {
                         @if (ViewGameInfos.Count > 0)
                         {
-                            <Virtualize ItemSize="475.6f"
+                            <Virtualize ItemSize="474"
                                         @ref="VirtualizeComponent"
                                         ItemsProvider="CardItemProvider"
                                         OverscanCount="10"
@@ -66,7 +69,7 @@
         @if (IsShowDetail)
         {
             <div id="game-detail-container">
-                <GameDetail InitGameId="_showDetailId" OnReturnClick="OnCloseDetail"></GameDetail >
+                <GameDetail InitGameId="_showDetailId" OnReturnClick="OnCloseDetail"></GameDetail>
             </div>
         }
     }
@@ -79,16 +82,26 @@
         max-height: 100vh;
     }
 
-        .main-mud-layout #card-list {
-            max-width: 100%;
-            min-width: 100%;
-            padding-left: 15px;
-            overflow-y: auto;
-        }
+    .main-mud-layout #game-list-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        height: 100vh;
+        width: 100%;
+    }
 
-        .main-mud-layout > #card-list.deleting {
-            overflow: hidden;
-        }
+    .main-mud-layout #card-list {
+        max-width: 100%;
+        min-width: 100%;
+        height: 500px;
+        flex-grow: 1;
+        padding-left: 15px;
+        overflow-y: auto;
+    }
+
+    .main-mud-layout > #card-list.deleting {
+        overflow: hidden;
+    }
 
     #main-toolbar {
         position: sticky;
@@ -102,7 +115,7 @@
         margin: 5px;
     }
 
-        .card.card-hidden {
-            display: none;
-        }
+    .card.card-hidden {
+        display: none;
+    }
 </style>

@@ -423,6 +423,7 @@ namespace GameManager.Components.Pages
             CardListWidth = await getWidthTask;
             CardGapPixel = (int)Math.Ceiling(await getRemToPixels);
             _ = VirtualizeComponent?.RefreshDataAsync();
+            _ = InvokeAsync(StateHasChanged);
         }
 
         private ValueTask<ItemsProviderResult<IEnumerable<ViewInfo>>> CardItemProvider(
@@ -432,21 +433,21 @@ namespace GameManager.Components.Pages
             const int paddingLeft = 15;
             int countOfCard = (CardListWidth - paddingLeft) / (CardItemWidth + CardGapPixel);
             var displayItem = ViewGameInfos.Where(info => info.Display).ToList();
-            int start = request.StartIndex * countOfCard;
-            int end = Math.Min(start + (request.Count * countOfCard), displayItem.Count);
 
-            for (int i = start; i < end;)
+            for (int i = request.StartIndex; i < request.StartIndex + request.Count; i++)
             {
                 List<ViewInfo> rowCardItems = [];
-                for (int j = 0; j < countOfCard && i < end; j++, i++)
+                for (int j = 0; j < countOfCard; j++)
                 {
-                    rowCardItems.Add(displayItem[i]);
+                    int index = (i * countOfCard) + j;
+                    if (index >= displayItem.Count)
+                        break;
+                    rowCardItems.Add(displayItem[index]);
                 }
 
                 items.Add(rowCardItems);
             }
 
-            _ = InvokeAsync(StateHasChanged);
             return new ValueTask<ItemsProviderResult<IEnumerable<ViewInfo>>>(
                 new ItemsProviderResult<IEnumerable<ViewInfo>>(items,
                     (int)Math.Ceiling((float)displayItem.Count / countOfCard)));

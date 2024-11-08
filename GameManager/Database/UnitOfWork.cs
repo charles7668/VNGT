@@ -5,6 +5,8 @@ namespace GameManager.Database
 {
     public class UnitOfWork(AppDbContext context) : IUnitOfWork
     {
+        public AppDbContext Context { get; } = context;
+
         public IGameInfoRepository GameInfoRepository { get; } = new GameInfoRepository(context);
 
         public IStaffRoleRepository StaffRoleRepository { get; } = new StaffRoleRepository(context);
@@ -23,27 +25,27 @@ namespace GameManager.Database
 
         public Task<int> SaveChangesAsync()
         {
-            return context.SaveChangesAsync();
+            return Context.SaveChangesAsync();
         }
 
         public void BeginTransaction()
         {
-            context.Database.BeginTransaction();
+            Context.Database.BeginTransaction();
         }
 
         public void RollbackTransaction()
         {
-            context.Database.RollbackTransaction();
+            Context.Database.RollbackTransaction();
         }
 
         public void DetachEntity<TEntity>(TEntity entity) where TEntity : class
         {
-            context.Entry(entity).State = EntityState.Detached;
+            Context.Entry(entity).State = EntityState.Detached;
         }
 
         public void CommitTransaction()
         {
-            context.Database.CommitTransaction();
+            Context.Database.CommitTransaction();
         }
     }
 }
