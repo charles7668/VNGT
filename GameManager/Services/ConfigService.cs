@@ -3,6 +3,7 @@ using GameManager.DB;
 using GameManager.DB.Models;
 using GameManager.DTOs;
 using GameManager.Enums;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.Linq.Expressions;
 using System.Text.Json;
@@ -139,18 +140,21 @@ namespace GameManager.Services
             await unitOfWork.SaveChangesAsync();
         }
 
-        public async Task AddGameInfoAsync(GameInfo info)
+        public async Task AddGameInfoAsync(GameInfo info, bool generateUniqueId = true)
         {
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             unitOfWork.BeginTransaction();
-            do
+            if (generateUniqueId)
             {
-                info.GameUniqueId = Guid.NewGuid().ToString();
-                if (await unitOfWork.GameInfoRepository.AnyAsync(x => x.GameUniqueId == info.GameUniqueId))
-                    continue;
-                break;
-            } while (true);
+                do
+                {
+                    info.GameUniqueId = Guid.NewGuid().ToString();
+                    if (await unitOfWork.GameInfoRepository.AnyAsync(x => x.GameUniqueId == info.GameUniqueId))
+                        continue;
+                    break;
+                } while (true);
+            }
 
             // set default background image
             if (string.IsNullOrEmpty(info.BackgroundImageUrl) && info.ScreenShots.Count > 0)
@@ -171,6 +175,8 @@ namespace GameManager.Services
 
             try
             {
+                info.UploadTime = DateTime.UtcNow;
+                info.UpdatedTime = DateTime.UtcNow;
                 GameInfo gameInfoEntity = await unitOfWork.GameInfoRepository.AddAsync(info);
                 await unitOfWork.SaveChangesAsync();
                 await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == gameInfoEntity.Id, staffs);
@@ -183,6 +189,11 @@ namespace GameManager.Services
                 await unitOfWork.SaveChangesAsync();
                 unitOfWork.CommitTransaction();
                 info.Id = gameInfoEntity.Id;
+                info.Tags = tags;
+                info.Staffs = staffs;
+                info.Characters = characters;
+                info.ReleaseInfos = releaseInfos;
+                info.RelatedSites = relatedSites;
             }
             catch (Exception)
             {
@@ -191,9 +202,73 @@ namespace GameManager.Services
             }
         }
 
-        public Task<GameInfo?> GetGameInfoAsync(Expression<Func<GameInfo, bool>> queryExpression)
+        public Task AddGameInfoAsync(GameInfoDTO dto , bool generateUniqueId = true)
         {
-            return _unitOfWork.GameInfoRepository.GetAsync(queryExpression);
+            GameInfo gameInfo = dto.Convert();
+            gameInfo.Id = 0;
+            gameInfo.LaunchOptionId = 0;
+            gameInfo.LaunchOption ??= new LaunchOption();
+            gameInfo.LaunchOption.Id = 0;
+            return AddGameInfoAsync(gameInfo, generateUniqueId);
+        }
+
+        public async Task<GameInfo?> GetGameInfoAsync(Expression<Func<GameInfo, bool>> queryExpression)
+        {
+            GameInfo? entity = await _unitOfWork.GameInfoRepository.GetAsync(queryExpression);
+            if (entity == null)
+                return null;
+            _unitOfWork.DetachEntity(entity);
+            return entity;
+        }
+
+        public async Task<GameInfoDTO?> GetGameInfoDTOAsync(int id)
+        {
+            GameInfo? entity = await _unitOfWork.GameInfoRepository.GetAsync(id, true);
+            if (entity == null)
+                return null;
+            var dto = GameInfoDTO.Create(entity);
+            _unitOfWork.DetachEntity(entity);
+            return dto;
+        }
+
+        public Task<List<int>> GetGameInfoIdCollectionAsync(Expression<Func<GameInfo, bool>> queryExpression)
+        {
+            return _unitOfWork.GameInfoRepository.GetIdCollectionAsync(queryExpression);
+        }
+
+        public async Task<List<GameInfoDTO>> GetGameInfoDTOsAsync(List<int> ids, int start, int count)
+        {
+            AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            IQueryable<GameInfo> entities =
+                await unitOfWork.GameInfoRepository.GetGameInfosIncludeAllAsync(x => ids.Contains(x.Id), start, count);
+            List<GameInfoDTO> temp = await entities.Select(x => GameInfoDTO.Create(x)).ToListAsync();
+            foreach (GameInfo entity in entities)
+            {
+                unitOfWork.DetachEntity(entity);
+            }
+
+            return temp;
+        }
+
+        public async Task UpdateGameInfoAsync(GameInfoDTO dto)
+        {
+            AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            GameInfo entity = dto.Convert();
+            GameInfo? existEntity =
+                await unitOfWork.GameInfoRepository.GetAsync(x => x.GameUniqueId == entity.GameUniqueId);
+            if (existEntity == null)
+            {
+                entity.Id = 0;
+                await AddGameInfoAsync(entity);
+            }
+            else
+            {
+                entity.Id = existEntity.Id;
+                unitOfWork.DetachEntity(existEntity);
+                await EditGameInfo(entity);
+            }
         }
 
         public Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
@@ -257,6 +332,23 @@ namespace GameManager.Services
             returnGameInfo.ReleaseInfos = releaseInfos;
             returnGameInfo.RelatedSites = relatedSites;
             return returnGameInfo;
+        }
+
+        public Task<bool> HasGameInfo(Expression<Func<GameInfo, bool>> queryExpression)
+        {
+            return _unitOfWork.GameInfoRepository.AnyAsync(queryExpression);
+        }
+
+        public async Task<List<string>> GetUniqueIdCollection(Expression<Func<GameInfo, bool>> queryExpression, int start, int count)
+        {
+            IQueryable<string> queryable =
+                await _unitOfWork.GameInfoRepository.GetUniqueIdCollectionAsync(queryExpression, start, count);
+            return queryable.ToList();
+        }
+
+        public Task<int> GetGameInfoCountAsync(Expression<Func<GameInfo, bool>> queryExpression)
+        {
+            return _unitOfWork.GameInfoRepository.CountAsync(queryExpression);
         }
 
         public async Task UpdateGameInfoFavoriteAsync(int id, bool isFavorite)

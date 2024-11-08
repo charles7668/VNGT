@@ -39,7 +39,7 @@
                     <MudCheckBox T="bool"
                                  Value="AppSetting.EnableSync"
                                  ValueChanged="@(enable => { if (AppSetting.EnableSync == enable) { return; } AppSetting.EnableSync = enable; _syncSettingChange = true; })">
-                        @Resources.Settings_EnableSync
+                        @Resources.Common_EnableSync
                     </MudCheckBox>
                     <MudNumericField T="int"
                                      Value="AppSetting.SyncInterval"

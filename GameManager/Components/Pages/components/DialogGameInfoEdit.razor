@@ -18,7 +18,7 @@
                                 <MudButton Class="ml-2"
                                            Color="Color.Primary"
                                            Variant="Variant.Outlined">
-                                    <MudProgressCircular Size="Size.Small" Color="Color.Success" Indeterminate="true" />
+                                    <MudProgressCircular Size="Size.Small" Color="Color.Success" Indeterminate="true"/>
                                 </MudButton>
                             }
                             else
@@ -44,11 +44,12 @@
                                     <MudSelectItem Value="provider"></MudSelectItem>
                                 }
                             </MudSelect>
-                            <MudSpacer />
+                            <MudSpacer/>
                         </MudToolBar>
-                        <MudTextField @bind-Value="Model.GameName" For="@(() => Model.GameName)" Label="@Resources.GameEditorDialog_Caption_GameName" />
+                        <MudCheckBox T="bool" @bind-Value="Model.EnableSync">@Resources.Common_EnableSync</MudCheckBox>
+                        <MudTextField @bind-Value="Model.GameName" For="@(() => Model.GameName)" Label="@Resources.GameEditorDialog_Caption_GameName"/>
                         <MudToolBar Class="pa-0">
-                            <MudTextField @bind-Value="Model.Vendor" For="@(() => Model.Vendor)" Label="@Resources.GameEditorDialog_Caption_Developer" />
+                            <MudTextField @bind-Value="Model.Vendor" For="@(() => Model.Vendor)" Label="@Resources.GameEditorDialog_Caption_Developer"/>
                             <MudDatePicker @bind-Date="Model.DateTime"
                                            For="@(() => Model.DateTime)"
                                            Label="@Resources.GameEditorDialog_Caption_ReleaseDate"
@@ -57,15 +58,15 @@
                                            Placeholder="yyyy/MM/dd"
                                            DateFormat="yyyy/MM/dd"
                                            TextChanged="DatePickerTextChanged"
-                                           Clearable="true" />
+                                           Clearable="true"/>
                         </MudToolBar>
                         <MudToolBar Class="pa-0 ma-0">
                             <MudTextField ReadOnly="true" @bind-Value="Model.ExePath"
                                           AdornmentIcon="@Icons.Material.Filled.Folder"
                                           Adornment="Adornment.End"
-                                          OnAdornmentClick="OnExecutionPathSelectClick" 
+                                          OnAdornmentClick="OnExecutionPathSelectClick"
                                           For="@(() => Model.ExePath)"
-                                          Label="@Resources.GameEditorDialog_Caption_ExecutionFilePath" />
+                                          Label="@Resources.GameEditorDialog_Caption_ExecutionFilePath"/>
                             @if (_scanningExecutionFileTask.IsCompleted)
                             {
                                 <MudSelect Class="mt-2 mb-2"
@@ -80,14 +81,14 @@
                             }
                             else
                             {
-                                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                                <MudProgressCircular Color="Color.Primary" Indeterminate="true"/>
                                 <MudText>Loading exe files...</MudText>
                             }
                         </MudToolBar>
                         <MudToolBar Class="pa-0 ma-0">
                             <MudTextField @bind-Value="Model.SaveFilePath"
                                           For="@(() => Model.SaveFilePath)"
-                                          Label="@Resources.GameEditorDialog_SavePath" />
+                                          Label="@Resources.GameEditorDialog_SavePath"/>
                             <MudButton Variant="Variant.Outlined"
                                        OnClick="OnSaveBrowseClick"
                                        Color="Color.Primary">
@@ -111,7 +112,7 @@
                                         AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
                                         @foreach (var config in LeConfigs)
                                         {
-                                            <MudSelectItem Value="config" />
+                                            <MudSelectItem Value="config"/>
                                         }
                                     </MudSelect>
                                 </MudPaper>

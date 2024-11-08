@@ -25,7 +25,7 @@ namespace GameManager.Components.Pages
             var savePicker = new FileSavePicker
             {
                 SuggestedStartLocation = PickerLocationId.Downloads,
-                SuggestedFileName = $"Log {DateTime.Now:MM-dd-yyyy HH-mm-ss}"
+                SuggestedFileName = $"Log {DateTime.UtcNow:MM-dd-yyyy HH-mm-ss}"
             };
             savePicker.FileTypeChoices.Add("Zip", [".zip"]);
             Window? currWin = Application.Current?.Windows.FirstOrDefault();
@@ -79,7 +79,7 @@ namespace GameManager.Components.Pages
             var savePicker = new FileSavePicker
             {
                 SuggestedStartLocation = PickerLocationId.Downloads,
-                SuggestedFileName = $"{DateTime.Now:MM-dd-yyyy HH-mm-ss}"
+                SuggestedFileName = $"{DateTime.UtcNow:MM-dd-yyyy HH-mm-ss}"
             };
             savePicker.FileTypeChoices.Add("json", [".json"]);
             Window? currWin = Application.Current?.Windows.FirstOrDefault();

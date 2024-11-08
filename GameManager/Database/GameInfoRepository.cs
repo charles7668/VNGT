@@ -3,6 +3,7 @@ using GameManager.DB.Models;
 using GameManager.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 
 namespace GameManager.Database
@@ -23,6 +24,40 @@ namespace GameManager.Database
                 .OrderBy(x => x.GameName).ToListAsync();
         }
 
+        public Task<IQueryable<GameInfo>> GetGameInfosIncludeAllAsync(Expression<Func<GameInfo, bool>> query, int start,
+            int count)
+        {
+            IQueryable<GameInfo> entities = context.GameInfos
+                .Include(x => x.LaunchOption)
+                .Include(x => x.Staffs)
+                .ThenInclude(s => s.StaffRole)
+                .Include(x => x.Characters)
+                .Include(x => x.RelatedSites)
+                .Include(x => x.ReleaseInfos)
+                .ThenInclude(s => s.ExternalLinks)
+                .Include(x => x.Tags)
+                .Where(query)
+                .Skip(start)
+                .Take(count);
+            return Task.FromResult(entities);
+        }
+
+        public Task<List<int>> GetIdCollectionAsync(Expression<Func<GameInfo, bool>> query)
+        {
+            return context.GameInfos
+                .AsNoTracking()
+                .Where(query)
+                .Select(x => x.Id)
+                .ToListAsync();
+        }
+
+        public Task<IQueryable<GameInfo>> GetGameInfosAsync(Expression<Func<GameInfo, bool>> query)
+        {
+            return Task.FromResult(context.GameInfos
+                .Include(info => info.LaunchOption)
+                .Where(query));
+        }
+
         public Task<string?> GetCoverById(int id)
         {
             return context.GameInfos
@@ -34,7 +69,6 @@ namespace GameManager.Database
 
         public async Task<GameInfo> AddAsync(GameInfo info)
         {
-            info.UploadTime = DateTime.UtcNow;
             EntityEntry<GameInfo> entityEntry = await context.GameInfos.AddAsync(info);
             return entityEntry.Entity;
         }
@@ -47,10 +81,20 @@ namespace GameManager.Database
                 .FirstOrDefaultAsync(query);
         }
 
-        public async Task<GameInfo?> GetAsync(int id)
+        public async Task<GameInfo?> GetAsync(int id, bool includeAll = false)
         {
-            GameInfo? entity = await context.GameInfos.FindAsync(id);
-            return entity;
+            DbSet<GameInfo> dbSet = context.GameInfos;
+            if (!includeAll)
+                return await dbSet.FindAsync(id);
+            IIncludableQueryable<GameInfo, List<Tag>> query = dbSet.Include(x => x.LaunchOption)
+                .Include(x => x.Staffs)
+                .ThenInclude(s => s.StaffRole)
+                .Include(x => x.Characters)
+                .Include(x => x.RelatedSites)
+                .Include(x => x.ReleaseInfos)
+                .ThenInclude(s => s.ExternalLinks)
+                .Include(x => x.Tags);
+            return await query.FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public Task<bool> AnyAsync(Expression<Func<GameInfo, bool>> query)
@@ -344,6 +388,25 @@ namespace GameManager.Database
             entity.ScreenShots = entity.ScreenShots.Distinct().ToList();
             context.GameInfos.Update(entity);
             return entity;
+        }
+
+        public Task<int> CountAsync(Expression<Func<GameInfo, bool>> queryExpression)
+        {
+            return context.GameInfos.CountAsync(queryExpression);
+        }
+
+        public Task<IQueryable<string>> GetUniqueIdCollectionAsync(
+            Expression<Func<GameInfo, bool>> queryExpression,
+            int start, int count)
+        {
+            IQueryable<string> queryable = context.GameInfos
+                .AsNoTracking()
+                .Where(queryExpression)
+                .OrderBy(x => x.Id)
+                .Select(x => x.GameUniqueId)
+                .Skip(start)
+                .Take(count);
+            return Task.FromResult(queryable);
         }
 
         public async Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,

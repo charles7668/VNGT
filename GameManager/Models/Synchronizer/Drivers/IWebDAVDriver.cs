@@ -7,6 +7,8 @@
         void SetAuthentication(string userName, string password);
 
         Task<List<FileInfo>> GetFilesAsync(string dirPath, int depth = 1);
+
+        Task<List<string>> GetDirectories(string dirPath , int depth);
         
         Task CreateFolderIfNotExistsAsync(string folderPath, CancellationToken cancellationToken);
 

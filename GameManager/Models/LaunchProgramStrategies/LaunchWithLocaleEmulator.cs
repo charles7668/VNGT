@@ -75,7 +75,7 @@ namespace GameManager.Models.LaunchProgramStrategies
 
             tryLaunchVNGTTranslator?.Invoke(foundPid);
 
-            DateTime time = DateTime.Now;
+            DateTime time = DateTime.UtcNow;
             await configService.UpdateLastPlayedByIdAsync(gameInfo.Id, time);
             gameInfo.LastPlayed = time;
         }

@@ -176,6 +176,7 @@ namespace GameManager.Components.Pages.components
                     info.ExePath = Model.ExePath;
                     info.ExeFile = Model.ExeFile;
                     info.SaveFilePath = Model.SaveFilePath;
+                    info.EnableSync = Model.EnableSync;
                     info.LaunchOption ??= new LaunchOption();
                     info.LaunchOption.RunAsAdmin = Model.RunAsAdmin;
                     info.LaunchOption.LaunchWithLocaleEmulator = Model.LeConfig;
@@ -355,6 +356,8 @@ namespace GameManager.Components.Pages.components
             public bool IsVNGTTranslatorNeedAdmin { get; set; }
 
             public string? LeConfig { get; set; }
+
+            public bool EnableSync { get; set; }
 
             public List<string> Tags { get; set; } = [];
 

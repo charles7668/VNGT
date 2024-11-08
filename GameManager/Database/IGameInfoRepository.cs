@@ -11,13 +11,18 @@ namespace GameManager.Database
 
         Task<List<GameInfo>> GetGameInfos(SortOrder order = SortOrder.UPLOAD_TIME);
 
+        Task<IQueryable<GameInfo>> GetGameInfosIncludeAllAsync(Expression<Func<GameInfo, bool>> query, int start,
+            int count);
+
+        Task<List<int>> GetIdCollectionAsync(Expression<Func<GameInfo, bool>> query);
+
         Task<string?> GetCoverById(int id);
 
         Task<GameInfo> AddAsync(GameInfo info);
 
         Task<GameInfo?> GetAsync(Expression<Func<GameInfo, bool>> query);
 
-        Task<GameInfo?> GetAsync(int id);
+        Task<GameInfo?> GetAsync(int id, bool includeAll = false);
 
         Task<bool> AnyAsync(Expression<Func<GameInfo, bool>> query);
 
@@ -54,5 +59,10 @@ namespace GameManager.Database
         Task<GameInfo?> RemoveScreenshotAsync(int id, string url);
 
         Task<GameInfo?> AddScreenshotsAsync(int id, List<string> urls);
+        
+        Task<int> CountAsync(Expression<Func<GameInfo, bool>> queryExpression);
+        
+        Task<IQueryable<string>> GetUniqueIdCollectionAsync(Expression<Func<GameInfo, bool>> queryExpression, int start,
+            int count);
     }
 }

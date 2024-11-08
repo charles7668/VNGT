@@ -191,6 +191,7 @@ namespace GameManager.Components.Pages.components
             DataMapService.Map(resultModel, GameInfoParam);
             try
             {
+                GameInfoParam.UpdatedTime = DateTime.UtcNow;
                 GameInfoParam = await ConfigService.EditGameInfo(GameInfoParam);
             }
             catch (Exception e)
@@ -264,7 +265,7 @@ namespace GameManager.Components.Pages.components
             try
             {
                 await launchStrategy.ExecuteAsync();
-                GameInfoParam.LastPlayed = DateTime.Now;
+                GameInfoParam.LastPlayed = DateTime.UtcNow;
             }
             catch (Exception e)
             {

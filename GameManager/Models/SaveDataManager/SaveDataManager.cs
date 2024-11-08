@@ -68,7 +68,7 @@ namespace GameManager.Models.SaveDataManager
                 }
             }
 
-            string targetPath = Path.Combine(backupDir, $"{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.zip");
+            string targetPath = Path.Combine(backupDir, $"{DateTime.UtcNow:yyyy-MM-dd-HH-mm-ss}.zip");
             using ZipArchive zipArchive = ZipFile.Open(targetPath, ZipArchiveMode.Create);
             string[] files = Directory.GetFiles(saveFilePath, "*", SearchOption.AllDirectories);
 

@@ -112,7 +112,8 @@ namespace GameManager.Components.Pages.components
                         BackgroundImage = gameInfo.BackgroundImageUrl,
                         ScreenShots = gameInfo.ScreenShots,
                         LastPlayed = gameInfo.LastPlayed?.ToString("yyyy-MM-dd") ?? "Never",
-                        HasCharacters = gameInfo.Characters.Count != 0
+                        HasCharacters = gameInfo.Characters.Count != 0,
+                        EnableSync = gameInfo.EnableSync
                     };
                     IsLoading = false;
                     _ = InvokeAsync(StateHasChanged);
@@ -193,6 +194,7 @@ namespace GameManager.Components.Pages.components
                 }
 
                 DataMapService.Map(resultModel, _gameInfo);
+                _gameInfo.UpdatedTime = DateTime.UtcNow;
                 await ConfigService.EditGameInfo(_gameInfo);
             }
             catch (Exception e)
@@ -241,7 +243,7 @@ namespace GameManager.Components.Pages.components
 
                 IStrategy launchStrategy = LaunchProgramStrategyFactory.Create(_gameInfo, TryStartVNGTTranslator);
                 await launchStrategy.ExecuteAsync();
-                _gameInfo.LastPlayed = DateTime.Now;
+                _gameInfo.LastPlayed = DateTime.UtcNow;
                 GameInfoVo.LastPlayed = _gameInfo.LastPlayed?.ToString("yyyy-MM-dd") ?? "Never";
             }
             catch (FileNotFoundException e)
@@ -341,6 +343,7 @@ namespace GameManager.Components.Pages.components
             public List<string> ScreenShots { get; init; } = [];
             public string LastPlayed { get; set; } = "Never";
             public bool HasCharacters { get; init; }
+            public bool EnableSync { get; set; }
         }
     }
 }

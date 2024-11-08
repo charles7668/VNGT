@@ -9,9 +9,19 @@ namespace GameManager.Services
     {
         Task<string> AddCoverImage(string srcFile);
 
-        Task AddGameInfoAsync(GameInfo info);
+        Task AddGameInfoAsync(GameInfo info, bool generateUniqueId = true);
+
+        Task AddGameInfoAsync(GameInfoDTO dto, bool generateUniqueId = true);
 
         Task<GameInfo?> GetGameInfoAsync(Expression<Func<GameInfo, bool>> queryExpression);
+
+        Task<GameInfoDTO?> GetGameInfoDTOAsync(int id);
+
+        Task<List<int>> GetGameInfoIdCollectionAsync(Expression<Func<GameInfo, bool>> queryExpression);
+
+        Task<List<GameInfoDTO>> GetGameInfoDTOsAsync(List<int> ids, int start, int count);
+
+        Task UpdateGameInfoAsync(GameInfoDTO dto);
 
         Task AddLibraryAsync(Library library);
 
@@ -29,6 +39,13 @@ namespace GameManager.Services
         Task DeleteLibraryByIdAsync(int id);
 
         Task<GameInfo> EditGameInfo(GameInfo info);
+
+        Task<bool> HasGameInfo(Expression<Func<GameInfo, bool>> queryExpression);
+
+        Task<List<string>> GetUniqueIdCollection(Expression<Func<GameInfo, bool>> queryExpression, int start,
+            int count);
+        
+        Task<int> GetGameInfoCountAsync(Expression<Func<GameInfo, bool>> queryExpression);
 
         Task UpdateGameInfoFavoriteAsync(int id, bool isFavorite);
 
@@ -52,7 +69,7 @@ namespace GameManager.Services
         Task<TextMapping?> SearchTextMappingByOriginalText(string original);
 
         Task UpdateAppSettingAsync(AppSetting setting);
-        
+
         Task UpdateAppSettingAsync(AppSettingDTO settingDto);
 
         Task UpdateLastPlayedByIdAsync(int id, DateTime time);

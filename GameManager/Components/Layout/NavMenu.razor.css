@@ -1,0 +1,28 @@
+﻿div {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+div ::deep .spin-sync {
+    animation: spin 1s infinite;
+    color: green;
+}
+
+div ::deep .not-spin-sync {
+    color: white;
+}
+
+div ::deep .not-spin-sync.sync-failed {
+    color: red;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -33,6 +33,7 @@ namespace GameManager.Services
             {
                 Name = x
             }).ToList();
+            dest.EnableSync = src.EnableSync;
         }
 
         public static void Map(GameInfo src, DialogGameInfoEdit.FormModel dest)
@@ -59,6 +60,7 @@ namespace GameManager.Services
             dest.RelatedSites = src.RelatedSites;
             dest.ScreenShots = src.ScreenShots;
             dest.Tags = src.Tags.Select(x => x.Name).ToList();
+            dest.EnableSync = src.EnableSync;
         }
     }
 }

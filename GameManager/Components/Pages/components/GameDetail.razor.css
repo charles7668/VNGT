@@ -114,6 +114,14 @@
     color: #c7d5e0;
 }
 
+.status-sync {
+    color: #c7d5e0;
+}
+
+.status-sync.enabled {
+    color: #5cba47;
+}
+
 .tabs {
     display: flex;
     border-bottom: 2px solid #444;

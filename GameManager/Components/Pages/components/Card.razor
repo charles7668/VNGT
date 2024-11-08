@@ -8,6 +8,12 @@
                            OnClick="OnCardFavoriteClick"
                            Icon="@Icons.Material.Filled.Star"
                            Size="Size.Large"/>
+            @if (GameInfoParam is { EnableSync: true })
+            {
+                <MudIcon Class="card-sync"
+                         Icon="@Icons.Material.Filled.Sync"
+                         Size="Size.Large"/>
+            }
             <MudImage Height="300" Width="@CardItemWidth"
                       Src="@ImageSrc" loading="lazy"
                       Alt="No Image" ObjectFit="ObjectFit.Contain"/>

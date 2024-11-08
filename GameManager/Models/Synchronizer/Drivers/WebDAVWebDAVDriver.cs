@@ -78,6 +78,50 @@ namespace GameManager.Models.Synchronizer.Drivers
             return files;
         }
 
+        public async Task<List<string>> GetDirectories(string dirPath, int depth)
+        {
+            Dictionary<string, object> options = BuildBaseOptions();
+            options["custom-headers"] = new Dictionary<string, string>
+            {
+                { "Depth", depth.ToString() }
+            };
+            var body = new StringContent("""
+                                         <?xml version="1.0" encoding="UTF-8"?>
+                                         <d:propfind xmlns:d="DAV:">
+                                         	<d:prop xmlns:oc="https://owncloud.org/ns">
+                                                 <d:resourcetype />
+                                         	</d:prop>
+                                         </d:propfind>
+                                         """);
+            HttpResponseMessage response = await Exec(_profindMethod, dirPath, body, options, CancellationToken.None);
+            ThrowIfNotSuccess(response);
+
+            string responseContent = await HttpContentHelper.DecompressContent(response.Content);
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(responseContent);
+            var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+            nsmgr.AddNamespace("D", "DAV:");
+            XmlNodeList? responseNodes = xmlDoc.SelectNodes("//D:multistatus/D:response", nsmgr);
+            if (responseNodes == null)
+                return [];
+            List<string> dirs = new();
+            for (int i = 0; i < responseNodes.Count; ++i)
+            {
+                XmlNode? node = responseNodes[i];
+                if (node == null)
+                    continue;
+                XmlNode? collectionNode = node.SelectSingleNode(".//D:resourcetype/D:collection", nsmgr);
+                if (collectionNode == null)
+                    continue;
+                string? dirHref = node.SelectSingleNode(".//D:href", nsmgr)?.InnerText;
+                if (dirHref == null)
+                    continue;
+                dirs.Add(dirHref);
+            }
+
+            return dirs;
+        }
+
         public async Task CreateFolderIfNotExistsAsync(string folderPath, CancellationToken cancellationToken)
         {
             folderPath = folderPath.TrimEnd('/') + "/";

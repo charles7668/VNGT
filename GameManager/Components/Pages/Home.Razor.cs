@@ -1,6 +1,7 @@
 ﻿using GameManager.Components.Pages.components;
 using GameManager.DB.Models;
 using GameManager.Enums;
+using GameManager.Models.TaskManager;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;
@@ -37,6 +38,9 @@ namespace GameManager.Components.Pages
 
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;
+        
+        [Inject]
+        private ITaskManager TaskManager { get; set; } = null!;
 
         [Inject]
         private ILogger<Home> Logger { get; set; } = null!;
@@ -485,13 +489,20 @@ namespace GameManager.Components.Pages
 
             public bool IsSelected { get; set; }
         }
-
+        
         #region Lifecycle
 
         protected override async Task OnInitializedAsync()
         {
             try
             {
+                AppSetting appSetting = ConfigService.GetAppSetting();
+                if (appSetting.EnableSync)
+                {
+                    _ = TaskManager.StartBackgroundIntervalTask(App.SyncTaskJobName, () => TaskExecutor.SyncTask(),
+                        TaskExecutor.CancelSyncTask, appSetting.SyncInterval, true);
+                }
+
                 _objRef = DotNetObjectReference.Create(this);
                 await JsRuntime.InvokeVoidAsync("resizeHandlers.addResizeListener", _objRef);
                 await base.OnInitializedAsync();

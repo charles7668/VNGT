@@ -37,7 +37,7 @@
                     <div class="status-item">
                         <span class="icon">☁️</span>
                         <span>CloudSync</span>
-                        <span class="status">@Resources.Common_Disabled</span>
+                        <span class=@("status-sync" + (GameInfoVo.EnableSync ? " enabled" : ""))>@(GameInfoVo.EnableSync ? Resources.Common_Enabled : Resources.Common_Disabled)</span>
                     </div>
                     <div class="status-item">
                         <span class="icon">📅</span>

@@ -153,6 +153,12 @@
   <data name="Common.Disabled" xml:space="preserve">
     <value>禁用</value>
   </data>
+  <data name="Common.Enabled" xml:space="preserve">
+    <value>已啟用</value>
+  </data>
+  <data name="Common.EnableSync" xml:space="preserve">
+    <value>启用同步</value>
+  </data>
   <data name="Common.Fetch" xml:space="preserve">
     <value>擷取</value>
   </data>
@@ -464,9 +470,6 @@
   </data>
   <data name="Settings.Caption.TextMapping" xml:space="preserve">
     <value>文字映射</value>
-  </data>
-  <data name="Settings.EnableSync" xml:space="preserve">
-    <value>启用同步</value>
   </data>
   <data name="TagSetPage.Title" xml:space="preserve">
     <value>標籤集</value>

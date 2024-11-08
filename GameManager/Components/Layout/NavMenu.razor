@@ -17,6 +17,22 @@
     <div class="flex-grow-1 flex-shrink-1">
         <MudSpacer/>
     </div>
+    <div>
+        <MudTooltip Text="Sync">
+            @if (_lastSyncStatus == "Running")
+            {
+                <MudIcon Class="spin-sync" Icon="@Icons.Material.Filled.Sync"></MudIcon>
+            }
+            else if (_lastSyncStatus == "Success")
+            {
+                <MudIcon Class="not-spin-sync" Icon="@Icons.Material.Filled.Sync"></MudIcon>
+            }
+            else
+            {
+                <MudIcon Class="not-spin-sync sync-failed" Icon="@Icons.Material.Filled.Sync"></MudIcon>
+            }
+        </MudTooltip>
+    </div>
     <MudTooltip Text="@Resources.NavMenu_Help">
         <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Help" Href="/help">@Resources.NavMenu_Help</MudNavLink>
     </MudTooltip>

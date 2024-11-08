@@ -56,7 +56,7 @@ namespace GameManager.Components.Pages
             {
                 AppSetting.GuideSites = GuideSites;
                 AppSetting.TextMappings = TextMappings;
-                AppSetting.UpdatedTime = DateTime.Now;
+                AppSetting.UpdatedTime = DateTime.UtcNow;
                 await ConfigService.UpdateAppSettingAsync(AppSetting);
                 if (_syncSettingChange)
                 {
