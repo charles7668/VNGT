@@ -411,11 +411,18 @@ namespace GameManager.GameInfoProvider
                         {
                             if (string.IsNullOrEmpty(language.Title))
                                 continue;
+                            if (!DateTime.TryParse(fetchRelease.Released ?? "", out DateTime releaseTime))
+                            {
+                                if (int.TryParse(fetchRelease.Released, out int year))
+                                {
+                                    releaseTime = new DateTime(year, 1, 1);
+                                }
+                            }
                             var releaseInfo = new ReleaseInfo
                             {
                                 ReleaseName = language.Title,
                                 ReleaseLanguage = fetchRelease.Langauges?.FirstOrDefault()?.Language ?? "",
-                                ReleaseDate = DateTime.Parse(fetchRelease.Released ?? ""),
+                                ReleaseDate = releaseTime,
                                 Platforms = fetchRelease.Platforms?.Select(GetPlatformEnum).ToList() ?? [],
                                 AgeRating = fetchRelease.MinAga ?? 0,
                                 ExternalLinks = fetchRelease.ExtLinks?.Select(x => new ExternalLink
