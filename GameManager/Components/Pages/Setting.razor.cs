@@ -186,7 +186,7 @@ namespace GameManager.Components.Pages
                             return "Original is required";
                         }
 
-                        return AppSetting.GuideSites.Any(x => x.Name == s) ? "Original is exist" : null;
+                        return AppSetting.TextMappings.Any(x => x.Original == s) ? "Original is exist" : null;
                     }
                 },
                 new()
