@@ -38,6 +38,8 @@ namespace GameManager.Extractor
                     {
                         await Task.Delay(10);
                     }
+
+                    extractor.Dispose();
                 });
                 await extractTask;
 
