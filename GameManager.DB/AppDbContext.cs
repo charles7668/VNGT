@@ -40,7 +40,7 @@ namespace GameManager.DB
                 .HasDefaultValue(true);
             modelBuilder.Entity<AppSetting>()
                 .Property(x => x.SyncInterval)
-                .HasDefaultValue(1);
+                .HasDefaultValue(5);
             modelBuilder.Entity<AppSetting>()
                 .Property(x => x.Localization)
                 .HasDefaultValue("zh-tw");
