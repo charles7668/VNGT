@@ -66,7 +66,8 @@ namespace GameManager.Models.Synchronizer
                 {
                     ResetConfig();
                     logger.LogInformation("Syncing game infos start");
-                    List<int> ids = await configService.GetGameInfoIdCollectionAsync(_ => true).ConfigureAwait(false);
+                    List<int> ids = await configService.GetGameInfoIdCollectionAsync(x => x.EnableSync)
+                        .ConfigureAwait(false);
                     int errorCount = 0;
                     int takeCountAtOnce = 30;
                     while (ids.Count > 0)
