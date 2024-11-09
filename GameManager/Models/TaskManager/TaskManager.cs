@@ -57,6 +57,18 @@ namespace GameManager.Models.TaskManager
             return Task.FromResult(Result.Ok());
         }
 
+        public Task<string> GetTaskStatus(string taskName)
+        {
+            if (!_taskJobDict.TryGetValue(taskName, out string? hangfireJobId))
+                return Task.FromResult("Task not found");
+            if (IsRecurringJobExists(hangfireJobId))
+            {
+                return Task.FromResult("Running");
+            }
+
+            return Task.FromResult(IsHangfireJobRunning(hangfireJobId) ? "Running" : "Not running");
+        }
+
         public void CancelTask(string taskName)
         {
             if (!_taskJobDict.TryGetValue(taskName, out string? hangfireJobId)) return;

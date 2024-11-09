@@ -1,4 +1,5 @@
 ﻿using GameManager.Models.TaskManager;
+using Microsoft.AspNetCore.Components;
 
 namespace GameManager.Components.Layout
 {
@@ -6,12 +7,21 @@ namespace GameManager.Components.Layout
     {
         private string _lastSyncStatus = "Success";
 
-        protected override void OnInitialized()
+        [Inject]
+        private ITaskManager TaskManager { get; set; } = null!;
+
+        protected override async Task OnInitializedAsync()
         {
+            string status = await TaskManager.GetTaskStatus(App.SyncTaskJobName);
+            if (status == "Running")
+            {
+                _lastSyncStatus = "Running";
+            }
+
             TaskExecutor.OnSyncTaskStart += HandleSyncStart;
             TaskExecutor.OnSyncTaskEnd += HandleSyncEnd;
             TaskExecutor.OnSyncTaskFailed += HandleSyncFailed;
-            base.OnInitialized();
+            _ = base.OnInitializedAsync();
         }
 
         private void HandleSyncFailed(object? sender, EventArgs e)
