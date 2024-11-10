@@ -1,4 +1,5 @@
 ﻿using GameManager.DTOs;
+using GameManager.Models.SaveDataManager;
 using GameManager.Models.SecurityProvider;
 using GameManager.Models.Synchronizer.Drivers;
 using GameManager.Services;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using System.Web;
 using CancellationToken = System.Threading.CancellationToken;
 using InvalidOperationException = System.InvalidOperationException;
 
@@ -15,7 +17,9 @@ namespace GameManager.Models.Synchronizer
     public class Synchronizer(
         IWebDAVDriver webDAVDriver,
         IConfigService configService,
+        ISaveDataManager saveDataManager,
         ILogger<Synchronizer> logger,
+        IAppPathService appPathService,
         ISecurityProvider securityProvider)
         : ISynchronizer
     {
@@ -108,6 +112,81 @@ namespace GameManager.Models.Synchronizer
                                     }, cancellationToken).ConfigureAwait(false);
                                 resultDto.UpdatedTime = lastedTime;
                                 await configService.UpdateGameInfoAsync(resultDto);
+                                List<string> remoteSaveFiles = [];
+                                await ExceptionHelper.ExecuteWithExceptionHandlingAsync<FileNotFoundException>(
+                                    async () =>
+                                    {
+                                        List<FileInfo> remoteFiles =
+                                            await webDAVDriver.GetFilesAsync($"/vngt/{dto.GameUniqueId}/save-files");
+                                        remoteSaveFiles = remoteFiles.Select(x =>
+                                                HttpUtility.UrlDecode(x.FileName.Split('/').Last()))
+                                            .ToList();
+                                    });
+                                var localSaveFilePath = (await saveDataManager.GetBackupListAsync(dto))
+                                    .Select(x => x + ".zip").ToList();
+                                var localSaveFileNames =
+                                    localSaveFilePath.Select(x => x.Split('/').Last()).ToList();
+                                var newestSaveFiles = remoteSaveFiles.Select(x => x).ToList();
+                                newestSaveFiles.AddRange(localSaveFilePath);
+                                newestSaveFiles.Sort(Comparer<string>.Create((a, b) =>
+                                {
+                                    a = a.Replace(".zip", "");
+                                    b = b.Replace(".zip", "");
+                                    DateTime.TryParseExact(a, "yyyy-MM-dd HH-mm-ss-fff", CultureInfo.InvariantCulture,
+                                        DateTimeStyles.None, out DateTime dateTimeA);
+                                    DateTime.TryParseExact(b, "yyyy-MM-dd HH-mm-ss-fff", CultureInfo.InvariantCulture,
+                                        DateTimeStyles.None, out DateTime dateTimeB);
+                                    return dateTimeB.CompareTo(dateTimeA);
+                                }));
+                                newestSaveFiles = newestSaveFiles.Distinct().Take(saveDataManager.MaxBackupCount)
+                                    .ToList();
+                                await webDAVDriver.CreateFolderIfNotExistsAsync($"/vngt/{dto.GameUniqueId}/save-files",
+                                    cancellationToken);
+                                var remoteHashSet = remoteSaveFiles.ToHashSet();
+                                var localHashSet = localSaveFileNames.ToHashSet();
+                                var newFileHashSet = newestSaveFiles.ToHashSet();
+                                foreach (var newFile in newestSaveFiles)
+                                {
+                                    if (!remoteHashSet.Contains(newFile))
+                                    {
+                                        var filePath = Path.Combine(appPathService.SaveFileBackupDirPath,
+                                            dto.GameUniqueId, newFile);
+                                        await using var fileStream = new FileStream(filePath, FileMode.Open);
+                                        await webDAVDriver.UploadFileAsync(
+                                            $"/vngt/{dto.GameUniqueId}/save-files/{newFile}",
+                                            fileStream, cancellationToken);
+                                    }
+                                    else if (!localSaveFileNames.Contains(newFile))
+                                    {
+                                        var fileContent = await webDAVDriver.DownloadFileAsync(
+                                            $"/vngt/{dto.GameUniqueId}/save-files/{newFile}", cancellationToken);
+                                        var writePath = Path.Combine(appPathService.SaveFileBackupDirPath,
+                                            dto.GameUniqueId, newFile);
+                                        await using var fileStream = new FileStream(writePath, FileMode.Create);
+                                        await fileStream.WriteAsync(fileContent, cancellationToken);
+                                    }
+                                }
+
+                                foreach (var remoteFile in remoteHashSet)
+                                {
+                                    if (!newFileHashSet.Contains(remoteFile))
+                                    {
+                                        await webDAVDriver.Delete(
+                                            $"/vngt/{dto.GameUniqueId}/save-files/{remoteFile}", cancellationToken);
+                                    }
+                                }
+
+                                foreach (string localFile in localHashSet)
+                                {
+                                    if (!newFileHashSet.Contains(localFile))
+                                    {
+                                        ExceptionHelper.ExecuteWithExceptionHandling(() =>
+                                        {
+                                            File.Delete(Path.Combine(appPathService.SaveFileBackupDirPath,
+                                                dto.GameUniqueId, localFile));
+                                        });
+                                    }
+                                }
                             }
                             catch (TaskCanceledException)
                             {
@@ -220,7 +299,7 @@ namespace GameManager.Models.Synchronizer
                         return;
                     }
 
-                    await webDAVDriver.DeleteDirectory($"vngt/{uniqueId}", cancellationToken);
+                    await webDAVDriver.Delete($"vngt/{uniqueId}", cancellationToken);
                     deletedList.Add(deletion);
                 }, taskCanceledEx =>
                 {

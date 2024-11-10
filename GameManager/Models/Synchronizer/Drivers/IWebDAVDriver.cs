@@ -10,7 +10,7 @@
 
         Task<List<string>> GetDirectories(string dirPath , int depth);
 
-        Task DeleteDirectory(string dirPath, CancellationToken cancellationToken);
+        Task Delete(string dirPath, CancellationToken cancellationToken);
         
         Task CreateFolderIfNotExistsAsync(string folderPath, CancellationToken cancellationToken);
 

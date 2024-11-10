@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.DTOs;
 
 namespace GameManager.Models.SaveDataManager
 {
@@ -7,6 +8,8 @@ namespace GameManager.Models.SaveDataManager
         public int MaxBackupCount { get; }
 
         public Task<List<string>> GetBackupListAsync(GameInfo gameInfo);
+        
+        public Task<List<string>> GetBackupListAsync(GameInfoDTO gameInfo);
 
         /// <summary>
         /// backup save file , return backup file name
