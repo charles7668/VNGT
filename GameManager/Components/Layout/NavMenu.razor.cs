@@ -5,7 +5,10 @@ namespace GameManager.Components.Layout
 {
     public partial class NavMenu
     {
+        private string _displaySyncMessage = "Running";
         private string _lastSyncStatus = "Success";
+
+        private DateTime _lastSyncTime = DateTime.Now;
 
         [Inject]
         private ITaskManager TaskManager { get; set; } = null!;
@@ -27,18 +30,23 @@ namespace GameManager.Components.Layout
         private void HandleSyncFailed(object? sender, EventArgs e)
         {
             _lastSyncStatus = "Failed";
+            _lastSyncTime = DateTime.Now;
+            _displaySyncMessage = "Sync Failed at " + _lastSyncTime;
             _ = InvokeAsync(StateHasChanged);
         }
 
         private void HandleSyncEnd(object? sender, EventArgs e)
         {
             _lastSyncStatus = "Success";
+            _lastSyncTime = DateTime.Now;
+            _displaySyncMessage = "Last Sync at " + _lastSyncTime;
             _ = InvokeAsync(StateHasChanged);
         }
 
         private void HandleSyncStart(object? sender, EventArgs e)
         {
             _lastSyncStatus = "Running";
+            _displaySyncMessage = "Syncing...";
             _ = InvokeAsync(StateHasChanged);
         }
     }
