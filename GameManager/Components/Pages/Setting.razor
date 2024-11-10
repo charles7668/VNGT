@@ -68,8 +68,8 @@
                 <MudElement>
                     <MudTextField InputType="InputType.Password" T="string"
                                   Label="WebDAV Password"
-                                  For="() => AppSetting.WebDAVPassword!"
-                                  @bind-Value="AppSetting.WebDAVPassword">
+                                  For="() => _displayWebdavPassword"
+                                  @bind-Value="_displayWebdavPassword">
                     </MudTextField>
                 </MudElement>
                 <MudStack Row="true">

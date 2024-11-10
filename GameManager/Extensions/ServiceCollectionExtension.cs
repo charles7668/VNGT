@@ -1,5 +1,6 @@
 ﻿using GameManager.Extractor;
 using GameManager.GameInfoProvider;
+using GameManager.Models.SecurityProvider;
 using GameManager.Models.Synchronizer;
 using GameManager.Models.Synchronizer.Drivers;
 using GameManager.Models.TaskManager;
@@ -32,6 +33,7 @@ namespace GameManager.Extensions
 
         public static IServiceCollection AddSynchronizers(this IServiceCollection services)
         {
+            services.TryAddSingleton<ISecurityProvider, AESSecurityProvider>();
             services.TryAddSingleton<ITaskManager, TaskManager>();
             services.AddSingleton<IWebDAVDriver, WebDAVWebDAVDriver>();
             services.AddSingleton<ISynchronizer, Synchronizer>();

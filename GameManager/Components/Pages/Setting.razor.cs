@@ -1,6 +1,7 @@
 ﻿using GameManager.Components.Pages.components;
 using GameManager.DB.Models;
 using GameManager.Models;
+using GameManager.Models.SecurityProvider;
 using GameManager.Models.TaskManager;
 using GameManager.Properties;
 using GameManager.Services;
@@ -34,6 +35,9 @@ namespace GameManager.Components.Pages
         [Inject]
         private ITaskManager TaskManager { get; set; } = null!;
 
+        [Inject]
+        private ISecurityProvider SecurityProvider { get; set; } = null!;
+
         private MudTable<GuideSite> GuideSiteTable { get; set; } = null!;
 
         private MudTable<TextMapping> TextMappingTable { get; set; } = null!;
@@ -42,11 +46,14 @@ namespace GameManager.Components.Pages
 
         private List<TextMapping> TextMappings { get; set; } = null!;
 
+        private string _displayWebdavPassword = null!;
+
         protected override void OnInitialized()
         {
             AppSetting = ConfigService.GetAppSetting();
             GuideSites = AppSetting.GuideSites.ToList();
             TextMappings = AppSetting.TextMappings.ToList();
+            _displayWebdavPassword = SecurityProvider.DecryptAsync(AppSetting.WebDAVPassword ?? "").Result;
             base.OnInitialized();
         }
 
@@ -57,6 +64,7 @@ namespace GameManager.Components.Pages
                 AppSetting.GuideSites = GuideSites;
                 AppSetting.TextMappings = TextMappings;
                 AppSetting.UpdatedTime = DateTime.UtcNow;
+                AppSetting.WebDAVPassword = await SecurityProvider.EncryptAsync(_displayWebdavPassword);
                 await ConfigService.UpdateAppSettingAsync(AppSetting);
                 if (_syncSettingChange)
                 {

@@ -1,4 +1,5 @@
 ﻿using GameManager.DTOs;
+using GameManager.Models.SecurityProvider;
 using GameManager.Models.Synchronizer.Drivers;
 using GameManager.Services;
 using Helper;
@@ -11,7 +12,11 @@ using InvalidOperationException = System.InvalidOperationException;
 
 namespace GameManager.Models.Synchronizer
 {
-    public class Synchronizer(IWebDAVDriver webDAVDriver, IConfigService configService, ILogger<Synchronizer> logger)
+    public class Synchronizer(
+        IWebDAVDriver webDAVDriver,
+        IConfigService configService,
+        ILogger<Synchronizer> logger,
+        ISecurityProvider securityProvider)
         : ISynchronizer
     {
         public async Task SyncAppSetting(CancellationToken cancellationToken)
@@ -259,7 +264,8 @@ namespace GameManager.Models.Synchronizer
         {
             AppSettingDTO appSettingDTO = configService.GetAppSettingDTO();
             webDAVDriver.SetBaseUrl(appSettingDTO.WebDAVUrl);
-            webDAVDriver.SetAuthentication(appSettingDTO.WebDAVUser, appSettingDTO.WebDAVPassword);
+            webDAVDriver.SetAuthentication(appSettingDTO.WebDAVUser,
+                securityProvider.DecryptAsync(appSettingDTO.WebDAVPassword).Result);
         }
 
         private async Task<DateTime> CompareAndSync(string filePath, string timeFilePath, string compareString,
