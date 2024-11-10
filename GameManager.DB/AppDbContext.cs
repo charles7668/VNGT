@@ -32,6 +32,8 @@ namespace GameManager.DB
         public DbSet<ReleaseInfo> ReleaseInfos { get; set; }
         
         public DbSet<ExternalLink> ExternalLinks { get; set; }
+        
+        public DbSet<PendingGameInfoDeletion> PendingGameInfoDeletions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
