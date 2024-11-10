@@ -1,6 +1,7 @@
 ﻿using GameManager.DTOs;
 using GameManager.Models.Synchronizer.Drivers;
 using GameManager.Services;
+using Helper;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text;
@@ -66,9 +67,9 @@ namespace GameManager.Models.Synchronizer
                 {
                     ResetConfig();
                     logger.LogInformation("Syncing game infos start");
+                    int errorCount = await RemoveDeletedGameInfoAsync(cancellationToken);
                     List<int> ids = await configService.GetGameInfoIdCollectionAsync(x => x.EnableSync)
                         .ConfigureAwait(false);
-                    int errorCount = 0;
                     int takeCountAtOnce = 30;
                     while (ids.Count > 0)
                     {
@@ -183,6 +184,61 @@ namespace GameManager.Models.Synchronizer
             }
 
             return Task.CompletedTask;
+        }
+
+        private async Task<int> RemoveDeletedGameInfoAsync(CancellationToken cancellationToken)
+        {
+            List<PendingGameInfoDeletionDTO> pendingDeletions =
+                await configService.GetPendingGameInfoDeletionUniqueIdsAsync();
+            var deletedList = new List<PendingGameInfoDeletionDTO>();
+            int errorCount = 0;
+            foreach (PendingGameInfoDeletionDTO deletion in pendingDeletions)
+            {
+                string uniqueId = deletion.GameUniqueId;
+                await ExceptionHelper.ExecuteWithExceptionHandlingAsync<TaskCanceledException, Exception>(async () =>
+                {
+                    FileInfo? timeFile =
+                        (await webDAVDriver.GetFilesAsync($"vngt/{uniqueId}/time.txt")).FirstOrDefault();
+                    DateTime remoteUpdateTime = DateTime.MinValue;
+                    if (timeFile != null)
+                    {
+                        byte[] timeContent = await webDAVDriver.DownloadFileAsync(timeFile.FileName, cancellationToken);
+                        string timeString = Encoding.UTF8.GetString(timeContent);
+                        if (!DateTime.TryParse(timeString, out remoteUpdateTime))
+                            remoteUpdateTime = DateTime.MinValue;
+                    }
+
+                    TimeComparison compareResult = CompareTime(deletion.DeletionDate, remoteUpdateTime);
+                    if (compareResult == TimeComparison.REMOTE_IS_NEWER)
+                    {
+                        deletedList.Add(deletion);
+                        return;
+                    }
+
+                    await webDAVDriver.DeleteDirectory($"vngt/{uniqueId}", cancellationToken);
+                    deletedList.Add(deletion);
+                }, taskCanceledEx =>
+                {
+                    logger.LogInformation("Remove deleted game info canceled");
+                    throw taskCanceledEx;
+                }, ex =>
+                {
+                    logger.LogError(ex, "Failed to remove deleted game info {UniqueId}", deletion.GameUniqueId);
+                    errorCount++;
+                    return Task.CompletedTask;
+                });
+            }
+
+            await ExceptionHelper.ExecuteWithExceptionHandlingAsync(async () =>
+            {
+                await configService.RemovePendingGameInfoDeletionsAsync(deletedList);
+            }, ex =>
+            {
+                logger.LogError(ex, "Failed to remove deleted game info from database");
+                return Task.CompletedTask;
+            });
+
+            return errorCount;
         }
 
         private static TimeComparison CompareTime(DateTime localTime, DateTime remoteTime)

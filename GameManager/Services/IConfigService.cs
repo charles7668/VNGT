@@ -44,7 +44,7 @@ namespace GameManager.Services
 
         Task<List<string>> GetUniqueIdCollection(Expression<Func<GameInfo, bool>> queryExpression, int start,
             int count);
-        
+
         Task<int> GetGameInfoCountAsync(Expression<Func<GameInfo, bool>> queryExpression);
 
         Task UpdateGameInfoFavoriteAsync(int id, bool isFavorite);
@@ -95,5 +95,9 @@ namespace GameManager.Services
         Task RemoveScreenshotAsync(int gameInfoId, string url);
 
         Task AddScreenshotsAsync(int gameInfoId, List<string> urls);
+
+        Task<List<PendingGameInfoDeletionDTO>> GetPendingGameInfoDeletionUniqueIdsAsync();
+
+        Task RemovePendingGameInfoDeletionsAsync(List<PendingGameInfoDeletionDTO> pendingGameInfoDeletionDTOs);
     }
 }

@@ -3,6 +3,7 @@ using GameManager.DB;
 using GameManager.DB.Models;
 using GameManager.DTOs;
 using GameManager.Enums;
+using Helper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.Linq.Expressions;
@@ -85,11 +86,38 @@ namespace GameManager.Services
             File.Delete(fullPath);
         }
 
+        private async Task AddGameInfosToPendingDeletion(List<string> gameInfoUniqueIds, DateTime deletedTime)
+        {
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var deletions = gameInfoUniqueIds.Select(x => new PendingGameInfoDeletion
+            {
+                GameInfoUniqueId = x,
+                DeletionDate = deletedTime
+            }).ToList();
+
+            await unitOfWork.PendingGameInfoDeletionRepository.AddAsync(deletions);
+            await unitOfWork.SaveChangesAsync();
+        }
+
+        private async Task AddGameInfoToPendingDeletion(string gameInfoUniqueId, DateTime deletedTime)
+        {
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            await unitOfWork.PendingGameInfoDeletionRepository.AddAsync(new PendingGameInfoDeletion
+            {
+                GameInfoUniqueId = gameInfoUniqueId,
+                DeletionDate = deletedTime
+            });
+            await unitOfWork.SaveChangesAsync();
+        }
+
         public async Task DeleteGameInfoByIdAsync(int id)
         {
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            try
+            GameInfo? deletedInfo = null;
+            await ExceptionHelper.ExecuteWithExceptionHandlingAsync(async () =>
             {
                 IGameInfoRepository gameInfoRepo = unitOfWork.GameInfoRepository;
                 string? cover = await gameInfoRepo.GetCoverById(id);
@@ -98,14 +126,28 @@ namespace GameManager.Services
                     await DeleteCoverImage(cover);
                 }
 
-                GameInfo? deletedInfo = await unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
-                if (deletedInfo?.LaunchOption != null)
+                deletedInfo = await unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
+                if (deletedInfo == null)
+                    return;
+                if (deletedInfo.LaunchOption != null)
                     await unitOfWork.LaunchOptionRepository.Delete(deletedInfo.LaunchOption.Id);
-            }
-            finally
+                var saveFilePath = Path.Combine(_appPathService.SaveFileBackupDirPath, deletedInfo.GameUniqueId);
+                ExceptionHelper.ExecuteWithExceptionHandling(() =>
+                {
+                    if (Directory.Exists(saveFilePath))
+                    {
+                        Directory.Delete(saveFilePath, true);
+                    }
+                });
+            }, ex => throw ex, async () =>
             {
                 await unitOfWork.SaveChangesAsync();
-            }
+            });
+            if (deletedInfo == null)
+                return;
+
+            if (_appSetting.EnableSync)
+                await AddGameInfoToPendingDeletion(deletedInfo.GameUniqueId, DateTime.UtcNow);
         }
 
         public async Task DeleteGameInfoByIdListAsync(IEnumerable<int> idList, CancellationToken cancellationToken,
@@ -113,6 +155,7 @@ namespace GameManager.Services
         {
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            List<string> deletedGameInfoUniqueId = [];
             await Parallel.ForEachAsync(idList, cancellationToken, async (id, token) =>
             {
                 token.ThrowIfCancellationRequested();
@@ -128,7 +171,21 @@ namespace GameManager.Services
                     }
 
                     await _semaphore.WaitAsync(token);
-                    await unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
+                    GameInfo? deletedEntity = await unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
+                    if (deletedEntity == null)
+                        return;
+                    if (deletedEntity.LaunchOption != null)
+                        await unitOfWork.LaunchOptionRepository.Delete(deletedEntity.LaunchOption.Id);
+                    deletedGameInfoUniqueId.Add(deletedEntity.GameUniqueId);
+                    string saveFileDir =
+                        Path.Combine(_appPathService.SaveFileBackupDirPath, deletedEntity.GameUniqueId);
+                    ExceptionHelper.ExecuteWithExceptionHandling(() =>
+                    {
+                        if (Directory.Exists(saveFileDir))
+                        {
+                            Directory.Delete(saveFileDir, true);
+                        }
+                    });
                 }
                 finally
                 {
@@ -138,6 +195,9 @@ namespace GameManager.Services
                 }
             });
             await unitOfWork.SaveChangesAsync();
+
+            if (_appSetting.EnableSync)
+                await AddGameInfosToPendingDeletion(deletedGameInfoUniqueId, DateTime.UtcNow);
         }
 
         public async Task AddGameInfoAsync(GameInfo info, bool generateUniqueId = true)
@@ -202,7 +262,7 @@ namespace GameManager.Services
             }
         }
 
-        public Task AddGameInfoAsync(GameInfoDTO dto , bool generateUniqueId = true)
+        public Task AddGameInfoAsync(GameInfoDTO dto, bool generateUniqueId = true)
         {
             GameInfo gameInfo = dto.Convert();
             gameInfo.Id = 0;
@@ -339,7 +399,8 @@ namespace GameManager.Services
             return _unitOfWork.GameInfoRepository.AnyAsync(queryExpression);
         }
 
-        public async Task<List<string>> GetUniqueIdCollection(Expression<Func<GameInfo, bool>> queryExpression, int start, int count)
+        public async Task<List<string>> GetUniqueIdCollection(Expression<Func<GameInfo, bool>> queryExpression,
+            int start, int count)
         {
             IQueryable<string> queryable =
                 await _unitOfWork.GameInfoRepository.GetUniqueIdCollectionAsync(queryExpression, start, count);
@@ -511,6 +572,26 @@ namespace GameManager.Services
             AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             await unitOfWork.GameInfoRepository.AddScreenshotsAsync(gameInfoId, urls);
+            await unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<List<PendingGameInfoDeletionDTO>> GetPendingGameInfoDeletionUniqueIdsAsync()
+        {
+            List<PendingGameInfoDeletion> pendingList = await _unitOfWork.PendingGameInfoDeletionRepository.GetAsync();
+            return pendingList.Select(x => new PendingGameInfoDeletionDTO
+            {
+                GameUniqueId = x.GameInfoUniqueId,
+                DeletionDate = x.DeletionDate
+            }).ToList();
+        }
+
+        public async Task RemovePendingGameInfoDeletionsAsync(
+            List<PendingGameInfoDeletionDTO> pendingGameInfoDeletionDTOs)
+        {
+            AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            await unitOfWork.PendingGameInfoDeletionRepository.RemoveAsync(pendingGameInfoDeletionDTOs
+                .Select(x => x.GameUniqueId).ToList());
             await unitOfWork.SaveChangesAsync();
         }
 

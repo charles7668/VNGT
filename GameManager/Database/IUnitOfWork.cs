@@ -5,7 +5,7 @@ namespace GameManager.Database
     public interface IUnitOfWork
     {
         AppDbContext Context { get; }
-        
+
         IGameInfoRepository GameInfoRepository { get; }
 
         IStaffRoleRepository StaffRoleRepository { get; }
@@ -21,6 +21,8 @@ namespace GameManager.Database
         IGameInfoTagRepository GameInfoTagRepository { get; }
 
         ILaunchOptionRepository LaunchOptionRepository { get; }
+
+        IPendingGameInfoDeletionRepository PendingGameInfoDeletionRepository { get; }
 
         Task<int> SaveChangesAsync();
 

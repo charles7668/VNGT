@@ -23,6 +23,9 @@ namespace GameManager.Database
 
         public ILaunchOptionRepository LaunchOptionRepository { get; } = new LaunchOptionRepository(context);
 
+        public IPendingGameInfoDeletionRepository PendingGameInfoDeletionRepository { get; } =
+            new PendingGameInfoDeletionRepository(context);
+
         public Task<int> SaveChangesAsync()
         {
             return Context.SaveChangesAsync();

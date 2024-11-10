@@ -122,6 +122,14 @@ namespace GameManager.Models.Synchronizer.Drivers
             return dirs;
         }
 
+        public async Task DeleteDirectory(string dirPath, CancellationToken cancellationToken)
+        {
+            Dictionary<string, object> options = BuildBaseOptions();
+            HttpResponseMessage response = await Exec(HttpMethod.Delete, dirPath, new StringContent(""), options,
+                cancellationToken);
+            ThrowIfNotSuccess(response);
+        }
+
         public async Task CreateFolderIfNotExistsAsync(string folderPath, CancellationToken cancellationToken)
         {
             folderPath = folderPath.TrimEnd('/') + "/";

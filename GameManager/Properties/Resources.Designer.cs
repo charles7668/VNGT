@@ -1015,6 +1015,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to delete?.
+        /// </summary>
+        internal static string Messeage_DeleteCheck {
+            get {
+                return ResourceManager.GetString("Messeage.DeleteCheck", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Game.
         /// </summary>
         internal static string NavMenu_Game {

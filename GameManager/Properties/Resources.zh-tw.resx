@@ -435,6 +435,9 @@
   <data name="Message.VNGTTranslatorNotInstalled" xml:space="preserve">
     <value>VNGTTranslator 未安裝。請前往工具頁面下載。</value>
   </data>
+  <data name="Messeage.DeleteCheck" xml:space="preserve">
+    <value>確認刪除?</value>
+  </data>
   <data name="NavMenu.Game" xml:space="preserve">
     <value>遊戲</value>
   </data>

@@ -129,7 +129,7 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnDelete()
         {
-            Logger.LogInformation("Delete click");
+            Logger.LogInformation("Delete {GameName} click", GameInfoParam.GameName);
             if (OnDeleteEventCallback.HasDelegate)
                 await OnDeleteEventCallback.InvokeAsync(GameInfoParam.Id);
         }

@@ -9,6 +9,8 @@
         Task<List<FileInfo>> GetFilesAsync(string dirPath, int depth = 1);
 
         Task<List<string>> GetDirectories(string dirPath , int depth);
+
+        Task DeleteDirectory(string dirPath, CancellationToken cancellationToken);
         
         Task CreateFolderIfNotExistsAsync(string folderPath, CancellationToken cancellationToken);
 
