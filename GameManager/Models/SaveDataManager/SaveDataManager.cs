@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Extractor;
 using GameManager.Properties;
 using GameManager.Services;
@@ -16,7 +17,12 @@ namespace GameManager.Models.SaveDataManager
 
         public Task<List<string>> GetBackupListAsync(GameInfo gameInfo)
         {
-            string backupPath = gameInfo.GameUniqueId.ToString();
+            return GetBackupListAsync(GameInfoDTO.Create(gameInfo));
+        }
+
+        public Task<List<string>> GetBackupListAsync(GameInfoDTO gameInfo)
+        {
+            string backupPath = gameInfo.GameUniqueId;
             string backupDirPath = Path.Combine(appPathService.SaveFileBackupDirPath, backupPath);
             if (!Directory.Exists(backupDirPath))
             {
@@ -51,7 +57,7 @@ namespace GameManager.Models.SaveDataManager
                     $"{nameof(saveFilePath)} : {Resources.Message_DirectoryNotExist}"));
             }
 
-            string backupDir = Path.Combine(appPathService.SaveFileBackupDirPath, gameInfo.GameUniqueId.ToString());
+            string backupDir = Path.Combine(appPathService.SaveFileBackupDirPath, gameInfo.GameUniqueId);
             Directory.CreateDirectory(backupDir);
             // remove old backup files
             IEnumerable<string> oldFiles = Directory.EnumerateFiles(backupDir, "*.zip")
@@ -68,7 +74,7 @@ namespace GameManager.Models.SaveDataManager
                 }
             }
 
-            string targetPath = Path.Combine(backupDir, $"{DateTime.UtcNow:yyyy-MM-dd-HH-mm-ss}.zip");
+            string targetPath = Path.Combine(backupDir, $"{DateTime.UtcNow:yyyy-MM-dd HH-mm-ss-fff}.zip");
             using ZipArchive zipArchive = ZipFile.Open(targetPath, ZipArchiveMode.Create);
             string[] files = Directory.GetFiles(saveFilePath, "*", SearchOption.AllDirectories);
 
@@ -102,7 +108,7 @@ namespace GameManager.Models.SaveDataManager
                 return Result.Failure("SaveFilePath : " + Resources.Message_DirectoryNotExist);
             }
 
-            string filePath = Path.Combine(appPathService.SaveFileBackupDirPath, gameInfo.GameUniqueId.ToString(),
+            string filePath = Path.Combine(appPathService.SaveFileBackupDirPath, gameInfo.GameUniqueId,
                 backupFileName + ".zip");
             if (!File.Exists(filePath))
             {
@@ -171,7 +177,7 @@ namespace GameManager.Models.SaveDataManager
                 return Task.FromResult(Result.Failure("SaveFilePath : " + Resources.Message_DirectoryNotExist));
             }
 
-            string filePath = Path.Combine(appPathService.SaveFileBackupDirPath, gameInfo.GameUniqueId.ToString(),
+            string filePath = Path.Combine(appPathService.SaveFileBackupDirPath, gameInfo.GameUniqueId,
                 backupFileName + ".zip");
             if (!File.Exists(filePath))
             {
