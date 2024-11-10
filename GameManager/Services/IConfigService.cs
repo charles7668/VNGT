@@ -48,6 +48,8 @@ namespace GameManager.Services
         Task<int> GetGameInfoCountAsync(Expression<Func<GameInfo, bool>> queryExpression);
 
         Task UpdateGameInfoFavoriteAsync(int id, bool isFavorite);
+        
+        Task UpdateGameInfoSyncStatusAsync(List<int> ids, bool isSyncEnable);
 
         AppSetting GetAppSetting();
 

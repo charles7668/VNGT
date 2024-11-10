@@ -24,9 +24,9 @@ namespace GameManager.Components.Pages
         private CancellationTokenSource _deleteTaskCancellationTokenSource = new();
         private CancellationTokenSource _loadingCancellationTokenSource = new();
         private DotNetObjectReference<Home> _objRef = null!;
+        private int _showDetailId = -1;
 
         private bool IsShowDetail { get; set; }
-        private int _showDetailId = -1;
 
         [Inject]
         public ISnackbar SnakeBar { get; set; } = null!;
@@ -268,7 +268,7 @@ namespace GameManager.Components.Pages
         {
             DialogParameters<DialogConfirm> parameters = new()
             {
-                { x => x.Content, Resources.Messeage_DeleteCheck }
+                { x => x.Content, message }
             };
             IDialogReference dialogReference = await DialogService.ShowAsync<DialogConfirm>("Warning", parameters,
                 new DialogOptions
@@ -463,6 +463,38 @@ namespace GameManager.Components.Pages
             IsShowDetail = false;
             await JsRuntime.InvokeVoidAsync("enableHtmlOverflow");
             StateHasChanged();
+        }
+
+        private async Task OnEnableSyncClick()
+        {
+            await SetEnableState(true);
+        }
+
+        private async Task OnDisableSyncClick()
+        {
+            await SetEnableState(false);
+        }
+
+        private async Task SetEnableState(bool enableState)
+        {
+            List<ViewInfo> selectedViewInfos = ViewGameInfos.FindAll(x => x.IsSelected);
+            var selectedInfos = selectedViewInfos.Select(x => x.Info.Id).ToList();
+            bool hasException = await ExceptionHelper.ExecuteWithExceptionHandlingAsync(async () =>
+            {
+                await ConfigService.UpdateGameInfoSyncStatusAsync(selectedInfos, enableState);
+            }, ex =>
+            {
+                Logger.LogError(ex, "Error occurred when enabling sync status");
+                SnakeBar.Add(Resources.Message_UpdateDatabaseFailed, Severity.Error);
+                return Task.CompletedTask;
+            });
+            if (hasException)
+                return;
+            Parallel.ForEach(selectedViewInfos, viewInfo =>
+            {
+                viewInfo.Info.EnableSync = enableState;
+            });
+            _ = InvokeAsync(StateHasChanged);
         }
 
         private class ViewInfo

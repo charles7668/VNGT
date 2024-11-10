@@ -28,6 +28,15 @@
                         @Resources.Home_SelectionMode
                     </MudCheckBox>
                     <MudButton OnClick="OnSelectAllClick" Variant="Variant.Outlined">@Resources.Home_SelectAll</MudButton>
+                    <MudSpacer/>
+                    <MudButton Variant="Variant.Outlined"
+                               OnClick="OnEnableSyncClick">
+                        @Resources.Common_EnableSync
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined"
+                               OnClick="OnDisableSyncClick">
+                        @Resources.Common_DisableSync
+                    </MudButton>
                 </MudToolBar>
                 <div id="card-list" class="@CardListCss">
                     @if (IsDeleting || IsLoading)

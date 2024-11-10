@@ -416,7 +416,7 @@ namespace GameManager.Services
         {
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            var entity = new GameInfo()
+            var entity = new GameInfo
             {
                 Id = id
             };
@@ -426,6 +426,29 @@ namespace GameManager.Services
             context.Entry(entity).Property(x => x.IsFavorite).IsModified = true;
             await unitOfWork.SaveChangesAsync();
             unitOfWork.DetachEntity(entity);
+        }
+
+        public async Task UpdateGameInfoSyncStatusAsync(List<int> ids, bool isSyncEnable)
+        {
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var entities = ids.Select(x => new GameInfo
+            {
+                Id = x
+            }).ToList();
+            AppDbContext context = unitOfWork.Context;
+            context.AttachRange(entities);
+            foreach (GameInfo entity in entities)
+            {
+                entity.EnableSync = isSyncEnable;
+                context.Entry(entity).Property(x => x.EnableSync).IsModified = true;
+            }
+
+            await unitOfWork.SaveChangesAsync();
+            foreach (GameInfo entity in entities)
+            {
+                unitOfWork.DetachEntity(entity);
+            }
         }
 
         public AppSetting GetAppSetting()

@@ -153,6 +153,9 @@
   <data name="Common.Disabled" xml:space="preserve">
     <value>禁用</value>
   </data>
+  <data name="Common.DisableSync" xml:space="preserve">
+    <value>禁用同步</value>
+  </data>
   <data name="Common.Enabled" xml:space="preserve">
     <value>已啟用</value>
   </data>
@@ -428,6 +431,9 @@
   </data>
   <data name="Message.RelatedGameNotFound" xml:space="preserve">
     <value>未找到相關遊戲</value>
+  </data>
+  <data name="Message.UpdateDatabaseFailed" xml:space="preserve">
+    <value>更新資料庫失敗</value>
   </data>
   <data name="Message.UpdateSuccess" xml:space="preserve">
     <value>更新成功</value>

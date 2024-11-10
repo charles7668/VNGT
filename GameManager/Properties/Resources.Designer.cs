@@ -169,6 +169,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Disable Sync.
+        /// </summary>
+        internal static string Common_DisableSync {
+            get {
+                return ResourceManager.GetString("Common.DisableSync", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enabled.
         /// </summary>
         internal static string Common_Enabled {
@@ -993,6 +1002,15 @@ namespace GameManager.Properties {
         internal static string Message_RelatedGameNotFound {
             get {
                 return ResourceManager.GetString("Message.RelatedGameNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update database failed.
+        /// </summary>
+        internal static string Message_UpdateDatabaseFailed {
+            get {
+                return ResourceManager.GetString("Message.UpdateDatabaseFailed", resourceCulture);
             }
         }
         
