@@ -26,6 +26,7 @@ Game management tool: easily manage your games and integrate various assistive t
 - Support adding new games from archives
 - Support using [Sandboxie-Plus](https://sandboxie-plus.com/) to launch games
 - Support backup and restore settings
+- Support synchronization using WebDAV.
 
 ## Guide
 

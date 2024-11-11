@@ -26,6 +26,7 @@
 - 支援從壓縮檔中新增新遊戲
 - 支持使用 [Sandboxie-Plus](https://sandboxie-plus.com/) 開啟遊戲
 - 支持備份設定及還原
+- 支持使用 WebDAV 進行資料同步
 
 ## 使用指南
 
