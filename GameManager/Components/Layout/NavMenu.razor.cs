@@ -6,7 +6,7 @@ namespace GameManager.Components.Layout
     public partial class NavMenu
     {
         private string _displaySyncMessage = "Running";
-        private string _lastSyncStatus = "Success";
+        private TaskExecutor.TaskStatus _lastSyncStatus = TaskExecutor.TaskStatus.SUCCESS;
         private DateTime _lastSyncTime = DateTime.Now;
 
         [Inject]
@@ -14,10 +14,10 @@ namespace GameManager.Components.Layout
 
         protected override async Task OnInitializedAsync()
         {
-            string status = await TaskManager.GetTaskStatus(App.SyncTaskJobName);
-            if (status == "Running")
+            TaskExecutor.TaskStatus status = await TaskManager.GetTaskStatus(App.SyncTaskJobName);
+            if (status == TaskExecutor.TaskStatus.RUNNING)
             {
-                _lastSyncStatus = "Running";
+                _lastSyncStatus = TaskExecutor.TaskStatus.RUNNING;
             }
 
             TaskExecutor.OnSyncTaskStart += HandleSyncStart;
@@ -28,7 +28,7 @@ namespace GameManager.Components.Layout
 
         private void HandleSyncFailed(object? sender, TaskExecutor.TaskEventArgs e)
         {
-            _lastSyncStatus = "Failed";
+            _lastSyncStatus = TaskExecutor.TaskStatus.FAILED;
             _lastSyncTime = DateTime.Now;
             _displaySyncMessage = "Sync Failed at " + _lastSyncTime + "\n" + e.ErrorMessage;
             _ = InvokeAsync(StateHasChanged);
@@ -36,7 +36,7 @@ namespace GameManager.Components.Layout
 
         private void HandleSyncEnd(object? sender, TaskExecutor.TaskEventArgs e)
         {
-            _lastSyncStatus = "Success";
+            _lastSyncStatus = TaskExecutor.TaskStatus.SUCCESS;
             _lastSyncTime = DateTime.Now;
             _displaySyncMessage = "Last Sync at " + _lastSyncTime;
             _ = InvokeAsync(StateHasChanged);
@@ -44,7 +44,7 @@ namespace GameManager.Components.Layout
 
         private void HandleSyncStart(object? sender, TaskExecutor.TaskEventArgs e)
         {
-            _lastSyncStatus = "Running";
+            _lastSyncStatus = TaskExecutor.TaskStatus.RUNNING;
             _displaySyncMessage = "Syncing...";
             _ = InvokeAsync(StateHasChanged);
         }

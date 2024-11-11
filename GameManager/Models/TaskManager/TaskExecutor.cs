@@ -10,7 +10,9 @@ namespace GameManager.Models.TaskManager
         {
             RUNNING,
             SUCCESS,
-            FAILED
+            FAILED,
+            NOT_FOUND,
+            EXECUTE_PENDING
         }
 
         private static CancellationTokenSource _SyncTaskCts = new();

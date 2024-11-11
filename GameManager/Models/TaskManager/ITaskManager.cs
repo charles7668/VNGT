@@ -9,7 +9,7 @@ namespace GameManager.Models.TaskManager
 
         Task<Result> StartBackgroundTask(string taskName, Expression<Action> task, Action cancelTask);
 
-        Task<string> GetTaskStatus(string taskName);
+        Task<TaskExecutor.TaskStatus> GetTaskStatus(string taskName);
 
         void CancelTask(string taskName);
     }

@@ -1,4 +1,5 @@
-﻿<MudNavMenu Class="mud-height-full d-flex flex-column">
+﻿@using GameManager.Models.TaskManager
+<MudNavMenu Class="mud-height-full d-flex flex-column">
     <MudTooltip Text="@Resources.NavMenu_Game">
         <MudNavLink Class="d-flex align-center" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.GridView" Href="/"></MudNavLink>
     </MudTooltip>
@@ -19,11 +20,11 @@
     </div>
     <div>
         <MudTooltip Text="@_displaySyncMessage">
-            @if (_lastSyncStatus == "Running")
+            @if (_lastSyncStatus == TaskExecutor.TaskStatus.RUNNING)
             {
                 <MudIcon Class="spin-sync" Icon="@Icons.Material.Filled.Sync"></MudIcon>
             }
-            else if (_lastSyncStatus == "Success")
+            else if (_lastSyncStatus == TaskExecutor.TaskStatus.SUCCESS)
             {
                 <MudIcon Class="not-spin-sync" Icon="@Icons.Material.Filled.Sync"></MudIcon>
             }
