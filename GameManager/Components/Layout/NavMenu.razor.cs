@@ -7,7 +7,6 @@ namespace GameManager.Components.Layout
     {
         private string _displaySyncMessage = "Running";
         private string _lastSyncStatus = "Success";
-
         private DateTime _lastSyncTime = DateTime.Now;
 
         [Inject]
@@ -27,15 +26,15 @@ namespace GameManager.Components.Layout
             _ = base.OnInitializedAsync();
         }
 
-        private void HandleSyncFailed(object? sender, EventArgs e)
+        private void HandleSyncFailed(object? sender, TaskExecutor.TaskEventArgs e)
         {
             _lastSyncStatus = "Failed";
             _lastSyncTime = DateTime.Now;
-            _displaySyncMessage = "Sync Failed at " + _lastSyncTime;
+            _displaySyncMessage = "Sync Failed at " + _lastSyncTime + "\n" + e.ErrorMessage;
             _ = InvokeAsync(StateHasChanged);
         }
 
-        private void HandleSyncEnd(object? sender, EventArgs e)
+        private void HandleSyncEnd(object? sender, TaskExecutor.TaskEventArgs e)
         {
             _lastSyncStatus = "Success";
             _lastSyncTime = DateTime.Now;
@@ -43,7 +42,7 @@ namespace GameManager.Components.Layout
             _ = InvokeAsync(StateHasChanged);
         }
 
-        private void HandleSyncStart(object? sender, EventArgs e)
+        private void HandleSyncStart(object? sender, TaskExecutor.TaskEventArgs e)
         {
             _lastSyncStatus = "Running";
             _displaySyncMessage = "Syncing...";

@@ -192,6 +192,11 @@ namespace GameManager.Models.Synchronizer
                             {
                                 logger.LogInformation("Sync game infos canceled");
                             }
+                            catch (UnauthorizedAccessException)
+                            {
+                                logger.LogError("Unauthorized access remote");
+                                throw;
+                            }
                             catch (Exception e)
                             {
                                 logger.LogError(e, "Failed to sync game {UniqueId}", dto.GameUniqueId);
@@ -279,38 +284,45 @@ namespace GameManager.Models.Synchronizer
             foreach (PendingGameInfoDeletionDTO deletion in pendingDeletions)
             {
                 string uniqueId = deletion.GameUniqueId;
-                await ExceptionHelper.ExecuteWithExceptionHandlingAsync<TaskCanceledException, Exception>(async () =>
-                {
-                    FileInfo? timeFile =
-                        (await webDAVDriver.GetFilesAsync($"vngt/{uniqueId}/time.txt")).FirstOrDefault();
-                    DateTime remoteUpdateTime = DateTime.MinValue;
-                    if (timeFile != null)
-                    {
-                        byte[] timeContent = await webDAVDriver.DownloadFileAsync(timeFile.FileName, cancellationToken);
-                        string timeString = Encoding.UTF8.GetString(timeContent);
-                        if (!DateTime.TryParse(timeString, out remoteUpdateTime))
-                            remoteUpdateTime = DateTime.MinValue;
-                    }
+                await ExceptionHelper
+                    .ExecuteWithExceptionHandlingAsync<TaskCanceledException, UnauthorizedAccessException, Exception>(
+                        async () =>
+                        {
+                            FileInfo? timeFile =
+                                (await webDAVDriver.GetFilesAsync($"vngt/{uniqueId}/time.txt")).FirstOrDefault();
+                            DateTime remoteUpdateTime = DateTime.MinValue;
+                            if (timeFile != null)
+                            {
+                                byte[] timeContent =
+                                    await webDAVDriver.DownloadFileAsync(timeFile.FileName, cancellationToken);
+                                string timeString = Encoding.UTF8.GetString(timeContent);
+                                if (!DateTime.TryParse(timeString, out remoteUpdateTime))
+                                    remoteUpdateTime = DateTime.MinValue;
+                            }
 
-                    TimeComparison compareResult = CompareTime(deletion.DeletionDate, remoteUpdateTime);
-                    if (compareResult == TimeComparison.REMOTE_IS_NEWER)
-                    {
-                        deletedList.Add(deletion);
-                        return;
-                    }
+                            TimeComparison compareResult = CompareTime(deletion.DeletionDate, remoteUpdateTime);
+                            if (compareResult == TimeComparison.REMOTE_IS_NEWER)
+                            {
+                                deletedList.Add(deletion);
+                                return;
+                            }
 
-                    await webDAVDriver.Delete($"vngt/{uniqueId}", cancellationToken);
-                    deletedList.Add(deletion);
-                }, taskCanceledEx =>
-                {
-                    logger.LogInformation("Remove deleted game info canceled");
-                    throw taskCanceledEx;
-                }, ex =>
-                {
-                    logger.LogError(ex, "Failed to remove deleted game info {UniqueId}", deletion.GameUniqueId);
-                    errorCount++;
-                    return Task.CompletedTask;
-                });
+                            await webDAVDriver.Delete($"vngt/{uniqueId}", cancellationToken);
+                            deletedList.Add(deletion);
+                        }, taskCanceledEx =>
+                        {
+                            logger.LogInformation("Remove deleted game info canceled");
+                            throw taskCanceledEx;
+                        }, unAuthEx =>
+                        {
+                            logger.LogError(unAuthEx, "Unauthorized access remote");
+                            throw unAuthEx;
+                        }, ex =>
+                        {
+                            logger.LogError(ex, "Failed to remove deleted game info {UniqueId}", deletion.GameUniqueId);
+                            errorCount++;
+                            return Task.CompletedTask;
+                        });
             }
 
             await ExceptionHelper.ExecuteWithExceptionHandlingAsync(async () =>
