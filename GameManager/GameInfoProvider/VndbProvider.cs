@@ -55,7 +55,15 @@ namespace GameManager.GameInfoProvider
                                     ?? titlesDeserialized.FirstOrDefault()?.Title;
                         }
 
-                        string? image = item.GetProperty("image").GetProperty("url").GetString();
+                        string? image = null;
+                        if (item.TryGetProperty("image", out JsonElement imageProp) &&
+                            imageProp.ValueKind == JsonValueKind.Object)
+                        {
+                            if (imageProp.TryGetProperty("url", out JsonElement urlProp))
+                            {
+                                image = urlProp.GetString();
+                            }
+                        }
                         string? id = item.GetProperty("id").GetString();
                         gameInfos.Add(new GameInfo
                         {
