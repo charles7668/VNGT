@@ -113,7 +113,7 @@ namespace GameManager.Models.Synchronizer
                                 resultDto.UpdatedTime = lastedTime;
                                 await configService.UpdateGameInfoAsync(resultDto);
                                 List<string> remoteSaveFiles = [];
-                                await ExceptionHelper.ExecuteWithExceptionHandlingAsync<FileNotFoundException>(
+                                await ExceptionHelper.ExecuteWithExceptionHandlingAsync(
                                     async () =>
                                     {
                                         List<FileInfo> remoteFiles =
@@ -121,6 +121,11 @@ namespace GameManager.Models.Synchronizer
                                         remoteSaveFiles = remoteFiles.Select(x =>
                                                 HttpUtility.UrlDecode(x.FileName.Split('/').Last()))
                                             .ToList();
+                                    }, ex =>
+                                    {
+                                        if (ex is not FileNotFoundException)
+                                            throw ex;
+                                        return Task.CompletedTask;
                                     });
                                 var localSaveFilePath = (await saveDataManager.GetBackupListAsync(dto))
                                     .Select(x => x + ".zip").ToList();
@@ -285,7 +290,7 @@ namespace GameManager.Models.Synchronizer
             {
                 string uniqueId = deletion.GameUniqueId;
                 await ExceptionHelper
-                    .ExecuteWithExceptionHandlingAsync<TaskCanceledException, UnauthorizedAccessException, Exception>(
+                    .ExecuteWithExceptionHandlingAsync(
                         async () =>
                         {
                             FileInfo? timeFile =
@@ -309,16 +314,22 @@ namespace GameManager.Models.Synchronizer
 
                             await webDAVDriver.Delete($"vngt/{uniqueId}", cancellationToken);
                             deletedList.Add(deletion);
-                        }, taskCanceledEx =>
-                        {
-                            logger.LogInformation("Remove deleted game info canceled");
-                            throw taskCanceledEx;
-                        }, unAuthEx =>
-                        {
-                            logger.LogError(unAuthEx, "Unauthorized access remote");
-                            throw unAuthEx;
                         }, ex =>
                         {
+                            switch (ex)
+                            {
+                                case TaskCanceledException taskCanceledException:
+                                    logger.LogInformation("Remove deleted game info canceled");
+                                    throw taskCanceledException;
+                                case UnauthorizedAccessException unauthorizedAccessException:
+                                    logger.LogError("Unauthorized access remote");
+                                    throw unauthorizedAccessException;
+                                case FileNotFoundException:
+                                    logger.LogInformation("Remote game info not found");
+                                    deletedList.Add(deletion);
+                                    return Task.CompletedTask;
+                            }
+
                             logger.LogError(ex, "Failed to remove deleted game info {UniqueId}", deletion.GameUniqueId);
                             errorCount++;
                             return Task.CompletedTask;

@@ -211,8 +211,13 @@ namespace GameManager.Components.Pages
         private async Task OnDeleteGameCard(int id)
         {
             Logger.LogInformation("Delete game card with id {Id}", id);
-            await ExceptionHelper.ExecuteWithExceptionHandlingAsync<TaskCanceledException>(() =>
-                ShowConfirmDialogAsync(Resources.Messeage_DeleteCheck));
+            await ExceptionHelper.ExecuteWithExceptionHandlingAsync(() =>
+                ShowConfirmDialogAsync(Resources.Messeage_DeleteCheck), ex =>
+            {
+                if (ex is not TaskCanceledException)
+                    throw ex;
+                return Task.CompletedTask;
+            });
             ViewInfo? item = ViewGameInfos.Find(x => x.Info.Id == id);
             if (item == null)
                 return;
@@ -283,11 +288,16 @@ namespace GameManager.Components.Pages
         private async Task OnDelete()
         {
             Logger.LogInformation("Bulk Delete button clicked");
-            await ExceptionHelper.ExecuteWithExceptionHandlingAsync<TaskCanceledException>(() =>
-                ShowConfirmDialogAsync(Resources.Messeage_DeleteCheck));
+            await ExceptionHelper.ExecuteWithExceptionHandlingAsync(() =>
+                ShowConfirmDialogAsync(Resources.Messeage_DeleteCheck), ex =>
+            {
+                if (ex is not TaskCanceledException)
+                    throw ex;
+                return Task.CompletedTask;
+            });
             IsDeleting = true;
             await InvokeAsync(StateHasChanged);
-            await ExceptionHelper.ExecuteWithExceptionHandlingAsync<TaskCanceledException, Exception>(async () =>
+            await ExceptionHelper.ExecuteWithExceptionHandlingAsync(async () =>
             {
                 _deleteTaskCancellationTokenSource = new CancellationTokenSource();
                 await Task.Run(async () =>
@@ -298,12 +308,14 @@ namespace GameManager.Components.Pages
                     var idList = deleteItems.Select(x => x.Key).ToList();
                     await ConfigService.DeleteGameInfoByIdListAsync(idList, token, _ => { });
                 }, _deleteTaskCancellationTokenSource.Token);
-            }, taskCanceledException =>
-            {
-                Logger.LogInformation(taskCanceledException, "Delete game info Task canceled");
-                return Task.CompletedTask;
             }, async ex =>
             {
+                if (ex is TaskCanceledException taskCanceledException)
+                {
+                    Logger.LogInformation(taskCanceledException, "Delete game info Task canceled");
+                    return;
+                }
+
                 Logger.LogError(ex, "Error occurred when deleting game info");
                 await DialogService.ShowMessageBox("Error", ex.Message, cancelText: "Cancel");
             }, async () =>
