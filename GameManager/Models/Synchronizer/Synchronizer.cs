@@ -167,6 +167,7 @@ namespace GameManager.Models.Synchronizer
                                             $"/vngt/{dto.GameUniqueId}/save-files/{newFile}", cancellationToken);
                                         var writePath = Path.Combine(appPathService.SaveFileBackupDirPath,
                                             dto.GameUniqueId, newFile);
+                                        Directory.CreateDirectory(Path.GetDirectoryName(writePath) ?? "");
                                         await using var fileStream = new FileStream(writePath, FileMode.Create);
                                         await fileStream.WriteAsync(fileContent, cancellationToken);
                                     }
