@@ -17,6 +17,9 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private IDialogService DialogService { get; set; } = null!;
 
+        [Parameter]
+        public string SelectedFile { get; set; } = string.Empty;
+
         private Model Result { get; } = new();
         public bool IsInputValid { get; set; }
         public string[]? Errors { get; set; }

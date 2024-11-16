@@ -423,7 +423,13 @@ namespace GameManager.Components.Pages.components
                 return;
             }
 
+            var dialogAddFromArchiveParameters = new DialogParameters<DialogAddFromArchive>
+            {
+                { x => x.SelectedFile, targetFile.FullPath }
+            };
+
             IDialogReference dialogReference = await DialogService.ShowAsync<DialogAddFromArchive>("Add Game from Zip",
+                dialogAddFromArchiveParameters,
                 new DialogOptions
                 {
                     FullWidth = true,

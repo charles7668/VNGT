@@ -1,6 +1,9 @@
 ﻿<MudDialog>
     <DialogContent>
         <MudForm @bind-IsValid="IsInputValid" @bind-Errors="Errors" @ref="FormInstance">
+            <div>
+                <MudText>@SelectedFile</MudText>
+            </div>
             <div id="library-selection">
                 <MudPaper Width="100%">
                     <MudSelect T="string"
