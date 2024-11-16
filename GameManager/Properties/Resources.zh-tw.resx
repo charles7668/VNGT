@@ -408,6 +408,9 @@
   <data name="Message.FailedToAddScreenshots" xml:space="preserve">
     <value>加入遊戲截圖失敗</value>
   </data>
+  <data name="Message.DetectGameInstallError" xml:space="preserve">
+    <value>檢測安裝路徑時發生錯誤</value>
+  </data>
   <data name="Message.FailedToRemoveScreenshots" xml:space="preserve">
     <value>刪除遊戲截圖失敗</value>
   </data>

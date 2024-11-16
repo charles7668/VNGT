@@ -166,7 +166,7 @@ namespace GameManager.Components.Pages.components
                     FullWidth = true,
                     MaxWidth = MaxWidth.Small
                 });
-            var showProgressDialogTimeStamp = DateTime.UtcNow;
+            DateTime showProgressDialogTimeStamp = DateTime.UtcNow;
             try
             {
                 Process? installProc = null;
@@ -334,6 +334,11 @@ namespace GameManager.Components.Pages.components
 
                 if (AddNewGameEvent.HasDelegate)
                     await AddNewGameEvent.InvokeAsync(target);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to install game");
+                Snackbar.Add(Resources.Message_DetectGameInstallError, Severity.Error);
             }
             finally
             {

@@ -408,6 +408,9 @@
   <data name="Message.FailedToAddScreenshots" xml:space="preserve">
     <value>Failed to add screenshots</value>
   </data>
+  <data name="Message.DetectGameInstallError" xml:space="preserve">
+    <value>An error occurred while detecting the game installation.</value>
+  </data>
   <data name="Message.FailedToRemoveScreenshots" xml:space="preserve">
     <value>Failed to remove screenshots</value>
   </data>

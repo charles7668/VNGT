@@ -907,6 +907,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An error occurred while detecting the game installation..
+        /// </summary>
+        internal static string Message_DetectGameInstallError {
+            get {
+                return ResourceManager.GetString("Message.DetectGameInstallError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Directory does not exist.
         /// </summary>
         internal static string Message_DirectoryNotExist {
