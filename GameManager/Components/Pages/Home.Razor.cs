@@ -288,13 +288,17 @@ namespace GameManager.Components.Pages
         private async Task OnDelete()
         {
             Logger.LogInformation("Bulk Delete button clicked");
+            bool isCancel = false;
             await ExceptionHelper.ExecuteWithExceptionHandlingAsync(() =>
                 ShowConfirmDialogAsync(Resources.Messeage_DeleteCheck), ex =>
             {
                 if (ex is not TaskCanceledException)
                     throw ex;
+                isCancel = true;
                 return Task.CompletedTask;
             });
+            if (isCancel)
+                return;
             IsDeleting = true;
             await InvokeAsync(StateHasChanged);
             await ExceptionHelper.ExecuteWithExceptionHandlingAsync(async () =>
