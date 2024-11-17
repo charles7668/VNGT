@@ -1,6 +1,9 @@
 ﻿using GameManager.Models;
+using GameManager.Properties;
 using Helper;
+using Microsoft.Maui.Animations;
 using SevenZip;
+using System.Diagnostics;
 
 namespace GameManager.Extractor
 {
@@ -28,16 +31,25 @@ namespace GameManager.Extractor
                     SevenZip.SevenZipExtractor extractor = string.IsNullOrEmpty(option.Password)
                         ? new SevenZip.SevenZipExtractor(filePath)
                         : new SevenZip.SevenZipExtractor(filePath, option.Password);
+                    bool hasProgress = false;
                     if (option.ProgressChanged != null)
                         extractor.Extracting += (sender, args) =>
+                        {
                             option.ProgressChanged.Invoke(sender, args.PercentDone);
+                            hasProgress = true;
+                        };
                     bool finish = false;
                     extractor.ExtractionFinished += (_, _) => finish = true;
                     extractor.BeginExtractArchive(destPath);
-                    while (!finish)
+                    Stopwatch sw = new();
+                    sw.Start();
+                    while (!finish && (sw.ElapsedMilliseconds < 5000 || hasProgress))
                     {
                         await Task.Delay(10);
                     }
+
+                    if (!hasProgress)
+                        throw new InvalidOperationException(Resources.Message_UnableToDecompress);
 
                     extractor.Dispose();
                 });

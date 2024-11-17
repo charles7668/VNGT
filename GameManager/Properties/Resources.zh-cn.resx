@@ -399,6 +399,9 @@
   <data name="Library.Button.Scan" xml:space="preserve">
     <value>扫描</value>
   </data>
+  <data name="Message.DetectGameInstallError" xml:space="preserve">
+    <value>检测安装位置时发生错误</value>
+  </data>
   <data name="Message.DirectoryNotExist" xml:space="preserve">
     <value>资料夹不存在</value>
   </data>
@@ -407,9 +410,6 @@
   </data>
   <data name="Message.FailedToAddScreenshots" xml:space="preserve">
     <value>加入游戏截图失败</value>
-  </data>
-  <data name="Message.DetectGameInstallError" xml:space="preserve">
-    <value>检测安装位置时发生错误</value>
   </data>
   <data name="Message.FailedToRemoveScreenshots" xml:space="preserve">
     <value>删除游戏截图失败</value>
@@ -434,6 +434,9 @@
   </data>
   <data name="Message.RelatedGameNotFound" xml:space="preserve">
     <value>未找到相关游戏</value>
+  </data>
+  <data name="Message.UnableToDecompress" xml:space="preserve">
+    <value>无法解压缩</value>
   </data>
   <data name="Message.UpdateDatabaseFailed" xml:space="preserve">
     <value>更新数据库失败</value>

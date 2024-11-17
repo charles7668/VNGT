@@ -1015,6 +1015,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to decompress the archive..
+        /// </summary>
+        internal static string Message_UnableToDecompress {
+            get {
+                return ResourceManager.GetString("Message.UnableToDecompress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Update database failed.
         /// </summary>
         internal static string Message_UpdateDatabaseFailed {
