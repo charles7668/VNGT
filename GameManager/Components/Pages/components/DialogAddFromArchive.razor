@@ -27,9 +27,8 @@
                           Validation="@(new Func<string, Task<IEnumerable<string>>>(GameNameValidate))">
             </MudTextField>
             <div id="advance-options">
-                <MudExpansionPanel Text="Advance options">
-                    <MudTextField Label="Password" @bind-Value="Result.ArchivePassword"/>
-                </MudExpansionPanel>
+                <MudText>Advance Options</MudText>
+                <MudTextField Label="Password" @bind-Value="Result.ArchivePassword"/>
             </div>
         </MudForm>
     </DialogContent>
