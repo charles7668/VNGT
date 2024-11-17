@@ -1,6 +1,7 @@
 ﻿using GameManager.DB.Models;
+using GameManager.Models;
 
-namespace GameManager.Models.LaunchProgramStrategies
+namespace GameManager.Modules.LaunchProgramStrategies
 {
     public class LaunchProgramStrategyFactory
     {

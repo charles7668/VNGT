@@ -1,7 +1,7 @@
-﻿using ABI.Windows.Security.Isolation;
+﻿using GameManager.Models;
 using System.Text;
 
-namespace GameManager.Models.GameInstallAnalyzer
+namespace GameManager.Modules.GameInstallAnalyzer
 {
     public class ProcessTracerGameInstallAnalyzer : IGameInstallAnalyzer
     {

@@ -1,7 +1,7 @@
 ﻿using GameManager.DTOs;
-using GameManager.Models.SaveDataManager;
-using GameManager.Models.SecurityProvider;
-using GameManager.Models.Synchronizer.Drivers;
+using GameManager.Modules.SaveDataManager;
+using GameManager.Modules.SecurityProvider;
+using GameManager.Modules.Synchronizer.Drivers;
 using GameManager.Services;
 using Helper;
 using Microsoft.Extensions.Logging;
@@ -10,9 +10,10 @@ using System.Text;
 using System.Text.Json;
 using System.Web;
 using CancellationToken = System.Threading.CancellationToken;
+using FileInfo = GameManager.Models.FileInfo;
 using InvalidOperationException = System.InvalidOperationException;
 
-namespace GameManager.Models.Synchronizer
+namespace GameManager.Modules.Synchronizer
 {
     public class Synchronizer(
         IWebDAVDriver webDAVDriver,

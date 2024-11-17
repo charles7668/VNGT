@@ -1,5 +1,5 @@
 ﻿using GameManager.DB.Models;
-using GameManager.Models.TaskManager;
+using GameManager.Modules.TaskManager;
 using GameManager.Services;
 using Hangfire.Annotations;
 using Microsoft.AspNetCore.Components;

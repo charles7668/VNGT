@@ -1,7 +1,7 @@
 ﻿using GameManager.Services;
 using System.Diagnostics;
 
-namespace GameManager.Models.ToolInfo
+namespace GameManager.Modules.ToolInfo
 {
     public class CustomToolInfo(string toolName, string toolVersion, string exePath, bool runAsAdmin = false)
         : IToolInfo

@@ -1,4 +1,4 @@
-﻿using GameManager.Models.TaskManager;
+﻿using GameManager.Modules.TaskManager;
 using Microsoft.AspNetCore.Components;
 
 namespace GameManager.Components.Layout

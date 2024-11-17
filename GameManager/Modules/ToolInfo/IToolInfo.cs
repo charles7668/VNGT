@@ -1,4 +1,4 @@
-﻿namespace GameManager.Models.ToolInfo
+﻿namespace GameManager.Modules.ToolInfo
 {
     public interface IToolInfo
     {

@@ -3,7 +3,7 @@ using Helper;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace GameManager.Models.SecurityProvider
+namespace GameManager.Modules.SecurityProvider
 {
     public class AESSecurityProvider : ISecurityProvider
     {

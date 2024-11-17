@@ -1,6 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using GameManager.Models;
+using System.Linq.Expressions;
 
-namespace GameManager.Models.TaskManager
+namespace GameManager.Modules.TaskManager
 {
     public interface ITaskManager
     {

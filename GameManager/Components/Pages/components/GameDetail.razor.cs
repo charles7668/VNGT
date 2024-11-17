@@ -1,6 +1,6 @@
 ﻿using GameManager.DB.Models;
 using GameManager.Models;
-using GameManager.Models.LaunchProgramStrategies;
+using GameManager.Modules.LaunchProgramStrategies;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;

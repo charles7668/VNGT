@@ -1,8 +1,8 @@
-﻿using GameManager.Models.Synchronizer;
+﻿using GameManager.Modules.Synchronizer;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
-namespace GameManager.Models.TaskManager
+namespace GameManager.Modules.TaskManager
 {
     public static class TaskExecutor
     {

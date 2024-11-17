@@ -1,8 +1,9 @@
-﻿using Hangfire;
+﻿using GameManager.Models;
+using Hangfire;
 using Hangfire.Storage;
 using System.Linq.Expressions;
 
-namespace GameManager.Models.TaskManager
+namespace GameManager.Modules.TaskManager
 {
     public class TaskManager
         : ITaskManager

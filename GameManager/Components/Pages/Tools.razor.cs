@@ -1,6 +1,6 @@
 ﻿using GameManager.DB.Models;
 using GameManager.Models;
-using GameManager.Models.ToolInfo;
+using GameManager.Modules.ToolInfo;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;

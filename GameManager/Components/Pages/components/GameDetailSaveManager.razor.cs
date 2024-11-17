@@ -1,6 +1,6 @@
 ﻿using GameManager.DB.Models;
 using GameManager.Models;
-using GameManager.Models.SaveDataManager;
+using GameManager.Modules.SaveDataManager;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 

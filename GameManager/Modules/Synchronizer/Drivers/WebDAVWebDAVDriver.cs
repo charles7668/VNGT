@@ -4,8 +4,9 @@ using Helper.Web;
 using System.Net;
 using System.Text;
 using System.Xml;
+using FileInfo = GameManager.Models.FileInfo;
 
-namespace GameManager.Models.Synchronizer.Drivers
+namespace GameManager.Modules.Synchronizer.Drivers
 {
     public class WebDAVWebDAVDriver(IWebService webService) : IWebDAVDriver
     {

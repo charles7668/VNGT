@@ -1,7 +1,7 @@
 ﻿using GameManager.DB.Models;
 using GameManager.Models;
-using GameManager.Models.LaunchProgramStrategies;
-using GameManager.Models.SaveDataManager;
+using GameManager.Modules.LaunchProgramStrategies;
+using GameManager.Modules.SaveDataManager;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;

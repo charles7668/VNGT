@@ -1,11 +1,12 @@
 ﻿using GameManager.DB.Models;
+using GameManager.Models;
 using GameManager.Properties;
 using GameManager.Services;
 using System.Diagnostics;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace GameManager.Models.LaunchProgramStrategies
+namespace GameManager.Modules.LaunchProgramStrategies
 {
     public class LaunchWithSandboxie(GameInfo gameInfo, Action<int>? tryLaunchVNGTTranslator) : IStrategy
     {

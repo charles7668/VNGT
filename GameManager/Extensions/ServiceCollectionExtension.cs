@@ -1,9 +1,9 @@
 ﻿using GameManager.Extractor;
 using GameManager.GameInfoProvider;
-using GameManager.Models.SecurityProvider;
-using GameManager.Models.Synchronizer;
-using GameManager.Models.Synchronizer.Drivers;
-using GameManager.Models.TaskManager;
+using GameManager.Modules.SecurityProvider;
+using GameManager.Modules.Synchronizer;
+using GameManager.Modules.Synchronizer.Drivers;
+using GameManager.Modules.TaskManager;
 using GameManager.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

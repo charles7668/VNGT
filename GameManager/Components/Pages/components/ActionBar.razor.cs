@@ -2,7 +2,7 @@
 using GameManager.Enums;
 using GameManager.Extractor;
 using GameManager.Models;
-using GameManager.Models.GameInstallAnalyzer;
+using GameManager.Modules.GameInstallAnalyzer;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;

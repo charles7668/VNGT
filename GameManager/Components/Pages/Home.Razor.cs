@@ -1,7 +1,7 @@
 ﻿using GameManager.Components.Pages.components;
 using GameManager.DB.Models;
 using GameManager.Enums;
-using GameManager.Models.TaskManager;
+using GameManager.Modules.TaskManager;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;

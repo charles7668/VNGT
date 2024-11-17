@@ -1,4 +1,6 @@
-﻿namespace GameManager.Models.Synchronizer.Drivers
+﻿using FileInfo = GameManager.Models.FileInfo;
+
+namespace GameManager.Modules.Synchronizer.Drivers
 {
     public interface IWebDAVDriver
     {

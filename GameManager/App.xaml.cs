@@ -1,6 +1,5 @@
 ﻿using GameManager.DB;
 using GameManager.DB.Models;
-using GameManager.Models.TaskManager;
 using GameManager.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;

@@ -1,4 +1,4 @@
-﻿namespace GameManager.Models.Synchronizer
+﻿namespace GameManager.Modules.Synchronizer
 {
     public interface ISynchronizer
     {

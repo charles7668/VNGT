@@ -1,4 +1,6 @@
-﻿namespace GameManager.Models.GameInstallAnalyzer
+﻿using GameManager.Models;
+
+namespace GameManager.Modules.GameInstallAnalyzer
 {
     public interface IGameInstallAnalyzer
     {

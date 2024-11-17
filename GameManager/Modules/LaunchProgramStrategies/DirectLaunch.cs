@@ -1,8 +1,9 @@
 ﻿using GameManager.DB.Models;
+using GameManager.Models;
 using GameManager.Services;
 using System.Diagnostics;
 
-namespace GameManager.Models.LaunchProgramStrategies
+namespace GameManager.Modules.LaunchProgramStrategies
 {
     public class DirectLaunch(GameInfo gameInfo, Action<int>? tryLaunchVNGTTranslator = null) : IStrategy
     {

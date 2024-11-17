@@ -1,8 +1,8 @@
 ﻿using GameManager.Components.Pages.components;
 using GameManager.DB.Models;
 using GameManager.Models;
-using GameManager.Models.SecurityProvider;
-using GameManager.Models.TaskManager;
+using GameManager.Modules.SecurityProvider;
+using GameManager.Modules.TaskManager;
 using GameManager.Properties;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;

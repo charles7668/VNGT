@@ -1,4 +1,4 @@
-﻿namespace GameManager.Models.SecurityProvider
+﻿namespace GameManager.Modules.SecurityProvider
 {
     public interface ISecurityProvider
     {

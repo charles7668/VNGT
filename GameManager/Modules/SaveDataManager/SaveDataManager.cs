@@ -1,13 +1,14 @@
 ﻿using GameManager.DB.Models;
 using GameManager.DTOs;
 using GameManager.Extractor;
+using GameManager.Models;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 
-namespace GameManager.Models.SaveDataManager
+namespace GameManager.Modules.SaveDataManager
 {
     public class SaveDataManager(ILogger<SaveDataManager> logger, IAppPathService appPathService) : ISaveDataManager
     {

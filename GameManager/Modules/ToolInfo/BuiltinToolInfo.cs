@@ -1,8 +1,9 @@
 ﻿using GameManager.Extractor;
+using GameManager.Models;
 using GameManager.Services;
 using System.Text.Json;
 
-namespace GameManager.Models.ToolInfo
+namespace GameManager.Modules.ToolInfo
 {
     public class BuiltinToolInfo(
         string toolName,

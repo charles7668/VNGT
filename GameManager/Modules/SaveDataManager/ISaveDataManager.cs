@@ -1,7 +1,8 @@
 ﻿using GameManager.DB.Models;
 using GameManager.DTOs;
+using GameManager.Models;
 
-namespace GameManager.Models.SaveDataManager
+namespace GameManager.Modules.SaveDataManager
 {
     public interface ISaveDataManager
     {
