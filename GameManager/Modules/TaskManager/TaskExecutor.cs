@@ -17,25 +17,46 @@ namespace GameManager.Modules.TaskManager
 
         private static CancellationTokenSource _SyncTaskCts = new();
 
+        /// <summary>
+        /// Event triggered when a synchronization task fails.
+        /// </summary>
         public static event EventHandler<TaskEventArgs>? OnSyncTaskFailed;
 
+        /// <summary>
+        /// Event triggered when a synchronization task starts.
+        /// </summary>
         public static event EventHandler<TaskEventArgs>? OnSyncTaskStart;
 
+        /// <summary>
+        /// Event triggered when a synchronization task ends.
+        /// </summary>
         public static event EventHandler<TaskEventArgs>? OnSyncTaskEnd;
 
-        private static void OnSyncFailed(object? sender, TaskEventArgs args)
+        private static void OnSyncFailed(TaskEventArgs args)
         {
-            OnSyncTaskFailed?.Invoke(sender, args);
+            OnSyncTaskFailed?.Invoke(null, args);
         }
 
-        private static void OnSyncStart(object? sender, TaskEventArgs args)
+        private static void OnSyncStart(TaskEventArgs args)
         {
-            OnSyncTaskStart?.Invoke(sender, args);
+            OnSyncTaskStart?.Invoke(null, args);
         }
 
-        private static void OnSyncEnd(object? sender, TaskEventArgs args)
+        private static void OnSyncEnd(TaskEventArgs args)
         {
-            OnSyncTaskEnd?.Invoke(sender, args);
+            OnSyncTaskEnd?.Invoke(null, args);
+        }
+
+        /// <summary>
+        /// Generates a new <see cref="CancellationTokenSource" /> and disposes the old one.
+        /// </summary>
+        /// <returns>A new <see cref="CancellationTokenSource" />.</returns>
+        private static CancellationTokenSource GenerateNewCts()
+        {
+            CancellationTokenSource oldCts = _SyncTaskCts;
+            _SyncTaskCts = new CancellationTokenSource();
+            oldCts.Dispose();
+            return _SyncTaskCts;
         }
 
         public static void SyncTask()
@@ -43,12 +64,12 @@ namespace GameManager.Modules.TaskManager
             const string taskName = "SyncTask";
             Task.Run(async () =>
             {
-                OnSyncStart(null, new TaskEventArgs(taskName, TaskStatus.RUNNING));
-                await _SyncTaskCts.CancelAsync();
+                OnSyncStart(new TaskEventArgs(taskName, TaskStatus.RUNNING));
+                CancelSyncTask();
                 ILoggerFactory loggerFactory = App.ServiceProvider.GetRequiredService<ILoggerFactory>();
                 ILogger logger = loggerFactory.CreateLogger(nameof(TaskExecutor));
                 logger.LogInformation("Start sync task");
-                _SyncTaskCts = new CancellationTokenSource();
+                _SyncTaskCts = GenerateNewCts();
                 IServiceProvider serviceProvider = App.ServiceProvider;
                 ISynchronizer synchronizer = serviceProvider.GetRequiredService<ISynchronizer>();
                 bool hasError = false;
@@ -56,16 +77,16 @@ namespace GameManager.Modules.TaskManager
                 try
                 {
                     logger.LogInformation("Start sync app settings");
-                    await synchronizer.SyncAppSetting(_SyncTaskCts.Token);
-                    await synchronizer.SyncGameInfos(_SyncTaskCts.Token);
+                    await synchronizer.SyncAppSetting(_SyncTaskCts.Token).ConfigureAwait(false);
+                    await synchronizer.SyncGameInfos(_SyncTaskCts.Token).ConfigureAwait(false);
                 }
-                catch (TaskCanceledException)
+                catch (TaskCanceledException ex)
                 {
-                    logger.LogInformation("Sync app settings task canceled");
+                    logger.LogInformation(ex, "Sync app settings task canceled");
                 }
-                catch (UnauthorizedAccessException)
+                catch (UnauthorizedAccessException ex)
                 {
-                    logger.LogError("Unauthorized access to sync app setting");
+                    logger.LogError(ex, "Unauthorized access to sync app setting");
                     errorMessage = "Unauthorized access to remote";
                     hasError = true;
                 }
@@ -77,9 +98,9 @@ namespace GameManager.Modules.TaskManager
                 }
 
                 if (hasError)
-                    OnSyncFailed(null, new TaskEventArgs(taskName, TaskStatus.FAILED, errorMessage));
+                    OnSyncFailed(new TaskEventArgs(taskName, TaskStatus.FAILED, errorMessage));
                 else
-                    OnSyncEnd(null, new TaskEventArgs(taskName, TaskStatus.SUCCESS));
+                    OnSyncEnd(new TaskEventArgs(taskName, TaskStatus.SUCCESS));
                 logger.LogInformation("End sync task");
             }).ConfigureAwait(false).GetAwaiter().GetResult();
         }

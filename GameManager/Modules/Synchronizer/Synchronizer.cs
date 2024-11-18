@@ -24,266 +24,306 @@ namespace GameManager.Modules.Synchronizer
         ISecurityProvider securityProvider)
         : ISynchronizer
     {
+        private const string BASE_REMOTE_PATH = "vngt";
+        private const string TIME_FILE_NAME = "time.txt";
+
         public async Task SyncAppSetting(CancellationToken cancellationToken)
         {
             ResetConfig();
             logger.LogInformation("Syncing app setting");
-            try
-            {
-                await webDAVDriver.CreateFolderIfNotExistsAsync("vngt", cancellationToken);
+            await webDAVDriver.CreateFolderIfNotExistsAsync(BuildPath(), cancellationToken);
 
-                AppSettingDTO appSettingDto = configService.GetAppSettingDTO();
-                string bodyString = JsonSerializer.Serialize(appSettingDto);
-                DateTime syncTime = await CompareAndSync("/vngt/appSetting.json", "/vngt/time.txt", bodyString,
-                    remoteTime =>
-                    {
-                        if (remoteTime > appSettingDto.UpdatedTime)
-                            return TimeComparison.REMOTE_IS_NEWER;
-                        return remoteTime < appSettingDto.UpdatedTime
-                            ? TimeComparison.LOCAL_IS_NEWER
-                            : TimeComparison.SAME;
-                    }, downloadContent =>
-                    {
-                        AppSettingDTO? tempDownloadDto =
-                            JsonSerializer.Deserialize<AppSettingDTO>(Encoding.UTF8.GetString(downloadContent));
-                        if (tempDownloadDto == null)
-                            throw new InvalidOperationException("download content can't be deserialized");
-                        // restore not sync data
-                        tempDownloadDto.Id = appSettingDto.Id;
-                        tempDownloadDto.WebDAVUrl = appSettingDto.WebDAVUrl;
-                        tempDownloadDto.WebDAVUser = appSettingDto.WebDAVUser;
-                        tempDownloadDto.WebDAVPassword = appSettingDto.WebDAVPassword;
-                        tempDownloadDto.EnableSync = appSettingDto.EnableSync;
-
-                        appSettingDto = tempDownloadDto;
-                    }, cancellationToken).ConfigureAwait(false);
-                if (syncTime != appSettingDto.UpdatedTime)
+            AppSettingDTO appSettingDto = configService.GetAppSettingDTO();
+            string bodyString = JsonSerializer.Serialize(appSettingDto);
+            DateTime syncTime = await CompareAndSync(BuildPath("appSetting.json"), BuildPath(TIME_FILE_NAME),
+                bodyString,
+                remoteTime =>
                 {
-                    appSettingDto.UpdatedTime = syncTime;
-                    await configService.UpdateAppSettingAsync(appSettingDto);
-                }
-            }
-            catch (TaskCanceledException)
+                    if (remoteTime > appSettingDto.UpdatedTime)
+                        return TimeComparison.REMOTE_IS_NEWER;
+                    return remoteTime < appSettingDto.UpdatedTime
+                        ? TimeComparison.LOCAL_IS_NEWER
+                        : TimeComparison.SAME;
+                }, downloadContent =>
+                {
+                    AppSettingDTO? tempDownloadDto =
+                        JsonSerializer.Deserialize<AppSettingDTO>(Encoding.UTF8.GetString(downloadContent));
+                    if (tempDownloadDto == null)
+                        throw new InvalidOperationException("download content can't be deserialized");
+                    // restore not sync data
+                    tempDownloadDto.Id = appSettingDto.Id;
+                    tempDownloadDto.WebDAVUrl = appSettingDto.WebDAVUrl;
+                    tempDownloadDto.WebDAVUser = appSettingDto.WebDAVUser;
+                    tempDownloadDto.WebDAVPassword = appSettingDto.WebDAVPassword;
+                    tempDownloadDto.EnableSync = appSettingDto.EnableSync;
+
+                    appSettingDto = tempDownloadDto;
+                }, cancellationToken).ConfigureAwait(false);
+            if (syncTime != appSettingDto.UpdatedTime)
             {
-                logger.LogInformation("Sync app setting canceled");
+                appSettingDto.UpdatedTime = syncTime;
+                await configService.UpdateAppSettingAsync(appSettingDto);
             }
         }
 
-        public Task SyncGameInfos(CancellationToken cancellationToken)
+        public async Task SyncGameInfos(CancellationToken cancellationToken)
         {
+            ResetConfig();
+            logger.LogInformation("Syncing game infos start");
+            int errorCount = await RemoveDeletedGameInfoAsync(cancellationToken);
+            errorCount += await SyncLocalToRemote(cancellationToken);
+            errorCount += await SyncRemoteToLocal(cancellationToken);
+
+            if (errorCount > 0)
+                throw new InvalidOperationException(
+                    $"Failed to sync some game infos : {errorCount} items sync failed");
+        }
+
+        private static string BuildPath(params string[] paths)
+        {
+            var pathList = new List<string>
+            {
+                BASE_REMOTE_PATH
+            };
+            pathList.AddRange(paths);
+            string path = Path.Combine(pathList.ToArray());
+            return path.Replace("\\", "/");
+        }
+
+        private async Task SyncGameInfo(GameInfoDTO dto, CancellationToken cancellationToken)
+        {
+            GameInfoDTO resultDto = dto;
+            await webDAVDriver.CreateFolderIfNotExistsAsync(BuildPath(), cancellationToken);
+            await webDAVDriver.CreateFolderIfNotExistsAsync(BuildPath(dto.GameUniqueId),
+                cancellationToken);
+            string bodyString = JsonSerializer.Serialize(dto);
+            DateTime lastedTime = await CompareAndSync(BuildPath(dto.GameUniqueId, "gameInfo.json"),
+                BuildPath(dto.GameUniqueId, TIME_FILE_NAME), bodyString,
+                remoteTime => CompareTime(dto.UpdatedTime, remoteTime), downloadContent =>
+                {
+                    GameInfoDTO? tempDownloadDto =
+                        JsonSerializer.Deserialize<GameInfoDTO>(
+                            Encoding.UTF8.GetString(downloadContent));
+                    if (tempDownloadDto == null)
+                        throw new InvalidOperationException(
+                            "download content can't be deserialized");
+                    // restore not sync data
+                    tempDownloadDto.Id = dto.Id;
+                    tempDownloadDto.GameUniqueId = dto.GameUniqueId;
+                    resultDto = tempDownloadDto;
+                }, cancellationToken).ConfigureAwait(false);
+            resultDto.UpdatedTime = lastedTime;
+            await configService.UpdateGameInfoAsync(resultDto);
+            List<string> remoteSaveFiles = [];
+            await ExceptionHelper.ExecuteWithExceptionHandlingAsync(
+                async () =>
+                {
+                    List<FileInfo> remoteFiles =
+                        await webDAVDriver.GetFilesAsync(BuildPath(dto.GameUniqueId, "save-files"));
+                    remoteSaveFiles = remoteFiles.Select(x =>
+                            HttpUtility.UrlDecode(x.FileName.Split('/')[^1]))
+                        .ToList();
+                }, ex =>
+                {
+                    if (ex is not FileNotFoundException)
+                        throw ex;
+                    return Task.CompletedTask;
+                });
+            var localSaveFilePath = (await saveDataManager.GetBackupListAsync(dto))
+                .Select(x => x + ".zip").ToList();
+            var localSaveFileNames =
+                localSaveFilePath.Select(x => x.Split('/')[^1]).ToList();
+            var newestSaveFiles = remoteSaveFiles.Select(x => x).ToList();
+            newestSaveFiles.AddRange(localSaveFilePath);
+            newestSaveFiles.Sort(Comparer<string>.Create((a, b) =>
+            {
+                a = a.Replace(".zip", "");
+                b = b.Replace(".zip", "");
+                DateTime.TryParseExact(a, "yyyy-MM-dd HH-mm-ss-fff", CultureInfo.InvariantCulture,
+                    DateTimeStyles.None, out DateTime dateTimeA);
+                DateTime.TryParseExact(b, "yyyy-MM-dd HH-mm-ss-fff", CultureInfo.InvariantCulture,
+                    DateTimeStyles.None, out DateTime dateTimeB);
+                return dateTimeB.CompareTo(dateTimeA);
+            }));
+            newestSaveFiles = newestSaveFiles.Distinct().Take(saveDataManager.MaxBackupCount)
+                .ToList();
+            await webDAVDriver.CreateFolderIfNotExistsAsync($"/vngt/{dto.GameUniqueId}/save-files",
+                cancellationToken);
+            var remoteHashSet = remoteSaveFiles.ToHashSet();
+            var localHashSet = localSaveFileNames.ToHashSet();
+            var newFileHashSet = newestSaveFiles.ToHashSet();
+            foreach (string newFile in newestSaveFiles)
+            {
+                if (!remoteHashSet.Contains(newFile))
+                {
+                    string filePath = Path.Combine(appPathService.SaveFileBackupDirPath,
+                        dto.GameUniqueId, newFile);
+                    await using var fileStream = new FileStream(filePath, FileMode.Open);
+                    await webDAVDriver.UploadFileAsync(
+                        $"/vngt/{dto.GameUniqueId}/save-files/{newFile}",
+                        fileStream, cancellationToken);
+                }
+                else if (!localSaveFileNames.Contains(newFile))
+                {
+                    byte[] fileContent = await webDAVDriver.DownloadFileAsync(
+                        $"/vngt/{dto.GameUniqueId}/save-files/{newFile}", cancellationToken);
+                    string writePath = Path.Combine(appPathService.SaveFileBackupDirPath,
+                        dto.GameUniqueId, newFile);
+                    Directory.CreateDirectory(Path.GetDirectoryName(writePath) ?? "");
+                    await using var fileStream = new FileStream(writePath, FileMode.Create);
+                    await fileStream.WriteAsync(fileContent, cancellationToken);
+                }
+            }
+
+            foreach (string remoteFile in remoteHashSet)
+            {
+                if (!newFileHashSet.Contains(remoteFile))
+                {
+                    await webDAVDriver.Delete(
+                        BuildPath(dto.GameUniqueId, "save-files", remoteFile), cancellationToken);
+                }
+            }
+
+            foreach (string localFile in localHashSet)
+            {
+                if (!newFileHashSet.Contains(localFile))
+                {
+                    ExceptionHelper.ExecuteWithExceptionHandling(() =>
+                    {
+                        File.Delete(Path.Combine(appPathService.SaveFileBackupDirPath,
+                            dto.GameUniqueId, localFile));
+                    });
+                }
+            }
+        }
+
+        private async Task<int> SyncLocalToRemote(CancellationToken cancellationToken)
+        {
+            logger.LogInformation("Syncing local to remote");
+            List<int> ids = await configService.GetGameInfoIdCollectionAsync(x => x.EnableSync)
+                .ConfigureAwait(false);
+            int errorCount = 0;
+            const int takeCountAtOnce = 30;
+            while (ids.Count > 0)
+            {
+                var syncIds = ids.Take(takeCountAtOnce).ToList();
+                ids = ids.Skip(takeCountAtOnce).ToList();
+                // update exist game
+                List<GameInfoDTO> dtos = await configService.GetGameInfoDTOsAsync(syncIds, 0, takeCountAtOnce);
+                foreach (GameInfoDTO dto in dtos)
+                {
+                    try
+                    {
+                        await SyncGameInfo(dto, cancellationToken);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        throw;
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        throw;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Failed to sync game {UniqueId}", dto.GameUniqueId);
+                        errorCount++;
+                    }
+                }
+            }
+
+            return errorCount;
+        }
+
+        private async Task<int> SyncRemoteToLocal(CancellationToken cancellationToken)
+        {
+            logger.LogInformation("Syncing remote to local");
+            int errorCount = 0;
+            var dirs = (await webDAVDriver.GetDirectories(BuildPath(), 1))
+                .Select(x => x.TrimEnd('/').Split('/')[^1]).ToHashSet();
+            dirs.Remove(BASE_REMOTE_PATH);
+            int countOfGameInfos = await configService.GetGameInfoCountAsync(_ => true);
+            int takeCountAtOnce = 300;
+            int takeTime = 0;
+            while (countOfGameInfos > 0)
+            {
+                List<string> uniqueIds =
+                    await configService.GetUniqueIdCollection(_ => true, takeTime * takeCountAtOnce,
+                        takeCountAtOnce);
+                countOfGameInfos -= takeCountAtOnce;
+                foreach (string uniqueId in uniqueIds)
+                {
+                    dirs.Remove(uniqueId);
+                }
+            }
+
+            foreach (string dir in dirs)
+            {
+                string uniqueId = dir;
+                var dto = new GameInfoDTO
+                {
+                    GameUniqueId = uniqueId
+                };
+                try
+                {
+                    string bodyString = JsonSerializer.Serialize(dto);
+                    DateTime lastedTime = await CompareAndSync(BuildPath(uniqueId, "gameInfo.json"),
+                        BuildPath(uniqueId, TIME_FILE_NAME), bodyString,
+                        remoteTime => CompareTime(dto.UpdatedTime, remoteTime), downloadContent =>
+                        {
+                            GameInfoDTO? tempDownloadDto =
+                                JsonSerializer.Deserialize<GameInfoDTO>(
+                                    Encoding.UTF8.GetString(downloadContent));
+                            if (tempDownloadDto == null)
+                                throw new InvalidOperationException("download content can't be deserialized");
+                            // restore not sync data
+                            tempDownloadDto.GameUniqueId = dto.GameUniqueId;
+                            dto = tempDownloadDto;
+                        }, cancellationToken).ConfigureAwait(false);
+                    dto.UpdatedTime = lastedTime;
+                    await configService.AddGameInfoAsync(dto, false);
+                }
+                catch (TaskCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "Failed to sync game {UniqueId}", dto.GameUniqueId);
+                    errorCount++;
+                }
+            }
+
+            return errorCount;
+        }
+
+        private async Task<DateTime> GetRemoteUpdateTime(string filePath, CancellationToken cancellationToken)
+        {
+            DateTime remoteUpdateTime = DateTime.MinValue;
             try
             {
-                Task.Run(async () =>
+                FileInfo? timeFile =
+                    (await webDAVDriver.GetFilesAsync(filePath)).FirstOrDefault();
+                if (timeFile != null)
                 {
-                    ResetConfig();
-                    logger.LogInformation("Syncing game infos start");
-                    int errorCount = await RemoveDeletedGameInfoAsync(cancellationToken);
-                    List<int> ids = await configService.GetGameInfoIdCollectionAsync(x => x.EnableSync)
-                        .ConfigureAwait(false);
-                    int takeCountAtOnce = 30;
-                    while (ids.Count > 0)
-                    {
-                        var syncIds = ids.Take(takeCountAtOnce).ToList();
-                        ids = ids.Skip(takeCountAtOnce).ToList();
-                        // update exist game
-                        List<GameInfoDTO> dtos = await configService.GetGameInfoDTOsAsync(syncIds, 0, takeCountAtOnce);
-                        foreach (GameInfoDTO dto in dtos)
-                        {
-                            try
-                            {
-                                GameInfoDTO resultDto = dto;
-                                await webDAVDriver.CreateFolderIfNotExistsAsync("vngt", cancellationToken);
-                                await webDAVDriver.CreateFolderIfNotExistsAsync($"vngt/{dto.GameUniqueId}",
-                                    cancellationToken);
-                                string bodyString = JsonSerializer.Serialize(dto);
-                                DateTime lastedTime = await CompareAndSync($"/vngt/{dto.GameUniqueId}/gameInfo.json",
-                                    $"/vngt/{dto.GameUniqueId}/time.txt", bodyString,
-                                    remoteTime => CompareTime(dto.UpdatedTime, remoteTime), downloadContent =>
-                                    {
-                                        GameInfoDTO? tempDownloadDto =
-                                            JsonSerializer.Deserialize<GameInfoDTO>(
-                                                Encoding.UTF8.GetString(downloadContent));
-                                        if (tempDownloadDto == null)
-                                            throw new InvalidOperationException(
-                                                "download content can't be deserialized");
-                                        // restore not sync data
-                                        tempDownloadDto.Id = dto.Id;
-                                        tempDownloadDto.GameUniqueId = dto.GameUniqueId;
-                                        resultDto = tempDownloadDto;
-                                    }, cancellationToken).ConfigureAwait(false);
-                                resultDto.UpdatedTime = lastedTime;
-                                await configService.UpdateGameInfoAsync(resultDto);
-                                List<string> remoteSaveFiles = [];
-                                await ExceptionHelper.ExecuteWithExceptionHandlingAsync(
-                                    async () =>
-                                    {
-                                        List<FileInfo> remoteFiles =
-                                            await webDAVDriver.GetFilesAsync($"/vngt/{dto.GameUniqueId}/save-files");
-                                        remoteSaveFiles = remoteFiles.Select(x =>
-                                                HttpUtility.UrlDecode(x.FileName.Split('/').Last()))
-                                            .ToList();
-                                    }, ex =>
-                                    {
-                                        if (ex is not FileNotFoundException)
-                                            throw ex;
-                                        return Task.CompletedTask;
-                                    });
-                                var localSaveFilePath = (await saveDataManager.GetBackupListAsync(dto))
-                                    .Select(x => x + ".zip").ToList();
-                                var localSaveFileNames =
-                                    localSaveFilePath.Select(x => x.Split('/').Last()).ToList();
-                                var newestSaveFiles = remoteSaveFiles.Select(x => x).ToList();
-                                newestSaveFiles.AddRange(localSaveFilePath);
-                                newestSaveFiles.Sort(Comparer<string>.Create((a, b) =>
-                                {
-                                    a = a.Replace(".zip", "");
-                                    b = b.Replace(".zip", "");
-                                    DateTime.TryParseExact(a, "yyyy-MM-dd HH-mm-ss-fff", CultureInfo.InvariantCulture,
-                                        DateTimeStyles.None, out DateTime dateTimeA);
-                                    DateTime.TryParseExact(b, "yyyy-MM-dd HH-mm-ss-fff", CultureInfo.InvariantCulture,
-                                        DateTimeStyles.None, out DateTime dateTimeB);
-                                    return dateTimeB.CompareTo(dateTimeA);
-                                }));
-                                newestSaveFiles = newestSaveFiles.Distinct().Take(saveDataManager.MaxBackupCount)
-                                    .ToList();
-                                await webDAVDriver.CreateFolderIfNotExistsAsync($"/vngt/{dto.GameUniqueId}/save-files",
-                                    cancellationToken);
-                                var remoteHashSet = remoteSaveFiles.ToHashSet();
-                                var localHashSet = localSaveFileNames.ToHashSet();
-                                var newFileHashSet = newestSaveFiles.ToHashSet();
-                                foreach (var newFile in newestSaveFiles)
-                                {
-                                    if (!remoteHashSet.Contains(newFile))
-                                    {
-                                        var filePath = Path.Combine(appPathService.SaveFileBackupDirPath,
-                                            dto.GameUniqueId, newFile);
-                                        await using var fileStream = new FileStream(filePath, FileMode.Open);
-                                        await webDAVDriver.UploadFileAsync(
-                                            $"/vngt/{dto.GameUniqueId}/save-files/{newFile}",
-                                            fileStream, cancellationToken);
-                                    }
-                                    else if (!localSaveFileNames.Contains(newFile))
-                                    {
-                                        var fileContent = await webDAVDriver.DownloadFileAsync(
-                                            $"/vngt/{dto.GameUniqueId}/save-files/{newFile}", cancellationToken);
-                                        var writePath = Path.Combine(appPathService.SaveFileBackupDirPath,
-                                            dto.GameUniqueId, newFile);
-                                        Directory.CreateDirectory(Path.GetDirectoryName(writePath) ?? "");
-                                        await using var fileStream = new FileStream(writePath, FileMode.Create);
-                                        await fileStream.WriteAsync(fileContent, cancellationToken);
-                                    }
-                                }
-
-                                foreach (var remoteFile in remoteHashSet)
-                                {
-                                    if (!newFileHashSet.Contains(remoteFile))
-                                    {
-                                        await webDAVDriver.Delete(
-                                            $"/vngt/{dto.GameUniqueId}/save-files/{remoteFile}", cancellationToken);
-                                    }
-                                }
-
-                                foreach (string localFile in localHashSet)
-                                {
-                                    if (!newFileHashSet.Contains(localFile))
-                                    {
-                                        ExceptionHelper.ExecuteWithExceptionHandling(() =>
-                                        {
-                                            File.Delete(Path.Combine(appPathService.SaveFileBackupDirPath,
-                                                dto.GameUniqueId, localFile));
-                                        });
-                                    }
-                                }
-                            }
-                            catch (TaskCanceledException)
-                            {
-                                logger.LogInformation("Sync game infos canceled");
-                            }
-                            catch (UnauthorizedAccessException)
-                            {
-                                logger.LogError("Unauthorized access remote");
-                                throw;
-                            }
-                            catch (Exception e)
-                            {
-                                logger.LogError(e, "Failed to sync game {UniqueId}", dto.GameUniqueId);
-                                errorCount++;
-                            }
-                        }
-                    }
-
-                    var dirs = (await webDAVDriver.GetDirectories("vngt", 1))
-                        .Select(x => x.TrimEnd('/').Split('/').Last()).ToHashSet();
-                    int countOfGameInfos = await configService.GetGameInfoCountAsync(_ => true);
-                    takeCountAtOnce = 300;
-                    int takeTime = 0;
-                    while (countOfGameInfos > 0)
-                    {
-                        List<string> uniqueIds =
-                            await configService.GetUniqueIdCollection(_ => true, takeTime * takeCountAtOnce,
-                                takeCountAtOnce);
-                        countOfGameInfos -= takeCountAtOnce;
-                        foreach (string uniqueId in uniqueIds)
-                        {
-                            dirs.Remove(uniqueId);
-                        }
-                    }
-
-                    foreach (string dir in dirs)
-                    {
-                        if (dir == "vngt")
-                            continue;
-                        string uniqueId = dir.TrimEnd('/').Split('/').Last();
-                        var dto = new GameInfoDTO
-                        {
-                            GameUniqueId = uniqueId
-                        };
-                        try
-                        {
-                            string bodyString = JsonSerializer.Serialize(dto);
-                            DateTime lastedTime = await CompareAndSync($"/vngt/{uniqueId}/gameInfo.json",
-                                $"/vngt/{uniqueId}/time.txt", bodyString,
-                                remoteTime => CompareTime(dto.UpdatedTime, remoteTime), downloadContent =>
-                                {
-                                    GameInfoDTO? tempDownloadDto =
-                                        JsonSerializer.Deserialize<GameInfoDTO>(
-                                            Encoding.UTF8.GetString(downloadContent));
-                                    if (tempDownloadDto == null)
-                                        throw new InvalidOperationException("download content can't be deserialized");
-                                    // restore not sync data
-                                    tempDownloadDto.GameUniqueId = dto.GameUniqueId;
-                                    dto = tempDownloadDto;
-                                }, cancellationToken).ConfigureAwait(false);
-                            dto.UpdatedTime = lastedTime;
-                            await configService.AddGameInfoAsync(dto, false);
-                        }
-                        catch (TaskCanceledException)
-                        {
-                            logger.LogInformation("Sync game infos canceled");
-                            throw;
-                        }
-                        catch (Exception e)
-                        {
-                            logger.LogError(e, "Failed to sync game {UniqueId}", dto.GameUniqueId);
-                            errorCount++;
-                        }
-                    }
-
-                    if (errorCount > 0)
-                        throw new InvalidOperationException(
-                            $"Failed to sync some game infos : {errorCount} items sync failed");
-                }, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+                    byte[] timeContent =
+                        await webDAVDriver.DownloadFileAsync(timeFile.FileName, cancellationToken);
+                    string timeString = Encoding.UTF8.GetString(timeContent);
+                    DateTime.TryParse(timeString, CultureInfo.InvariantCulture, DateTimeStyles.None,
+                        out remoteUpdateTime);
+                }
             }
-            catch (TaskCanceledException)
+            catch (FileNotFoundException)
             {
-                logger.LogInformation("Sync game infos canceled");
+                return DateTime.MinValue;
             }
 
-            return Task.CompletedTask;
+            return remoteUpdateTime;
         }
 
         private async Task<int> RemoveDeletedGameInfoAsync(CancellationToken cancellationToken)
         {
+            logger.LogInformation("Removing deleted game infos from remote");
             List<PendingGameInfoDeletionDTO> pendingDeletions =
                 await configService.GetPendingGameInfoDeletionUniqueIdsAsync();
             var deletedList = new List<PendingGameInfoDeletionDTO>();
@@ -291,51 +331,33 @@ namespace GameManager.Modules.Synchronizer
             foreach (PendingGameInfoDeletionDTO deletion in pendingDeletions)
             {
                 string uniqueId = deletion.GameUniqueId;
-                await ExceptionHelper
-                    .ExecuteWithExceptionHandlingAsync(
-                        async () =>
-                        {
-                            FileInfo? timeFile =
-                                (await webDAVDriver.GetFilesAsync($"vngt/{uniqueId}/time.txt")).FirstOrDefault();
-                            DateTime remoteUpdateTime = DateTime.MinValue;
-                            if (timeFile != null)
-                            {
-                                byte[] timeContent =
-                                    await webDAVDriver.DownloadFileAsync(timeFile.FileName, cancellationToken);
-                                string timeString = Encoding.UTF8.GetString(timeContent);
-                                if (!DateTime.TryParse(timeString, out remoteUpdateTime))
-                                    remoteUpdateTime = DateTime.MinValue;
-                            }
+                try
+                {
+                    DateTime remoteUpdateTime =
+                        await GetRemoteUpdateTime(BuildPath(uniqueId, TIME_FILE_NAME), cancellationToken);
+                    TimeComparison compareResult = CompareTime(deletion.DeletionDate, remoteUpdateTime);
+                    if (compareResult == TimeComparison.REMOTE_IS_NEWER)
+                    {
+                        deletedList.Add(deletion);
+                        continue;
+                    }
 
-                            TimeComparison compareResult = CompareTime(deletion.DeletionDate, remoteUpdateTime);
-                            if (compareResult == TimeComparison.REMOTE_IS_NEWER)
-                            {
-                                deletedList.Add(deletion);
-                                return;
-                            }
-
-                            await webDAVDriver.Delete($"vngt/{uniqueId}", cancellationToken);
-                            deletedList.Add(deletion);
-                        }, ex =>
-                        {
-                            switch (ex)
-                            {
-                                case TaskCanceledException taskCanceledException:
-                                    logger.LogInformation("Remove deleted game info canceled");
-                                    throw taskCanceledException;
-                                case UnauthorizedAccessException unauthorizedAccessException:
-                                    logger.LogError("Unauthorized access remote");
-                                    throw unauthorizedAccessException;
-                                case FileNotFoundException:
-                                    logger.LogInformation("Remote game info not found");
-                                    deletedList.Add(deletion);
-                                    return Task.CompletedTask;
-                            }
-
-                            logger.LogError(ex, "Failed to remove deleted game info {UniqueId}", deletion.GameUniqueId);
-                            errorCount++;
-                            return Task.CompletedTask;
-                        });
+                    await webDAVDriver.Delete(BuildPath(uniqueId), cancellationToken);
+                    deletedList.Add(deletion);
+                }
+                catch (TaskCanceledException)
+                {
+                    throw;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to remove deleted game info {UniqueId}", deletion.GameUniqueId);
+                    errorCount++;
+                }
             }
 
             await ExceptionHelper.ExecuteWithExceptionHandlingAsync(async () =>
@@ -354,9 +376,9 @@ namespace GameManager.Modules.Synchronizer
         {
             // just compare to second
             var localNewTime = new DateTime(localTime.Year, localTime.Month, localTime.Day, localTime.Hour,
-                localTime.Minute, localTime.Second);
+                localTime.Minute, localTime.Second, DateTimeKind.Utc);
             var remoteNewTime = new DateTime(remoteTime.Year, remoteTime.Month, remoteTime.Day, remoteTime.Hour,
-                remoteTime.Minute, remoteTime.Second);
+                remoteTime.Minute, remoteTime.Second, DateTimeKind.Utc);
 
             if (remoteNewTime > localNewTime)
                 return TimeComparison.REMOTE_IS_NEWER;
@@ -383,15 +405,7 @@ namespace GameManager.Modules.Synchronizer
                 FileInfo? remoteFile = (await webDAVDriver.GetFilesAsync(filePath)).FirstOrDefault();
                 if (remoteFile is null)
                     throw new FileNotFoundException();
-                FileInfo? timeFile = (await webDAVDriver.GetFilesAsync(timeFilePath)).FirstOrDefault();
-                byte[]? timeContent = timeFile != null
-                    ? await webDAVDriver.DownloadFileAsync(timeFilePath, cancellationToken)
-                    : null;
-                string? timeString = timeContent != null
-                    ? Encoding.UTF8.GetString(timeContent)
-                    : null;
-                if (!DateTime.TryParse(timeString, out DateTime remoteTime))
-                    remoteTime = DateTime.MinValue;
+                DateTime remoteTime = await GetRemoteUpdateTime(timeFilePath, cancellationToken);
                 TimeComparison timeComparisonResult = timeComparisonCallback(remoteTime);
                 switch (timeComparisonResult)
                 {
@@ -414,12 +428,12 @@ namespace GameManager.Modules.Synchronizer
                         logger.LogInformation("Local and remote file are the same, no need to sync");
                         return remoteFile.ModifiedTime;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new InvalidDataException();
                 }
             }
-            catch (FileNotFoundException)
+            catch (FileNotFoundException ex)
             {
-                logger.LogInformation("Remote app setting not found, creating new one");
+                logger.LogInformation(ex, "Remote app setting not found, creating new one");
                 DateTime time = DateTime.UtcNow;
                 await UpdateFile(filePath, compareString, cancellationToken);
                 await UpdateFile(timeFilePath, time.ToString(CultureInfo.InvariantCulture), cancellationToken);
