@@ -76,5 +76,8 @@ namespace GameManager.DB.Models
         public DateTime UpdatedTime { get; set; } = DateTime.MinValue;
         
         public bool EnableSync { get; set; }
+
+        [Description("game play time in minuetes")]
+        public double PlayTime { get; set; }
     }
 }
