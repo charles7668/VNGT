@@ -1,4 +1,5 @@
 ﻿using GameManager.Modules.Synchronizer;
+using GameManager.Services;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
@@ -108,6 +109,21 @@ namespace GameManager.Modules.TaskManager
         public static void CancelSyncTask()
         {
             _SyncTaskCts.Cancel();
+        }
+
+        public static void UpdateGamePlayTimeTask(int gameId, string gameName, TimeSpan playTime)
+        {
+            IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
+            try
+            {
+                configService.UpdatePlayTimeAsync(gameId, playTime);
+            }
+            catch (Exception ex)
+            {
+                ILogger logger = App.ServiceProvider.GetRequiredService<ILogger>();
+                logger.LogError(ex, "Update play time error with Id : {GameId} , GameName : {GameName}",
+                    gameId, gameName);
+            }
         }
 
         public class TaskEventArgs(string taskName, TaskStatus taskStatus, string errorMessage = "")

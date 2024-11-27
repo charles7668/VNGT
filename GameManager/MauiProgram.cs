@@ -4,6 +4,7 @@ using GameManager.DB;
 using GameManager.Extensions;
 using GameManager.Models;
 using GameManager.Modules.GameInstallAnalyzer;
+using GameManager.Modules.GamePlayMonitor;
 using GameManager.Modules.SaveDataManager;
 using GameManager.Services;
 using Hangfire;
@@ -85,6 +86,7 @@ namespace GameManager
             builder.Services.AddScoped<IVersionService, VersionService>();
 
             builder.Services.AddScoped<IGameInstallAnalyzer, ProcessTracerGameInstallAnalyzer>();
+            builder.Services.AddSingleton<IGamePlayMonitor, GamePlayMonitor>();
 
             builder.Services.AddExtractors();
             builder.Services.AddSynchronizers();

@@ -126,15 +126,43 @@ namespace GameManager.Database
                 .AnyAsync(x => x.ExePath == path);
         }
 
-        public async Task UpdateLastPlayedByIdAsync(int id, DateTime time)
+        public Task UpdateLastPlayedByIdAsync(int id, DateTime time)
         {
-            GameInfo? info = await context.GameInfos
+            var updatedEntity = new GameInfo
+            {
+                Id = id,
+                LastPlayed = time
+            };
+
+            context.Attach(updatedEntity);
+            context.Entry(updatedEntity).Property(x => x.LastPlayed).IsModified = true;
+            return Task.FromResult(updatedEntity);
+        }
+
+        public async Task UpdatePlayTimeAsync(int id, double minutesToAdd)
+        {
+            var entity = await context.GameInfos
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id);
-            if (info == null)
+                .Where(x => x.Id == id)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.PlayTime
+                })
+                .FirstOrDefaultAsync();
+
+            if (entity == null)
                 return;
-            info.LastPlayed = time;
-            context.GameInfos.Update(info);
+            double updatedPlayTime = entity.PlayTime + minutesToAdd;
+
+            var updatedEntity = new GameInfo
+            {
+                Id = entity.Id,
+                PlayTime = updatedPlayTime
+            };
+
+            context.Attach(updatedEntity);
+            context.Entry(updatedEntity).Property(x => x.PlayTime).IsModified = true;
         }
 
         public async Task<IEnumerable<Tag>> GetTagsByIdAsync(int id)

@@ -2,6 +2,7 @@
 using GameManager.Models;
 using GameManager.Properties;
 using GameManager.Services;
+using Helper;
 using System.Diagnostics;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -10,7 +11,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
 {
     public class LaunchWithLocaleEmulator(GameInfo gameInfo, Action<int>? tryLaunchVNGTTranslator = null) : IStrategy
     {
-        public async Task ExecuteAsync()
+        public async Task<int> ExecuteAsync()
         {
             if (gameInfo.ExePath == null || gameInfo.ExeFile == null)
             {
@@ -52,33 +53,13 @@ namespace GameManager.Modules.LaunchProgramStrategies
             }
 
             proc.Start();
+            int leProcId = proc.Id;
+            await Task.Delay(100);
+            Process? targetProc = ProcessHelper.GetChildProcessesByParentPid(leProcId).FirstOrDefault();
+                
+            tryLaunchVNGTTranslator?.Invoke(targetProc?.Id ?? 0);
 
-            await Task.Delay(500);
-
-            // this process search need run program with privilege
-            Process[] processes = Process.GetProcesses();
-            int foundPid = 0;
-            foreach (Process process in processes)
-            {
-                try
-                {
-                    if (string.Equals(process.MainModule?.FileName, executionFile,
-                            StringComparison.OrdinalIgnoreCase))
-                    {
-                        foundPid = process.Id;
-                    }
-                }
-                catch (Exception)
-                {
-                    // ignore
-                }
-            }
-
-            tryLaunchVNGTTranslator?.Invoke(foundPid);
-
-            DateTime time = DateTime.UtcNow;
-            await configService.UpdateLastPlayedByIdAsync(gameInfo.Id, time);
-            gameInfo.LastPlayed = time;
+            return targetProc?.Id ?? proc.Id;
         }
     }
 }

@@ -1,12 +1,17 @@
 ﻿using GameManager.DB.Models;
 using GameManager.Models;
+using GameManager.Models.EventArgs;
+using GameManager.Modules.GamePlayMonitor;
 using GameManager.Modules.LaunchProgramStrategies;
 using GameManager.Modules.SaveDataManager;
+using GameManager.Modules.TaskManager;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
 using MudBlazor.Utilities;
@@ -28,6 +33,9 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private IAppPathService AppPathService { get; set; } = null!;
 
+        [Inject]
+        private ITaskManager TaskManager { get; set; } = null!;
+
         private string ClassName => new CssBuilder(Class)
             .AddClass(IsSelected ? "selection" : "")
             .AddClass("ma-0 pa-0")
@@ -48,11 +56,12 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private ISaveDataManager SaveDataManager { get; set; } = null!;
 
+        [Inject]
+        private IGamePlayMonitor GamePlayMonitor { get; set; } = null!;
+
         [Parameter]
         [EditorRequired]
         public GameInfo GameInfoParam { get; set; } = null!;
-
-        // public GameInfo? GameInfo { get; set; }
 
         [Parameter]
         public bool IsSelected { get; set; }
@@ -72,6 +81,8 @@ namespace GameManager.Components.Pages.components
         private List<string> BackupSaveFiles { get; set; } = [];
 
         private AppSetting? AppSetting { get; set; }
+
+        public bool IsMonitoring { get; set; }
 
         private IList<GuideSite> GuideSites
         {
@@ -243,6 +254,28 @@ namespace GameManager.Components.Pages.components
 
         #endregion
 
+        private async Task TryUpdateLastPlayTime()
+        {
+            int tryCount = 0;
+            while (true)
+            {
+                try
+                {
+                    tryCount++;
+                    await ConfigService.UpdateLastPlayedByIdAsync(GameInfoParam.Id,
+                        GameInfoParam.LastPlayed!.Value);
+                    break;
+                }
+                catch (DbUpdateException)
+                {
+                    if (tryCount >= 20)
+                        throw;
+                    await Task.Delay(50);
+                }
+            }
+        }
+
+        [UsedImplicitly]
         private async Task OnLaunch()
         {
             string? exePath = GameInfoParam.ExePath;
@@ -264,8 +297,22 @@ namespace GameManager.Components.Pages.components
             IStrategy launchStrategy = LaunchProgramStrategyFactory.Create(GameInfoParam, TryStartVNGTTranslator);
             try
             {
-                await launchStrategy.ExecuteAsync();
+                int pid = await launchStrategy.ExecuteAsync();
                 GameInfoParam.LastPlayed = DateTime.UtcNow;
+                await TryUpdateLastPlayTime();
+                Result addResult = await GamePlayMonitor.AddMonitorItem(GameInfoParam.Id, GameInfoParam.GameName ?? "",
+                    pid,
+                    e =>
+                    {
+                        TaskManager.StartBackgroundTask($"update-play-time-{e.GameId}",
+                            () => TaskExecutor.UpdateGamePlayTimeTask(e.GameId, e.GameName, e.Duration), () => { });
+                    });
+                if (addResult.Success)
+                {
+                    GamePlayMonitor.RegisterCallback(GameInfoParam.Id, OnMonitorStop);
+                    IsMonitoring = true;
+                    _ = InvokeAsync(StateHasChanged);
+                }
             }
             catch (Exception e)
             {
@@ -390,6 +437,12 @@ namespace GameManager.Components.Pages.components
         private Task ShowDetail()
         {
             return OnShowDetail.HasDelegate ? OnShowDetail.InvokeAsync(GameInfoParam.Id) : Task.CompletedTask;
+        }
+
+        private void OnMonitorStop(GameStartEventArgs e)
+        {
+            IsMonitoring = false;
+            InvokeAsync(StateHasChanged);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace GameManager.Services
 
         private AppSetting _appSetting;
 
-        private readonly SemaphoreSlim _semaphore = new(1, 1);
+        private readonly object _databaseLock = new();
 
         private readonly IServiceProvider _serviceProvider;
 
@@ -88,66 +88,93 @@ namespace GameManager.Services
 
         private async Task AddGameInfosToPendingDeletion(List<string> gameInfoUniqueIds, DateTime deletedTime)
         {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            var deletions = gameInfoUniqueIds.Select(x => new PendingGameInfoDeletion
+            Monitor.Enter(_databaseLock);
+            try
             {
-                GameInfoUniqueId = x,
-                DeletionDate = deletedTime
-            }).ToList();
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                var deletions = gameInfoUniqueIds.Select(x => new PendingGameInfoDeletion
+                {
+                    GameInfoUniqueId = x,
+                    DeletionDate = deletedTime
+                }).ToList();
 
-            await unitOfWork.PendingGameInfoDeletionRepository.AddAsync(deletions);
-            await unitOfWork.SaveChangesAsync();
+                await unitOfWork.PendingGameInfoDeletionRepository.AddAsync(deletions);
+                await unitOfWork.SaveChangesAsync();
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         private async Task AddGameInfoToPendingDeletion(string gameInfoUniqueId, DateTime deletedTime)
         {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            await unitOfWork.PendingGameInfoDeletionRepository.AddAsync(new PendingGameInfoDeletion
+            Monitor.Enter(_databaseLock);
+            try
             {
-                GameInfoUniqueId = gameInfoUniqueId,
-                DeletionDate = deletedTime
-            });
-            await unitOfWork.SaveChangesAsync();
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                await unitOfWork.PendingGameInfoDeletionRepository.AddAsync(new PendingGameInfoDeletion
+                {
+                    GameInfoUniqueId = gameInfoUniqueId,
+                    DeletionDate = deletedTime
+                });
+                await unitOfWork.SaveChangesAsync();
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         public async Task DeleteGameInfoByIdAsync(int id)
         {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            GameInfo? deletedInfo = null;
-            await ExceptionHelper.ExecuteWithExceptionHandlingAsync(async () =>
+            Monitor.Enter(_databaseLock);
+            try
             {
-                IGameInfoRepository gameInfoRepo = unitOfWork.GameInfoRepository;
-                string? cover = await gameInfoRepo.GetCoverById(id);
-                if (cover != null)
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                GameInfo? deletedInfo = null;
+                await ExceptionHelper.ExecuteWithExceptionHandlingAsync(async () =>
                 {
-                    await DeleteCoverImage(cover);
-                }
+                    IGameInfoRepository gameInfoRepo = unitOfWork.GameInfoRepository;
+                    string? cover = await gameInfoRepo.GetCoverById(id);
+                    if (cover != null)
+                    {
+                        await DeleteCoverImage(cover);
+                    }
 
-                deletedInfo = await unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
+                    deletedInfo = await unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
+                    if (deletedInfo == null)
+                        return;
+                    if (deletedInfo.LaunchOption != null)
+                        await unitOfWork.LaunchOptionRepository.Delete(deletedInfo.LaunchOption.Id);
+                    var saveFilePath = Path.Combine(_appPathService.SaveFileBackupDirPath, deletedInfo.GameUniqueId);
+                    ExceptionHelper.ExecuteWithExceptionHandling(() =>
+                    {
+                        if (Directory.Exists(saveFilePath))
+                        {
+                            Directory.Delete(saveFilePath, true);
+                        }
+                    });
+                }, ex => throw ex, async () =>
+                {
+                    await unitOfWork.SaveChangesAsync();
+                });
                 if (deletedInfo == null)
                     return;
-                if (deletedInfo.LaunchOption != null)
-                    await unitOfWork.LaunchOptionRepository.Delete(deletedInfo.LaunchOption.Id);
-                var saveFilePath = Path.Combine(_appPathService.SaveFileBackupDirPath, deletedInfo.GameUniqueId);
-                ExceptionHelper.ExecuteWithExceptionHandling(() =>
-                {
-                    if (Directory.Exists(saveFilePath))
-                    {
-                        Directory.Delete(saveFilePath, true);
-                    }
-                });
-            }, ex => throw ex, async () =>
-            {
-                await unitOfWork.SaveChangesAsync();
-            });
-            if (deletedInfo == null)
-                return;
 
-            if (_appSetting.EnableSync)
-                await AddGameInfoToPendingDeletion(deletedInfo.GameUniqueId, DateTime.UtcNow);
+                if (_appSetting.EnableSync)
+                    await AddGameInfoToPendingDeletion(deletedInfo.GameUniqueId, DateTime.UtcNow);
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         public async Task DeleteGameInfoByIdListAsync(IEnumerable<int> idList, CancellationToken cancellationToken,
@@ -170,8 +197,8 @@ namespace GameManager.Services
                         await DeleteCoverImage(cover);
                     }
 
-                    await _semaphore.WaitAsync(token);
-                    GameInfo? deletedEntity = await unitOfWork.GameInfoRepository.DeleteByIdAsync(id);
+                    Monitor.Enter(_databaseLock);
+                    GameInfo? deletedEntity = unitOfWork.GameInfoRepository.DeleteByIdAsync(id).Result;
                     if (deletedEntity == null)
                         return;
                     if (deletedEntity.LaunchOption != null)
@@ -189,8 +216,8 @@ namespace GameManager.Services
                 }
                 finally
                 {
-                    if (_semaphore.CurrentCount == 0)
-                        _semaphore.Release();
+                    if (Monitor.IsEntered(_databaseLock))
+                        Monitor.Exit(_databaseLock);
                     onDeleteCallback(id);
                 }
             });
@@ -202,63 +229,73 @@ namespace GameManager.Services
 
         public async Task AddGameInfoAsync(GameInfo info, bool generateUniqueId = true)
         {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            unitOfWork.BeginTransaction();
-            if (generateUniqueId)
-            {
-                do
-                {
-                    info.GameUniqueId = Guid.NewGuid().ToString();
-                    if (await unitOfWork.GameInfoRepository.AnyAsync(x => x.GameUniqueId == info.GameUniqueId))
-                        continue;
-                    break;
-                } while (true);
-            }
-
-            // set default background image
-            if (string.IsNullOrEmpty(info.BackgroundImageUrl) && info.ScreenShots.Count > 0)
-            {
-                info.BackgroundImageUrl = info.ScreenShots[0];
-            }
-
-            List<Tag> tags = info.Tags;
-            List<Staff> staffs = info.Staffs;
-            List<Character> characters = info.Characters;
-            List<ReleaseInfo> releaseInfos = info.ReleaseInfos;
-            List<RelatedSite> relatedSites = info.RelatedSites;
-            info.Tags = [];
-            info.Staffs = [];
-            info.Characters = [];
-            info.ReleaseInfos = [];
-            info.RelatedSites = [];
-
+            Monitor.Enter(_databaseLock);
             try
             {
-                info.UploadTime = DateTime.UtcNow;
-                info.UpdatedTime = DateTime.UtcNow;
-                GameInfo gameInfoEntity = await unitOfWork.GameInfoRepository.AddAsync(info);
-                await unitOfWork.SaveChangesAsync();
-                await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == gameInfoEntity.Id, staffs);
-                await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == gameInfoEntity.Id, characters);
-                await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == gameInfoEntity.Id,
-                    releaseInfos);
-                await unitOfWork.GameInfoRepository.UpdateRelatedSitesAsync(x => x.Id == gameInfoEntity.Id,
-                    relatedSites);
-                await unitOfWork.GameInfoRepository.UpdateTagsAsync(x => x.Id == gameInfoEntity.Id, tags);
-                await unitOfWork.SaveChangesAsync();
-                unitOfWork.CommitTransaction();
-                info.Id = gameInfoEntity.Id;
-                info.Tags = tags;
-                info.Staffs = staffs;
-                info.Characters = characters;
-                info.ReleaseInfos = releaseInfos;
-                info.RelatedSites = relatedSites;
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                unitOfWork.BeginTransaction();
+                if (generateUniqueId)
+                {
+                    do
+                    {
+                        info.GameUniqueId = Guid.NewGuid().ToString();
+                        if (await unitOfWork.GameInfoRepository.AnyAsync(x => x.GameUniqueId == info.GameUniqueId))
+                            continue;
+                        break;
+                    } while (true);
+                }
+
+                // set default background image
+                if (string.IsNullOrEmpty(info.BackgroundImageUrl) && info.ScreenShots.Count > 0)
+                {
+                    info.BackgroundImageUrl = info.ScreenShots[0];
+                }
+
+                List<Tag> tags = info.Tags;
+                List<Staff> staffs = info.Staffs;
+                List<Character> characters = info.Characters;
+                List<ReleaseInfo> releaseInfos = info.ReleaseInfos;
+                List<RelatedSite> relatedSites = info.RelatedSites;
+                info.Tags = [];
+                info.Staffs = [];
+                info.Characters = [];
+                info.ReleaseInfos = [];
+                info.RelatedSites = [];
+
+                try
+                {
+                    info.UploadTime = DateTime.UtcNow;
+                    info.UpdatedTime = DateTime.UtcNow;
+                    GameInfo gameInfoEntity = await unitOfWork.GameInfoRepository.AddAsync(info);
+                    await unitOfWork.SaveChangesAsync();
+                    await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == gameInfoEntity.Id, staffs);
+                    await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == gameInfoEntity.Id,
+                        characters);
+                    await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == gameInfoEntity.Id,
+                        releaseInfos);
+                    await unitOfWork.GameInfoRepository.UpdateRelatedSitesAsync(x => x.Id == gameInfoEntity.Id,
+                        relatedSites);
+                    await unitOfWork.GameInfoRepository.UpdateTagsAsync(x => x.Id == gameInfoEntity.Id, tags);
+                    await unitOfWork.SaveChangesAsync();
+                    unitOfWork.CommitTransaction();
+                    info.Id = gameInfoEntity.Id;
+                    info.Tags = tags;
+                    info.Staffs = staffs;
+                    info.Characters = characters;
+                    info.ReleaseInfos = releaseInfos;
+                    info.RelatedSites = relatedSites;
+                }
+                catch (Exception)
+                {
+                    unitOfWork.RollbackTransaction();
+                    throw;
+                }
             }
-            catch (Exception)
+            finally
             {
-                unitOfWork.RollbackTransaction();
-                throw;
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
             }
         }
 
@@ -343,55 +380,64 @@ namespace GameManager.Services
 
         public async Task<GameInfo> EditGameInfo(GameInfo info)
         {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            GameInfo? currentEntity = await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == info.Id);
-            if (currentEntity == null)
-                throw new ArgumentException($"GameInfo of id {info.Id} not found");
-            List<Tag> tags = info.Tags;
-            List<Staff> staffs = info.Staffs;
-            List<Character> characters = info.Characters;
-            List<ReleaseInfo> releaseInfos = info.ReleaseInfos;
-            List<RelatedSite> relatedSites = info.RelatedSites;
-            info.Tags = [];
-            info.Staffs = [];
-            info.Characters = [];
-            info.ReleaseInfos = [];
-            info.RelatedSites = [];
-            // add new screenshots and remove duplicate
-            info.ScreenShots.AddRange(currentEntity.ScreenShots);
-            info.ScreenShots = info.ScreenShots.Distinct().ToList();
-            // set default background image
-            if (string.IsNullOrEmpty(info.BackgroundImageUrl) && info.ScreenShots.Count > 0)
-            {
-                info.BackgroundImageUrl = info.ScreenShots[0];
-            }
-
+            Monitor.Enter(_databaseLock);
             try
             {
-                unitOfWork.BeginTransaction();
-                await unitOfWork.GameInfoRepository.EditAsync(info);
-                await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == info.Id, staffs);
-                await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == info.Id, characters);
-                await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == info.Id, releaseInfos);
-                await unitOfWork.GameInfoRepository.UpdateRelatedSitesAsync(x => x.Id == info.Id, relatedSites);
-                await unitOfWork.GameInfoRepository.UpdateTagsAsync(x => x.Id == info.Id, tags);
-                await unitOfWork.SaveChangesAsync();
-                unitOfWork.CommitTransaction();
-            }
-            catch (Exception)
-            {
-                unitOfWork.RollbackTransaction();
-                throw;
-            }
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                GameInfo? currentEntity = await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == info.Id);
+                if (currentEntity == null)
+                    throw new ArgumentException($"GameInfo of id {info.Id} not found");
+                List<Tag> tags = info.Tags;
+                List<Staff> staffs = info.Staffs;
+                List<Character> characters = info.Characters;
+                List<ReleaseInfo> releaseInfos = info.ReleaseInfos;
+                List<RelatedSite> relatedSites = info.RelatedSites;
+                info.Tags = [];
+                info.Staffs = [];
+                info.Characters = [];
+                info.ReleaseInfos = [];
+                info.RelatedSites = [];
+                // add new screenshots and remove duplicate
+                info.ScreenShots.AddRange(currentEntity.ScreenShots);
+                info.ScreenShots = info.ScreenShots.Distinct().ToList();
+                // set default background image
+                if (string.IsNullOrEmpty(info.BackgroundImageUrl) && info.ScreenShots.Count > 0)
+                {
+                    info.BackgroundImageUrl = info.ScreenShots[0];
+                }
 
-            GameInfo returnGameInfo = (await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == info.Id))!;
-            returnGameInfo.Tags = tags;
-            returnGameInfo.Staffs = staffs;
-            returnGameInfo.Characters = characters;
-            returnGameInfo.ReleaseInfos = releaseInfos;
-            returnGameInfo.RelatedSites = relatedSites;
-            return returnGameInfo;
+                try
+                {
+                    unitOfWork.BeginTransaction();
+                    await unitOfWork.GameInfoRepository.EditAsync(info);
+                    await unitOfWork.GameInfoRepository.UpdateStaffsAsync(x => x.Id == info.Id, staffs);
+                    await unitOfWork.GameInfoRepository.UpdateCharactersAsync(x => x.Id == info.Id, characters);
+                    await unitOfWork.GameInfoRepository.UpdateReleaseInfosAsync(x => x.Id == info.Id, releaseInfos);
+                    await unitOfWork.GameInfoRepository.UpdateRelatedSitesAsync(x => x.Id == info.Id, relatedSites);
+                    await unitOfWork.GameInfoRepository.UpdateTagsAsync(x => x.Id == info.Id, tags);
+                    await unitOfWork.SaveChangesAsync();
+                    unitOfWork.CommitTransaction();
+                }
+                catch (Exception)
+                {
+                    unitOfWork.RollbackTransaction();
+                    throw;
+                }
+
+                GameInfo returnGameInfo = (await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == info.Id))!;
+                returnGameInfo.Tags = tags;
+                returnGameInfo.Staffs = staffs;
+                returnGameInfo.Characters = characters;
+                returnGameInfo.ReleaseInfos = releaseInfos;
+                returnGameInfo.RelatedSites = relatedSites;
+                return returnGameInfo;
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         public Task<bool> HasGameInfo(Expression<Func<GameInfo, bool>> queryExpression)
@@ -414,40 +460,58 @@ namespace GameManager.Services
 
         public async Task UpdateGameInfoFavoriteAsync(int id, bool isFavorite)
         {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            var entity = new GameInfo
+            Monitor.Enter(_databaseLock);
+            try
             {
-                Id = id
-            };
-            AppDbContext context = unitOfWork.Context;
-            context.Attach(entity);
-            entity.IsFavorite = isFavorite;
-            context.Entry(entity).Property(x => x.IsFavorite).IsModified = true;
-            await unitOfWork.SaveChangesAsync();
-            unitOfWork.DetachEntity(entity);
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                var entity = new GameInfo
+                {
+                    Id = id
+                };
+                AppDbContext context = unitOfWork.Context;
+                context.Attach(entity);
+                entity.IsFavorite = isFavorite;
+                context.Entry(entity).Property(x => x.IsFavorite).IsModified = true;
+                await unitOfWork.SaveChangesAsync();
+                unitOfWork.DetachEntity(entity);
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         public async Task UpdateGameInfoSyncStatusAsync(List<int> ids, bool isSyncEnable)
         {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            var entities = ids.Select(x => new GameInfo
+            Monitor.Enter(_databaseLock);
+            try
             {
-                Id = x
-            }).ToList();
-            AppDbContext context = unitOfWork.Context;
-            context.AttachRange(entities);
-            foreach (GameInfo entity in entities)
-            {
-                entity.EnableSync = isSyncEnable;
-                context.Entry(entity).Property(x => x.EnableSync).IsModified = true;
-            }
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                var entities = ids.Select(x => new GameInfo
+                {
+                    Id = x
+                }).ToList();
+                AppDbContext context = unitOfWork.Context;
+                context.AttachRange(entities);
+                foreach (GameInfo entity in entities)
+                {
+                    entity.EnableSync = isSyncEnable;
+                    context.Entry(entity).Property(x => x.EnableSync).IsModified = true;
+                }
 
-            await unitOfWork.SaveChangesAsync();
-            foreach (GameInfo entity in entities)
+                await unitOfWork.SaveChangesAsync();
+                foreach (GameInfo entity in entities)
+                {
+                    unitOfWork.DetachEntity(entity);
+                }
+            }
+            finally
             {
-                unitOfWork.DetachEntity(entity);
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
             }
         }
 
@@ -458,24 +522,42 @@ namespace GameManager.Services
 
         public async Task UpdateAppSettingAsync(AppSetting setting)
         {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            await unitOfWork.AppSettingRepository.UpdateAppSettingAsync(setting);
-            await unitOfWork.SaveChangesAsync();
-            _appSetting = unitOfWork.AppSettingRepository.GetAppSettingAsync().Result;
-            unitOfWork.DetachEntity(_appSetting);
-            // clear cache because the data has been changed
-            _memoryCache.Dispose();
-            _memoryCache = new MemoryCache(new MemoryCacheOptions
+            Monitor.Enter(_databaseLock);
+            try
             {
-                SizeLimit = 200
-            });
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                await unitOfWork.AppSettingRepository.UpdateAppSettingAsync(setting);
+                await unitOfWork.SaveChangesAsync();
+                _appSetting = unitOfWork.AppSettingRepository.GetAppSettingAsync().Result;
+                unitOfWork.DetachEntity(_appSetting);
+                // clear cache because the data has been changed
+                _memoryCache.Dispose();
+                _memoryCache = new MemoryCache(new MemoryCacheOptions
+                {
+                    SizeLimit = 200
+                });
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         public Task UpdateAppSettingAsync(AppSettingDTO settingDto)
         {
-            AppSetting appSetting = settingDto.Convert();
-            return UpdateAppSettingAsync(appSetting);
+            Monitor.Enter(_databaseLock);
+            try
+            {
+                AppSetting appSetting = settingDto.Convert();
+                return UpdateAppSettingAsync(appSetting);
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         public Task<List<Library>> GetLibrariesAsync(CancellationToken cancellationToken)
@@ -487,18 +569,36 @@ namespace GameManager.Services
 
         public async Task AddLibraryAsync(Library library)
         {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            await unitOfWork.LibraryRepository.AddAsync(library);
-            await unitOfWork.SaveChangesAsync();
+            Monitor.Enter(_databaseLock);
+            try
+            {
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                await unitOfWork.LibraryRepository.AddAsync(library);
+                await unitOfWork.SaveChangesAsync();
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         public async Task DeleteLibraryByIdAsync(int id)
         {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            await unitOfWork.LibraryRepository.DeleteByIdAsync(id);
-            await unitOfWork.SaveChangesAsync();
+            Monitor.Enter(_databaseLock);
+            try
+            {
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                await unitOfWork.LibraryRepository.DeleteByIdAsync(id);
+                await unitOfWork.SaveChangesAsync();
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         public Task<bool> CheckExePathExist(string path)
@@ -508,10 +608,36 @@ namespace GameManager.Services
 
         public async Task UpdateLastPlayedByIdAsync(int id, DateTime time)
         {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            await unitOfWork.GameInfoRepository.UpdateLastPlayedByIdAsync(id, time);
-            await unitOfWork.SaveChangesAsync();
+            Monitor.Enter(_databaseLock);
+            try
+            {
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                await unitOfWork.GameInfoRepository.UpdateLastPlayedByIdAsync(id, time);
+                await unitOfWork.SaveChangesAsync();
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
+        }
+
+        public async Task UpdatePlayTimeAsync(int gameId, TimeSpan timeToAdd)
+        {
+            Monitor.Enter(_databaseLock);
+            try
+            {
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                await unitOfWork.GameInfoRepository.UpdatePlayTimeAsync(gameId, timeToAdd.TotalMinutes);
+                await unitOfWork.SaveChangesAsync();
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         public async Task BackupSettings(string path)
@@ -536,12 +662,21 @@ namespace GameManager.Services
 
         public async Task UpdateGameInfoBackgroundImageAsync(int gameInfoId, string? backgroundImage)
         {
-            AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            GameInfo entity =
-                await unitOfWork.GameInfoRepository.UpdateBackgroundImageAsync(gameInfoId, backgroundImage);
-            await unitOfWork.SaveChangesAsync();
-            unitOfWork.DetachEntity(entity);
+            Monitor.Enter(_databaseLock);
+            try
+            {
+                AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                GameInfo entity =
+                    await unitOfWork.GameInfoRepository.UpdateBackgroundImageAsync(gameInfoId, backgroundImage);
+                await unitOfWork.SaveChangesAsync();
+                unitOfWork.DetachEntity(entity);
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         public async Task<IEnumerable<StaffRole>> GetStaffRolesAsync()
@@ -581,21 +716,39 @@ namespace GameManager.Services
 
         public async Task RemoveScreenshotAsync(int gameInfoId, string url)
         {
-            AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            GameInfo? entity = await unitOfWork.GameInfoRepository.RemoveScreenshotAsync(gameInfoId, url);
-            if (entity == null)
-                return;
-            await unitOfWork.SaveChangesAsync();
-            unitOfWork.DetachEntity(entity);
+            Monitor.Enter(_databaseLock);
+            try
+            {
+                AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                GameInfo? entity = await unitOfWork.GameInfoRepository.RemoveScreenshotAsync(gameInfoId, url);
+                if (entity == null)
+                    return;
+                await unitOfWork.SaveChangesAsync();
+                unitOfWork.DetachEntity(entity);
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         public async Task AddScreenshotsAsync(int gameInfoId, List<string> urls)
         {
-            AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            await unitOfWork.GameInfoRepository.AddScreenshotsAsync(gameInfoId, urls);
-            await unitOfWork.SaveChangesAsync();
+            Monitor.Enter(_databaseLock);
+            try
+            {
+                AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                await unitOfWork.GameInfoRepository.AddScreenshotsAsync(gameInfoId, urls);
+                await unitOfWork.SaveChangesAsync();
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         public async Task<List<PendingGameInfoDeletionDTO>> GetPendingGameInfoDeletionUniqueIdsAsync()
@@ -611,11 +764,20 @@ namespace GameManager.Services
         public async Task RemovePendingGameInfoDeletionsAsync(
             List<PendingGameInfoDeletionDTO> pendingGameInfoDeletionDTOs)
         {
-            AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            await unitOfWork.PendingGameInfoDeletionRepository.RemoveAsync(pendingGameInfoDeletionDTOs
-                .Select(x => x.GameUniqueId).ToList());
-            await unitOfWork.SaveChangesAsync();
+            Monitor.Enter(_databaseLock);
+            try
+            {
+                AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                await unitOfWork.PendingGameInfoDeletionRepository.RemoveAsync(pendingGameInfoDeletionDTOs
+                    .Select(x => x.GameUniqueId).ToList());
+                await unitOfWork.SaveChangesAsync();
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_databaseLock))
+                    Monitor.Exit(_databaseLock);
+            }
         }
 
         public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)

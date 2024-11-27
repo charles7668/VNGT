@@ -76,6 +76,8 @@ namespace GameManager.Services
 
         Task UpdateLastPlayedByIdAsync(int id, DateTime time);
 
+        Task UpdatePlayTimeAsync(int gameId, TimeSpan timeToAdd);
+
         Task BackupSettings(string path);
 
         Task RestoreSettings(string path);

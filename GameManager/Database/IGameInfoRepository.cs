@@ -34,6 +34,8 @@ namespace GameManager.Database
 
         Task UpdateLastPlayedByIdAsync(int id, DateTime time);
 
+        Task UpdatePlayTimeAsync(int id, double minutesToAdd);
+
         Task<IEnumerable<Tag>> GetTagsByIdAsync(int id);
 
         Task UpdateStaffsAsync(Expression<Func<GameInfo, bool>> query, List<Staff> staffs);

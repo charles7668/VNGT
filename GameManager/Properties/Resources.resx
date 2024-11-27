@@ -165,8 +165,17 @@
   <data name="Common.Fetch" xml:space="preserve">
     <value>Fetch</value>
   </data>
+  <data name="Common.Minutes" xml:space="preserve">
+    <value>Minutes</value>
+  </data>
   <data name="Common.Restore" xml:space="preserve">
     <value>Restore</value>
+  </data>
+  <data name="Common.Running" xml:space="preserve">
+    <value>Running</value>
+  </data>
+  <data name="Common.Start" xml:space="preserve">
+    <value>Start</value>
   </data>
   <data name="Common.Unknown" xml:space="preserve">
     <value>Unknown</value>
@@ -222,6 +231,9 @@
   <data name="DetailPage.OpenSaveFilePath" xml:space="preserve">
     <value>Open Save File Directory</value>
   </data>
+  <data name="DetailPage.PlayTime" xml:space="preserve">
+    <value>Game Play Time</value>
+  </data>
   <data name="DetailPage.Screenshots.AddFromUrl" xml:space="preserve">
     <value>Add From Urls</value>
   </data>
@@ -230,6 +242,9 @@
   </data>
   <data name="DetailPage.SearchGuide" xml:space="preserve">
     <value>Search Guide</value>
+  </data>
+  <data name="DetailPage.SmanllThanOneMinutes" xml:space="preserve">
+    <value>Small Than 1 mimutes</value>
   </data>
   <data name="DetailPage.Staff.Artist" xml:space="preserve">
     <value>Artist</value>
