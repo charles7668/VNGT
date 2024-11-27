@@ -514,6 +514,14 @@ namespace GameManager.Services
             await unitOfWork.SaveChangesAsync();
         }
 
+        public async Task UpdatePlayTimeAsync(int gameId, TimeSpan timeToAdd)
+        {
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            await unitOfWork.GameInfoRepository.UpdatePlayTimeAsync(gameId, timeToAdd.TotalMinutes);
+            await unitOfWork.SaveChangesAsync();
+        }
+
         public async Task BackupSettings(string path)
         {
             AppSetting setting = _appSetting;

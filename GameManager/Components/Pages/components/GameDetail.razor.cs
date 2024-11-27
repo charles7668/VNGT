@@ -1,6 +1,9 @@
 ﻿using GameManager.DB.Models;
 using GameManager.Models;
+using GameManager.Models.EventArgs;
+using GameManager.Modules.GamePlayMonitor;
 using GameManager.Modules.LaunchProgramStrategies;
+using GameManager.Modules.TaskManager;
 using GameManager.Properties;
 using GameManager.Services;
 using Helper;
@@ -15,7 +18,7 @@ using ArgumentException = System.ArgumentException;
 
 namespace GameManager.Components.Pages.components
 {
-    public partial class GameDetail
+    public partial class GameDetail : IAsyncDisposable
     {
         private GameInfo _gameInfo = null!;
 
@@ -29,6 +32,9 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;
+        
+        [Inject]
+        private ITaskManager TaskManager { get; set; } = null!;
 
         [Parameter]
         public int InitGameId { get; set; }
@@ -48,6 +54,9 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private IDialogService DialogService { get; set; } = null!;
+
+        [Inject]
+        private IGamePlayMonitor GamePlayMonitor { get; set; } = null!;
 
         [Inject]
         private ILogger<GameDetail> Logger { get; set; } = null!;
@@ -103,6 +112,11 @@ namespace GameManager.Components.Pages.components
                         Name = x
                     }).ToList();
                     _gameInfo = gameInfo;
+                    bool monitorStatus = GamePlayMonitor.IsMonitoring(gameInfo.Id);
+                    if (monitorStatus)
+                    {
+                        GamePlayMonitor.RegisterCallback(gameInfo.Id, OnMonitoringStopCallback);
+                    }
                     GameInfoVo = new ViewModel(ImageService)
                     {
                         OriginalName = gameInfo.GameName,
@@ -113,7 +127,9 @@ namespace GameManager.Components.Pages.components
                         ScreenShots = gameInfo.ScreenShots,
                         LastPlayed = gameInfo.LastPlayed?.ToString("yyyy-MM-dd") ?? "Never",
                         HasCharacters = gameInfo.Characters.Count != 0,
-                        EnableSync = gameInfo.EnableSync
+                        EnableSync = gameInfo.EnableSync,
+                        PlayTime = gameInfo.PlayTime,
+                        IsMonitoring = monitorStatus
                     };
                     IsLoading = false;
                     _ = InvokeAsync(StateHasChanged);
@@ -242,7 +258,19 @@ namespace GameManager.Components.Pages.components
                 Logger.LogInformation("Start game click : {GameName}", _gameInfo.GameName);
 
                 IStrategy launchStrategy = LaunchProgramStrategyFactory.Create(_gameInfo, TryStartVNGTTranslator);
-                await launchStrategy.ExecuteAsync();
+                var monitorPid = await launchStrategy.ExecuteAsync();
+                Result addResult =
+                    await GamePlayMonitor.AddMonitorItem(_gameInfo.Id, _gameInfo.GameName ?? "", monitorPid, e =>
+                    {
+                        TaskManager.StartBackgroundTask($"update-play-time-{e.GameId}",
+                            () => TaskExecutor.UpdateGamePlayTimeTask(e.GameId, e.GameName, e.Duration), () => { });
+                    });
+                if (addResult.Success)
+                {
+                    GamePlayMonitor.RegisterCallback(_gameInfo.Id, OnMonitoringStopCallback);
+                    GameInfoVo.IsMonitoring = true;
+                    _ = InvokeAsync(StateHasChanged);
+                }
                 _gameInfo.LastPlayed = DateTime.UtcNow;
                 GameInfoVo.LastPlayed = _gameInfo.LastPlayed?.ToString("yyyy-MM-dd") ?? "Never";
             }
@@ -331,6 +359,12 @@ namespace GameManager.Components.Pages.components
             return Task.CompletedTask;
         }
 
+        private void OnMonitoringStopCallback(GameStopEventArgs e)
+        {
+            GameInfoVo.IsMonitoring = false;
+            InvokeAsync(StateHasChanged);
+        }
+
         private class ViewModel(IImageService imageService)
         {
             public string? OriginalName { get; init; }
@@ -344,6 +378,35 @@ namespace GameManager.Components.Pages.components
             public string LastPlayed { get; set; } = "Never";
             public bool HasCharacters { get; init; }
             public bool EnableSync { get; set; }
+            public bool IsMonitoring { get; set; }
+            public double PlayTime { get; set; }
+
+            public string DisplayPlayTime => (int)PlayTime == 0
+                ? Resources.DetailPage_SmanllThanOneMinutes
+                : $"{(int)PlayTime} {Resources.Common_Minutes}";
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await CastAndDispose(MudDialog);
+            await CastAndDispose(LoadingTask);
+            await CastAndDispose(Snackbar);
+            GamePlayMonitor.UnregisterCallback(_gameInfo.Id, OnMonitoringStopCallback);
+
+            static async ValueTask CastAndDispose(object? resource)
+            {
+                switch (resource)
+                {
+                    case null:
+                        return;
+                    case IAsyncDisposable resourceAsyncDisposable:
+                        await resourceAsyncDisposable.DisposeAsync();
+                        break;
+                    case IDisposable resourceDisposable:
+                        resourceDisposable.Dispose();
+                        break;
+                }
+            }
         }
     }
 }

@@ -38,13 +38,31 @@
                 </MudTooltip>
             </MudPaper>
             <MudToolBar Class="pa-0">
-                <MudButton OnClick="OnLaunch" StartIcon="@Icons.Material.Filled.ArrowRight" Variant="Variant.Outlined">@Resources.Card_Run</MudButton>
-                <MudButton OnClick="OnEdit" StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined">@Resources.Card_Edit</MudButton>
+                @if (IsMonitoring)
+                {
+                    <MudButton Disabled="true"
+                               Variant="Variant.Outlined">
+                        @Resources.Common_Running
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton OnClick="OnLaunch"
+                               Color="Color.Success"
+                               StartIcon="@Icons.Material.Filled.ArrowRight"
+                               Variant="Variant.Outlined">
+                        @Resources.Common_Start
+                    </MudButton>
+                }
+                <MudButton OnClick="OnEdit" StartIcon="@Icons.Material.Filled.Edit"
+                           Variant="Variant.Outlined">@Resources.Card_Edit</MudButton>
                 <MudSpacer></MudSpacer>
                 <MudMenu @ref="_menuRef"
-                         Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+                         Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomCenter"
+                         TransformOrigin="Origin.TopCenter">
                     <MudMenuItem Class="ma-0 pa-0">
-                        <MudButton OnClick="OnOpenInExplorer" Variant="Variant.Text" Color="Color.Primary" FullWidth="true">@Resources.Card_OpenInExplorer</MudButton>
+                        <MudButton OnClick="OnOpenInExplorer" Variant="Variant.Text" Color="Color.Primary"
+                                   FullWidth="true">@Resources.Card_OpenInExplorer</MudButton>
                     </MudMenuItem>
                     <MudMenuItem Class="ma-0 pa-0">
                         <MudMenu ActivationEvent="MouseEvent.LeftClick"
@@ -52,10 +70,12 @@
                                  Style="width: 100%"
                                  TransformOrigin="Origin.TopLeft">
                             <ActivatorContent>
-                                <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true">@Resources.Card_SaveManage</MudButton>
+                                <MudButton Variant="Variant.Text" Color="Color.Default"
+                                           FullWidth="true">@Resources.Card_SaveManage</MudButton>
                             </ActivatorContent>
                             <ChildContent>
-                                <MudButton OnClick="OnOpenSaveFilePath" Variant="Variant.Text" Color="Color.Default" FullWidth="true">@Resources.Card_OpenSaveFilePath</MudButton>
+                                <MudButton OnClick="OnOpenSaveFilePath" Variant="Variant.Text" Color="Color.Default"
+                                           FullWidth="true">@Resources.Card_OpenSaveFilePath</MudButton>
                                 <MudButton OnClick="OnSaveFileBackupClick"
                                            StartIcon="@Icons.Material.Filled.Download"
                                            Variant="Variant.Text"
@@ -120,7 +140,8 @@
                         </MudMenu>
                     </MudMenuItem>
                     <MudDivider/>
-                    <MudButton OnClick="OnDelete" Variant="Variant.Text" Color="Color.Secondary" FullWidth="true">@Resources.Card_Delete</MudButton>
+                    <MudButton OnClick="OnDelete" Variant="Variant.Text" Color="Color.Secondary"
+                               FullWidth="true">@Resources.Card_Delete</MudButton>
                 </MudMenu>
             </MudToolBar>
         </MudPaper>

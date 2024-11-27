@@ -1,9 +1,13 @@
 ﻿using GameManager.DB.Models;
 using GameManager.Models;
+using GameManager.Models.EventArgs;
+using GameManager.Modules.GamePlayMonitor;
 using GameManager.Modules.LaunchProgramStrategies;
 using GameManager.Modules.SaveDataManager;
+using GameManager.Modules.TaskManager;
 using GameManager.Properties;
 using GameManager.Services;
+using Hangfire.Logging;
 using Helper;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -27,6 +31,9 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private IAppPathService AppPathService { get; set; } = null!;
+        
+        [Inject]
+        private ITaskManager TaskManager { get; set; } = null!;
 
         private string ClassName => new CssBuilder(Class)
             .AddClass(IsSelected ? "selection" : "")
@@ -47,12 +54,13 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private ISaveDataManager SaveDataManager { get; set; } = null!;
+        
+        [Inject]
+        private IGamePlayMonitor GamePlayMonitor { get; set; } = null!;
 
         [Parameter]
         [EditorRequired]
         public GameInfo GameInfoParam { get; set; } = null!;
-
-        // public GameInfo? GameInfo { get; set; }
 
         [Parameter]
         public bool IsSelected { get; set; }
@@ -72,6 +80,8 @@ namespace GameManager.Components.Pages.components
         private List<string> BackupSaveFiles { get; set; } = [];
 
         private AppSetting? AppSetting { get; set; }
+        
+        public bool IsMonitoring { get; set; }
 
         private IList<GuideSite> GuideSites
         {
@@ -264,7 +274,20 @@ namespace GameManager.Components.Pages.components
             IStrategy launchStrategy = LaunchProgramStrategyFactory.Create(GameInfoParam, TryStartVNGTTranslator);
             try
             {
-                await launchStrategy.ExecuteAsync();
+                int pid = await launchStrategy.ExecuteAsync();
+                Result addResult = await GamePlayMonitor.AddMonitorItem(GameInfoParam.Id, GameInfoParam.GameName ?? "",
+                    pid,
+                    e =>
+                    {
+                        TaskManager.StartBackgroundTask($"update-play-time-{e.GameId}",
+                            () => TaskExecutor.UpdateGamePlayTimeTask(e.GameId, e.GameName, e.Duration), () => { });
+                    });
+                if (addResult.Success)
+                {
+                    GamePlayMonitor.RegisterCallback(GameInfoParam.Id, OnMonitorStop);
+                    IsMonitoring = true;
+                    _ = InvokeAsync(StateHasChanged);
+                }
                 GameInfoParam.LastPlayed = DateTime.UtcNow;
             }
             catch (Exception e)
@@ -390,6 +413,12 @@ namespace GameManager.Components.Pages.components
         private Task ShowDetail()
         {
             return OnShowDetail.HasDelegate ? OnShowDetail.InvokeAsync(GameInfoParam.Id) : Task.CompletedTask;
+        }
+
+        private void OnMonitorStop(GameStopEventArgs e)
+        {
+            IsMonitoring = false;
+            InvokeAsync(StateHasChanged);
         }
     }
 }

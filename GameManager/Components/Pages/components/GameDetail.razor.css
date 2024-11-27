@@ -78,6 +78,29 @@
     margin-bottom: 15px;
 }
 
+.playing-button {
+    background-color: gray;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.playing-button:hover {
+    background-color: gray;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+
 .play-button {
     background-color: #5cba47;
     color: white;

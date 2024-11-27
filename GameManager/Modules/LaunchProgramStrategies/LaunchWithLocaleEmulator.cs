@@ -10,7 +10,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
 {
     public class LaunchWithLocaleEmulator(GameInfo gameInfo, Action<int>? tryLaunchVNGTTranslator = null) : IStrategy
     {
-        public async Task ExecuteAsync()
+        public async Task<int> ExecuteAsync()
         {
             if (gameInfo.ExePath == null || gameInfo.ExeFile == null)
             {
@@ -79,6 +79,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
             DateTime time = DateTime.UtcNow;
             await configService.UpdateLastPlayedByIdAsync(gameInfo.Id, time);
             gameInfo.LastPlayed = time;
+            return proc.Id;
         }
     }
 }

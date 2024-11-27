@@ -165,8 +165,17 @@
   <data name="Common.Fetch" xml:space="preserve">
     <value>擷取</value>
   </data>
+  <data name="Common.Minutes" xml:space="preserve">
+    <value>分鐘</value>
+  </data>
   <data name="Common.Restore" xml:space="preserve">
     <value>還原</value>
+  </data>
+  <data name="Common.Running" xml:space="preserve">
+    <value>執行中</value>
+  </data>
+  <data name="Common.Start" xml:space="preserve">
+    <value>啟動</value>
   </data>
   <data name="Common.Unknown" xml:space="preserve">
     <value>未知</value>
@@ -222,6 +231,9 @@
   <data name="DetailPage.OpenSaveFilePath" xml:space="preserve">
     <value>打開存檔資料夾</value>
   </data>
+  <data name="DetailPage.PlayTime" xml:space="preserve">
+    <value>遊玩時長</value>
+  </data>
   <data name="DetailPage.Screenshots.AddFromUrl" xml:space="preserve">
     <value>從網址加入</value>
   </data>
@@ -230,6 +242,9 @@
   </data>
   <data name="DetailPage.SearchGuide" xml:space="preserve">
     <value>搜尋攻略</value>
+  </data>
+  <data name="DetailPage.SmanllThanOneMinutes" xml:space="preserve">
+    <value>小於 1 分鐘</value>
   </data>
   <data name="DetailPage.Staff.Artist" xml:space="preserve">
     <value>畫師</value>

@@ -205,11 +205,38 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Minutes.
+        /// </summary>
+        internal static string Common_Minutes {
+            get {
+                return ResourceManager.GetString("Common.Minutes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Restore.
         /// </summary>
         internal static string Common_Restore {
             get {
                 return ResourceManager.GetString("Common.Restore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running.
+        /// </summary>
+        internal static string Common_Running {
+            get {
+                return ResourceManager.GetString("Common.Running", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start.
+        /// </summary>
+        internal static string Common_Start {
+            get {
+                return ResourceManager.GetString("Common.Start", resourceCulture);
             }
         }
         
@@ -376,6 +403,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Game Play Time.
+        /// </summary>
+        internal static string DetailPage_PlayTime {
+            get {
+                return ResourceManager.GetString("DetailPage.PlayTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add From Urls.
         /// </summary>
         internal static string DetailPage_Screenshots_AddFromUrl {
@@ -399,6 +435,15 @@ namespace GameManager.Properties {
         internal static string DetailPage_SearchGuide {
             get {
                 return ResourceManager.GetString("DetailPage.SearchGuide", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Small Than 1 mimutes.
+        /// </summary>
+        internal static string DetailPage_SmanllThanOneMinutes {
+            get {
+                return ResourceManager.GetString("DetailPage.SmanllThanOneMinutes", resourceCulture);
             }
         }
         

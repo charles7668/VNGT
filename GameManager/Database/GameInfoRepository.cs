@@ -137,6 +137,31 @@ namespace GameManager.Database
             context.GameInfos.Update(info);
         }
 
+        public async Task UpdatePlayTimeAsync(int id, double minutesToAdd)
+        {
+            var entity = await context.GameInfos
+                .Where(x => x.Id == id)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.PlayTime
+                })
+                .FirstOrDefaultAsync();
+
+            if (entity == null)
+                return;
+            double updatedPlayTime = entity.PlayTime + minutesToAdd;
+
+            var updatedEntity = new GameInfo
+            {
+                Id = entity.Id,
+                PlayTime = updatedPlayTime
+            };
+
+            context.Attach(updatedEntity);
+            context.Entry(updatedEntity).Property(x => x.PlayTime).IsModified = true;
+        }
+
         public async Task<IEnumerable<Tag>> GetTagsByIdAsync(int id)
         {
             GameInfo? gameInfo = await context.GameInfos

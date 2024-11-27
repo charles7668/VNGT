@@ -7,7 +7,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
 {
     public class DirectLaunch(GameInfo gameInfo, Action<int>? tryLaunchVNGTTranslator = null) : IStrategy
     {
-        public async Task ExecuteAsync()
+        public async Task<int> ExecuteAsync()
         {
             if (gameInfo.ExePath == null || gameInfo.ExeFile == null)
             {
@@ -34,6 +34,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
             await configService.UpdateLastPlayedByIdAsync(gameInfo.Id, time);
             gameInfo.LastPlayed = time;
             await configService.EditGameInfo(gameInfo);
+            return proc.Id;
         }
     }
 }

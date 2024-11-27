@@ -13,7 +13,8 @@
         <a onclick="@OnReturnClick" class="back-button">← @Resources.DetailPage_Back</a>
         <div class="game-details-header">
             <div class="game-background">
-                <img src="@GameInfoVo.DisplayBackgroundImage" onerror="this.style.display='none';" alt="game screenshot">
+                <img src="@GameInfoVo.DisplayBackgroundImage" onerror="this.style.display='none';"
+                     alt="game screenshot">
             </div>
             <div class="game-status-container">
                 <div class="d-flex flex-row">
@@ -30,19 +31,32 @@
                         {
                             <h3 class="game-subtitle">@GameInfoVo.EnglishName</h3>
                         }
-                        <button class="play-button" @onclick="OnStartGameClick">Start</button>
+                        @if (GameInfoVo.IsMonitoring)
+                        {
+                            <button class="playing-button">@Resources.Common_Running</button>
+                        }
+                        else
+                        {
+                            <button class="play-button" @onclick="OnStartGameClick">@Resources.Common_Start</button>
+                        }
                     </div>
                 </div>
                 <div class="game-status">
                     <div class="status-item">
                         <span class="icon">☁️</span>
                         <span>CloudSync</span>
-                        <span class=@("status-sync" + (GameInfoVo.EnableSync ? " enabled" : ""))>@(GameInfoVo.EnableSync ? Resources.Common_Enabled : Resources.Common_Disabled)</span>
+                        <span
+                            class=@("status-sync" + (GameInfoVo.EnableSync ? " enabled" : ""))>@(GameInfoVo.EnableSync ? Resources.Common_Enabled : Resources.Common_Disabled)</span>
                     </div>
                     <div class="status-item">
                         <span class="icon">📅</span>
                         <span>@Resources.DetailPage_LastPlayTime</span>
                         <span class="status">@GameInfoVo.LastPlayed</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="icon">⏰</span>
+                        <span>@Resources.DetailPage_PlayTime</span>
+                        <span class="status">@GameInfoVo.DisplayPlayTime</span>
                     </div>
                     <MudSpacer/>
                     <div class="button-container">
@@ -74,7 +88,8 @@
                                         <ChildContent>
                                             @foreach (GuideSite guideSite in GuideSites)
                                             {
-                                                <MudMenuItem Class="icon-menu-item" OnClick="() => OnGuideSearchClick(guideSite)">
+                                                <MudMenuItem Class="icon-menu-item"
+                                                             OnClick="() => OnGuideSearchClick(guideSite)">
                                                     @guideSite.Name
                                                 </MudMenuItem>
                                             }
@@ -140,8 +155,8 @@
     .icon-menu-item:hover {
         background-color: #2e3d4b;
     }
-    
-    .sub-menu-item , .sub-menu-item > .mud-list-item-text {
+
+    .sub-menu-item, .sub-menu-item > .mud-list-item-text {
         margin: 0;
         padding: 0;
     }

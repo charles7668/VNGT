@@ -2,6 +2,6 @@
 {
     public interface IStrategy
     {
-        public Task ExecuteAsync();
+        public Task<int> ExecuteAsync();
     }
 }
