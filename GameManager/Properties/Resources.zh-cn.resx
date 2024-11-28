@@ -399,6 +399,12 @@
   <data name="Library.Button.Scan" xml:space="preserve">
     <value>扫描</value>
   </data>
+  <data name="Library.ScanComplete" xml:space="preserve">
+    <value>Library扫描完成</value>
+  </data>
+  <data name="Library.StartScan" xml:space="preserve">
+    <value>Library扫描开始</value>
+  </data>
   <data name="Message.DetectGameInstallError" xml:space="preserve">
     <value>检测安装位置时发生错误</value>
   </data>

@@ -399,11 +399,14 @@
   <data name="Library.Button.Scan" xml:space="preserve">
     <value>Scan</value>
   </data>
-  <data name="Message.UnableToDecompress" xml:space="preserve">
-    <value>Unable to decompress the archive.</value>
+  <data name="Library.ScanComplete" xml:space="preserve">
+    <value>Library Scan Complete</value>
+  </data>
+  <data name="Library.StartScan" xml:space="preserve">
+    <value>Library Scan Start</value>
   </data>
   <data name="Message.DetectGameInstallError" xml:space="preserve">
-    <value>An error occurred while detecting the game installation.</value>
+    <value>An error occurred while detecting the game installation</value>
   </data>
   <data name="Message.DirectoryNotExist" xml:space="preserve">
     <value>Directory does not exist</value>
@@ -437,6 +440,9 @@
   </data>
   <data name="Message.RelatedGameNotFound" xml:space="preserve">
     <value>Related game not found</value>
+  </data>
+  <data name="Message.UnableToDecompress" xml:space="preserve">
+    <value>Unable to decompress the archive</value>
   </data>
   <data name="Message.UpdateDatabaseFailed" xml:space="preserve">
     <value>Update database failed</value>

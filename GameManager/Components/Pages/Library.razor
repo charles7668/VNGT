@@ -6,7 +6,7 @@
 
         @if (ScanTask == null || ScanTask.IsCompleted)
         {
-            <MudButton OnClick="OnScan"
+            <MudButton OnClick="OnScanClick"
                        Variant="Variant.Filled"
                        StartIcon="@Icons.Material.Filled.Refresh">
                 @Resources.Library_Button_Scan
@@ -14,8 +14,7 @@
         }
         else
         {
-            <MudButton OnClick="OnScan"
-                       Variant="Variant.Filled">
+            <MudButton Variant="Variant.Filled">
                 <MudProgressCircular Size="Size.Small" Color="Color.Default" Indeterminate="true"/>
             </MudButton>
         }

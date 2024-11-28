@@ -907,7 +907,25 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while detecting the game installation..
+        ///   Looks up a localized string similar to Library Scan Complete.
+        /// </summary>
+        internal static string Library_ScanComplete {
+            get {
+                return ResourceManager.GetString("Library.ScanComplete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Library Scan Start.
+        /// </summary>
+        internal static string Library_StartScan {
+            get {
+                return ResourceManager.GetString("Library.StartScan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while detecting the game installation.
         /// </summary>
         internal static string Message_DetectGameInstallError {
             get {
@@ -1015,7 +1033,7 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to decompress the archive..
+        ///   Looks up a localized string similar to Unable to decompress the archive.
         /// </summary>
         internal static string Message_UnableToDecompress {
             get {
