@@ -1,4 +1,5 @@
 ﻿@page "/setting"
+@using GameManager.DTOs
 
 <div>
     <MudForm Class="d-flex flex-column pa-2" Model="@AppSetting">
@@ -83,7 +84,7 @@
                                            OnClick="OnDeleteGuideSiteClick"
                                            Style="color: red;"/>
                         </MudToolBar>
-                        <MudTable T="GuideSite" Items="@GuideSites"
+                        <MudTable T="GuideSiteDTO" Items="@GuideSites"
                                   Hover="true"
                                   RowClass="cursor-pointer"
                                   Height="200px"
@@ -111,7 +112,7 @@
                                            OnClick="OnDeleteTextMappingClick"
                                            Style="color: red;"/>
                         </MudToolBar>
-                        <MudTable T="TextMapping" Items="@TextMappings"
+                        <MudTable T="TextMappingDTO" Items="@TextMappings"
                                   Hover="true"
                                   RowClass="cursor-pointer"
                                   Height="200px"

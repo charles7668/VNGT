@@ -1,5 +1,6 @@
 ﻿using GameManager.DB.Enums;
 using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Models;
 using GameManager.Services;
 using Microsoft.Extensions.Logging;
@@ -26,7 +27,7 @@ namespace GameManager.GameInfoProvider
         private string _token = "Bearer";
         public string ProviderName => "YMGalgame";
 
-        public async Task<(List<GameInfo>? infoList, bool hasMore)> FetchGameSearchListAsync(string searchText,
+        public async Task<(List<GameInfoDTO>? infoList, bool hasMore)> FetchGameSearchListAsync(string searchText,
             int itemPerPage, int pageNum)
         {
             HttpClient httpClient = webService.GetDefaultHttpClient();
@@ -76,7 +77,7 @@ namespace GameManager.GameInfoProvider
                         return (null, false);
                     }
 
-                    List<GameInfo> gameInfoList = new();
+                    List<GameInfoDTO> gameInfoList = new();
                     foreach (JsonElement element in resultProp.EnumerateArray())
                     {
                         string id = "";
@@ -96,7 +97,7 @@ namespace GameManager.GameInfoProvider
                             continue;
                         }
 
-                        gameInfoList.Add(new GameInfo
+                        gameInfoList.Add(new GameInfoDTO
                         {
                             GameInfoFetchId = id,
                             GameName = name
@@ -119,7 +120,7 @@ namespace GameManager.GameInfoProvider
             }
         }
 
-        public async Task<GameInfo?> FetchGameDetailByIdAsync(string gameId)
+        public async Task<GameInfoDTO?> FetchGameDetailByIdAsync(string gameId)
         {
             HttpClient httpClient = webService.GetDefaultHttpClient();
             try
@@ -169,7 +170,7 @@ namespace GameManager.GameInfoProvider
                     string introduction = "";
                     string developer = "";
                     string coverUrl = "";
-                    List<Tag> tagList = new();
+                    List<TagDTO> tagList = new();
                     if (!gameProp.TryGetProperty("name", out JsonElement nameProp))
                     {
                         throw new Exception("Failed to get game name");
@@ -204,7 +205,7 @@ namespace GameManager.GameInfoProvider
                             if (getDeveloperResult.Success)
                             {
                                 developer = getDeveloperResult.Value ?? "";
-                                tagList.Add(new Tag
+                                tagList.Add(new TagDTO
                                 {
                                     Name = developer
                                 });
@@ -216,7 +217,7 @@ namespace GameManager.GameInfoProvider
                         }
                     }
 
-                    var staffList = new List<Staff>();
+                    var staffList = new List<StaffDTO>();
                     if (gameProp.TryGetProperty("staff", out JsonElement staffProp) &&
                         staffProp.ValueKind == JsonValueKind.Array)
                     {
@@ -225,7 +226,7 @@ namespace GameManager.GameInfoProvider
                         {
                             staffList = await GetStaffListAsync(staffModels);
                             tagList.AddRange(staffList.Where(x => x.StaffRole.Id != StaffRoleEnum.STAFF).Select(x =>
-                                new Tag
+                                new TagDTO
                                 {
                                     Name = x.Name
                                 }));
@@ -245,7 +246,7 @@ namespace GameManager.GameInfoProvider
                         }
                     }
 
-                    List<Character> characterList = [];
+                    List<CharacterDTO> characterList = [];
                     if (dataProp.TryGetProperty("cidMapping", out JsonElement cidMappingProp) &&
                         cidMappingProp.ValueKind == JsonValueKind.Object)
                     {
@@ -263,7 +264,7 @@ namespace GameManager.GameInfoProvider
                                 Gender.UNKNOWN => "UNKNOWN",
                                 _ => "UNKNOWN"
                             };
-                            characterList.Add(new Character
+                            characterList.Add(new CharacterDTO
                             {
                                 Name = modelValue?.Name,
                                 Description = modelValue?.Introduction,
@@ -277,7 +278,7 @@ namespace GameManager.GameInfoProvider
                         }
                     }
 
-                    List<ReleaseInfo> releaseList = [];
+                    List<ReleaseInfoDTO> releaseList = [];
                     if (gameProp.TryGetProperty("releases", out JsonElement releasesProp) &&
                         releasesProp.ValueKind == JsonValueKind.Array)
                     {
@@ -298,7 +299,7 @@ namespace GameManager.GameInfoProvider
                                 releaseDate = DateTime.MinValue;
                             }
 
-                            var releaseInfo = new ReleaseInfo
+                            var releaseInfo = new ReleaseInfoDTO
                             {
                                 ReleaseName = releaseModel.ReleaseName,
                                 ReleaseLanguage = releaseModel.ReleaseLanguage ?? "",
@@ -309,7 +310,7 @@ namespace GameManager.GameInfoProvider
                                     ? []
                                     :
                                     [
-                                        new ExternalLink
+                                        new ExternalLinkDTO
                                         {
                                             Url = releaseModel.RelatedLink,
                                             Name = "website",
@@ -321,7 +322,7 @@ namespace GameManager.GameInfoProvider
                         }
                     }
 
-                    List<RelatedSite> relatedSites = [];
+                    List<RelatedSiteDTO> relatedSites = [];
                     if (gameProp.TryGetProperty("website", out JsonElement websiteProp) &&
                         websiteProp.ValueKind == JsonValueKind.Array)
                     {
@@ -330,7 +331,7 @@ namespace GameManager.GameInfoProvider
                             RelatedSiteModel? siteModel = site.Deserialize<RelatedSiteModel>();
                             if (siteModel == null || string.IsNullOrWhiteSpace(siteModel.Title))
                                 continue;
-                            relatedSites.Add(new RelatedSite
+                            relatedSites.Add(new RelatedSiteDTO
                             {
                                 Name = siteModel.Title,
                                 Url = siteModel.Link
@@ -338,7 +339,7 @@ namespace GameManager.GameInfoProvider
                         }
                     }
 
-                    relatedSites.Add(new RelatedSite
+                    relatedSites.Add(new RelatedSiteDTO
                     {
                         Name = "YMGalgame",
                         Url = $"https://www.ymgal.games/GA{gameId}"
@@ -350,7 +351,7 @@ namespace GameManager.GameInfoProvider
                         DateTime.TryParse(releaseDateProp.GetString(), out gameReleaseDate);
                     }
 
-                    var resultGameInfo = new GameInfo
+                    var resultGameInfo = new GameInfoDTO
                     {
                         GameInfoFetchId = gameId,
                         GameName = name,
@@ -586,9 +587,9 @@ namespace GameManager.GameInfoProvider
             return builder.ToString();
         }
 
-        private async Task<List<Staff>> GetStaffListAsync(IEnumerable<StaffModel> staffModels)
+        private async Task<List<StaffDTO>> GetStaffListAsync(IEnumerable<StaffModel> staffModels)
         {
-            var roleMapping = new Dictionary<string, StaffRole>
+            var roleMapping = new Dictionary<string, StaffRoleDTO>
             {
                 { "脚本", await staffService.GetStaffRoleAsync(StaffRoleEnum.SCENARIO) },
                 { "音乐", await staffService.GetStaffRoleAsync(StaffRoleEnum.MUSIC) },
@@ -598,7 +599,7 @@ namespace GameManager.GameInfoProvider
                 { "人物设计", await staffService.GetStaffRoleAsync(StaffRoleEnum.CHARACTER_DESIGN) },
                 { "其他", await staffService.GetStaffRoleAsync(StaffRoleEnum.STAFF) }
             };
-            List<Staff> result = [];
+            List<StaffDTO> result = [];
             foreach (StaffModel fetchStaff in staffModels)
             {
                 if (!roleMapping.ContainsKey(fetchStaff.JobName ?? ""))
@@ -607,11 +608,11 @@ namespace GameManager.GameInfoProvider
                 if (string.IsNullOrEmpty(name))
                     continue;
                 StaffRoleEnum roleId = roleMapping[fetchStaff.JobName!].Id;
-                Staff? staff = await staffService.GetStaffAsync(x => x.Name == name && x.StaffRole.Id == roleId);
+                StaffDTO? staff = await staffService.GetStaffAsync(x => x.Name == name && x.StaffRole.Id == roleId);
                 if (staff != null)
                     result.Add(staff);
                 else
-                    result.Add(new Staff
+                    result.Add(new StaffDTO
                     {
                         Name = name,
                         StaffRole = roleMapping[fetchStaff.JobName!]

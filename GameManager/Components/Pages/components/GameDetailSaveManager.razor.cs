@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Models;
 using GameManager.Modules.SaveDataManager;
 using Microsoft.AspNetCore.Components;
@@ -15,7 +16,7 @@ namespace GameManager.Components.Pages.components
 
         [Parameter]
         [EditorRequired]
-        public GameInfo GameInfo { get; set; } = null!;
+        public GameInfoDTO GameInfo { get; set; } = null!;
 
         [Inject]
         private ISaveDataManager SaveDataManager { get; set; } = null!;

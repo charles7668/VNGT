@@ -1,4 +1,4 @@
-﻿using GameManager.DB.Models;
+﻿using GameManager.DTOs;
 
 namespace GameManager.GameInfoProvider
 {
@@ -6,9 +6,9 @@ namespace GameManager.GameInfoProvider
     {
         string ProviderName { get; }
 
-        Task<(List<GameInfo>? infoList, bool hasMore)> FetchGameSearchListAsync(string searchText, int itemPerPage,
+        Task<(List<GameInfoDTO>? infoList, bool hasMore)> FetchGameSearchListAsync(string searchText, int itemPerPage,
             int pageNum);
 
-        Task<GameInfo?> FetchGameDetailByIdAsync(string gameId);
+        Task<GameInfoDTO?> FetchGameDetailByIdAsync(string gameId);
     }
 }

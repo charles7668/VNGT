@@ -1,5 +1,6 @@
 ﻿using GameManager.DB.Enums;
 using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Properties;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;
@@ -10,7 +11,7 @@ namespace GameManager.Components.Pages.components
     {
         [Parameter]
         [EditorRequired]
-        public GameInfo GameInfo { get; set; } = null!;
+        public GameInfoDTO GameInfo { get; set; } = null!;
 
         private ViewModel GameInfoViewModel { get; set; } = new();
 

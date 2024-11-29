@@ -1,4 +1,4 @@
-﻿using GameManager.DB.Models;
+﻿using GameManager.DTOs;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -22,7 +22,7 @@ namespace GameManager.Components.Pages.components
         protected override void OnInitialized()
         {
             LeConfigs = ["None"];
-            AppSetting appSetting = ConfigService.GetAppSetting();
+            AppSettingDTO appSetting = ConfigService.GetAppSettingDTO();
             if (!string.IsNullOrEmpty(appSetting.LocaleEmulatorPath)
                 && File.Exists(Path.Combine(appSetting.LocaleEmulatorPath, "LEConfig.xml")))
             {

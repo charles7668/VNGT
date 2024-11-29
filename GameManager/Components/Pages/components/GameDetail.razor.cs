@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Models;
 using GameManager.Models.EventArgs;
 using GameManager.Modules.GamePlayMonitor;
@@ -8,6 +9,7 @@ using GameManager.Properties;
 using GameManager.Services;
 using Helper;
 using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using MudBlazor;
@@ -20,7 +22,7 @@ namespace GameManager.Components.Pages.components
 {
     public partial class GameDetail : IAsyncDisposable
     {
-        private GameInfo _gameInfo = null!;
+        private GameInfoDTO _gameInfo = null!;
 
         private string _selectedTab = "info";
 
@@ -66,13 +68,13 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private ISnackbar Snackbar { get; set; } = null!;
 
-        private Lazy<AppSetting> AppSetting { get; set; } = null!;
+        private Lazy<AppSettingDTO> AppSetting { get; set; } = null!;
 
-        private IEnumerable<GuideSite> GuideSites => AppSetting.Value.GuideSites;
+        private IEnumerable<GuideSiteDTO> GuideSites => AppSetting.Value.GuideSites;
 
         protected override Task OnInitializedAsync()
         {
-            AppSetting = new Lazy<AppSetting>(() => ConfigService.GetAppSetting());
+            AppSetting = new Lazy<AppSettingDTO>(() => ConfigService.GetAppSettingDTO());
 
             return base.OnInitializedAsync();
         }
@@ -87,7 +89,7 @@ namespace GameManager.Components.Pages.components
             return base.OnAfterRenderAsync(firstRender);
         }
 
-        private Task RefreshData(GameInfo? inputGameInfo = null)
+        private Task RefreshData(GameInfoDTO? inputGameInfo = null)
         {
             IsLoading = true;
             StateHasChanged();
@@ -97,17 +99,18 @@ namespace GameManager.Components.Pages.components
                 {
                     Logger.LogInformation("start loading game info");
                     _ = JsRuntime.InvokeVoidAsync("disableHtmlOverflow");
-                    GameInfo gameInfo = inputGameInfo ??
-                                        await ConfigService.GetGameInfoAsync(x => x.Id == InitGameId) ??
-                                        throw new ArgumentException("Game info not found with id " + InitGameId);
-                    gameInfo.Staffs = await ConfigService.GetGameInfoStaffs(x => x.Id == gameInfo.Id);
+                    GameInfoDTO gameInfo = inputGameInfo ??
+                                           await ConfigService.GetGameInfoDTOAsync(x => x.Id == InitGameId,
+                                               q => q.Include(x => x.LaunchOption)) ??
+                                           throw new ArgumentException("Game info not found with id " + InitGameId);
+                    gameInfo.Staffs = await ConfigService.GetGameInfoStaffDTOs(x => x.Id == gameInfo.Id);
                     gameInfo.ReleaseInfos =
                         await ConfigService.GetGameInfoReleaseInfos(x => x.Id == gameInfo.Id);
                     gameInfo.RelatedSites =
                         await ConfigService.GetGameInfoRelatedSites(x => x.Id == gameInfo.Id);
                     gameInfo.Characters =
                         await ConfigService.GetGameInfoCharacters(x => x.Id == gameInfo.Id);
-                    gameInfo.Tags = (await ConfigService.GetGameTagsAsync(gameInfo.Id)).Select(x => new Tag
+                    gameInfo.Tags = (await ConfigService.GetGameTagsAsync(gameInfo.Id)).Select(x => new TagDTO
                     {
                         Name = x
                     }).ToList();
@@ -211,7 +214,7 @@ namespace GameManager.Components.Pages.components
 
                 DataMapService.Map(resultModel, _gameInfo);
                 _gameInfo.UpdatedTime = DateTime.UtcNow;
-                await ConfigService.EditGameInfo(_gameInfo);
+                await ConfigService.UpdateGameInfoAsync(_gameInfo);
             }
             catch (Exception e)
             {
@@ -346,7 +349,7 @@ namespace GameManager.Components.Pages.components
             OpenPath(_gameInfo.ExePath);
         }
 
-        private Task OnGuideSearchClick(GuideSite site)
+        private Task OnGuideSearchClick(GuideSiteDTO site)
         {
             Logger.LogInformation("Search guide for {GameName} on {SiteName}", _gameInfo.GameName, site.Name);
             string searchUrl = "https://www.google.com/search?q="

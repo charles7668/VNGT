@@ -1,5 +1,4 @@
-﻿using GameManager.DB.Models;
-using GameManager.DTOs;
+﻿using GameManager.DTOs;
 using GameManager.Models;
 
 namespace GameManager.Modules.SaveDataManager
@@ -8,8 +7,6 @@ namespace GameManager.Modules.SaveDataManager
     {
         public int MaxBackupCount { get; }
 
-        public Task<List<string>> GetBackupListAsync(GameInfo gameInfo);
-        
         public Task<List<string>> GetBackupListAsync(GameInfoDTO gameInfo);
 
         /// <summary>
@@ -17,7 +14,7 @@ namespace GameManager.Modules.SaveDataManager
         /// </summary>
         /// <param name="gameInfo"></param>
         /// <returns></returns>
-        public Task<Result<string>> BackupSaveFileAsync(GameInfo gameInfo);
+        public Task<Result<string>> BackupSaveFileAsync(GameInfoDTO gameInfo);
 
         /// <summary>
         /// Restore save file using specified backup file
@@ -25,7 +22,7 @@ namespace GameManager.Modules.SaveDataManager
         /// <param name="gameInfo"></param>
         /// <param name="backupFileName"></param>
         /// <returns></returns>
-        public Task<Result> RestoreSaveFileAsync(GameInfo gameInfo, string backupFileName);
+        public Task<Result> RestoreSaveFileAsync(GameInfoDTO gameInfo, string backupFileName);
 
         /// <summary>
         /// Delete save file using specified backup file
@@ -33,6 +30,6 @@ namespace GameManager.Modules.SaveDataManager
         /// <param name="gameInfo"></param>
         /// <param name="backupFileName"></param>
         /// <returns></returns>
-        public Task<Result> DeleteSaveFileAsync(GameInfo gameInfo, string backupFileName);
+        public Task<Result> DeleteSaveFileAsync(GameInfoDTO gameInfo, string backupFileName);
     }
 }

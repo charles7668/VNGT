@@ -1,11 +1,11 @@
 ﻿using GameManager.Components.Pages.components;
-using GameManager.DB.Models;
+using GameManager.DTOs;
 
 namespace GameManager.Services
 {
     public static class DataMapService
     {
-        public static void Map(DialogGameInfoEdit.FormModel src, GameInfo dest)
+        public static void Map(DialogGameInfoEdit.FormModel src, GameInfoDTO dest)
         {
             dest.CoverPath = src.Cover;
             dest.GameName = src.GameName;
@@ -17,7 +17,7 @@ namespace GameManager.Services
             dest.ExePath = src.ExePath;
             dest.SaveFilePath = src.SaveFilePath;
             dest.ExeFile = src.ExeFile;
-            dest.LaunchOption ??= new LaunchOption();
+            dest.LaunchOption ??= new LaunchOptionDTO();
             dest.LaunchOption.RunAsAdmin = src.RunAsAdmin;
             dest.LaunchOption.LaunchWithLocaleEmulator = src.LeConfig;
             dest.LaunchOption.RunWithVNGTTranslator = src.RunWithVNGTTranslator;
@@ -29,14 +29,14 @@ namespace GameManager.Services
             dest.ReleaseInfos = src.ReleaseInfos;
             dest.RelatedSites = src.RelatedSites;
             dest.ScreenShots = src.ScreenShots;
-            dest.Tags = src.Tags.Select(x => new Tag()
+            dest.Tags = src.Tags.Select(x => new TagDTO
             {
                 Name = x
             }).ToList();
             dest.EnableSync = src.EnableSync;
         }
 
-        public static void Map(GameInfo src, DialogGameInfoEdit.FormModel dest)
+        public static void Map(GameInfoDTO src, DialogGameInfoEdit.FormModel dest)
         {
             dest.Cover = src.CoverPath;
             dest.GameName = src.GameName;

@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.GameInfoProvider;
 using GameManager.Properties;
 using GameManager.Services;
@@ -49,7 +50,7 @@ namespace GameManager.Components.Pages.components
 
         private List<string> LeConfigs { get; set; } = [];
 
-        private AppSetting AppSetting { get; set; } = null!;
+        private AppSettingDTO AppSetting { get; set; } = null!;
 
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;
@@ -130,7 +131,7 @@ namespace GameManager.Components.Pages.components
                         return;
                     }
 
-                    (List<GameInfo>? infoList, bool hasMore) =
+                    (List<GameInfoDTO>? infoList, bool hasMore) =
                         await gameInfoProvider.FetchGameSearchListAsync(Model.GameName, 10, 1);
 
                     if (infoList == null || infoList.Count == 0)
@@ -155,7 +156,7 @@ namespace GameManager.Components.Pages.components
                     if (gameId == null)
                         throw new FileNotFoundException("Game ID not found");
 
-                    GameInfo? info = await gameInfoProvider.FetchGameDetailByIdAsync(gameId);
+                    GameInfoDTO? info = await gameInfoProvider.FetchGameDetailByIdAsync(gameId);
                     if (info == null)
                         return;
                     List<string> replaceList = [];
@@ -165,7 +166,7 @@ namespace GameManager.Components.Pages.components
                         foreach (string s in split)
                         {
                             TryAddTag(s);
-                            TextMapping? mapping = await ConfigService.SearchTextMappingByOriginalText(s);
+                            TextMappingDTO? mapping = await ConfigService.SearchTextMappingByOriginalText(s);
                             string? mappingResult = mapping is { Replace: not null } ? mapping.Replace : s;
                             replaceList.Add(mappingResult);
                             TryAddTag(mappingResult);
@@ -177,16 +178,16 @@ namespace GameManager.Components.Pages.components
                     info.ExeFile = Model.ExeFile;
                     info.SaveFilePath = Model.SaveFilePath;
                     info.EnableSync = Model.EnableSync;
-                    info.LaunchOption ??= new LaunchOption();
+                    info.LaunchOption ??= new LaunchOptionDTO();
                     info.LaunchOption.RunAsAdmin = Model.RunAsAdmin;
                     info.LaunchOption.LaunchWithLocaleEmulator = Model.LeConfig;
                     info.LaunchOption.RunWithSandboxie = Model.RunWithSandboxie;
                     info.LaunchOption.SandboxieBoxName = Model.SandboxieBoxName;
                     info.LaunchOption.RunWithVNGTTranslator = Model.RunWithVNGTTranslator;
                     info.LaunchOption.IsVNGTTranslatorNeedAdmin = Model.IsVNGTTranslatorNeedAdmin;
-                    foreach (Tag tag in info.Tags)
+                    foreach (TagDTO tag in info.Tags)
                         TryAddTag(tag.Name);
-                    info.Tags = Model.Tags.Select(x => new Tag
+                    info.Tags = Model.Tags.Select(x => new TagDTO()
                     {
                         Name = x
                     }).ToList();
@@ -361,13 +362,13 @@ namespace GameManager.Components.Pages.components
 
             public List<string> Tags { get; set; } = [];
 
-            public List<Staff> Staffs { get; set; } = [];
+            public List<StaffDTO> Staffs { get; set; } = [];
 
-            public List<Character> Characters { get; set; } = [];
+            public List<CharacterDTO> Characters { get; set; } = [];
 
-            public List<ReleaseInfo> ReleaseInfos { get; set; } = [];
+            public List<ReleaseInfoDTO> ReleaseInfos { get; set; } = [];
 
-            public List<RelatedSite> RelatedSites { get; set; } = [];
+            public List<RelatedSiteDTO> RelatedSites { get; set; } = [];
 
             public List<string> ScreenShots { get; set; } = [];
         }
@@ -377,8 +378,7 @@ namespace GameManager.Components.Pages.components
         protected override async Task OnInitializedAsync()
         {
             LeConfigs = ["None"];
-            AppSetting =
-                AppSetting = ConfigService.GetAppSetting();
+            AppSetting = ConfigService.GetAppSettingDTO();
             if (!string.IsNullOrEmpty(AppSetting.LocaleEmulatorPath)
                 && File.Exists(Path.Combine(AppSetting.LocaleEmulatorPath, "LEConfig.xml")))
             {

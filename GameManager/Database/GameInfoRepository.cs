@@ -1,100 +1,23 @@
 ﻿using GameManager.DB;
 using GameManager.DB.Models;
-using GameManager.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 
 namespace GameManager.Database
 {
     public class GameInfoRepository(AppDbContext context) : IGameInfoRepository
     {
-        public async Task<List<GameInfo>> GetGameInfos(SortOrder order)
+        public async Task<GameInfo> AddAsync(GameInfo entity)
         {
-            if (order == SortOrder.UPLOAD_TIME)
-                return await context.GameInfos
-                    .AsNoTracking()
-                    .Include(info => info.LaunchOption)
-                    .OrderByDescending(x => x.UploadTime)
-                    .ToListAsync();
-            return await context.GameInfos
-                .AsNoTracking()
-                .Include(info => info.LaunchOption)
-                .OrderBy(x => x.GameName).ToListAsync();
-        }
-
-        public Task<IQueryable<GameInfo>> GetGameInfosIncludeAllAsync(Expression<Func<GameInfo, bool>> query, int start,
-            int count)
-        {
-            IQueryable<GameInfo> entities = context.GameInfos
-                .Include(x => x.LaunchOption)
-                .Include(x => x.Staffs)
-                .ThenInclude(s => s.StaffRole)
-                .Include(x => x.Characters)
-                .Include(x => x.RelatedSites)
-                .Include(x => x.ReleaseInfos)
-                .ThenInclude(s => s.ExternalLinks)
-                .Include(x => x.Tags)
-                .Where(query)
-                .Skip(start)
-                .Take(count);
-            return Task.FromResult(entities);
-        }
-
-        public Task<List<int>> GetIdCollectionAsync(Expression<Func<GameInfo, bool>> query)
-        {
-            return context.GameInfos
-                .AsNoTracking()
-                .Where(query)
-                .Select(x => x.Id)
-                .ToListAsync();
-        }
-
-        public Task<IQueryable<GameInfo>> GetGameInfosAsync(Expression<Func<GameInfo, bool>> query)
-        {
-            return Task.FromResult(context.GameInfos
-                .Include(info => info.LaunchOption)
-                .Where(query));
-        }
-
-        public Task<string?> GetCoverById(int id)
-        {
-            return context.GameInfos
-                .AsNoTracking()
-                .Where(x => x.Id == id)
-                .Select(x => x.CoverPath)
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<GameInfo> AddAsync(GameInfo info)
-        {
-            EntityEntry<GameInfo> entityEntry = await context.GameInfos.AddAsync(info);
+            EntityEntry<GameInfo> entityEntry = await context.GameInfos.AddAsync(entity);
             return entityEntry.Entity;
         }
 
-        public Task<GameInfo?> GetAsync(Expression<Func<GameInfo, bool>> query)
+        public Task AddManyAsync(List<GameInfo> entities)
         {
-            return context.GameInfos
-                .AsNoTracking()
-                .Include(info => info.LaunchOption)
-                .FirstOrDefaultAsync(query);
-        }
-
-        public async Task<GameInfo?> GetAsync(int id, bool includeAll = false)
-        {
-            DbSet<GameInfo> dbSet = context.GameInfos;
-            if (!includeAll)
-                return await dbSet.FindAsync(id);
-            IIncludableQueryable<GameInfo, List<Tag>> query = dbSet.Include(x => x.LaunchOption)
-                .Include(x => x.Staffs)
-                .ThenInclude(s => s.StaffRole)
-                .Include(x => x.Characters)
-                .Include(x => x.RelatedSites)
-                .Include(x => x.ReleaseInfos)
-                .ThenInclude(s => s.ExternalLinks)
-                .Include(x => x.Tags);
-            return await query.FirstOrDefaultAsync(x => x.Id == id);
+            context.GameInfos.AddRange(entities);
+            return Task.CompletedTask;
         }
 
         public Task<bool> AnyAsync(Expression<Func<GameInfo, bool>> query)
@@ -102,91 +25,58 @@ namespace GameManager.Database
             return context.GameInfos.AnyAsync(query);
         }
 
-        public Task EditAsync(GameInfo info)
+        public Task<GameInfo> UpdateAsync(GameInfo originEntity, GameInfo info)
         {
-            context.GameInfos.Update(info);
+            context.Entry(originEntity).CurrentValues.SetValues(info);
+            context.Entry(originEntity).State = EntityState.Modified; // 強制標記為已修改
+
+            return Task.FromResult(originEntity);
+        }
+
+        public async Task<GameInfo?> DeleteAsync(int id)
+        {
+            GameInfo? entity = await GetAsync(id,
+                q =>
+                {
+                    return q.Include(x => x.LaunchOption);
+                });
+            if (entity == null)
+                return null;
+
+            context.GameInfos.Remove(entity);
+            if (entity.LaunchOption != null)
+                context.LaunchOptions.Remove(entity.LaunchOption);
+            return entity;
+        }
+
+        public Task<GameInfo?> DeleteAsync(Expression<Func<GameInfo, bool>> query)
+        {
+            GameInfo? entity = context.GameInfos.FirstOrDefault(query);
+            if (entity == null)
+                return Task.FromResult<GameInfo?>(null);
+            context.GameInfos.Remove(entity);
+            return Task.FromResult<GameInfo?>(entity);
+        }
+
+        public Task UpdatePropertiesAsync(GameInfo entity,
+            params Expression<Func<GameInfo, object?>>[] properties)
+        {
+            context.Attach(entity);
+            foreach (Expression<Func<GameInfo, object?>> prop in properties)
+            {
+                context.Entry(entity).Property(prop).IsModified = true;
+            }
+
             return Task.CompletedTask;
         }
 
-        public Task<GameInfo?> DeleteByIdAsync(int id)
+        public async Task UpdateStaffsAsync(GameInfo entity, List<Staff> staffs)
         {
-            GameInfo? item = context.GameInfos
-                .Include(x => x.LaunchOption)
-                .AsNoTracking()
-                .FirstOrDefault(x => x.Id == id);
-            if (item == null || context.Entry(item).State == EntityState.Deleted)
-                return Task.FromResult<GameInfo?>(null);
-            context.GameInfos.Remove(item);
-            return Task.FromResult<GameInfo?>(item);
-        }
-
-        public Task<bool> CheckExePathExist(string path)
-        {
-            return context.GameInfos
-                .AnyAsync(x => x.ExePath == path);
-        }
-
-        public Task UpdateLastPlayedByIdAsync(int id, DateTime time)
-        {
-            var updatedEntity = new GameInfo
-            {
-                Id = id,
-                LastPlayed = time
-            };
-
-            context.Attach(updatedEntity);
-            context.Entry(updatedEntity).Property(x => x.LastPlayed).IsModified = true;
-            return Task.FromResult(updatedEntity);
-        }
-
-        public async Task UpdatePlayTimeAsync(int id, double minutesToAdd)
-        {
-            var entity = await context.GameInfos
-                .AsNoTracking()
-                .Where(x => x.Id == id)
-                .Select(x => new
-                {
-                    x.Id,
-                    x.PlayTime
-                })
-                .FirstOrDefaultAsync();
-
-            if (entity == null)
-                return;
-            double updatedPlayTime = entity.PlayTime + minutesToAdd;
-
-            var updatedEntity = new GameInfo
-            {
-                Id = entity.Id,
-                PlayTime = updatedPlayTime
-            };
-
-            context.Attach(updatedEntity);
-            context.Entry(updatedEntity).Property(x => x.PlayTime).IsModified = true;
-        }
-
-        public async Task<IEnumerable<Tag>> GetTagsByIdAsync(int id)
-        {
-            GameInfo? gameInfo = await context.GameInfos
-                .Where(x => x.Id == id)
-                .Include(x => x.Tags)
-                .AsNoTracking()
-                .FirstOrDefaultAsync();
-            return gameInfo == null ? [] : gameInfo.Tags;
-        }
-
-        public async Task UpdateStaffsAsync(Expression<Func<GameInfo, bool>> query, List<Staff> staffs)
-        {
-            GameInfo? gameInfo = await context.GameInfos
-                .Include(x => x.Staffs)
-                .FirstOrDefaultAsync(query);
-            if (gameInfo == null)
-                return;
-            var staffNames = staffs.Select(s => s.Name).Distinct().ToList();
-            var staffRoleIds = staffs.Select(s => s.StaffRole.Id).Distinct().ToList();
-            List<Staff> existingStaffs = await context.Staffs
-                .Where(s => staffNames.Contains(s.Name) && staffRoleIds.Contains(s.StaffRoleId))
-                .ToListAsync();
+            GameInfo gameInfo = context.Entry(entity).Entity;
+            await context.Entry(entity).Collection(x => x.Staffs).LoadAsync();
+            List<Staff> existingStaffs = gameInfo.Staffs;
+            var staffRoles = context.StaffRoles
+                .ToDictionary(x => x.Id, x => x);
 
             var existingStaffDict = existingStaffs
                 .GroupBy(s => new
@@ -195,8 +85,10 @@ namespace GameManager.Database
                     s.StaffRoleId
                 })
                 .ToDictionary(g => g.Key, g => g.First());
-            var newStaffs = new List<Staff>();
 
+            await context.GameInfoStaffs.Where(x => x.GameInfoId == gameInfo.Id)
+                .ExecuteDeleteAsync();
+            gameInfo.Staffs.Clear();
             foreach (Staff staff in staffs)
             {
                 var key = new
@@ -204,218 +96,155 @@ namespace GameManager.Database
                     staff.Name,
                     StaffRoleId = staff.StaffRole.Id
                 };
-                if (existingStaffDict.ContainsKey(key))
+                Staff? staffInDb = await context.Staffs
+                    .Include(x => x.StaffRole)
+                    .FirstOrDefaultAsync(x => x.Name == staff.Name && x.StaffRoleId == staff.StaffRole.Id);
+                if (staffInDb != null)
+                {
+                    gameInfo.Staffs.Add(staffInDb);
+                    existingStaffDict.Remove(key);
                     continue;
+                }
+
                 var newStaff = new Staff
                 {
+                    Id = 0,
                     Name = staff.Name,
+                    StaffRole = staffRoles[staff.StaffRole.Id],
                     StaffRoleId = staff.StaffRole.Id
                 };
-                newStaffs.Add(newStaff);
-                existingStaffDict[key] = newStaff;
+                gameInfo.Staffs.Add(newStaff);
             }
 
-            if (newStaffs.Count != 0)
+            foreach (var (_, value) in existingStaffDict)
             {
-                await context.Staffs.AddRangeAsync(newStaffs);
+                await context.GameInfoStaffs.Where(x => x.GameInfoId == gameInfo.Id && x.StaffId == value.Id)
+                    .ExecuteDeleteAsync();
             }
-
-            gameInfo.Staffs.Clear();
-            foreach (var key in staffs.Select(staff => new
-                     {
-                         staff.Name,
-                         StaffRoleId = staff.StaffRole.Id
-                     }))
-            {
-                if (existingStaffDict.TryGetValue(key, out Staff? existingStaff))
-                {
-                    gameInfo.Staffs.Add(existingStaff);
-                }
-            }
-
-            context.GameInfos.Update(gameInfo);
         }
 
-        public async Task UpdateCharactersAsync(Expression<Func<GameInfo, bool>> query,
+        public async Task UpdateCharactersAsync(GameInfo entity,
             List<Character> characters)
         {
-            GameInfo? gameInfo = await context.GameInfos
-                .Include(x => x.Characters)
-                .FirstOrDefaultAsync(query);
-            if (gameInfo == null)
-                return;
+            GameInfo gameInfo = context.Entry(entity).Entity;
+            await context.Entry(entity).Collection(x => x.Characters).LoadAsync();
             string concurrencyStamp = Guid.NewGuid().ToString();
+            await context.Characters.Where(x => x.GameInfoId == gameInfo.Id).ExecuteDeleteAsync();
+            gameInfo.Characters.Clear();
             foreach (Character character in characters)
             {
                 character.Id = 0;
                 character.GameInfoId = gameInfo.Id;
                 character.ConcurrencyStamp = concurrencyStamp;
-                gameInfo.Characters.Add(character);
+                EntityEntry<Character> entry = context.Characters.Add(character);
+                gameInfo.Characters.Add(entry.Entity);
             }
-
-            gameInfo.Characters.RemoveAll(x => x.ConcurrencyStamp != concurrencyStamp);
-            context.GameInfos.Update(gameInfo);
         }
 
-        public async Task UpdateReleaseInfosAsync(Expression<Func<GameInfo, bool>> query,
+        public async Task UpdateReleaseInfosAsync(GameInfo entity,
             List<ReleaseInfo> releaseInfos)
         {
-            GameInfo? gameInfo = await context.GameInfos
-                .Include(x => x.ReleaseInfos)
-                .ThenInclude(x => x.ExternalLinks)
-                .FirstOrDefaultAsync(query);
-            if (gameInfo == null)
-                return;
+            GameInfo gameInfo = context.Entry(entity).Entity;
+            await context.Entry(entity).Collection(x => x.ReleaseInfos)
+                .LoadAsync();
             string concurrencyStamp = Guid.NewGuid().ToString();
+            foreach (ReleaseInfo releaseInfo in gameInfo.ReleaseInfos)
+            {
+                await context.ExternalLinks.Where(x => x.ReleaseInfoId == releaseInfo.Id)
+                    .ExecuteDeleteAsync();
+            }
+
+            await context.ReleaseInfos.Where(x => x.GameInfoId == gameInfo.Id)
+                .ExecuteDeleteAsync();
+            gameInfo.ReleaseInfos.Clear();
             foreach (ReleaseInfo releaseInfo in releaseInfos)
             {
                 releaseInfo.Id = 0;
                 releaseInfo.GameInfoId = gameInfo.Id;
                 releaseInfo.ConcurrencyStamp = concurrencyStamp;
+                var externalLinks = new List<EntityEntry<ExternalLink>>();
                 foreach (ExternalLink externalLink in releaseInfo.ExternalLinks)
                 {
                     externalLink.Id = 0;
                     externalLink.ConcurrencyStamp = concurrencyStamp;
+                    externalLinks.Add(await context.ExternalLinks.AddAsync(externalLink));
                 }
 
-                gameInfo.ReleaseInfos.Add(releaseInfo);
+                releaseInfo.ExternalLinks = externalLinks.Select(x => x.Entity).ToList();
+                EntityEntry<ReleaseInfo> entry = context.ReleaseInfos.Add(releaseInfo);
+
+                gameInfo.ReleaseInfos.Add(entry.Entity);
             }
-
-            string? oldConcurrencyStamp = gameInfo.ReleaseInfos
-                .FirstOrDefault(x => x.ConcurrencyStamp != concurrencyStamp)?.ConcurrencyStamp;
-
-            await context.ExternalLinks.Where(x => x.ConcurrencyStamp == oldConcurrencyStamp).ExecuteDeleteAsync();
-            await context.ReleaseInfos.Where(x => x.ConcurrencyStamp == oldConcurrencyStamp).ExecuteDeleteAsync();
         }
 
-        public async Task UpdateRelatedSitesAsync(Expression<Func<GameInfo, bool>> query,
+        public async Task UpdateRelatedSitesAsync(GameInfo entity,
             List<RelatedSite> relatedSites)
         {
-            GameInfo? gameInfo = await context.GameInfos
-                .Include(x => x.RelatedSites)
-                .FirstOrDefaultAsync(query);
-            if (gameInfo == null)
-                return;
+            GameInfo gameInfo = context.Entry(entity).Entity;
+            await context.Entry(entity).Collection(x => x.RelatedSites).LoadAsync();
             string concurrencyStamp = Guid.NewGuid().ToString();
+            await context.RelatedSites.Where(x => x.GameInfoId == gameInfo.Id)
+                .ExecuteDeleteAsync();
+            gameInfo.RelatedSites.Clear();
             foreach (RelatedSite relatedSite in relatedSites)
             {
                 relatedSite.Id = 0;
                 relatedSite.GameInfoId = gameInfo.Id;
                 relatedSite.ConcurrencyStamp = concurrencyStamp;
-                gameInfo.RelatedSites.Add(relatedSite);
+                EntityEntry<RelatedSite> entry = await context.RelatedSites.AddAsync(relatedSite);
+                gameInfo.RelatedSites.Add(entry.Entity);
             }
-
-            string? oldConcurrencyStamp = gameInfo.RelatedSites
-                .FirstOrDefault(x => x.ConcurrencyStamp != concurrencyStamp)?.ConcurrencyStamp;
-            await context.RelatedSites.Where(x => x.ConcurrencyStamp == oldConcurrencyStamp).ExecuteDeleteAsync();
-            context.GameInfos.Update(gameInfo);
         }
 
-        public async Task UpdateTagsAsync(Expression<Func<GameInfo, bool>> query, List<Tag> tags)
+        public Task UpdateTagsAsync(GameInfo entity, List<Tag> tags)
         {
-            GameInfo? gameInfo = await context.GameInfos
-                .Include(x => x.Tags)
-                .FirstOrDefaultAsync(query);
-            if (gameInfo == null)
-                return;
-            var tagNames = tags.Select(t => t.Name).Distinct().ToList();
-            Dictionary<string, Tag> existingTags = await context.Tags
-                .Where(t => tagNames.Contains(t.Name))
-                .ToDictionaryAsync(key => key.Name, value => value);
-            foreach (Tag tag in tags)
+            GameInfo gameInfo = context.Entry(entity).Entity;
+            var tagNames = tags.Select(t => t.Name).Distinct().ToHashSet();
+            var existingTags = gameInfo.Tags
+                .ToDictionary(key => key.Name, value => value);
+            var existInDb = context.Tags.AsNoTracking()
+                .Where(x => tagNames.Contains(x.Name))
+                .ToDictionary(x => x.Name, x => x);
+            foreach (string tag in tagNames)
             {
-                if (existingTags.ContainsKey(tag.Name))
+                if (existingTags.ContainsKey(tag))
                     continue;
-                var newTag = new Tag
-                {
-                    Name = tag.Name
-                };
-                existingTags[tag.Name] = newTag;
-            }
-
-            gameInfo.Tags.Clear();
-            foreach (Tag tag in tags)
-            {
-                if (existingTags.TryGetValue(tag.Name, out Tag? existingTag))
+                if (existInDb.TryGetValue(tag, out Tag? existingTag))
                 {
                     gameInfo.Tags.Add(existingTag);
+                    existingTags[tag] = existingTag;
+                    continue;
                 }
+
+                var newTag = new Tag
+                {
+                    Name = tag
+                };
+                EntityEntry<Tag> entry = context.Tags.Add(newTag);
+                gameInfo.Tags.Add(entry.Entity);
+                existingTags[tag] = entry.Entity;
             }
+
+            return Task.CompletedTask;
         }
 
-        public async Task<IEnumerable<Staff>> GetStaffsAsync(Expression<Func<GameInfo, bool>> query)
+        public Task UpdateLaunchOption(GameInfo entity, LaunchOption launchOption)
         {
-            List<Staff> result = await context.GameInfos
-                .Include(x => x.Staffs)
-                .ThenInclude(x => x.StaffRole)
-                .AsNoTracking()
-                .Where(query)
-                .SelectMany(x => x.Staffs)
-                .ToListAsync();
-            return result;
-        }
-
-        public async Task<IEnumerable<Character>> GetCharactersAsync(Expression<Func<GameInfo, bool>> query)
-        {
-            return await context.GameInfos
-                .Include(x => x.Characters)
-                .AsNoTracking()
-                .Where(query)
-                .SelectMany(x => x.Characters)
-                .ToListAsync();
-        }
-
-        public async Task<List<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query)
-        {
-            return await context.GameInfos
-                .Include(x => x.ReleaseInfos)
-                .ThenInclude(x => x.ExternalLinks)
-                .AsNoTracking()
-                .Where(query)
-                .SelectMany(x => x.ReleaseInfos)
-                .ToListAsync();
-        }
-
-        public async Task<IEnumerable<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query)
-        {
-            return await context.GameInfos
-                .Include(x => x.RelatedSites)
-                .AsNoTracking()
-                .Where(query)
-                .SelectMany(x => x.RelatedSites)
-                .ToListAsync();
-        }
-
-        public Task<GameInfo> UpdateBackgroundImageAsync(int id, string? backgroundImage)
-        {
-            var entity = new GameInfo
+            GameInfo gameInfo = context.Entry(entity).Entity;
+            context.Entry(gameInfo).Reference(x => x.LaunchOption).Load();
+            if (gameInfo.LaunchOption == null)
             {
-                Id = id
-            };
-            context.Attach(entity);
-            entity.BackgroundImageUrl = backgroundImage;
-            context.Entry(entity).Property(x => x.BackgroundImageUrl).IsModified = true;
-            return Task.FromResult(entity);
-        }
+                // set to 0 to indicate it's a new launch option
+                launchOption.Id = 0;
+                EntityEntry<LaunchOption> optionEntry = context.LaunchOptions.Add(launchOption);
+                gameInfo.LaunchOption = optionEntry.Entity;
+                return Task.CompletedTask;
+            }
 
-        public async Task<GameInfo?> RemoveScreenshotAsync(int id, string url)
-        {
-            GameInfo? entity = await context.GameInfos.FindAsync(id);
-            if (entity == null)
-                return null;
-            entity.ScreenShots.RemoveAll(x => x == url);
-            return entity;
-        }
-
-        public async Task<GameInfo?> AddScreenshotsAsync(int id, List<string> urls)
-        {
-            GameInfo? entity = await context.GameInfos.FindAsync(id);
-            if (entity == null)
-                return null;
-            entity.ScreenShots.AddRange(urls);
-            entity.ScreenShots = entity.ScreenShots.Distinct().ToList();
-            context.GameInfos.Update(entity);
-            return entity;
+            launchOption.Id = gameInfo.LaunchOption.Id;
+            context.Entry(gameInfo.LaunchOption).CurrentValues.SetValues(launchOption);
+            context.Entry(gameInfo.LaunchOption).State = EntityState.Modified;
+            return Task.CompletedTask;
         }
 
         public Task<int> CountAsync(Expression<Func<GameInfo, bool>> queryExpression)
@@ -423,40 +252,73 @@ namespace GameManager.Database
             return context.GameInfos.CountAsync(queryExpression);
         }
 
-        public Task<IQueryable<string>> GetUniqueIdCollectionAsync(
-            Expression<Func<GameInfo, bool>> queryExpression,
-            int start, int count)
+        public Task<IEnumerable<GameInfo>> GetManyAsync(Expression<Func<GameInfo, bool>> query,
+            Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeFunc = null)
         {
-            IQueryable<string> queryable = context.GameInfos
-                .AsNoTracking()
-                .Where(queryExpression)
-                .OrderBy(x => x.Id)
-                .Select(x => x.GameUniqueId)
-                .Skip(start)
-                .Take(count);
-            return Task.FromResult(queryable);
+            IQueryable<GameInfo> queryable = context.GameInfos
+                .AsNoTracking();
+            queryable = queryable.Where(query);
+            if (includeFunc != null)
+                queryable = includeFunc(queryable);
+            queryable = queryable.OrderByDescending(x => x.UploadTime);
+            return Task.FromResult(queryable.AsEnumerable());
         }
 
-        public async Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
-            SortOrder order = SortOrder.UPLOAD_TIME)
+        public Task<IEnumerable<TEntity>> GetManyAsync<TEntity>(Expression<Func<GameInfo, bool>> query,
+            Func<IQueryable<GameInfo>, IQueryable<GameInfo>> includeFunc,
+            Func<IQueryable<GameInfo>, IEnumerable<TEntity>> selectFunc)
         {
-            IOrderedQueryable<GameInfo> queryable;
-            if (order == SortOrder.UPLOAD_TIME)
-            {
-                queryable = context.GameInfos
-                    .AsNoTracking()
-                    .Include(info => info.LaunchOption)
-                    .OrderByDescending(x => x.UploadTime);
-                await queryable.ForEachAsync(action, cancellationToken);
-            }
-            else
-            {
-                queryable = context.GameInfos
-                    .AsNoTracking()
-                    .Include(info => info.LaunchOption)
-                    .OrderBy(x => x.GameName);
-                await queryable.ForEachAsync(action, cancellationToken);
-            }
+            IQueryable<GameInfo> queryable = context.GameInfos
+                .AsNoTracking();
+            queryable = queryable.Where(query);
+            queryable = includeFunc(queryable);
+            queryable = queryable.OrderByDescending(x => x.UploadTime);
+            return Task.FromResult(selectFunc(queryable));
+        }
+
+        public Task<GameInfo?> GetAsync(Expression<Func<GameInfo, bool>> query,
+            Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeFunc = null)
+        {
+            IQueryable<GameInfo> queryable = context.GameInfos
+                .AsNoTracking();
+            queryable = queryable.Where(query);
+            if (includeFunc != null)
+                queryable = includeFunc(queryable);
+            return queryable.FirstOrDefaultAsync();
+        }
+
+        public Task<TEntity?> GetAsync<TEntity>(Expression<Func<GameInfo, bool>> query,
+            Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeFunc,
+            Func<IQueryable<GameInfo>, IQueryable<TEntity>> selectFunc)
+        {
+            IQueryable<GameInfo> queryable = context.GameInfos
+                .AsNoTracking();
+            queryable = queryable.Where(query);
+            if (includeFunc != null)
+                queryable = includeFunc(queryable);
+            return Task.FromResult(selectFunc(queryable).FirstOrDefault());
+        }
+
+        public Task<GameInfo?> GetAsync(int id, Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeFunc = null)
+        {
+            IQueryable<GameInfo> queryable = context.GameInfos
+                .AsNoTracking();
+            queryable = queryable.Where(x => x.Id == id);
+            if (includeFunc != null)
+                queryable = includeFunc(queryable);
+            return queryable.FirstOrDefaultAsync();
+        }
+
+        public Task<TEntity?> GetAsync<TEntity>(int id,
+            Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeFunc,
+            Func<IQueryable<GameInfo>, IQueryable<TEntity>> selectFunc)
+        {
+            IQueryable<GameInfo> queryable = context.GameInfos
+                .AsNoTracking();
+            queryable = queryable.Where(x => x.Id == id);
+            if (includeFunc != null)
+                queryable = includeFunc(queryable);
+            return Task.FromResult(selectFunc(queryable).FirstOrDefault());
         }
     }
 }

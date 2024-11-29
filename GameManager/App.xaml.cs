@@ -55,7 +55,7 @@ namespace GameManager
 
             ServiceProvider = serviceProvider;
             IConfigService configService = serviceProvider.GetRequiredService<IConfigService>();
-            string locale = configService.GetAppSetting().Localization ?? "zh-tw";
+            string locale = configService.GetAppSettingDTO().Localization ?? "zh-tw";
             Thread.CurrentThread.CurrentCulture =
                 new CultureInfo(locale);
             Thread.CurrentThread.CurrentUICulture =

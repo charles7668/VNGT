@@ -1,70 +1,26 @@
 ﻿using GameManager.DB.Models;
-using GameManager.Enums;
-using System.Linq.Expressions;
+using JetBrains.Annotations;
 
 namespace GameManager.Database
 {
-    public interface IGameInfoRepository
+    public interface IGameInfoRepository : IBaseRepository<GameInfo>
     {
-        Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
-            SortOrder order = SortOrder.UPLOAD_TIME);
+        [UsedImplicitly]
+        Task UpdateStaffsAsync(GameInfo entity, List<Staff> staffs);
 
-        Task<List<GameInfo>> GetGameInfos(SortOrder order = SortOrder.UPLOAD_TIME);
+        [UsedImplicitly]
+        Task UpdateCharactersAsync(GameInfo entity, List<Character> characters);
 
-        Task<IQueryable<GameInfo>> GetGameInfosIncludeAllAsync(Expression<Func<GameInfo, bool>> query, int start,
-            int count);
+        [UsedImplicitly]
+        Task UpdateReleaseInfosAsync(GameInfo entity, List<ReleaseInfo> releaseInfos);
 
-        Task<List<int>> GetIdCollectionAsync(Expression<Func<GameInfo, bool>> query);
+        [UsedImplicitly]
+        Task UpdateRelatedSitesAsync(GameInfo entity, List<RelatedSite> relatedSites);
 
-        Task<string?> GetCoverById(int id);
+        [UsedImplicitly]
+        Task UpdateTagsAsync(GameInfo entity, List<Tag> tags);
 
-        Task<GameInfo> AddAsync(GameInfo info);
-
-        Task<GameInfo?> GetAsync(Expression<Func<GameInfo, bool>> query);
-
-        Task<GameInfo?> GetAsync(int id, bool includeAll = false);
-
-        Task<bool> AnyAsync(Expression<Func<GameInfo, bool>> query);
-
-        Task EditAsync(GameInfo info);
-
-        Task<GameInfo?> DeleteByIdAsync(int id);
-
-        Task<bool> CheckExePathExist(string path);
-
-        Task UpdateLastPlayedByIdAsync(int id, DateTime time);
-
-        Task UpdatePlayTimeAsync(int id, double minutesToAdd);
-
-        Task<IEnumerable<Tag>> GetTagsByIdAsync(int id);
-
-        Task UpdateStaffsAsync(Expression<Func<GameInfo, bool>> query, List<Staff> staffs);
-
-        Task UpdateCharactersAsync(Expression<Func<GameInfo, bool>> query, List<Character> characters);
-
-        Task UpdateReleaseInfosAsync(Expression<Func<GameInfo, bool>> query, List<ReleaseInfo> releaseInfos);
-
-        Task UpdateRelatedSitesAsync(Expression<Func<GameInfo, bool>> query, List<RelatedSite> relatedSites);
-
-        Task UpdateTagsAsync(Expression<Func<GameInfo, bool>> query, List<Tag> tags);
-
-        Task<IEnumerable<Staff>> GetStaffsAsync(Expression<Func<GameInfo, bool>> query);
-
-        Task<IEnumerable<Character>> GetCharactersAsync(Expression<Func<GameInfo, bool>> query);
-
-        Task<List<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query);
-
-        Task<IEnumerable<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query);
-
-        Task<GameInfo> UpdateBackgroundImageAsync(int id, string? backgroundImage);
-
-        Task<GameInfo?> RemoveScreenshotAsync(int id, string url);
-
-        Task<GameInfo?> AddScreenshotsAsync(int id, List<string> urls);
-        
-        Task<int> CountAsync(Expression<Func<GameInfo, bool>> queryExpression);
-        
-        Task<IQueryable<string>> GetUniqueIdCollectionAsync(Expression<Func<GameInfo, bool>> queryExpression, int start,
-            int count);
+        [UsedImplicitly]
+        Task UpdateLaunchOption(GameInfo entity, LaunchOption launchOption);
     }
 }

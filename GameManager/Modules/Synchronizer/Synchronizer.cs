@@ -4,6 +4,7 @@ using GameManager.Modules.SecurityProvider;
 using GameManager.Modules.Synchronizer.Drivers;
 using GameManager.Services;
 using Helper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text;
@@ -37,14 +38,7 @@ namespace GameManager.Modules.Synchronizer
             string bodyString = JsonSerializer.Serialize(appSettingDto);
             DateTime syncTime = await CompareAndSync(BuildPath("appSetting.json"), BuildPath(TIME_FILE_NAME),
                 bodyString,
-                remoteTime =>
-                {
-                    if (remoteTime > appSettingDto.UpdatedTime)
-                        return TimeComparison.REMOTE_IS_NEWER;
-                    return remoteTime < appSettingDto.UpdatedTime
-                        ? TimeComparison.LOCAL_IS_NEWER
-                        : TimeComparison.SAME;
-                }, downloadContent =>
+                remoteTime => CompareTime(appSettingDto.UpdatedTime, remoteTime), downloadContent =>
                 {
                     AppSettingDTO? tempDownloadDto =
                         JsonSerializer.Deserialize<AppSettingDTO>(Encoding.UTF8.GetString(downloadContent));
@@ -112,6 +106,11 @@ namespace GameManager.Modules.Synchronizer
                     tempDownloadDto.GameUniqueId = dto.GameUniqueId;
                     resultDto = tempDownloadDto;
                 }, cancellationToken).ConfigureAwait(false);
+            if (CompareTime(resultDto.UpdatedTime, lastedTime) == TimeComparison.SAME)
+            {
+                return;
+            }
+
             resultDto.UpdatedTime = lastedTime;
             await configService.UpdateGameInfoAsync(resultDto);
             List<string> remoteSaveFiles = [];
@@ -209,7 +208,8 @@ namespace GameManager.Modules.Synchronizer
                 var syncIds = ids.Take(takeCountAtOnce).ToList();
                 ids = ids.Skip(takeCountAtOnce).ToList();
                 // update exist game
-                List<GameInfoDTO> dtos = await configService.GetGameInfoDTOsAsync(syncIds, 0, takeCountAtOnce);
+                List<GameInfoDTO> dtos = await configService.GetGameInfoIncludeAllDTOsAsync(syncIds, 0,
+                    takeCountAtOnce).ConfigureAwait(false);
                 foreach (GameInfoDTO dto in dtos)
                 {
                     try
@@ -353,6 +353,10 @@ namespace GameManager.Modules.Synchronizer
                 {
                     throw;
                 }
+                catch (FileNotFoundException)
+                {
+                    deletedList.Add(deletion);
+                }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Failed to remove deleted game info {UniqueId}", deletion.GameUniqueId);
@@ -426,7 +430,7 @@ namespace GameManager.Modules.Synchronizer
                         }
                     case TimeComparison.SAME:
                         logger.LogInformation("Local and remote file are the same, no need to sync");
-                        return remoteFile.ModifiedTime;
+                        return remoteTime;
                     default:
                         throw new InvalidDataException();
                 }

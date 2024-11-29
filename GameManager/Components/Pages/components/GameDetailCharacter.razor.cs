@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -8,7 +9,7 @@ namespace GameManager.Components.Pages.components
     {
         [Parameter]
         [EditorRequired]
-        public GameInfo GameInfo { get; set; } = null!;
+        public GameInfoDTO GameInfo { get; set; } = null!;
 
         [Inject]
         private IImageService ImageService { get; set; } = null!;
@@ -31,7 +32,7 @@ namespace GameManager.Components.Pages.components
             {
                 LoadingTask = Task.Run(() =>
                 {
-                    List<Character> characters = GameInfo.Characters;
+                    List<CharacterDTO> characters = GameInfo.Characters;
                     GameInfoVo.Characters = characters.Select(x => new CharacterViewModel(ImageService)
                     {
                         Name = x.OriginalName ?? x.Name ?? "Unknown",

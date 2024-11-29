@@ -9,21 +9,22 @@ namespace GameManager.Services
     {
         Task<string> AddCoverImage(string srcFile);
 
-        Task AddGameInfoAsync(GameInfo info, bool generateUniqueId = true);
+        Task<GameInfoDTO> AddGameInfoAsync(GameInfoDTO dto, bool generateUniqueId = true);
 
-        Task AddGameInfoAsync(GameInfoDTO dto, bool generateUniqueId = true);
-
-        Task<GameInfo?> GetGameInfoAsync(Expression<Func<GameInfo, bool>> queryExpression);
+        Task<GameInfoDTO?> GetGameInfoDTOAsync(Expression<Func<GameInfo, bool>> queryExpression,
+            Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeQuery = null);
 
         Task<GameInfoDTO?> GetGameInfoDTOAsync(int id);
 
         Task<List<int>> GetGameInfoIdCollectionAsync(Expression<Func<GameInfo, bool>> queryExpression);
 
-        Task<List<GameInfoDTO>> GetGameInfoDTOsAsync(List<int> ids, int start, int count);
+        Task<List<GameInfoDTO>> GetGameInfoDTOsAsync(List<int> ids, int start, int count , Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeFunc = null);
 
-        Task UpdateGameInfoAsync(GameInfoDTO dto);
+        Task<List<GameInfoDTO>> GetGameInfoIncludeAllDTOsAsync(List<int> ids, int start, int count);
 
-        Task AddLibraryAsync(Library library);
+        Task<GameInfoDTO> UpdateGameInfoAsync(GameInfoDTO dto);
+
+        Task AddLibraryAsync(LibraryDTO library);
 
         Task<bool> CheckExePathExist(string path);
 
@@ -38,8 +39,6 @@ namespace GameManager.Services
 
         Task DeleteLibraryByIdAsync(int id);
 
-        Task<GameInfo> EditGameInfo(GameInfo info);
-
         Task<bool> HasGameInfo(Expression<Func<GameInfo, bool>> queryExpression);
 
         Task<List<string>> GetUniqueIdCollection(Expression<Func<GameInfo, bool>> queryExpression, int start,
@@ -48,29 +47,24 @@ namespace GameManager.Services
         Task<int> GetGameInfoCountAsync(Expression<Func<GameInfo, bool>> queryExpression);
 
         Task UpdateGameInfoFavoriteAsync(int id, bool isFavorite);
-        
-        Task UpdateGameInfoSyncStatusAsync(List<int> ids, bool isSyncEnable);
 
-        AppSetting GetAppSetting();
+        Task UpdateGameInfoSyncStatusAsync(List<int> ids, bool isSyncEnable);
 
         AppSettingDTO GetAppSettingDTO();
 
         Task<string?> GetCoverFullPath(string? coverName);
 
-        Task GetGameInfoForEachAsync(Action<GameInfo> action, CancellationToken cancellationToken,
-            SortOrder order = SortOrder.UPLOAD_TIME);
+        Task GetGameInfoForEachAsync(Action<GameInfoDTO> action, CancellationToken cancellationToken);
 
         Task<List<string>> GetGameTagsAsync(int gameId);
 
-        Task<List<Library>> GetLibrariesAsync(CancellationToken cancellationToken);
+        Task<List<LibraryDTO>> GetLibrariesAsync(CancellationToken cancellationToken);
 
         Task<List<string>> GetTagsAsync();
 
         Task ReplaceCoverImage(string? srcFile, string? coverName);
 
-        Task<TextMapping?> SearchTextMappingByOriginalText(string original);
-
-        Task UpdateAppSettingAsync(AppSetting setting);
+        Task<TextMappingDTO?> SearchTextMappingByOriginalText(string original);
 
         Task UpdateAppSettingAsync(AppSettingDTO settingDto);
 
@@ -84,17 +78,17 @@ namespace GameManager.Services
 
         Task UpdateGameInfoBackgroundImageAsync(int gameInfoId, string? backgroundImage);
 
-        Task<IEnumerable<StaffRole>> GetStaffRolesAsync();
+        Task<IEnumerable<StaffRoleDTO>> GetStaffRolesAsync();
 
-        Task<Staff?> GetStaffAsync(Expression<Func<Staff, bool>> query);
+        Task<StaffDTO?> GetStaffAsync(Expression<Func<Staff, bool>> query);
 
-        Task<List<Staff>> GetGameInfoStaffs(Expression<Func<GameInfo, bool>> query);
+        Task<List<StaffDTO>> GetGameInfoStaffDTOs(Expression<Func<GameInfo, bool>> query);
 
-        Task<List<Character>> GetGameInfoCharacters(Expression<Func<GameInfo, bool>> query);
+        Task<List<CharacterDTO>> GetGameInfoCharacters(Expression<Func<GameInfo, bool>> query);
 
-        Task<List<ReleaseInfo>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query);
+        Task<List<ReleaseInfoDTO>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query);
 
-        Task<List<RelatedSite>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query);
+        Task<List<RelatedSiteDTO>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query);
 
         Task RemoveScreenshotAsync(int gameInfoId, string url);
 

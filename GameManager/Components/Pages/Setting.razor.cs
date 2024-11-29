@@ -1,5 +1,6 @@
 ﻿using GameManager.Components.Pages.components;
 using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Models;
 using GameManager.Modules.SecurityProvider;
 using GameManager.Modules.TaskManager;
@@ -18,7 +19,7 @@ namespace GameManager.Components.Pages
         private int _selectedTextMappingRowNumber = -1;
         private bool _syncSettingChange;
 
-        private AppSetting AppSetting { get; set; } = null!;
+        private AppSettingDTO AppSetting { get; set; } = null!;
 
         [Inject]
         private IDialogService DialogService { get; set; } = null!;
@@ -38,19 +39,19 @@ namespace GameManager.Components.Pages
         [Inject]
         private ISecurityProvider SecurityProvider { get; set; } = null!;
 
-        private MudTable<GuideSite> GuideSiteTable { get; set; } = null!;
+        private MudTable<GuideSiteDTO> GuideSiteTable { get; set; } = null!;
 
-        private MudTable<TextMapping> TextMappingTable { get; set; } = null!;
+        private MudTable<TextMappingDTO> TextMappingTable { get; set; } = null!;
 
-        private List<GuideSite> GuideSites { get; set; } = null!;
+        private List<GuideSiteDTO> GuideSites { get; set; } = null!;
 
-        private List<TextMapping> TextMappings { get; set; } = null!;
+        private List<TextMappingDTO> TextMappings { get; set; } = null!;
 
         private string _displayWebdavPassword = null!;
 
         protected override void OnInitialized()
         {
-            AppSetting = ConfigService.GetAppSetting();
+            AppSetting = ConfigService.GetAppSettingDTO();
             GuideSites = AppSetting.GuideSites.ToList();
             TextMappings = AppSetting.TextMappings.ToList();
             _displayWebdavPassword = SecurityProvider.DecryptAsync(AppSetting.WebDAVPassword ?? "").Result;
@@ -176,7 +177,7 @@ namespace GameManager.Components.Pages
                 return;
             }
 
-            var guideSite = new GuideSite
+            var guideSite = new GuideSiteDTO
             {
                 Name = inputModel[0].Value,
                 SiteUrl = inputModel[1].Value
@@ -193,7 +194,7 @@ namespace GameManager.Components.Pages
             return Task.CompletedTask;
         }
 
-        private string OnSelectedRowClassFunc(GuideSite guideSite, int rowNumber)
+        private string OnSelectedRowClassFunc(GuideSiteDTO guideSite, int rowNumber)
         {
             if (_selectedRowNumber == rowNumber)
             {
@@ -250,7 +251,7 @@ namespace GameManager.Components.Pages
                 return;
             }
 
-            var textMapping = new TextMapping
+            var textMapping = new TextMappingDTO
             {
                 Original = inputModel[0].Value,
                 Replace = inputModel[1].Value
@@ -267,7 +268,7 @@ namespace GameManager.Components.Pages
             return Task.CompletedTask;
         }
 
-        private string OnTextMappingsSelectedRowClassFunc(TextMapping textMapping, int rowNumber)
+        private string OnTextMappingsSelectedRowClassFunc(TextMappingDTO textMapping, int rowNumber)
         {
             if (_selectedTextMappingRowNumber == rowNumber)
             {

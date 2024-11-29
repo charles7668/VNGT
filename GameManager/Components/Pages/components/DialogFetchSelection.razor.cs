@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.GameInfoProvider;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -24,7 +25,7 @@ namespace GameManager.Components.Pages.components
         private IDialogService DialogService { get; set; } = null!;
 
         [Parameter]
-        public List<GameInfo>? DisplayInfos { get; set; } = new();
+        public List<GameInfoDTO>? DisplayInfos { get; set; } = new();
 
         [Parameter]
         public bool HasMore { get; set; }
@@ -41,7 +42,7 @@ namespace GameManager.Components.Pages.components
             try
             {
                 int newPage = _page + direction;
-                (List<GameInfo>? infoList, bool hasMore) =
+                (List<GameInfoDTO>? infoList, bool hasMore) =
                     await GameInfoProviderFactory.GetProvider(ProviderName)!.FetchGameSearchListAsync(SearchName, 10,
                         newPage);
                 if (infoList == null)

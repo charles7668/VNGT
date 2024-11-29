@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.GameInfoProvider;
 using GameManager.Properties;
 using GameManager.Services;
@@ -18,7 +19,7 @@ namespace GameManager.Components.Pages.components
 
         [Parameter]
         [EditorRequired]
-        public GameInfo GameInfo { get; set; } = null!;
+        public GameInfoDTO GameInfo { get; set; } = null!;
 
         private ViewModel GameInfoVo { get; } = new();
 
@@ -186,7 +187,7 @@ namespace GameManager.Components.Pages.components
                         return;
                     }
 
-                    (List<GameInfo>? infoList, bool hasMore) =
+                    (List<GameInfoDTO>? infoList, bool hasMore) =
                         await provider.FetchGameSearchListAsync(searchText, 10, 1);
 
                     if (cancellationToken.IsCancellationRequested)
@@ -214,7 +215,7 @@ namespace GameManager.Components.Pages.components
                     if (gameId == null)
                         throw new FileNotFoundException("Game ID not found");
 
-                    GameInfo? info = await provider.FetchGameDetailByIdAsync(gameId);
+                    GameInfoDTO? info = await provider.FetchGameDetailByIdAsync(gameId);
                     if (info == null)
                         return;
                     if (cancellationToken.IsCancellationRequested)

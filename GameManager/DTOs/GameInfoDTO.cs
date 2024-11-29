@@ -83,6 +83,9 @@ namespace GameManager.DTOs
         [UsedImplicitly]
         public bool EnableSync { get; set; }
 
+        [UsedImplicitly]
+        public double PlayTime { get; set; }
+
         public GameInfo Convert()
         {
             return new GameInfo
@@ -112,7 +115,8 @@ namespace GameManager.DTOs
                 ScreenShots = ScreenShots,
                 BackgroundImageUrl = BackgroundImageUrl,
                 UpdatedTime = UpdatedTime,
-                EnableSync = EnableSync
+                EnableSync = EnableSync,
+                PlayTime = PlayTime
             };
         }
 
@@ -145,7 +149,8 @@ namespace GameManager.DTOs
                 ScreenShots = gameInfo.ScreenShots,
                 BackgroundImageUrl = gameInfo.BackgroundImageUrl,
                 UpdatedTime = gameInfo.UpdatedTime,
-                EnableSync = gameInfo.EnableSync
+                EnableSync = gameInfo.EnableSync,
+                PlayTime = gameInfo.PlayTime
             };
         }
     }

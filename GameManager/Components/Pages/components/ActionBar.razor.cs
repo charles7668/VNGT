@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Enums;
 using GameManager.Extractor;
 using GameManager.Models;
@@ -102,7 +103,7 @@ namespace GameManager.Components.Pages.components
                 return;
             }
 
-            AppSetting appSetting = ConfigService.GetAppSetting();
+            AppSettingDTO appSetting = ConfigService.GetAppSettingDTO();
             string? lePath = appSetting.LocaleEmulatorPath;
             string leExePath = string.IsNullOrEmpty(lePath) ? "" : Path.Combine(lePath, "LEProc.exe");
             string guid = "";

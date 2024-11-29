@@ -8,7 +8,7 @@ namespace GameManager.Database
 {
     internal class AppSettingRepository(AppDbContext dbContext) : IAppSettingRepository
     {
-        public async Task<AppSetting> GetAppSettingAsync()
+        public async Task<AppSetting> GetAsync()
         {
             AppSetting? appSetting = await dbContext.AppSettings
                 .AsNoTracking()
@@ -25,7 +25,7 @@ namespace GameManager.Database
             return appSetting;
         }
 
-        public async Task UpdateAppSettingAsync(AppSetting appSetting)
+        public async Task UpdateAsync(AppSetting appSetting)
         {
             AppSetting? entity = dbContext.AppSettings
                 .Include(x => x.GuideSites)
@@ -57,7 +57,7 @@ namespace GameManager.Database
 
         public async Task<TextMapping?> SearchTextMappingByOriginalText(string original)
         {
-            AppSetting appSetting = await GetAppSettingAsync();
+            AppSetting appSetting = await GetAsync();
             return await dbContext.TextMappings
                 .Where(x => x.Original == original)
                 .FirstOrDefaultAsync(x => x.AppSettingId == appSetting.Id);

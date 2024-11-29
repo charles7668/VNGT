@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Models;
 using GameManager.Modules.ToolInfo;
 using GameManager.Services;
@@ -52,7 +53,7 @@ namespace GameManager.Components.Pages
                     }
 
                     IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
-                    AppSetting appSetting = configService.GetAppSetting();
+                    AppSettingDTO appSetting = configService.GetAppSettingDTO();
                     if (!string.IsNullOrWhiteSpace(appSetting.LocaleEmulatorPath))
                     {
                         string configLeExePath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEProc.exe");

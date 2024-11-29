@@ -4,9 +4,9 @@ namespace GameManager.Database
 {
     public interface IAppSettingRepository
     {
-        Task<AppSetting> GetAppSettingAsync();
+        Task<AppSetting> GetAsync();
 
-        Task UpdateAppSettingAsync(AppSetting appSetting);
+        Task UpdateAsync(AppSetting appSetting);
 
         Task<TextMapping?> SearchTextMappingByOriginalText(string original);
     }

@@ -1,4 +1,5 @@
-﻿<div id="game-detail-page">
+﻿@using GameManager.DTOs
+<div id="game-detail-page">
     @if (IsLoading)
     {
         <div class="justify-center align-center d-flex">
@@ -86,7 +87,7 @@
                                             </MudMenuItem>
                                         </ActivatorContent>
                                         <ChildContent>
-                                            @foreach (GuideSite guideSite in GuideSites)
+                                            @foreach (GuideSiteDTO guideSite in GuideSites)
                                             {
                                                 <MudMenuItem Class="icon-menu-item"
                                                              OnClick="() => OnGuideSearchClick(guideSite)">

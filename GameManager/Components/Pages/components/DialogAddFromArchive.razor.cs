@@ -1,4 +1,5 @@
-﻿using GameManager.Services;
+﻿using GameManager.DTOs;
+using GameManager.Services;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -12,7 +13,7 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;
 
-        private IList<DB.Models.Library> Libraries { get; set; } = new List<DB.Models.Library>();
+        private IList<LibraryDTO> Libraries { get; set; } = new List<LibraryDTO>();
 
         [Inject]
         private IDialogService DialogService { get; set; } = null!;

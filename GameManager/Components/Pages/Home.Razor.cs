@@ -1,5 +1,6 @@
 ﻿using GameManager.Components.Pages.components;
 using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Enums;
 using GameManager.Modules.TaskManager;
 using GameManager.Properties;
@@ -130,7 +131,7 @@ namespace GameManager.Components.Pages
                 return;
             if (dialogResult.Data is not DialogGameInfoEdit.FormModel resultModel)
                 return;
-            var gameInfo = new GameInfo();
+            var gameInfo = new GameInfoDTO();
             IsLoading = true;
             await InvokeAsync(StateHasChanged);
             Debug.Assert(ConfigService != null);
@@ -154,7 +155,7 @@ namespace GameManager.Components.Pages
             DataMapService.Map(resultModel, gameInfo);
             try
             {
-                await ConfigService.AddGameInfoAsync(gameInfo);
+                gameInfo = await ConfigService.AddGameInfoAsync(gameInfo);
             }
             catch (Exception e)
             {
@@ -211,13 +212,15 @@ namespace GameManager.Components.Pages
         private async Task OnDeleteGameCard(int id)
         {
             Logger.LogInformation("Delete game card with id {Id}", id);
-            await ExceptionHelper.ExecuteWithExceptionHandlingAsync(() =>
-                ShowConfirmDialogAsync(Resources.Messeage_DeleteCheck), ex =>
+            try
             {
-                if (ex is not TaskCanceledException)
-                    throw ex;
-                return Task.CompletedTask;
-            });
+                await ShowConfirmDialogAsync(Resources.Messeage_DeleteCheck);
+            }
+            catch (TaskCanceledException)
+            {
+                return;
+            }
+            
             ViewInfo? item = ViewGameInfos.Find(x => x.Info.Id == id);
             if (item == null)
                 return;
@@ -288,17 +291,15 @@ namespace GameManager.Components.Pages
         private async Task OnDelete()
         {
             Logger.LogInformation("Bulk Delete button clicked");
-            bool isCancel = false;
-            await ExceptionHelper.ExecuteWithExceptionHandlingAsync(() =>
-                ShowConfirmDialogAsync(Resources.Messeage_DeleteCheck), ex =>
+            try
             {
-                if (ex is not TaskCanceledException)
-                    throw ex;
-                isCancel = true;
-                return Task.CompletedTask;
-            });
-            if (isCancel)
+                await ShowConfirmDialogAsync(Resources.Messeage_DeleteCheck);
+            }
+            catch (TaskCanceledException)
+            {
                 return;
+            }
+            
             IsDeleting = true;
             await InvokeAsync(StateHasChanged);
             await ExceptionHelper.ExecuteWithExceptionHandlingAsync(async () =>
@@ -515,7 +516,7 @@ namespace GameManager.Components.Pages
 
         private class ViewInfo
         {
-            public GameInfo Info { get; init; } = null!;
+            public GameInfoDTO Info { get; init; } = null!;
 
             public bool Display { get; set; }
 
@@ -524,11 +525,27 @@ namespace GameManager.Components.Pages
 
         #region Lifecycle
 
-        protected override async Task OnInitializedAsync()
+        protected override Task OnInitializedAsync()
         {
             try
             {
-                AppSetting appSetting = ConfigService.GetAppSetting();
+                return base.OnInitializedAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error occurred when initializing Home page : {Exception}", ex.ToString());
+                throw;
+            }
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            try
+            {
+                await base.OnAfterRenderAsync(firstRender);
+                if (!firstRender)
+                    return;
+                AppSettingDTO appSetting = ConfigService.GetAppSettingDTO();
                 if (appSetting.EnableSync)
                 {
                     _ = TaskManager.StartBackgroundIntervalTask(App.SyncTaskJobName, () => TaskExecutor.SyncTask(),
@@ -562,7 +579,7 @@ namespace GameManager.Components.Pages
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error occurred when initializing Home page : {Exception}", ex.ToString());
+                Logger.LogError(ex, "Error occurred when rendering Home page : {Exception}", ex.ToString());
                 throw;
             }
         }

@@ -1,4 +1,4 @@
-﻿using GameManager.DB.Models;
+﻿using GameManager.DTOs;
 using GameManager.Models;
 using GameManager.Properties;
 using GameManager.Services;
@@ -10,7 +10,7 @@ using System.Xml.XPath;
 
 namespace GameManager.Modules.LaunchProgramStrategies
 {
-    public class LaunchWithSandboxie(GameInfo gameInfo, Action<int>? tryLaunchVNGTTranslator) : IStrategy
+    public class LaunchWithSandboxie(GameInfoDTO gameInfo, Action<int>? tryLaunchVNGTTranslator) : IStrategy
     {
         public async Task<int> ExecuteAsync()
         {
@@ -22,7 +22,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
             string executionFile = Path.Combine(gameInfo.ExePath, gameInfo.ExeFile);
 
             IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
-            AppSetting appSetting = configService.GetAppSetting();
+            AppSettingDTO appSetting = configService.GetAppSettingDTO();
 
             string? sandboxiePath = Path.GetDirectoryName(appSetting.SandboxiePath);
             if (string.IsNullOrEmpty(sandboxiePath))
@@ -32,7 +32,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
             if (!File.Exists(sandboxieFilePath))
                 throw new Exception("Sandboxie Start.exe not found");
 
-            int resultPid = -1;
+            int resultPid;
             var processesBeforeStart = SandboxieHelper.GetSandboxieProcesses(sandboxieFilePath, sandboxieBoxName)
                 .Select(x => x.Id).ToHashSet();
 
@@ -62,6 +62,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
 
                 var proc = new Process();
                 proc.StartInfo.FileName = sandboxieFilePath;
+                proc.StartInfo.WorkingDirectory = gameInfo.ExePath;
                 proc.StartInfo.Arguments =
                     $"/Box:{sandboxieBoxName} {elevate} {leExePath} -runas \"{guid}\" \"{executionFile}\"";
                 proc.StartInfo.UseShellExecute = false;
@@ -73,6 +74,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
                 string elevate = gameInfo.LaunchOption?.RunAsAdmin ?? false ? "/elevate" : "";
                 var proc = new Process();
                 proc.StartInfo.FileName = sandboxieFilePath;
+                proc.StartInfo.WorkingDirectory = gameInfo.ExePath;
                 proc.StartInfo.Arguments = $"/Box:{sandboxieBoxName} {elevate} \"{executionFile}\"";
                 proc.StartInfo.UseShellExecute = false;
                 proc.Start();

@@ -3,28 +3,38 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameManager.Database
 {
-    public class UnitOfWork(AppDbContext context) : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
-        public AppDbContext Context { get; } = context;
+        public UnitOfWork(IDbContextFactory<AppDbContext> context)
+        {
+            Context = context.CreateDbContext();
+            GameInfoRepository = new GameInfoRepository(Context);
+            StaffRoleRepository = new StaffRoleRepository(Context);
+            StaffRepository = new StaffRepository(Context);
+            LibraryRepository = new LibraryRepository(Context);
+            AppSettingRepository = new AppSettingRepository(Context);
+            TagRepository = new TagRepository(Context);
+            GameInfoTagRepository = new GameInfoTagRepository(Context);
+            PendingGameInfoDeletionRepository = new PendingGameInfoDeletionRepository(Context);
+        }
 
-        public IGameInfoRepository GameInfoRepository { get; } = new GameInfoRepository(context);
+        public AppDbContext Context { get; }
 
-        public IStaffRoleRepository StaffRoleRepository { get; } = new StaffRoleRepository(context);
+        public IGameInfoRepository GameInfoRepository { get; }
 
-        public IStaffRepository StaffRepository { get; } = new StaffRepository(context);
+        public IStaffRoleRepository StaffRoleRepository { get; }
 
-        public ILibraryRepository LibraryRepository { get; } = new LibraryRepository(context);
+        public IStaffRepository StaffRepository { get; }
 
-        public IAppSettingRepository AppSettingRepository { get; } = new AppSettingRepository(context);
+        public ILibraryRepository LibraryRepository { get; }
 
-        public ITagRepository TagRepository { get; } = new TagRepository(context);
+        public IAppSettingRepository AppSettingRepository { get; }
 
-        public IGameInfoTagRepository GameInfoTagRepository { get; } = new GameInfoTagRepository(context);
+        public ITagRepository TagRepository { get; }
 
-        public ILaunchOptionRepository LaunchOptionRepository { get; } = new LaunchOptionRepository(context);
+        public IGameInfoTagRepository GameInfoTagRepository { get; }
 
-        public IPendingGameInfoDeletionRepository PendingGameInfoDeletionRepository { get; } =
-            new PendingGameInfoDeletionRepository(context);
+        public IPendingGameInfoDeletionRepository PendingGameInfoDeletionRepository { get; }
 
         public Task<int> SaveChangesAsync()
         {

@@ -1,4 +1,5 @@
-﻿<MudDialog>
+﻿@using GameManager.DTOs
+<MudDialog>
     <DialogContent>
         <MudForm @bind-IsValid="IsInputValid" @bind-Errors="Errors" @ref="FormInstance">
             <div>
@@ -11,7 +12,7 @@
                                AnchorOrigin="Origin.BottomCenter"
                                @bind-Value="Result.TargetLibrary"
                                Label="Select Library">
-                        @foreach (Library library in Libraries)
+                        @foreach (LibraryDTO library in Libraries)
                         {
                             <MudSelectItem Value="@library.FolderPath">@library.FolderPath</MudSelectItem>
                         }

@@ -35,7 +35,7 @@ namespace GameManager.Modules.SaveDataManager
             return Task.FromResult(files.ToList());
         }
 
-        public Task<Result<string>> BackupSaveFileAsync(GameInfo gameInfo)
+        public Task<Result<string>> BackupSaveFileAsync(GameInfoDTO gameInfo)
         {
             logger.LogInformation("Start backup save file for Game : {GameName} UniqueId : {UniqueId}",
                 gameInfo.GameName,
@@ -88,7 +88,7 @@ namespace GameManager.Modules.SaveDataManager
             return Task.FromResult(Result<string>.Ok(Path.GetFileNameWithoutExtension(targetPath)));
         }
 
-        public async Task<Result> RestoreSaveFileAsync(GameInfo gameInfo, string backupFileName)
+        public async Task<Result> RestoreSaveFileAsync(GameInfoDTO gameInfo, string backupFileName)
         {
             logger.LogInformation("Start restore save file for Game : {GameName} UniqueId : {UniqueId}",
                 gameInfo.GameName,
@@ -157,7 +157,7 @@ namespace GameManager.Modules.SaveDataManager
             return Result.Ok();
         }
 
-        public Task<Result> DeleteSaveFileAsync(GameInfo gameInfo, string backupFileName)
+        public Task<Result> DeleteSaveFileAsync(GameInfoDTO gameInfo, string backupFileName)
         {
             logger.LogInformation("Start delete save file for Game : {GameName} UniqueId : {UniqueId}",
                 gameInfo.GameName,

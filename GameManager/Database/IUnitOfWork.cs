@@ -20,8 +20,6 @@ namespace GameManager.Database
 
         IGameInfoTagRepository GameInfoTagRepository { get; }
 
-        ILaunchOptionRepository LaunchOptionRepository { get; }
-
         IPendingGameInfoDeletionRepository PendingGameInfoDeletionRepository { get; }
 
         Task<int> SaveChangesAsync();

@@ -1,5 +1,4 @@
 ﻿using GameManager.Components.Pages.components;
-using GameManager.DB.Models;
 using GameManager.DTOs;
 using GameManager.GameInfoProvider;
 using GameManager.Properties;
@@ -11,7 +10,6 @@ using MudBlazor;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
-using DBLibraryModel = GameManager.DB.Models.Library;
 
 namespace GameManager.Components.Pages
 {
@@ -26,7 +24,7 @@ namespace GameManager.Components.Pages
         [Inject]
         private IDialogService DialogService { get; set; } = null!;
 
-        private List<DBLibraryModel> Libraries { get; set; } = [];
+        private List<LibraryDTO> Libraries { get; set; } = [];
 
         private int SelectionIndex { get; set; }
 
@@ -51,7 +49,7 @@ namespace GameManager.Components.Pages
             Libraries = await ConfigService.GetLibrariesAsync(_loadLibraryCancellationTokenSource.Token);
 
             await base.OnInitializedAsync();
-            foreach (DBLibraryModel library in Libraries)
+            foreach (LibraryDTO library in Libraries)
             {
                 if (library.FolderPath == null)
                     continue;
@@ -86,7 +84,7 @@ namespace GameManager.Components.Pages
 
             try
             {
-                await ConfigService.AddLibraryAsync(new DBLibraryModel
+                await ConfigService.AddLibraryAsync(new LibraryDTO
                 {
                     FolderPath = folder.Path
                 });
@@ -97,7 +95,7 @@ namespace GameManager.Components.Pages
                 return;
             }
 
-            Libraries.Add(new DBLibraryModel
+            Libraries.Add(new LibraryDTO
             {
                 FolderPath = folder.Path
             });
@@ -147,7 +145,7 @@ namespace GameManager.Components.Pages
                 IGameInfoProvider provider = GameInfoProviderFactory.GetProvider("VNDB") ??
                                              throw new ArgumentException(
                                                  "Game info provider not found : VNDB");
-                (List<GameInfo>? infoList, bool hasMore) searchList =
+                (List<GameInfoDTO>? infoList, bool hasMore) searchList =
                     await provider.FetchGameSearchListAsync(gameName, 1, 1);
                 if (searchList.infoList?.Count > 0)
                 {
@@ -155,10 +153,10 @@ namespace GameManager.Components.Pages
                     Logger.LogInformation("Scan result id : {Id}", id);
                     if (id != null)
                     {
-                        GameInfo? tempInfo =
+                        GameInfoDTO? tempInfo =
                             await provider.FetchGameDetailByIdAsync(id);
                         Logger.LogInformation("Scan result {@Info}", tempInfo);
-                        return tempInfo == null ? null : GameInfoDTO.Create(tempInfo);
+                        return tempInfo;
                     }
                 }
                 else
@@ -260,14 +258,14 @@ namespace GameManager.Components.Pages
                 Logger.LogInformation("Library Scan Start");
                 const int searchLevel = 8;
                 Queue<string> queue = new();
-                foreach (DBLibraryModel library in Libraries)
+                foreach (LibraryDTO library in Libraries)
                 {
                     library.FolderPath ??= "";
                     queue.Enqueue(library.FolderPath);
                 }
 
                 int curLevel = 1;
-                AppSetting appSetting = ConfigService.GetAppSetting();
+                AppSettingDTO appSetting = ConfigService.GetAppSettingDTO();
                 while (queue.Count > 0)
                 {
                     if (curLevel > searchLevel)

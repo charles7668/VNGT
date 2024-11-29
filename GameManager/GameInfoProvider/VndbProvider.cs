@@ -1,5 +1,6 @@
 ﻿using GameManager.DB.Enums;
 using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Services;
 using Helper.Web;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,7 @@ namespace GameManager.GameInfoProvider
 
         public string ProviderName => "VNDB";
 
-        public async Task<(List<GameInfo>? infoList, bool hasMore)> FetchGameSearchListAsync(string searchText,
+        public async Task<(List<GameInfoDTO>? infoList, bool hasMore)> FetchGameSearchListAsync(string searchText,
             int itemPerPage, int pageNum)
         {
             int tryCount = 0;
@@ -35,7 +36,7 @@ namespace GameManager.GameInfoProvider
                 HttpResponseMessage response = await Request(queryString);
                 if (response.IsSuccessStatusCode)
                 {
-                    var gameInfos = new List<GameInfo>();
+                    var gameInfos = new List<GameInfoDTO>();
                     string content = await HttpContentHelper.DecompressContent(response.Content);
 
                     using var document = JsonDocument.Parse(content);
@@ -65,7 +66,7 @@ namespace GameManager.GameInfoProvider
                             }
                         }
                         string? id = item.GetProperty("id").GetString();
-                        gameInfos.Add(new GameInfo
+                        gameInfos.Add(new GameInfoDTO
                         {
                             GameName = title,
                             GameInfoFetchId = id,
@@ -95,7 +96,7 @@ namespace GameManager.GameInfoProvider
             throw new Exception("Failed to fetch data from VNDB");
         }
 
-        public async Task<GameInfo?> FetchGameDetailByIdAsync(string gameId)
+        public async Task<GameInfoDTO?> FetchGameDetailByIdAsync(string gameId)
         {
             int tryCount = 0;
             while (tryCount < 3)
@@ -113,7 +114,7 @@ namespace GameManager.GameInfoProvider
                     bool ok = rootNode.TryGetProperty("results", out JsonElement items);
                     if (!ok)
                         return null;
-                    var gameInfo = new GameInfo();
+                    var gameInfo = new GameInfoDTO();
                     foreach (JsonElement item in items.EnumerateArray())
                     {
                         string? title = null, image = null, id = null, description = null;
@@ -158,13 +159,13 @@ namespace GameManager.GameInfoProvider
 
                         JsonElement staffElements = item.GetProperty("staff");
                         List<StaffModel> fetchStaffList = staffElements.Deserialize<List<StaffModel>>() ?? [];
-                        List<Staff> staffList = await FetchStaffListAsync(fetchStaffList);
+                        List<StaffDTO> staffList = await FetchStaffListAsync(fetchStaffList);
                         gameInfo.Staffs = staffList;
                         var tags = staffList.Where(x => x.StaffRole.Id != StaffRoleEnum.STAFF).Select(x => x.Name)
                             .ToList();
                         tags.AddRange(developerList);
 
-                        List<RelatedSite> relatedSites =
+                        List<RelatedSiteDTO> relatedSites =
                         [
                             new()
                             {
@@ -177,7 +178,7 @@ namespace GameManager.GameInfoProvider
                         {
                             List<RelatedSiteModel> relatedSiteModels =
                                 extLinksProp.Deserialize<List<RelatedSiteModel>>() ?? [];
-                            relatedSites.AddRange(relatedSiteModels.Select(x => new RelatedSite
+                            relatedSites.AddRange(relatedSiteModels.Select(x => new RelatedSiteDTO
                             {
                                 Name = x.Label,
                                 Url = x.Url
@@ -206,7 +207,7 @@ namespace GameManager.GameInfoProvider
                         gameInfo.Developer = develop;
                         gameInfo.Description = description;
                         gameInfo.ReleaseDate = released;
-                        gameInfo.Tags.AddRange(tags.Select(x => new Tag
+                        gameInfo.Tags.AddRange(tags.Select(x => new TagDTO
                         {
                             Name = x
                         }));
@@ -215,9 +216,9 @@ namespace GameManager.GameInfoProvider
 
                         try
                         {
-                            List<Character> list = await FetchCharacterListAsync(gameId);
+                            List<CharacterDTO> list = await FetchCharacterListAsync(gameId);
                             gameInfo.Characters = list;
-                            List<ReleaseInfo> releaseInfos = await FetchReleaseInfoListAsync(gameId);
+                            List<ReleaseInfoDTO> releaseInfos = await FetchReleaseInfoListAsync(gameId);
                             gameInfo.ReleaseInfos = releaseInfos;
                         }
                         catch
@@ -249,9 +250,9 @@ namespace GameManager.GameInfoProvider
             throw new Exception("Failed to fetch data from VNDB");
         }
 
-        private async Task<List<Staff>> FetchStaffListAsync(IEnumerable<StaffModel> fetchStaffs)
+        private async Task<List<StaffDTO>> FetchStaffListAsync(IEnumerable<StaffModel> fetchStaffs)
         {
-            var roleMapping = new Dictionary<string, StaffRole>
+            var roleMapping = new Dictionary<string, StaffRoleDTO>
             {
                 { "scenario", await staffService.GetStaffRoleAsync(StaffRoleEnum.SCENARIO) },
                 { "music", await staffService.GetStaffRoleAsync(StaffRoleEnum.MUSIC) },
@@ -261,7 +262,7 @@ namespace GameManager.GameInfoProvider
                 { "chardesign", await staffService.GetStaffRoleAsync(StaffRoleEnum.CHARACTER_DESIGN) },
                 { "staff", await staffService.GetStaffRoleAsync(StaffRoleEnum.STAFF) }
             };
-            List<Staff> result = [];
+            List<StaffDTO> result = [];
             foreach (StaffModel fetchStaff in fetchStaffs)
             {
                 if (!roleMapping.ContainsKey(fetchStaff.Role ?? ""))
@@ -270,11 +271,11 @@ namespace GameManager.GameInfoProvider
                 if (string.IsNullOrEmpty(name))
                     continue;
                 StaffRoleEnum roleId = roleMapping[fetchStaff.Role!].Id;
-                Staff? staff = await staffService.GetStaffAsync(x => x.Name == name && x.StaffRoleId == roleId);
+                StaffDTO? staff = await staffService.GetStaffAsync(x => x.Name == name && x.StaffRoleId == roleId);
                 if (staff != null)
                     result.Add(staff);
                 else
-                    result.Add(new Staff
+                    result.Add(new StaffDTO
                     {
                         Name = name,
                         StaffRole = roleMapping[fetchStaff.Role!]
@@ -284,7 +285,7 @@ namespace GameManager.GameInfoProvider
             return result;
         }
 
-        private async Task<List<Character>> FetchCharacterListAsync(string gameId)
+        private async Task<List<CharacterDTO>> FetchCharacterListAsync(string gameId)
         {
             int tryCount = 0;
             while (tryCount < 3)
@@ -308,7 +309,7 @@ namespace GameManager.GameInfoProvider
                     if (!rootNode.TryGetProperty("results", out JsonElement items) ||
                         items.ValueKind != JsonValueKind.Array)
                         return [];
-                    var result = new List<Character>();
+                    var result = new List<CharacterDTO>();
                     for (int i = 0; i < items.GetArrayLength(); i++)
                     {
                         CharacterModel? fetchCharacter = items[i].Deserialize<CharacterModel>();
@@ -334,7 +335,7 @@ namespace GameManager.GameInfoProvider
                         int? month = fetchCharacter is { Birthday.Count: > 0 } ? fetchCharacter.Birthday[0] : null;
                         int? day = fetchCharacter is { Birthday.Count: > 1 } ? fetchCharacter.Birthday[1] : null;
 
-                        var character = new Character
+                        var character = new CharacterDTO
                         {
                             Name = fetchCharacter.Name,
                             OriginalName = fetchCharacter.Original,
@@ -387,7 +388,7 @@ namespace GameManager.GameInfoProvider
             };
         }
 
-        private async Task<List<ReleaseInfo>> FetchReleaseInfoListAsync(string gameId)
+        private async Task<List<ReleaseInfoDTO>> FetchReleaseInfoListAsync(string gameId)
         {
             int tryCount = 0;
             while (tryCount < 3)
@@ -412,7 +413,7 @@ namespace GameManager.GameInfoProvider
                         resultsProp.ValueKind != JsonValueKind.Array)
                         return [];
                     List<ReleaseModel> fetchReleases = resultsProp.Deserialize<List<ReleaseModel>>() ?? [];
-                    List<ReleaseInfo> result = [];
+                    List<ReleaseInfoDTO> result = [];
                     foreach (ReleaseModel fetchRelease in fetchReleases)
                     {
                         foreach (ReleaseModel.LangaugeModel language in fetchRelease.Langauges ?? [])
@@ -426,14 +427,14 @@ namespace GameManager.GameInfoProvider
                                     releaseTime = new DateTime(year, 1, 1);
                                 }
                             }
-                            var releaseInfo = new ReleaseInfo
+                            var releaseInfo = new ReleaseInfoDTO
                             {
                                 ReleaseName = language.Title,
                                 ReleaseLanguage = fetchRelease.Langauges?.FirstOrDefault()?.Language ?? "",
                                 ReleaseDate = releaseTime,
                                 Platforms = fetchRelease.Platforms?.Select(GetPlatformEnum).ToList() ?? [],
                                 AgeRating = fetchRelease.MinAga ?? 0,
-                                ExternalLinks = fetchRelease.ExtLinks?.Select(x => new ExternalLink
+                                ExternalLinks = fetchRelease.ExtLinks?.Select(x => new ExternalLinkDTO
                                 {
                                     Name = x.Name,
                                     Label = x.Label,

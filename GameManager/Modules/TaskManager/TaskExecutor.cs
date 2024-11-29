@@ -1,5 +1,6 @@
 ﻿using GameManager.Modules.Synchronizer;
 using GameManager.Services;
+using Hangfire;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
@@ -60,6 +61,7 @@ namespace GameManager.Modules.TaskManager
             return _SyncTaskCts;
         }
 
+        [DisableConcurrentExecution(timeoutInSeconds: 60)]
         public static void SyncTask()
         {
             const string taskName = "SyncTask";

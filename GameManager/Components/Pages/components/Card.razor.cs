@@ -1,4 +1,5 @@
 ﻿using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Models;
 using GameManager.Models.EventArgs;
 using GameManager.Modules.GamePlayMonitor;
@@ -44,6 +45,8 @@ namespace GameManager.Components.Pages.components
         [Parameter]
         public int CardItemWidth { get; set; } = 230;
 
+        private int ItemWidthIncludeBorder => 230 - (IsSelected ? 6 : 0);
+
         [Inject]
         private ISnackbar Snackbar { get; set; } = null!;
 
@@ -61,7 +64,7 @@ namespace GameManager.Components.Pages.components
 
         [Parameter]
         [EditorRequired]
-        public GameInfo GameInfoParam { get; set; } = null!;
+        public GameInfoDTO GameInfoParam { get; set; } = null!;
 
         [Parameter]
         public bool IsSelected { get; set; }
@@ -80,17 +83,17 @@ namespace GameManager.Components.Pages.components
 
         private List<string> BackupSaveFiles { get; set; } = [];
 
-        private AppSetting? AppSetting { get; set; }
+        private AppSettingDTO? AppSetting { get; set; }
 
         public bool IsMonitoring { get; set; }
 
-        private IList<GuideSite> GuideSites
+        private IList<GuideSiteDTO> GuideSites
         {
             get
             {
                 if (AppSetting != null)
                     return AppSetting.GuideSites;
-                AppSetting = ConfigService.GetAppSetting();
+                AppSetting = ConfigService.GetAppSettingDTO();
                 return AppSetting.GuideSites;
             }
         }
@@ -203,11 +206,12 @@ namespace GameManager.Components.Pages.components
             try
             {
                 GameInfoParam.UpdatedTime = DateTime.UtcNow;
-                GameInfoParam = await ConfigService.EditGameInfo(GameInfoParam);
+                GameInfoParam = await ConfigService.UpdateGameInfoAsync(GameInfoParam);
             }
             catch (Exception e)
             {
-                GameInfoParam = (await ConfigService.GetGameInfoAsync(x => x.Id == GameInfoParam.Id))!;
+                GameInfoParam = (await ConfigService.GetGameInfoDTOAsync(x => x.Id == GameInfoParam.Id,
+                    q => q.Include(x => x.LaunchOption)))!;
                 Logger.LogError(e, "Error to edit game info");
                 await DialogService.ShowMessageBox("Error", e.Message, cancelText: "Cancel");
             }
@@ -223,7 +227,7 @@ namespace GameManager.Components.Pages.components
             }
         }
 
-        private Task OnGuideSearchClick(GuideSite site)
+        private Task OnGuideSearchClick(GuideSiteDTO site)
         {
             string searchUrl = "https://www.google.com/search?q="
                                + HttpUtility.UrlEncode(GameInfoParam.GameName + $" site:{site.SiteUrl}");

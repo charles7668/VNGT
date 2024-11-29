@@ -1,4 +1,5 @@
-﻿@inherits MudComponentBase
+﻿@using GameManager.DTOs
+@inherits MudComponentBase
 @inject NavigationManager Navigation
 
 <div class="card-item mt-1">
@@ -14,10 +15,10 @@
                          Icon="@Icons.Material.Filled.Sync"
                          Size="Size.Large"/>
             }
-            <MudImage Height="300" Width="@CardItemWidth"
+            <MudImage Height="300" Width="@ItemWidthIncludeBorder"
                       Src="@ImageSrc" loading="lazy"
                       Alt="No Image" ObjectFit="ObjectFit.Contain"/>
-            <MudPaper Width="@(CardItemWidth + "px")" MaxWidth="@(CardItemWidth + "px")" MaxHeight="50px"
+            <MudPaper Width="@(ItemWidthIncludeBorder + "px")" MaxWidth="@(ItemWidthIncludeBorder + "px")" MaxHeight="50px"
                       Elevation="0" Class="card-labels">
                 <MudStack Spacing="1" Row="true">
                     @foreach (string developer in DeveloperList)
@@ -126,7 +127,7 @@
                             </ActivatorContent>
 
                             <ChildContent>
-                                @foreach (GuideSite site in GuideSites)
+                                @foreach (GuideSiteDTO site in GuideSites)
                                 {
                                     <MudButton Variant="Variant.Text"
                                                Class="ma-0 pa-2"

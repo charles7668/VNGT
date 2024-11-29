@@ -1,13 +1,12 @@
-﻿using GameManager.DB.Models;
+﻿using GameManager.DTOs;
 using GameManager.Models;
-using GameManager.Services;
 using System.Diagnostics;
 
 namespace GameManager.Modules.LaunchProgramStrategies
 {
-    public class DirectLaunch(GameInfo gameInfo, Action<int>? tryLaunchVNGTTranslator = null) : IStrategy
+    public class DirectLaunch(GameInfoDTO gameInfo, Action<int>? tryLaunchVNGTTranslator = null) : IStrategy
     {
-        public async Task<int> ExecuteAsync()
+        public Task<int> ExecuteAsync()
         {
             if (gameInfo.ExePath == null || gameInfo.ExeFile == null)
             {
@@ -17,6 +16,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
             string executionFile = Path.Combine(gameInfo.ExePath, gameInfo.ExeFile);
             var proc = new Process();
             proc.StartInfo.FileName = executionFile;
+            proc.StartInfo.WorkingDirectory = gameInfo.ExePath;
             proc.StartInfo.UseShellExecute = false;
             bool runAsAdmin = gameInfo.LaunchOption is { RunAsAdmin: true };
             if (runAsAdmin)
@@ -29,7 +29,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
 
             tryLaunchVNGTTranslator?.Invoke(proc.Id);
 
-            return proc.Id;
+            return Task.FromResult(proc.Id);
         }
     }
 }

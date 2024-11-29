@@ -1,5 +1,6 @@
 ﻿using GameManager.DB.Enums;
 using GameManager.DB.Models;
+using GameManager.DTOs;
 using GameManager.Services;
 using Helper.Web;
 using HtmlAgilityPack;
@@ -19,14 +20,14 @@ namespace GameManager.GameInfoProvider
 
         public string ProviderName => "DLSite";
 
-        public async Task<(List<GameInfo>? infoList, bool hasMore)> FetchGameSearchListAsync(string searchText,
+        public async Task<(List<GameInfoDTO>? infoList, bool hasMore)> FetchGameSearchListAsync(string searchText,
             int itemPerPage, int pageNum)
         {
             string queryString = DL_SITE_SEARCH_URL_BASE + BuildQueryString(searchText, itemPerPage, pageNum);
             HttpResponseMessage response = await Request(queryString);
             if (response.IsSuccessStatusCode)
             {
-                var gameInfos = new List<GameInfo>();
+                var gameInfos = new List<GameInfoDTO>();
                 string content = await HttpContentHelper.DecompressContent(response.Content);
                 HtmlDocument document = new();
                 try
@@ -60,7 +61,7 @@ namespace GameManager.GameInfoProvider
                     HtmlNode? imgNode = idNode.QuerySelector("img");
                     string img = imgNode?.Attributes["src"] == null ? "" : "https" + imgNode.Attributes["src"].Value;
 
-                    var gameInfo = new GameInfo
+                    var gameInfo = new GameInfoDTO
                     {
                         GameName = title,
                         GameInfoFetchId = id,
@@ -82,7 +83,7 @@ namespace GameManager.GameInfoProvider
             throw new Exception($"Failed to fetch data from DLSite with code : {response.StatusCode} \n{message}");
         }
 
-        public async Task<GameInfo?> FetchGameDetailByIdAsync(string gameId)
+        public async Task<GameInfoDTO?> FetchGameDetailByIdAsync(string gameId)
         {
             string queryString = DL_SITE_DETAIL_URL_BASE + gameId + ".html";
             HttpResponseMessage response = await Request(queryString);
@@ -90,7 +91,7 @@ namespace GameManager.GameInfoProvider
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 string content = await HttpContentHelper.DecompressContent(response.Content);
-                var gameInfo = new GameInfo();
+                var gameInfo = new GameInfoDTO();
                 HtmlDocument document = new();
                 try
                 {
@@ -122,13 +123,13 @@ namespace GameManager.GameInfoProvider
                 HtmlNode? imgNode = document.DocumentNode.QuerySelector(".work_slider .slider_item img");
                 string img = imgNode?.Attributes["srcset"] == null ? "" : "https:" + imgNode.Attributes["srcset"].Value;
                 IList<HtmlNode>? infoNodes = document.DocumentNode.QuerySelectorAll("#work_outline tr");
-                List<Staff> staffList = await GetStaffListAsync(infoNodes.ToList());
+                List<StaffDTO> staffList = await GetStaffListAsync(infoNodes.ToList());
                 bool dateParseSuccess = DateTime.TryParse(releaseDate, out DateTime time);
                 IList<HtmlNode>? deviceTableNodes =
                     document.DocumentNode.QuerySelectorAll("#work_device_guide .work_device_table tr");
-                ReleaseInfo releaseInfo =
+                ReleaseInfoDTO releaseInfo =
                     GetReleaseInfosAsync(infoNodes.ToList(), deviceTableNodes.ToList(), title).Result;
-                RelatedSite relatedSite = new()
+                RelatedSiteDTO relatedSite = new()
                 {
                     Name = "DLSite",
                     Url = queryString
@@ -146,7 +147,7 @@ namespace GameManager.GameInfoProvider
                 gameInfo.ReleaseInfos = [releaseInfo];
                 gameInfo.RelatedSites = [relatedSite];
                 gameInfo.ScreenShots = screenShots;
-                gameInfo.Tags = tags.Select(x => new Tag
+                gameInfo.Tags = tags.Select(x => new TagDTO
                 {
                     Name = x
                 }).ToList();
@@ -178,10 +179,10 @@ namespace GameManager.GameInfoProvider
             return client;
         }
 
-        private Task<ReleaseInfo> GetReleaseInfosAsync(List<HtmlNode> infoNodes, List<HtmlNode> deviceTableNodes,
+        private Task<ReleaseInfoDTO> GetReleaseInfosAsync(List<HtmlNode> infoNodes, List<HtmlNode> deviceTableNodes,
             string gameName)
         {
-            var releaseInfo = new ReleaseInfo
+            var releaseInfo = new ReleaseInfoDTO
             {
                 ReleaseName = gameName
             };
@@ -246,14 +247,14 @@ namespace GameManager.GameInfoProvider
             };
         }
 
-        private Task<List<Staff>> GetStaffListAsync(List<HtmlNode> nodes)
+        private Task<List<StaffDTO>> GetStaffListAsync(List<HtmlNode> nodes)
         {
-            List<Staff> staffList = [];
+            List<StaffDTO> staffList = [];
             HtmlNode? senarioNode = nodes.FirstOrDefault(x => x.QuerySelector("th")?.InnerText == "シナリオ");
             if (senarioNode != null)
             {
                 IEnumerable<string> senarios = senarioNode.QuerySelectorAll("td a").Select(x => x.InnerText);
-                staffList.AddRange(senarios.Select(x => new Staff
+                staffList.AddRange(senarios.Select(x => new StaffDTO
                 {
                     Name = x,
                     StaffRole = staffService.GetStaffRoleAsync(StaffRoleEnum.SCENARIO).Result
@@ -264,7 +265,7 @@ namespace GameManager.GameInfoProvider
             if (illustratorNode != null)
             {
                 IEnumerable<string> illustrators = illustratorNode.QuerySelectorAll("td a").Select(x => x.InnerText);
-                staffList.AddRange(illustrators.Select(x => new Staff
+                staffList.AddRange(illustrators.Select(x => new StaffDTO
                 {
                     Name = x,
                     StaffRole = staffService.GetStaffRoleAsync(StaffRoleEnum.ARTIST).Result
@@ -275,7 +276,7 @@ namespace GameManager.GameInfoProvider
             if (authorNode != null)
             {
                 IEnumerable<string> authors = authorNode.QuerySelectorAll("td a").Select(x => x.InnerText);
-                staffList.AddRange(authors.Select(x => new Staff
+                staffList.AddRange(authors.Select(x => new StaffDTO
                 {
                     Name = x,
                     StaffRole = staffService.GetStaffRoleAsync(StaffRoleEnum.DIRECTOR).Result

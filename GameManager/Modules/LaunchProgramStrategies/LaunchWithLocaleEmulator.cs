@@ -1,4 +1,4 @@
-﻿using GameManager.DB.Models;
+﻿using GameManager.DTOs;
 using GameManager.Models;
 using GameManager.Properties;
 using GameManager.Services;
@@ -9,7 +9,7 @@ using System.Xml.XPath;
 
 namespace GameManager.Modules.LaunchProgramStrategies
 {
-    public class LaunchWithLocaleEmulator(GameInfo gameInfo, Action<int>? tryLaunchVNGTTranslator = null) : IStrategy
+    public class LaunchWithLocaleEmulator(GameInfoDTO gameInfo, Action<int>? tryLaunchVNGTTranslator = null) : IStrategy
     {
         public async Task<int> ExecuteAsync()
         {
@@ -21,7 +21,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
             string executionFile = Path.Combine(gameInfo.ExePath, gameInfo.ExeFile);
 
             IConfigService configService = App.ServiceProvider.GetRequiredService<IConfigService>();
-            AppSetting appSetting = configService.GetAppSetting();
+            AppSettingDTO appSetting = configService.GetAppSettingDTO();
             string leConfigPath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEConfig.xml");
             if (!File.Exists(leConfigPath))
             {
@@ -43,6 +43,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
             string leExePath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEProc.exe");
             var proc = new Process();
             proc.StartInfo.FileName = leExePath;
+            proc.StartInfo.WorkingDirectory = gameInfo.ExePath;
             proc.StartInfo.Arguments = $"-runas \"{guid}\" \"{executionFile}\"";
             proc.StartInfo.UseShellExecute = false;
             bool runAsAdmin = gameInfo.LaunchOption is { RunAsAdmin: true };
@@ -56,7 +57,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
             int leProcId = proc.Id;
             await Task.Delay(100);
             Process? targetProc = ProcessHelper.GetChildProcessesByParentPid(leProcId).FirstOrDefault();
-                
+
             tryLaunchVNGTTranslator?.Invoke(targetProc?.Id ?? 0);
 
             return targetProc?.Id ?? proc.Id;
