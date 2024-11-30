@@ -1,5 +1,4 @@
-﻿using GameManager.DB.Models;
-using GameManager.DTOs;
+﻿using GameManager.DTOs;
 using GameManager.GameInfoProvider;
 using GameManager.Properties;
 using GameManager.Services;
@@ -16,7 +15,7 @@ namespace GameManager.Components.Pages.components
 {
     public partial class DialogGameInfoEdit : ComponentBase, IAsyncDisposable
     {
-        private readonly CancellationTokenSource _scanningExecutionFileCts = new();
+        private CancellationTokenSource _scanningExecutionFileCts = new();
 
         private string _fetchProvider = "VNDB";
         private bool _isFetching;
@@ -187,7 +186,7 @@ namespace GameManager.Components.Pages.components
                     info.LaunchOption.IsVNGTTranslatorNeedAdmin = Model.IsVNGTTranslatorNeedAdmin;
                     foreach (TagDTO tag in info.Tags)
                         TryAddTag(tag.Name);
-                    info.Tags = Model.Tags.Select(x => new TagDTO()
+                    info.Tags = Model.Tags.Select(x => new TagDTO
                     {
                         Name = x
                     }).ToList();
@@ -293,19 +292,22 @@ namespace GameManager.Components.Pages.components
                 Model.ExePath = path;
                 Model.ExeFile = null;
                 _scanningExecutionFileCts.Cancel();
-                _ = ReloadExeFilesAsync();
+                _scanningExecutionFileTask.ConfigureAwait(false).GetAwaiter().GetResult();
+                _scanningExecutionFileCts = new CancellationTokenSource();
+                _ = ReloadExeFilesAsync(_scanningExecutionFileCts.Token);
             });
         }
 
-        private Task ReloadExeFilesAsync()
+        private async Task ReloadExeFilesAsync(CancellationToken cancellationToken)
         {
             ExeFiles = ["Not Set"];
             _scanningExecutionFileTask = Task.Run(() =>
             {
                 Queue<string> dirs = new();
-                if (!Directory.Exists(Model.ExePath)) return;
+                if (!Directory.Exists(Model.ExePath))
+                    return;
                 dirs.Enqueue(Model.ExePath);
-                while (dirs.Count > 0 && !_scanningExecutionFileCts.Token.IsCancellationRequested)
+                while (dirs.Count > 0 && !cancellationToken.IsCancellationRequested)
                 {
                     string dir = dirs.Dequeue();
                     string[] subDirs = Directory.GetDirectories(dir);
@@ -314,13 +316,11 @@ namespace GameManager.Components.Pages.components
                     foreach (string file in Directory.EnumerateFiles(dir, "*.exe"))
                         ExeFiles.Add(Path.GetRelativePath(Model.ExePath, Path.GetFullPath(file)));
                 }
-
-                if (_scanningExecutionFileCts.Token.IsCancellationRequested)
-                    return;
+            }, cancellationToken).ContinueWith(_ =>
+            {
                 Application.Current?.Dispatcher.Dispatch(StateHasChanged);
-            });
-            _ = InvokeAsync(StateHasChanged);
-            return Task.CompletedTask;
+            }, cancellationToken);
+            await InvokeAsync(StateHasChanged);
         }
 
         public class FormModel
@@ -377,36 +377,63 @@ namespace GameManager.Components.Pages.components
 
         protected override async Task OnInitializedAsync()
         {
-            LeConfigs = ["None"];
-            AppSetting = ConfigService.GetAppSettingDTO();
-            if (!string.IsNullOrEmpty(AppSetting.LocaleEmulatorPath)
-                && File.Exists(Path.Combine(AppSetting.LocaleEmulatorPath, "LEConfig.xml")))
+            try
             {
-                string configPath = Path.Combine(AppSetting.LocaleEmulatorPath, "LEConfig.xml");
-                var xmlDoc = XDocument.Load(configPath);
-                IEnumerable<XElement> nodes = xmlDoc.XPathSelectElements("//Profiles/Profile");
-                foreach (XElement node in nodes)
-                {
-                    XAttribute? attr = node.Attribute("Name");
-                    if (attr == null || string.IsNullOrEmpty(attr.Value))
-                        continue;
-                    LeConfigs.Add(attr.Value);
-                }
+                await base.OnInitializedAsync();
             }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to initialize : {Message}", e.Message);
+                throw;
+            }
+        }
 
-            Model.LeConfig ??= "None";
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            try
+            {
+                await base.OnAfterRenderAsync(firstRender);
+                if (!firstRender)
+                {
+                    return;
+                }
 
-            _ = ReloadExeFilesAsync();
+                LeConfigs = ["None"];
+                AppSetting = ConfigService.GetAppSettingDTO();
+                if (!string.IsNullOrEmpty(AppSetting.LocaleEmulatorPath)
+                    && File.Exists(Path.Combine(AppSetting.LocaleEmulatorPath, "LEConfig.xml")))
+                {
+                    string configPath = Path.Combine(AppSetting.LocaleEmulatorPath, "LEConfig.xml");
+                    var xmlDoc = XDocument.Load(configPath);
+                    IEnumerable<XElement> nodes = xmlDoc.XPathSelectElements("//Profiles/Profile");
+                    foreach (XElement node in nodes)
+                    {
+                        XAttribute? attr = node.Attribute("Name");
+                        if (attr == null || string.IsNullOrEmpty(attr.Value))
+                            continue;
+                        LeConfigs.Add(attr.Value);
+                    }
+                }
 
-            _tagHashSet = Model.Tags.ToHashSet();
+                Model.LeConfig ??= "None";
 
-            string toolsPath = AppPathService.ToolsDirPath;
-            _isVNGTTranslatorInstalled = File.Exists(Path.Combine(toolsPath, "VNGTTranslator", "VNGTTranslator.exe"));
-            string? sandboxiePath = Path.GetDirectoryName(AppSetting.SandboxiePath);
-            _isSandboxieInstalled = !string.IsNullOrEmpty(sandboxiePath) &&
-                                    File.Exists(Path.Combine(sandboxiePath, "Start.exe"));
+                _scanningExecutionFileCts = new CancellationTokenSource();
+                _ = ReloadExeFilesAsync(_scanningExecutionFileCts.Token);
 
-            await base.OnInitializedAsync();
+                _tagHashSet = Model.Tags.ToHashSet();
+
+                string toolsPath = AppPathService.ToolsDirPath;
+                _isVNGTTranslatorInstalled =
+                    File.Exists(Path.Combine(toolsPath, "VNGTTranslator", "VNGTTranslator.exe"));
+                string? sandboxiePath = Path.GetDirectoryName(AppSetting.SandboxiePath);
+                _isSandboxieInstalled = !string.IsNullOrEmpty(sandboxiePath) &&
+                                        File.Exists(Path.Combine(sandboxiePath, "Start.exe"));
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to initialize : {Message}", e.Message);
+                throw;
+            }
         }
 
         public async ValueTask DisposeAsync()
