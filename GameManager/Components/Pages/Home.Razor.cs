@@ -500,7 +500,14 @@ namespace GameManager.Components.Pages
         {
             IsShowDetail = false;
             await JsRuntime.InvokeVoidAsync("enableHtmlOverflow");
-            StateHasChanged();
+            GameInfoDTO? updateItem = await ConfigService.GetGameInfoDTOAsync(_showDetailId);
+            ViewInfo? viewInfo = ViewGameInfos.Find(x => x.Info.Id == _showDetailId);
+            if (updateItem != null && viewInfo != null)
+            {
+                viewInfo.Info = updateItem;
+            }
+
+            _ = InvokeAsync(StateHasChanged);
         }
 
         private async Task OnEnableSyncClick()
@@ -537,7 +544,7 @@ namespace GameManager.Components.Pages
 
         private class ViewInfo
         {
-            public GameInfoDTO Info { get; init; } = null!;
+            public GameInfoDTO Info { get; set; } = null!;
 
             public bool Display { get; set; }
 
