@@ -107,13 +107,34 @@ namespace GameManager.Components.Pages
             if (IsDeleting)
                 return;
             Logger.LogInformation("Add new game button clicked");
-            string? saveFilePath = await ScanSaveFilePath();
+            string? saveFilePath = null;
+            try
+            {
+                saveFilePath = await ScanSaveFilePath();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // ignore 
+            }
+            
             var inputModel = new DialogGameInfoEdit.FormModel
             {
                 GameName = Path.GetFileName(Path.GetDirectoryName(exePath)) ?? "null",
                 ExePath = Path.GetDirectoryName(exePath),
                 SaveFilePath = saveFilePath
             };
+            try
+            {
+                var fileInfo = new FileInfo(exePath);
+                if (!fileInfo.Attributes.HasFlag(FileAttributes.Directory) && fileInfo.Exists)
+                {
+                    inputModel.ExeFile = Path.GetFileName(exePath);
+                }
+            }
+            catch (Exception)
+            {
+                // ignore 
+            }
             var parameters = new DialogParameters<DialogGameInfoEdit>
             {
                 { x => x.Model, inputModel }
