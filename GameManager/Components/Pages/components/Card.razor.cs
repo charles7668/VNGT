@@ -179,18 +179,19 @@ namespace GameManager.Components.Pages.components
                 return;
             try
             {
-                if ((resultModel.Cover == null && GameInfoParam.CoverPath != null)
+                if ((string.IsNullOrEmpty(resultModel.Cover) && !string.IsNullOrEmpty(GameInfoParam.CoverPath))
                     || (CoverIsLocalFile(resultModel.Cover) && !CoverIsLocalFile(GameInfoParam.CoverPath)))
                 {
                     await ConfigService.DeleteCoverImage(GameInfoParam.CoverPath);
                 }
-                else if (resultModel.Cover != null &&
-                         (!CoverIsLocalFile(GameInfoParam.CoverPath) || GameInfoParam.CoverPath == null) &&
+                else if (!string.IsNullOrEmpty(resultModel.Cover) &&
+                         (!CoverIsLocalFile(GameInfoParam.CoverPath) ||
+                          string.IsNullOrEmpty(GameInfoParam.CoverPath)) &&
                          CoverIsLocalFile(resultModel.Cover))
                 {
                     resultModel.Cover = await ConfigService.AddCoverImage(resultModel.Cover);
                 }
-                else if (resultModel.Cover != null &&
+                else if (!string.IsNullOrEmpty(resultModel.Cover) &&
                          CoverIsLocalFile(resultModel.Cover))
                 {
                     await ConfigService.ReplaceCoverImage(resultModel.Cover, GameInfoParam.CoverPath);
