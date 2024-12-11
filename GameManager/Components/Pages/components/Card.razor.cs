@@ -14,10 +14,12 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using MudBlazor;
 using MudBlazor.Utilities;
 using System.Diagnostics;
 using System.Web;
+using Windows.UI.WindowManagement;
 
 namespace GameManager.Components.Pages.components
 {
@@ -61,6 +63,9 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private IGamePlayMonitor GamePlayMonitor { get; set; } = null!;
+        
+        [Inject]
+        private IJSRuntime JsRunTime { get; set; } = null!;
 
         [Parameter]
         [EditorRequired]
@@ -111,6 +116,8 @@ namespace GameManager.Components.Pages.components
 
         private string ImageSrc =>
             ImageService.UriResolve(GameInfoParam.CoverPath);
+
+        private string ImgAltText { get; set; } = "Loading...";
 
         private void OnCardClick()
         {
@@ -253,6 +260,33 @@ namespace GameManager.Components.Pages.components
             catch (Exception e)
             {
                 Logger.LogError("Error : {Message}", e.ToString());
+                throw;
+            }
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            try
+            {
+                await base.OnAfterRenderAsync(firstRender);
+                if (!firstRender)
+                    return;
+                Stream? imageStream = await ImageService.GetImageStreamAsync(GameInfoParam.CoverPath);
+                if (imageStream != null)
+                {
+                    var srcRef = new DotNetStreamReference(imageStream);
+                    await JsRunTime.InvokeVoidAsync("setImageSource", $"cover-{GameInfoParam.Id}", srcRef,
+                        "image/png",
+                        "no-image");
+                }
+                else
+                {
+                    await JsRunTime.InvokeVoidAsync("setNoImage", "/images/no-image.webp", "no-image");
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Error : {Message}", e.Message);
                 throw;
             }
         }

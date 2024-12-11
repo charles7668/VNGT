@@ -1,7 +1,31 @@
 ﻿@using GameManager.Components.Layout
 <Router AppAssembly="@typeof(MauiProgram).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
-        <FocusOnNavigate RouteData="@routeData" Selector="h1"/>
-    </Found>
+  <Found Context="routeData">
+    <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+    <FocusOnNavigate RouteData="@routeData" Selector="h1"/>
+  </Found>
 </Router>
+
+<script>
+  window.setImageSource = async (elementId, stream, contentType, altText) => {
+    const arrayBuffer = await stream.arrayBuffer();
+    let blobOptions = {};
+    if (contentType) {
+      blobOptions['type'] = contentType;
+    }
+    const blob = new Blob([arrayBuffer], blobOptions);
+    const url = URL.createObjectURL(blob);
+    const element = document.getElementById(elementId);
+    element.onload = () => {
+      URL.revokeObjectURL(url);
+    }
+    element.src = url;
+    element.alt = altText;
+  }
+
+  window.setNoImage = async (elementId, path, altText) => {
+    const element = document.getElementById(elementId);
+    element.src = path;
+    element.alt = altText;
+  }
+</script>
