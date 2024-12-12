@@ -114,9 +114,6 @@ namespace GameManager.Components.Pages.components
             }
         }
 
-        private string ImageSrc =>
-            ImageService.UriResolve(GameInfoParam.CoverPath);
-
         private string ImgAltText { get; set; } = "Loading...";
 
         private void OnCardClick()
