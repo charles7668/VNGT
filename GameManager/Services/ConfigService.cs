@@ -569,7 +569,7 @@ namespace GameManager.Services
             return result == null ? [] : result.Select(RelatedSiteDTO.Create).ToList();
         }
 
-        public async Task RemoveScreenshotAsync(int gameInfoId, string url)
+        public async Task RemoveScreenshotsAsync(int gameInfoId, List<string> urls)
         {
             Monitor.Enter(_DatabaseLock);
             try
@@ -581,7 +581,7 @@ namespace GameManager.Services
                 if (entity == null)
                     return;
                 unitOfWork.DetachEntity(entity);
-                entity.ScreenShots.RemoveAll(x => x == url);
+                entity.ScreenShots.RemoveAll(urls.Contains);
                 await gameInfoRepo.UpdatePropertiesAsync(entity, x => x.ScreenShots);
                 await unitOfWork.SaveChangesAsync();
                 unitOfWork.DetachEntity(entity);

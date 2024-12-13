@@ -63,9 +63,7 @@ namespace GameManager.Components.Pages.components
 
         private void OnImageClick(ScreenShotViewModel model)
         {
-            GameInfoVo.ScreenShots.ForEach(x => x.IsSelected = false);
-
-            model.IsSelected = true;
+            model.IsSelected = !model.IsSelected;
 
             InvokeAsync(StateHasChanged);
         }
@@ -148,15 +146,15 @@ namespace GameManager.Components.Pages.components
             await TryAddScreenShotsToGameInfo(splitText.ToList());
         }
 
-        private async Task RemoveScreenshot()
+        private async Task OnRemoveScreenshotClick()
         {
-            ScreenShotViewModel? screenshotVo = GameInfoVo.ScreenShots.FirstOrDefault(x => x.IsSelected);
-            if (screenshotVo == null)
+            var screenshotVos = GameInfoVo.ScreenShots.Where(x => x.IsSelected).ToList();
+            if (screenshotVos.Count == 0)
                 return;
             try
             {
-                await ConfigService.RemoveScreenshotAsync(GameInfo.Id, screenshotVo.Url);
-                GameInfoVo.ScreenShots.Remove(screenshotVo);
+                await ConfigService.RemoveScreenshotsAsync(GameInfo.Id, screenshotVos.Select(x => x.Url).ToList());
+                GameInfoVo.ScreenShots.RemoveAll(x => screenshotVos.Contains(x));
             }
             catch (Exception e)
             {
