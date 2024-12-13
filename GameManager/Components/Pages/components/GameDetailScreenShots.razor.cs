@@ -1,5 +1,4 @@
-﻿using GameManager.DB.Models;
-using GameManager.DTOs;
+﻿using GameManager.DTOs;
 using GameManager.GameInfoProvider;
 using GameManager.Properties;
 using GameManager.Services;
@@ -75,10 +74,11 @@ namespace GameManager.Components.Pages.components
                 LoadingTask = Task.Run(() =>
                 {
                     _fetchSearchText = GameInfo.GameName ?? "";
-                    GameInfoVo.ScreenShots = GameInfo.ScreenShots.Select(x => new ScreenShotViewModel(ImageService)
-                    {
-                        Url = x
-                    }).ToList();
+                    GameInfoVo.ScreenShots = GameInfo.ScreenShots.Select(x =>
+                        new ScreenShotViewModel(GameInfo.Id, ImageService)
+                        {
+                            Url = x
+                        }).ToList();
                     IsLoading = false;
                     InvokeAsync(StateHasChanged);
                 });
@@ -115,7 +115,7 @@ namespace GameManager.Components.Pages.components
                 screenshots.AddRange(urls);
                 screenshots = screenshots.Distinct().ToList();
                 GameInfo.ScreenShots = screenshots;
-                GameInfoVo.ScreenShots = screenshots.Select(x => new ScreenShotViewModel(ImageService)
+                GameInfoVo.ScreenShots = screenshots.Select(x => new ScreenShotViewModel(GameInfo.Id, ImageService)
                 {
                     Url = x
                 }).ToList();
@@ -127,7 +127,7 @@ namespace GameManager.Components.Pages.components
             }
         }
 
-        private async Task AddScreenshotsByUrl()
+        private async Task OnAddScreenshotsByUrl()
         {
             var parameters = new DialogParameters<DialogMultiLineInputBox>
             {
@@ -155,14 +155,55 @@ namespace GameManager.Components.Pages.components
             await TryAddScreenShotsToGameInfo(splitText.ToList());
         }
 
+        private async Task OnAddFromFile()
+        {
+            var customFileType = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+            {
+                { DevicePlatform.WinUI, [".png", ".jpg", ".jpeg", ".bmp", ".webp", ".gif", ".tiff", ".svg"] }
+            });
+
+            var options = new PickOptions
+            {
+                PickerTitle = Resources.DetailPage_AddScreenshotsFromFileDialog_Title,
+                FileTypes = customFileType
+            };
+            try
+            {
+                IEnumerable<FileResult> result = (await FilePicker.PickMultipleAsync(options)).ToList();
+                if (!result.Any())
+                {
+                    return;
+                }
+
+                var filePaths = result.Select(x => x.FullPath).ToList();
+                await ConfigService.AddScreenshotsFromFilesAsync(GameInfo.Id, filePaths);
+                GameInfoDTO? temp = await ConfigService.GetGameInfoBaseDTOAsync(GameInfo.Id);
+                if (temp == null)
+                    return;
+                GameInfo.ScreenShots = temp.ScreenShots;
+                GameInfoVo.ScreenShots = temp.ScreenShots.Select(x => new ScreenShotViewModel(GameInfo.Id, ImageService)
+                {
+                    Url = x
+                }).ToList();
+                _ = InvokeAsync(StateHasChanged);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to add file {Message}", e.Message);
+                Snackbar.Add(e.Message, Severity.Error);
+            }
+        }
+
         private async Task OnRemoveScreenshotClick()
         {
             var screenshotVos = GameInfoVo.ScreenShots.Where(x => x.IsSelected).ToList();
             if (screenshotVos.Count == 0)
                 return;
+            var screenshotUrls = screenshotVos.Select(x => x.Url).ToList();
             try
             {
-                await ConfigService.RemoveScreenshotsAsync(GameInfo.Id, screenshotVos.Select(x => x.Url).ToList());
+                await ConfigService.RemoveScreenshotsAsync(GameInfo.Id, screenshotUrls);
+                GameInfo.ScreenShots.RemoveAll(x => screenshotUrls.Contains(x));
                 GameInfoVo.ScreenShots.RemoveAll(x => screenshotVos.Contains(x));
             }
             catch (Exception e)
@@ -253,10 +294,10 @@ namespace GameManager.Components.Pages.components
             return Task.CompletedTask;
         }
 
-        private class ScreenShotViewModel(IImageService imageService)
+        private class ScreenShotViewModel(int gameId, IImageService imageService)
         {
             public string Url { get; set; } = string.Empty;
-            public string Display => imageService.UriResolve(Url);
+            public string Display => imageService.ScreenShotsUriResolve(gameId, Url);
             public bool IsSelected { get; set; }
         }
 

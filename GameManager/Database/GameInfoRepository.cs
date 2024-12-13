@@ -247,6 +247,39 @@ namespace GameManager.Database
             return Task.CompletedTask;
         }
 
+        public Task<IEnumerable<Staff>> GetStaffs(int gameInfoId)
+        {
+            IQueryable<int> staffList = context.GameInfoStaffs
+                .Where(x => x.GameInfoId == gameInfoId).Select(x => x.StaffId);
+            return Task.FromResult<IEnumerable<Staff>>(context.Staffs.Include(x => x.StaffRole).Where(x => staffList.Contains(x.Id)));
+        }
+
+        public Task<IEnumerable<Character>> GetCharacters(int gameInfoId)
+        {
+            return Task.FromResult<IEnumerable<Character>>(context.Characters.Where(x => x.GameInfoId == gameInfoId));
+        }
+
+        public Task<IEnumerable<ReleaseInfo>> GetReleaseInfos(int gameInfoId)
+        {
+            return Task.FromResult<IEnumerable<ReleaseInfo>>(context.ReleaseInfos
+                .Include(x => x.ExternalLinks)
+                .Where(x => x.GameInfoId == gameInfoId));
+        }
+
+        public Task<IEnumerable<RelatedSite>> GetRelatedSites(int gameInfoId)
+        {
+            return Task.FromResult<IEnumerable<RelatedSite>>(
+                context.RelatedSites.Where(x => x.GameInfoId == gameInfoId));
+        }
+
+        public Task<IEnumerable<Tag>> GetTags(int gameInfoId)
+        {
+            IQueryable<int> tagIds = context.GameInfoTags
+                .Where(x => x.GameInfoId == gameInfoId)
+                .Select(x => x.TagId);
+            return Task.FromResult<IEnumerable<Tag>>(context.Tags.Where(x => tagIds.Contains(x.Id)));
+        }
+
         public Task<int> CountAsync(Expression<Func<GameInfo, bool>> queryExpression)
         {
             return context.GameInfos.CountAsync(queryExpression);

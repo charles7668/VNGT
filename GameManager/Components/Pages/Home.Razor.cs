@@ -500,7 +500,7 @@ namespace GameManager.Components.Pages
         {
             IsShowDetail = false;
             await JsRuntime.InvokeVoidAsync("enableHtmlOverflow");
-            GameInfoDTO? updateItem = await ConfigService.GetGameInfoDTOAsync(_showDetailId);
+            GameInfoDTO? updateItem = await ConfigService.GetGameInfoBaseDTOAsync(_showDetailId);
             ViewInfo? viewInfo = ViewGameInfos.Find(x => x.Info.Id == _showDetailId);
             if (updateItem != null && viewInfo != null)
             {

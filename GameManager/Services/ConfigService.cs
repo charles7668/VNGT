@@ -75,6 +75,16 @@ namespace GameManager.Services
             return Task.FromResult(fullPath)!;
         }
 
+        public async Task<string?> GetScreenShotsDirPath(int gameId)
+        {
+            string? uniqueId =
+                await _unitOfWork.GameInfoRepository.GetAsync(gameId, q => q, q => q.Select(x => x.GameUniqueId));
+            if (uniqueId == null)
+                return null;
+            string fullPath = Path.Combine(_appPathService.ScreenShotsDirPath, uniqueId);
+            return fullPath;
+        }
+
         public async Task DeleteCoverImage(string? coverName)
         {
             if (coverName == null)
@@ -211,14 +221,17 @@ namespace GameManager.Services
             return dto;
         }
 
-        public async Task<GameInfoDTO?> GetGameInfoDTOAsync(int id)
+        public async Task<GameInfoDTO?> GetGameInfoBaseDTOAsync(int id)
         {
-            GameInfo? entity = (await GetGameInfoIncludeAllAsync(x => x.Id == id))
-                .FirstOrDefault();
+            AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            GameInfo? entity = await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == id,
+                q => q.Include(x => x.LaunchOption));
             if (entity == null)
                 return null;
+
             var dto = GameInfoDTO.Create(entity);
-            _unitOfWork.DetachEntity(entity);
+            unitOfWork.DetachEntity(entity);
             return dto;
         }
 
@@ -585,6 +598,23 @@ namespace GameManager.Services
                 await gameInfoRepo.UpdatePropertiesAsync(entity, x => x.ScreenShots);
                 await unitOfWork.SaveChangesAsync();
                 unitOfWork.DetachEntity(entity);
+                foreach (string filePath in from url in urls
+                         where !url.IsHttpLink() && !url.StartsWith("cors://")
+                         let screenShotDirPath = Path.Combine(_appPathService.ScreenShotsDirPath, entity.GameUniqueId)
+                         select Path.Combine(screenShotDirPath, url)
+                         into filePath
+                         where File.Exists(filePath)
+                         select filePath)
+                {
+                    try
+                    {
+                        File.Delete(filePath);
+                    }
+                    catch
+                    {
+                        // ignore
+                    }
+                }
             }
             finally
             {
@@ -614,6 +644,69 @@ namespace GameManager.Services
                 if (Monitor.IsEntered(_DatabaseLock))
                     Monitor.Exit(_DatabaseLock);
             }
+        }
+
+        public async Task AddScreenshotsFromFilesAsync(int gameInfoId, List<string> filePaths)
+        {
+            AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            string? gameInfoUniqueId = await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == gameInfoId,
+                query => query
+                , query => query.Select(x => x.GameUniqueId));
+            if (string.IsNullOrEmpty(gameInfoUniqueId))
+                return;
+            string targetDir = Path.Combine(_appPathService.ScreenShotsDirPath, gameInfoUniqueId);
+            Directory.CreateDirectory(targetDir);
+            List<string> errors = [];
+            List<string> addedFiles = [];
+            foreach (string file in filePaths)
+            {
+                if (!File.Exists(file))
+                    continue;
+                string extension = Path.GetExtension(file);
+                string newFileName = Guid.NewGuid() + extension;
+                string targetFilePath = Path.Combine(targetDir, newFileName);
+                try
+                {
+                    File.Copy(file , targetFilePath);
+                    addedFiles.Add(Path.GetFileName(targetFilePath));
+                }
+                catch (Exception e)
+                {
+                    errors.Add("Error while copy file: " + file + " to " + targetFilePath + " " +
+                               e.Message);
+                }
+            }
+
+            string errorMessage = "";
+            if (errors.Count > 0)
+                errorMessage = string.Join("\n", errors);
+            
+            // if add to database failed, delete all added files
+            try
+            {
+                await AddScreenshotsAsync(gameInfoId, addedFiles);
+            }
+            catch (Exception)
+            {
+                foreach (string file in addedFiles)
+                {
+                    string targetFilePath = Path.Combine(targetDir, file);
+                    try
+                    {
+                        File.Delete(targetFilePath);
+                    }
+                    catch (Exception)
+                    {
+                        // ignore
+                    }
+                }
+
+                throw;
+            }
+
+            if (errorMessage.Length > 0)
+                throw new InvalidOperationException(errorMessage);
         }
 
         public async Task<List<PendingGameInfoDeletionDTO>> GetPendingGameInfoDeletionUniqueIdsAsync()
@@ -807,19 +900,23 @@ namespace GameManager.Services
             }
         }
 
-        private Task<IEnumerable<GameInfo>> GetGameInfoIncludeAllAsync(Expression<Func<GameInfo, bool>> query)
+        private async Task<IEnumerable<GameInfo>> GetGameInfoIncludeAllAsync(Expression<Func<GameInfo, bool>> query)
         {
-            return _unitOfWork.GameInfoRepository.GetManyAsync(query, q =>
+            AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var entities =
+                (await unitOfWork.GameInfoRepository.GetManyAsync(query, q => q.Include(x => x.LaunchOption))).ToList();
+
+            foreach (GameInfo entity in entities)
             {
-                return q.Include(x => x.LaunchOption)
-                    .Include(x => x.Staffs)
-                    .ThenInclude(s => s.StaffRole)
-                    .Include(x => x.Characters)
-                    .Include(x => x.RelatedSites)
-                    .Include(x => x.ReleaseInfos)
-                    .ThenInclude(s => s.ExternalLinks)
-                    .Include(x => x.Tags);
-            });
+                entity.Staffs = (await unitOfWork.GameInfoRepository.GetStaffs(entity.Id)).ToList();
+                entity.Characters = (await unitOfWork.GameInfoRepository.GetCharacters(entity.Id)).ToList();
+                entity.RelatedSites = (await unitOfWork.GameInfoRepository.GetRelatedSites(entity.Id)).ToList();
+                entity.ReleaseInfos = (await unitOfWork.GameInfoRepository.GetReleaseInfos(entity.Id)).ToList();
+                entity.Tags = (await unitOfWork.GameInfoRepository.GetTags(entity.Id)).ToList();
+            }
+
+            return entities;
         }
 
 

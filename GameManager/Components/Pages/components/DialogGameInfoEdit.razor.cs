@@ -4,6 +4,7 @@ using GameManager.Properties;
 using GameManager.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
 using System.Diagnostics;
@@ -26,6 +27,7 @@ namespace GameManager.Components.Pages.components
         private MudAutocomplete<string> _sandboxieBoxAutoComplete = null!;
         private Task _scanningExecutionFileTask = Task.CompletedTask;
         private HashSet<string> _tagHashSet = [];
+        private HashSet<string> _screenShotHashSet = [];
 
         [Parameter]
         public FormModel Model { get; set; } = new();
@@ -192,10 +194,16 @@ namespace GameManager.Components.Pages.components
                     info.LaunchOption.IsVNGTTranslatorNeedAdmin = Model.IsVNGTTranslatorNeedAdmin;
                     foreach (TagDTO tag in info.Tags)
                         TryAddTag(tag.Name);
+                    foreach (string screenShot in info.ScreenShots)
+                    {
+                        TryAddScreenShot(screenShot);
+                    }
+
                     info.Tags = Model.Tags.Select(x => new TagDTO
                     {
                         Name = x
                     }).ToList();
+                    info.ScreenShots = Model.ScreenShots;
                     DataMapService.Map(info, Model);
                 }
                 catch (FileNotFoundException e)
@@ -272,6 +280,13 @@ namespace GameManager.Components.Pages.components
             if (_tagHashSet.Contains(tag)) return;
             Model.Tags.Add(tag);
             _tagHashSet.Add(tag);
+        }
+
+        private void TryAddScreenShot(string screenshot)
+        {
+            if (_screenShotHashSet.Contains(screenshot)) return;
+            Model.ScreenShots.Add(screenshot);
+            _screenShotHashSet.Add(screenshot);
         }
 
         private async Task UploadByUrl()
@@ -426,6 +441,7 @@ namespace GameManager.Components.Pages.components
                 Model.LeConfig ??= "None";
 
                 _tagHashSet = Model.Tags.ToHashSet();
+                _screenShotHashSet = Model.ScreenShots.ToHashSet();
 
                 string toolsPath = AppPathService.ToolsDirPath;
                 _isVNGTTranslatorInstalled =

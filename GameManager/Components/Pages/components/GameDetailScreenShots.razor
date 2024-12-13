@@ -5,12 +5,19 @@
                    OnClick="UpdateBackgroundImage">
             @Resources.DetailPage_Screenshots_SetToBackground
         </MudButton>
-        <MudButton Class="game-detail-screenshots-btn"
-                   Variant="Variant.Outlined"
-                   StartIcon="@Icons.Material.Filled.Add"
-                   OnClick="AddScreenshotsByUrl">
-            @Resources.DetailPage_Screenshots_AddFromUrl
-        </MudButton>
+        <MudMenu AnchorOrigin="Origin.BottomLeft">
+            <ActivatorContent>
+                <MudButton Class="game-detail-screenshots-btn"
+                           Variant="Variant.Outlined"
+                           StartIcon="@Icons.Material.Filled.Add">
+                    @Resources.Common_Add
+                </MudButton>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem OnClick="OnAddScreenshotsByUrl">@Resources.DetailPage_Screenshots_AddFromUrl</MudMenuItem>
+                <MudMenuItem OnClick="OnAddFromFile">@Resources.DetailPage_AddFromFile</MudMenuItem>
+            </ChildContent>
+        </MudMenu>
         <MudSpacer/>
         <MudTextField T="string" @bind-Value="_fetchSearchText" Placeholder="SearchText"></MudTextField>
         @if (!FetchTask.IsCompleted)

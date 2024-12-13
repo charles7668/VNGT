@@ -142,6 +142,15 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add.
+        /// </summary>
+        internal static string Common_Add {
+            get {
+                return ResourceManager.GetString("Common.Add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Backup.
         /// </summary>
         internal static string Common_Backup {
@@ -246,6 +255,24 @@ namespace GameManager.Properties {
         internal static string Common_Unknown {
             get {
                 return ResourceManager.GetString("Common.Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add From File.
+        /// </summary>
+        internal static string DetailPage_AddFromFile {
+            get {
+                return ResourceManager.GetString("DetailPage.AddFromFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select Image Files.
+        /// </summary>
+        internal static string DetailPage_AddScreenshotsFromFileDialog_Title {
+            get {
+                return ResourceManager.GetString("DetailPage.AddScreenshotsFromFileDialog.Title", resourceCulture);
             }
         }
         

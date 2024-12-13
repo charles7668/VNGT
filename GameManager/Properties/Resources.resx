@@ -144,6 +144,9 @@
   <data name="Card.SearchGuide" xml:space="preserve">
     <value>Search Guide</value>
   </data>
+  <data name="Common.Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
   <data name="Common.Backup" xml:space="preserve">
     <value>Backup</value>
   </data>
@@ -179,6 +182,12 @@
   </data>
   <data name="Common.Unknown" xml:space="preserve">
     <value>Unknown</value>
+  </data>
+  <data name="DetailPage.AddFromFile" xml:space="preserve">
+    <value>Add From File</value>
+  </data>
+  <data name="DetailPage.AddScreenshotsFromFileDialog.Title" xml:space="preserve">
+    <value>Select Image Files</value>
   </data>
   <data name="DetailPage.AddScreeshotsDialog.HelperText" xml:space="preserve">
     <value>Enter URLs of screenshots, one per line</value>

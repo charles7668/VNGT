@@ -15,6 +15,7 @@ namespace GameManager.Services
             DBFilePath = Path.Combine(ConfigDirPath, "game.db");
             LogDirPath = Path.Combine(ConfigDirPath, "logs");
             SaveFileBackupDirPath = Path.Combine(ConfigDirPath, "save-file-backup");
+            ScreenShotsDirPath = Path.Combine(ConfigDirPath, "screenshots");
         }
 
         public string AppDirPath { get; protected init; }
@@ -24,6 +25,7 @@ namespace GameManager.Services
         public string DBFilePath { get; protected init; }
         public string LogDirPath { get; protected init; }
         public string SaveFileBackupDirPath { get; protected init; }
+        public string ScreenShotsDirPath { get; protected init; }
 
         public void CreateAppPath()
         {
@@ -32,6 +34,7 @@ namespace GameManager.Services
             Directory.CreateDirectory(ToolsDirPath);
             Directory.CreateDirectory(CoverDirPath);
             Directory.CreateDirectory(SaveFileBackupDirPath);
+            Directory.CreateDirectory(ScreenShotsDirPath);
         }
     }
 }

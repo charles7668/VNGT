@@ -14,7 +14,12 @@ namespace GameManager.Services
         Task<GameInfoDTO?> GetGameInfoDTOAsync(Expression<Func<GameInfo, bool>> queryExpression,
             Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeQuery = null);
 
-        Task<GameInfoDTO?> GetGameInfoDTOAsync(int id);
+        /// <summary>
+        /// Get game info dto with just launch option include
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<GameInfoDTO?> GetGameInfoBaseDTOAsync(int id);
 
         Task<List<int>> GetGameInfoIdCollectionAsync(Expression<Func<GameInfo, bool>> queryExpression);
 
@@ -53,6 +58,8 @@ namespace GameManager.Services
         AppSettingDTO GetAppSettingDTO();
 
         Task<string?> GetCoverFullPath(string? coverName);
+        
+        Task<string?> GetScreenShotsDirPath(int gameId);
 
         Task GetGameInfoForEachAsync(Action<GameInfoDTO> action, CancellationToken cancellationToken);
 
@@ -93,6 +100,8 @@ namespace GameManager.Services
         Task RemoveScreenshotsAsync(int gameInfoId, List<string> urls);
 
         Task AddScreenshotsAsync(int gameInfoId, List<string> urls);
+        
+        Task AddScreenshotsFromFilesAsync(int gameInfoId, List<string> filePaths);
 
         Task<List<PendingGameInfoDeletionDTO>> GetPendingGameInfoDeletionUniqueIdsAsync();
 

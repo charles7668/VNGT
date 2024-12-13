@@ -22,5 +22,20 @@ namespace GameManager.Database
 
         [UsedImplicitly]
         Task UpdateLaunchOption(GameInfo entity, LaunchOption launchOption);
+
+        [UsedImplicitly]
+        Task<IEnumerable<Staff>> GetStaffs(int gameInfoId);
+        
+        [UsedImplicitly]
+        Task<IEnumerable<Character>> GetCharacters(int gameInfoId);
+        
+        [UsedImplicitly]
+        Task<IEnumerable<ReleaseInfo>> GetReleaseInfos(int gameInfoId);
+        
+        [UsedImplicitly]
+        Task<IEnumerable<RelatedSite>> GetRelatedSites(int gameInfoId);
+        
+        [UsedImplicitly]
+        Task<IEnumerable<Tag>> GetTags(int gameInfoId);
     }
 }

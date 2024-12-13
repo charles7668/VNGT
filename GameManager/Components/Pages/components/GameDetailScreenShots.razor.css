@@ -26,6 +26,10 @@
     margin: 5px 5px;
 }
 
+.tool-bar ::deep .mud-menu .game-detail-screenshots-btn {
+    padding: 8px;
+}
+
 .tool-bar ::deep .mud-input-control {
     margin: auto 0;
 }
