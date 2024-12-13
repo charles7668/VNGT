@@ -379,6 +379,8 @@ namespace GameManager.Components.Pages.components
         {
             try
             {
+                _scanningExecutionFileCts = new CancellationTokenSource();
+                _ = ReloadExeFilesAsync(_scanningExecutionFileCts.Token);
                 await base.OnInitializedAsync();
             }
             catch (Exception e)
@@ -416,9 +418,6 @@ namespace GameManager.Components.Pages.components
                 }
 
                 Model.LeConfig ??= "None";
-
-                _scanningExecutionFileCts = new CancellationTokenSource();
-                _ = ReloadExeFilesAsync(_scanningExecutionFileCts.Token);
 
                 _tagHashSet = Model.Tags.ToHashSet();
 
