@@ -6,7 +6,8 @@ namespace GameManager.Components.Pages.components
 {
     public partial class DialogMultiLineInputBox
     {
-        public string Title { get; set; } = "Title";
+        [Parameter]
+        public string HelperText { get; set; } = string.Empty;
 
         public string InputText { get; set; } = "";
 

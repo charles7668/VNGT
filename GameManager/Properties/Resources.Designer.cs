@@ -250,6 +250,24 @@ namespace GameManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enter URLs of screenshots, one per line.
+        /// </summary>
+        internal static string DetailPage_AddScreeshotsDialog_HelperText {
+            get {
+                return ResourceManager.GetString("DetailPage.AddScreeshotsDialog.HelperText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Screenshots.
+        /// </summary>
+        internal static string DetailPage_AddScreeshotsDialog_Title {
+            get {
+                return ResourceManager.GetString("DetailPage.AddScreeshotsDialog.Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Back.
         /// </summary>
         internal static string DetailPage_Back {
@@ -597,6 +615,24 @@ namespace GameManager.Properties {
         internal static string Dialog_Title_EditGameInfo {
             get {
                 return ResourceManager.GetString("Dialog.Title.EditGameInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add tags, one per line.
+        /// </summary>
+        internal static string GameEditDialog_AddTagDialog_HelperText {
+            get {
+                return ResourceManager.GetString("GameEditDialog.AddTagDialog.HelperText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Tags.
+        /// </summary>
+        internal static string GameEditDialog_AddTagDialog_Title {
+            get {
+                return ResourceManager.GetString("GameEditDialog.AddTagDialog.Title", resourceCulture);
             }
         }
         

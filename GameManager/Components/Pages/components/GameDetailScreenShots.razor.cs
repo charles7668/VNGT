@@ -129,7 +129,16 @@ namespace GameManager.Components.Pages.components
 
         private async Task AddScreenshotsByUrl()
         {
-            IDialogReference dialogReference = await DialogService.ShowAsync<DialogMultiLineInputBox>();
+            var parameters = new DialogParameters<DialogMultiLineInputBox>
+            {
+                { x => x.HelperText, Resources.DetailPage_AddScreeshotsDialog_HelperText }
+            };
+            IDialogReference dialogReference = await DialogService.ShowAsync<DialogMultiLineInputBox>(
+                Resources.DetailPage_AddScreeshotsDialog_Title,
+                parameters, new DialogOptions
+                {
+                    BackdropClick = false
+                });
             DialogResult? dialogResult = await dialogReference.Result;
             if (dialogResult is { Canceled: true })
             {

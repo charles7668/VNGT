@@ -2,7 +2,7 @@
     <MudDialog>
         <DialogContent>
             <MudTextField T="string"
-                          HelperText="every line is a tag"
+                          @bind-HelperText="HelperText"
                           @bind-Text="InputText"
                           Variant="Variant.Outlined"
                           Immediate="true"

@@ -85,7 +85,13 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnAddTagClick(MouseEventArgs obj)
         {
-            IDialogReference dialogReference = await DialogService.ShowAsync<DialogMultiLineInputBox>("Add Tags",
+            var parameters = new DialogParameters<DialogMultiLineInputBox>
+            {
+                { x => x.HelperText, Resources.GameEditDialog_AddTagDialog_HelperText }
+            };
+            IDialogReference dialogReference = await DialogService.ShowAsync<DialogMultiLineInputBox>(
+                Resources.GameEditDialog_AddTagDialog_Title,
+                parameters,
                 new DialogOptions
                 {
                     BackdropClick = false

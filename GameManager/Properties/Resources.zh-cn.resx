@@ -180,6 +180,12 @@
   <data name="Common.Unknown" xml:space="preserve">
     <value>未知</value>
   </data>
+  <data name="DetailPage.AddScreeshotsDialog.HelperText" xml:space="preserve">
+    <value>输入图片的网址，每行一个</value>
+  </data>
+  <data name="DetailPage.AddScreeshotsDialog.Title" xml:space="preserve">
+    <value>加入图片</value>
+  </data>
   <data name="DetailPage.Back" xml:space="preserve">
     <value>返回</value>
   </data>
@@ -296,6 +302,12 @@
   </data>
   <data name="Dialog.Title.EditGameInfo" xml:space="preserve">
     <value>编辑游戏资讯</value>
+  </data>
+  <data name="GameEditDialog.AddTagDialog.HelperText" xml:space="preserve">
+    <value>加入标签, 每行一个</value>
+  </data>
+  <data name="GameEditDialog.AddTagDialog.Title" xml:space="preserve">
+    <value>加入标签</value>
   </data>
   <data name="GameEditorDialog.Browse" xml:space="preserve">
     <value>浏览</value>
