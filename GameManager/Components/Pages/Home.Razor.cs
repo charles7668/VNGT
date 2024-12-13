@@ -1,5 +1,4 @@
 ﻿using GameManager.Components.Pages.components;
-using GameManager.DB.Models;
 using GameManager.DTOs;
 using GameManager.Enums;
 using GameManager.Modules.TaskManager;
@@ -557,32 +556,7 @@ namespace GameManager.Components.Pages
         {
             try
             {
-                return base.OnInitializedAsync();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Error occurred when initializing Home page : {Exception}", ex.ToString());
-                throw;
-            }
-        }
-
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            try
-            {
-                await base.OnAfterRenderAsync(firstRender);
-                if (!firstRender)
-                    return;
-                AppSettingDTO appSetting = ConfigService.GetAppSettingDTO();
-                if (appSetting.EnableSync)
-                {
-                    _ = TaskManager.StartBackgroundIntervalTask(App.SyncTaskJobName, () => TaskExecutor.SyncTask(),
-                        TaskExecutor.CancelSyncTask, appSetting.SyncInterval);
-                }
-
-                _objRef = DotNetObjectReference.Create(this);
-                await JsRuntime.InvokeVoidAsync("resizeHandlers.addResizeListener", _objRef);
-                await base.OnInitializedAsync();
+                base.OnInitializedAsync();
                 _loadingCancellationTokenSource = new CancellationTokenSource();
                 _ = Task.Run(async () =>
                 {
@@ -603,6 +577,31 @@ namespace GameManager.Components.Pages
                     ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
                     CardListWidth = await getWidthTask;
                 }, _loadingCancellationTokenSource.Token);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error occurred when initializing Home page : {Exception}", ex.ToString());
+                throw;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            try
+            {
+                await base.OnAfterRenderAsync(firstRender);
+                if (!firstRender)
+                    return;
+                AppSettingDTO appSetting = ConfigService.GetAppSettingDTO();
+                if (appSetting.EnableSync)
+                {
+                    _ = TaskManager.StartBackgroundIntervalTask(App.SyncTaskJobName, () => TaskExecutor.SyncTask(),
+                        TaskExecutor.CancelSyncTask, appSetting.SyncInterval);
+                }
+                _objRef = DotNetObjectReference.Create(this);
+                await JsRuntime.InvokeVoidAsync("resizeHandlers.addResizeListener", _objRef);
                 _ = DetectNewerVersion();
             }
             catch (Exception ex)
