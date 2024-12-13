@@ -577,7 +577,7 @@ namespace GameManager.Components.Pages
                 if (appSetting.EnableSync)
                 {
                     _ = TaskManager.StartBackgroundIntervalTask(App.SyncTaskJobName, () => TaskExecutor.SyncTask(),
-                        TaskExecutor.CancelSyncTask, appSetting.SyncInterval, true);
+                        TaskExecutor.CancelSyncTask, appSetting.SyncInterval);
                 }
 
                 _objRef = DotNetObjectReference.Create(this);
