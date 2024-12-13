@@ -16,9 +16,8 @@
                          Size="Size.Large"/>
             }
             <MudImage Height="300" Width="@ItemWidthIncludeBorder"
-                      id="@("cover-" + GameInfoParam.Id)"
-                      loading="lazy"
-                      Alt="@ImgAltText" ObjectFit="ObjectFit.Contain"/>
+                      Src="@ImageSrc" loading="lazy"
+                      Alt="No Image" ObjectFit="ObjectFit.Contain"/>
             <MudPaper Width="@(ItemWidthIncludeBorder + "px")" MaxWidth="@(ItemWidthIncludeBorder + "px")" MaxHeight="50px"
                       Elevation="0" Class="card-labels">
                 <MudStack Spacing="1" Row="true">

@@ -5,34 +5,6 @@ namespace GameManager.Services
 {
     public class ImageService(IConfigService configService, IWebService webService) : IImageService
     {
-        public async Task<Stream?> GetImageStreamAsync(string? uri)
-        {
-            if (string.IsNullOrEmpty(uri))
-                return null;
-            if (uri.StartsWith("cors://"))
-            {
-                uri = uri.Replace("cors://", "");
-            }
-
-            if (uri.IsHttpLink())
-            {
-                HttpClient client = webService.GetDefaultHttpClient();
-                return await client.GetStreamAsync(uri);
-            }
-
-            string? fullPath = await configService.GetCoverFullPath(uri);
-            if (!File.Exists(fullPath))
-                return null;
-            try
-            {
-                return File.OpenRead(fullPath);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
         public string UriResolve(string? uri, string fallback)
         {
             if (string.IsNullOrEmpty(uri))
