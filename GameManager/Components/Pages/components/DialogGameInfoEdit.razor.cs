@@ -336,6 +336,8 @@ namespace GameManager.Components.Pages.components
                         dirs.Enqueue(subDir);
                     foreach (string file in Directory.EnumerateFiles(dir, "*.exe"))
                         ExeFiles.Add(Path.GetRelativePath(Model.ExePath, Path.GetFullPath(file)));
+                    foreach (string file in Directory.EnumerateFiles(dir, "*.bat"))
+                        ExeFiles.Add(Path.GetRelativePath(Model.ExePath, Path.GetFullPath(file)));
                 }
             }, cancellationToken).ContinueWith(_ =>
             {

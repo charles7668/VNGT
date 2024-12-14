@@ -354,7 +354,7 @@ namespace GameManager.Components.Pages.components
         {
             var customFileType = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
             {
-                { DevicePlatform.WinUI, new[] { ".exe" } }
+                { DevicePlatform.WinUI, new[] { ".exe", ".bat" } }
             });
 
             var options = new PickOptions
