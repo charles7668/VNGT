@@ -486,7 +486,7 @@ namespace GameManager.Services
                 await gameInfoRepository.UpdatePropertiesAsync(new GameInfo
                 {
                     Id = gameId,
-                    PlayTime = playTime + timeToAdd.TotalSeconds
+                    PlayTime = playTime + timeToAdd.TotalMinutes
                 }, x => x.PlayTime);
                 await unitOfWork.SaveChangesAsync();
             }
