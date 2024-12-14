@@ -451,6 +451,7 @@ namespace GameManager.Components.Pages.components
                 string? sandboxiePath = Path.GetDirectoryName(AppSetting.SandboxiePath);
                 _isSandboxieInstalled = !string.IsNullOrEmpty(sandboxiePath) &&
                                         File.Exists(Path.Combine(sandboxiePath, "Start.exe"));
+                _ = InvokeAsync(StateHasChanged);
             }
             catch (Exception e)
             {
