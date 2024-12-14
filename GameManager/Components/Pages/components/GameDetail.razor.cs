@@ -98,7 +98,6 @@ namespace GameManager.Components.Pages.components
                 try
                 {
                     Logger.LogInformation("start loading game info");
-                    _ = JsRuntime.InvokeVoidAsync("disableHtmlOverflow");
                     GameInfoDTO gameInfo = inputGameInfo ??
                                            await ConfigService.GetGameInfoDTOAsync(x => x.Id == InitGameId,
                                                q => q.Include(x => x.LaunchOption)) ??

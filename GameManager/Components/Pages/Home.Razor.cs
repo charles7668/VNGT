@@ -491,22 +491,18 @@ namespace GameManager.Components.Pages
         {
             IsShowDetail = true;
             _showDetailId = id;
-            _ = InvokeAsync(StateHasChanged);
             return Task.CompletedTask;
         }
 
         private async Task OnCloseDetail()
         {
-            IsShowDetail = false;
-            await JsRuntime.InvokeVoidAsync("enableHtmlOverflow");
             GameInfoDTO? updateItem = await ConfigService.GetGameInfoBaseDTOAsync(_showDetailId);
             ViewInfo? viewInfo = ViewGameInfos.Find(x => x.Info.Id == _showDetailId);
             if (updateItem != null && viewInfo != null)
             {
                 viewInfo.Info = updateItem;
             }
-
-            _ = InvokeAsync(StateHasChanged);
+            IsShowDetail = false;
         }
 
         private async Task OnEnableSyncClick()
