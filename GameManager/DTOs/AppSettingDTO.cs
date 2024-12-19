@@ -1,4 +1,5 @@
-﻿using GameManager.DB.Models;
+﻿using GameManager.DB.Enums;
+using GameManager.DB.Models;
 using JetBrains.Annotations;
 using System.Text.Json.Serialization;
 
@@ -37,6 +38,8 @@ namespace GameManager.DTOs
         [JsonIgnore]
         public bool EnableSync { get; set; }
 
+        public DisplayMode DisplayMode { get; set; } = DisplayMode.GRID;
+
         public int SyncInterval { get; set; } = 1;
 
         public AppSetting Convert()
@@ -55,7 +58,8 @@ namespace GameManager.DTOs
                 WebDAVUser = WebDAVUser,
                 WebDAVPassword = WebDAVPassword,
                 EnableSync = EnableSync,
-                SyncInterval = SyncInterval
+                SyncInterval = SyncInterval,
+                DisplayMode = DisplayMode
             };
         }
 
@@ -75,7 +79,8 @@ namespace GameManager.DTOs
                 WebDAVUser = appSetting.WebDAVUser ?? "",
                 WebDAVPassword = appSetting.WebDAVPassword ?? "",
                 EnableSync = appSetting.EnableSync,
-                SyncInterval = appSetting.SyncInterval
+                SyncInterval = appSetting.SyncInterval,
+                DisplayMode = appSetting.DisplayMode
             };
         }
     }

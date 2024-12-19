@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using GameManager.DB.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace GameManager.DB.Models
 {
@@ -22,6 +23,8 @@ namespace GameManager.DB.Models
         public List<TextMapping> TextMappings { get; set; } = [];
 
         public bool EnableSync { get; set; }
+        
+        public DisplayMode DisplayMode { get; set; } = DisplayMode.GRID;
 
         [MaxLength(200)]
         public string? WebDAVUrl { get; set; }
