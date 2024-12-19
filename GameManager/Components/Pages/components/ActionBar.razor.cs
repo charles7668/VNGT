@@ -21,11 +21,12 @@ namespace GameManager.Components.Pages.components
 {
     public partial class ActionBar
     {
-        private string? SearchText { get; set; }
+        [Parameter]
+        public string? SearchText { get; set; }
 
         [Parameter]
         public EventCallback<string> AddNewGameEvent { get; set; }
-
+        
         [Parameter]
         public EventCallback<SearchParameter> SearchEvent { get; set; }
 
@@ -34,7 +35,7 @@ namespace GameManager.Components.Pages.components
 
         [Parameter]
         public EventCallback OnRefreshEvent { get; set; }
-
+        
         private Dictionary<SortOrder, string> SortOrderDict { get; set; } = null!;
 
         private SortOrder SortBy { get; set; } = SortOrder.UPLOAD_TIME;

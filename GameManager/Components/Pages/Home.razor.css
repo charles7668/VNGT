@@ -18,3 +18,42 @@
 .inactive {
     visibility: hidden;
 }
+
+#list-mode-container {
+    height: 100%;
+    width: 100%;
+}
+
+#list-mode-container > .list-mode-list-container {
+    width: 300px;
+    height: 100%;
+    background-color: #171d25;
+    resize: horizontal;
+}
+
+#list-mode-container > .list-mode-list-container > .list-mode-game-name-list {
+    height: 100%;
+    max-height: 100%;
+    overflow: auto;
+}
+
+#list-mode-container > .list-mode-list-container > .list-mode-game-name-list ::deep .mud-menu {
+    width: 100%;
+    height: 100%;
+}
+
+#list-mode-container > .list-mode-list-container > .list-mode-game-name-list ::deep .mud-list-item-text {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+    
+#list-mode-container > .list-mode-detail {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: auto;
+}
+
+#list-mode-container > .list-mode-list-container .mud-input {
+    width: 95%;
+}

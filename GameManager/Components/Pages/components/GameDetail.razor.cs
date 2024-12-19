@@ -81,7 +81,7 @@ namespace GameManager.Components.Pages.components
 
         protected override Task OnAfterRenderAsync(bool firstRender)
         {
-            if (IsLoading && LoadingTask.IsCompleted)
+            if ((IsLoading && LoadingTask.IsCompleted) || InitGameId != _gameInfo?.Id)
             {
                 LoadingTask = RefreshData();
             }

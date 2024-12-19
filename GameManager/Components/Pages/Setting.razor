@@ -1,4 +1,5 @@
 ﻿@page "/setting"
+@using GameManager.DB.Enums
 @using GameManager.DTOs
 
 <div>
@@ -33,6 +34,15 @@
                     </MudTextField>
                     <MudButton OnClick="ScanSandboxie" Variant="Variant.Outlined">@Resources.Settings_Button_ScanFromInstalled</MudButton>
                 </MudPaper>
+                <MudElement>
+                    <MudSelect T="DisplayMode"
+                               Label="Display Mode"
+                               @bind-Value="AppSetting.DisplayMode"
+                               AnchorOrigin="Origin.BottomCenter">
+                        <MudSelectItem Value="DisplayMode.GRID">Grid</MudSelectItem>
+                        <MudSelectItem Value="DisplayMode.LIST">List</MudSelectItem>
+                    </MudSelect>
+                </MudElement>
                 <MudElement>
                     <MudCheckBox T="bool" @bind-Value="AppSetting.IsAutoFetchInfoEnabled">@Resources.Settings_Button_EnableAutoFetchInfoOnScan</MudCheckBox>
                 </MudElement>

@@ -1,4 +1,5 @@
 ﻿using GameManager.Components.Pages.components;
+using GameManager.DB.Enums;
 using GameManager.DTOs;
 using GameManager.Enums;
 using GameManager.Modules.TaskManager;
@@ -6,6 +7,7 @@ using GameManager.Properties;
 using GameManager.Services;
 using Helper;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
@@ -24,6 +26,8 @@ namespace GameManager.Components.Pages
         private CancellationTokenSource _deleteTaskCancellationTokenSource = new();
         private CancellationTokenSource _loadingCancellationTokenSource = new();
         private DotNetObjectReference<Home> _objRef = null!;
+
+        private ViewInfo? _selectedViewInfo = null;
         private int _showDetailId = -1;
 
         private bool IsShowDetail { get; set; }
@@ -63,7 +67,20 @@ namespace GameManager.Components.Pages
 
         private bool IsLoading { get; set; } = true;
 
+        private string? SearchText { get; set; }
+
+        private DisplayMode DisplayMode { get; set; } = DisplayMode.GRID;
+
         private Virtualize<IEnumerable<ViewInfo>>? VirtualizeComponent { get; set; }
+
+        private readonly Dictionary<SortOrder, string> _sortOrderDict = new Dictionary<SortOrder, string>
+        {
+            { SortOrder.NAME, Resources.Home_SortBy_GameName },
+            { SortOrder.UPLOAD_TIME, Resources.Home_SortBy_UploadTime },
+            { SortOrder.DEVELOPER, Resources.Home_SortBy_Developer },
+            { SortOrder.FAVORITE, Resources.Home_SortBy_Favorite },
+            { SortOrder.LAST_PLAYED, Resources.Home_SortBy_LastPlayed }
+        };
 
         private string CardListCss => CssBuilder
             .Default(IsDeleting ? "deleting justify-center align-center d-flex" : "" + " flex-grow-1")
@@ -115,7 +132,7 @@ namespace GameManager.Components.Pages
             {
                 // ignore 
             }
-            
+
             var inputModel = new DialogGameInfoEdit.FormModel
             {
                 GameName = Path.GetFileName(Path.GetDirectoryName(exePath)) ?? "null",
@@ -134,6 +151,7 @@ namespace GameManager.Components.Pages
             {
                 // ignore 
             }
+
             var parameters = new DialogParameters<DialogGameInfoEdit>
             {
                 { x => x.Model, inputModel }
@@ -240,7 +258,7 @@ namespace GameManager.Components.Pages
             {
                 return;
             }
-            
+
             ViewInfo? item = ViewGameInfos.Find(x => x.Info.Id == id);
             if (item == null)
                 return;
@@ -256,6 +274,8 @@ namespace GameManager.Components.Pages
                 return;
 
             ViewGameInfos.Remove(item);
+            if (item == _selectedViewInfo)
+                _selectedViewInfo = null;
             _ = VirtualizeComponent?.RefreshDataAsync();
         }
 
@@ -319,7 +339,7 @@ namespace GameManager.Components.Pages
             {
                 return;
             }
-            
+
             IsDeleting = true;
             await InvokeAsync(StateHasChanged);
             await ExceptionHelper.ExecuteWithExceptionHandlingAsync(async () =>
@@ -436,6 +456,7 @@ namespace GameManager.Components.Pages
                 }, _loadingCancellationTokenSource.Token);
 
                 await loadTask;
+                _selectedViewInfo = ViewGameInfos.FirstOrDefault(info => info.Display);
                 _ = OnSortByChange(_currentOrder);
             }, _loadingCancellationTokenSource.Token);
         }
@@ -502,6 +523,7 @@ namespace GameManager.Components.Pages
             {
                 viewInfo.Info = updateItem;
             }
+
             IsShowDetail = false;
         }
 
@@ -537,6 +559,23 @@ namespace GameManager.Components.Pages
             _ = InvokeAsync(StateHasChanged);
         }
 
+        private Task OnListModeSearchKeyDown(KeyboardEventArgs arg)
+        {
+            if (arg.Key != "Enter")
+            {
+                return Task.CompletedTask;
+            }
+
+            ActionBar.SearchParameter searchParameter = new(SearchText ?? "", new ActionBar.SearchFilter());
+            return OnSearchInfo(searchParameter);
+        }
+
+        private Task OnSelectedValueChanged(ViewInfo arg)
+        {
+            _selectedViewInfo = arg;
+            return Task.CompletedTask;
+        }
+
         private class ViewInfo
         {
             public GameInfoDTO Info { get; set; } = null!;
@@ -553,6 +592,8 @@ namespace GameManager.Components.Pages
             try
             {
                 base.OnInitializedAsync();
+                AppSettingDTO appSettingDTO = ConfigService.GetAppSettingDTO();
+                DisplayMode = appSettingDTO.DisplayMode;
                 _loadingCancellationTokenSource = new CancellationTokenSource();
                 _ = Task.Run(async () =>
                 {
@@ -568,6 +609,7 @@ namespace GameManager.Components.Pages
                     }, _loadingCancellationTokenSource.Token);
 
                     await loadTask;
+                    _selectedViewInfo = ViewGameInfos.FirstOrDefault(info => info.Display);
                     IsLoading = false;
                     await InvokeAsync(StateHasChanged);
                     ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
@@ -596,6 +638,7 @@ namespace GameManager.Components.Pages
                     _ = TaskManager.StartBackgroundIntervalTask(App.SyncTaskJobName, () => TaskExecutor.SyncTask(),
                         TaskExecutor.CancelSyncTask, appSetting.SyncInterval);
                 }
+
                 _objRef = DotNetObjectReference.Create(this);
                 await JsRuntime.InvokeVoidAsync("resizeHandlers.addResizeListener", _objRef);
                 _ = DetectNewerVersion();

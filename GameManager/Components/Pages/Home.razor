@@ -1,86 +1,160 @@
 ﻿@page "/"
 @page "/home/{initFilter}"
+@using GameManager.DB.Enums
 
 <MudLayout Class="@("main-mud-layout")">
-    @if (IsLoading)
+    @if (DisplayMode == DisplayMode.GRID)
     {
-        <div class="justify-center align-center d-flex">
-            <MudProgressCircular Color="Color.Primary"
-                                 Indeterminate="true"
-                                 Style="width:500px; height: 500px; ">
-            </MudProgressCircular>
-        </div>
+        @if (IsLoading)
+        {
+            <div class="justify-center align-center d-flex">
+                <MudProgressCircular Color="Color.Primary"
+                                     Indeterminate="true"
+                                     Style="width:500px; height: 500px; ">
+                </MudProgressCircular>
+            </div>
+        }
+        else
+        {
+            <div class="@ListContainerClass">
+                <div id="game-list-container">
+                    <ActionBar id="main-toolbar" Class="@("main-toolbar mb-0 flex-grow-0")"
+                               SearchText="@SearchText"
+                               OnDeleteEvent="OnDelete"
+                               AddNewGameEvent="AddNewGame"
+                               OnRefreshEvent="OnRefreshClick"
+                               OnSortByChangeEvent="OnSortByChange"
+                               SearchEvent="OnSearchInfo">
+                    </ActionBar>
+                    <MudToolBar Class="mt-0 flex-grow-0">
+                        <MudCheckBox T="bool" ValueChanged="OnSelectionModeChange"
+                                     Class="ml-2 mr-2">
+                            @Resources.Home_SelectionMode
+                        </MudCheckBox>
+                        <MudButton OnClick="OnSelectAllClick"
+                                   Variant="Variant.Outlined">@Resources.Home_SelectAll</MudButton>
+                        <MudSpacer/>
+                        <MudButton Variant="Variant.Outlined"
+                                   OnClick="OnEnableSyncClick">
+                            @Resources.Common_EnableSync
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined"
+                                   OnClick="OnDisableSyncClick">
+                            @Resources.Common_DisableSync
+                        </MudButton>
+                    </MudToolBar>
+                    <div id="card-list" class="@CardListCss">
+                        @if (IsDeleting || IsLoading)
+                        {
+                            <MudProgressCircular Color="Color.Primary"
+                                                 Indeterminate="true"
+                                                 Style="width:500px; height: 500px; ">
+                            </MudProgressCircular>
+                        }
+                        else
+                        {
+                            @if (ViewGameInfos.Count > 0)
+                            {
+                                <Virtualize ItemSize="474"
+                                            @ref="VirtualizeComponent"
+                                            ItemsProvider="CardItemProvider"
+                                            OverscanCount="10"
+                                            Context="rowViewInfo">
+                                    <MudStack Row="true" Spacing="2">
+                                        @foreach (ViewInfo viewInfo in rowViewInfo)
+                                        {
+                                            <Card OnClick="_ => OnCardClick(viewInfo)"
+                                                  OnChipTagClickEvent="OnChipTagClick"
+                                                  OnShowDetail="OnShowDetail"
+                                                  CardItemWidth="CardItemWidth"
+                                                  IsSelected="@(viewInfo is { Display: true, IsSelected: true } && IsSelectionMode)"
+                                                  GameInfoParam="viewInfo.Info"
+                                                  Class="@(viewInfo.Display ? "card" : "card card-hidden")"
+                                                  OnDeleteEventCallback="OnDeleteGameCard">
+                                            </Card>
+                                        }
+                                    </MudStack>
+                                </Virtualize>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            @if (IsShowDetail)
+            {
+                <div id="game-detail-container">
+                    <GameDetail InitGameId="_showDetailId" OnReturnClick="OnCloseDetail"></GameDetail>
+                </div>
+            }
+        }
     }
     else
     {
-        <div class="@ListContainerClass">
-            <div id="game-list-container">
-                <ActionBar id="main-toolbar" Class="@("main-toolbar mb-0 flex-grow-0")"
-                           OnDeleteEvent="OnDelete"
-                           AddNewGameEvent="AddNewGame"
-                           OnRefreshEvent="OnRefreshClick"
-                           OnSortByChangeEvent="OnSortByChange"
-                           SearchEvent="OnSearchInfo">
-                </ActionBar>
-                <MudToolBar Class="mt-0 flex-grow-0">
-                    <MudCheckBox T="bool" ValueChanged="OnSelectionModeChange"
-                                 Class="ml-2 mr-2">
-                        @Resources.Home_SelectionMode
-                    </MudCheckBox>
-                    <MudButton OnClick="OnSelectAllClick" Variant="Variant.Outlined">@Resources.Home_SelectAll</MudButton>
-                    <MudSpacer/>
-                    <MudButton Variant="Variant.Outlined"
-                               OnClick="OnEnableSyncClick">
-                        @Resources.Common_EnableSync
-                    </MudButton>
-                    <MudButton Variant="Variant.Outlined"
-                               OnClick="OnDisableSyncClick">
-                        @Resources.Common_DisableSync
-                    </MudButton>
+        <div id="list-mode-container" class="d-flex flex-row">
+            <div class="list-mode-list-container">
+                <MudTextField T="string"
+                              @bind-Value="SearchText"
+                              Class="my-3 mx-2"
+                              Placeholder=" Search..."
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              Clearable="true"
+                              OnKeyDown="OnListModeSearchKeyDown"
+                              Immediate="true"
+                              AdornmentColor="Color.Primary"/>
+                <MudToolBar Dense="true" Class="pa-0">
+                    <MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft"
+                             Icon="@Icons.Material.Filled.Sort" Color="Color.Primary" Dense="true">
+                        @foreach (var orderPair in _sortOrderDict)
+                        {
+                            <MudMenuItem OnClick="() => OnSortByChange(orderPair.Key)">@orderPair.Value</MudMenuItem>
+                        }
+                    </MudMenu>
                 </MudToolBar>
-                <div id="card-list" class="@CardListCss">
-                    @if (IsDeleting || IsLoading)
-                    {
+                @if (IsLoading)
+                {
+                    <div class="justify-center align-center d-flex">
                         <MudProgressCircular Color="Color.Primary"
                                              Indeterminate="true"
                                              Style="width:500px; height: 500px; ">
                         </MudProgressCircular>
-                    }
-                    else
-                    {
-                        @if (ViewGameInfos.Count > 0)
-                        {
-                            <Virtualize ItemSize="474"
-                                        @ref="VirtualizeComponent"
-                                        ItemsProvider="CardItemProvider"
-                                        OverscanCount="10"
-                                        Context="rowViewInfo">
-                                <MudStack Row="true" Spacing="2">
-                                    @foreach (ViewInfo viewInfo in rowViewInfo)
-                                    {
-                                        <Card OnClick="_ => OnCardClick(viewInfo)"
-                                              OnChipTagClickEvent="OnChipTagClick"
-                                              OnShowDetail="OnShowDetail"
-                                              CardItemWidth="CardItemWidth"
-                                              IsSelected="@(viewInfo is { Display: true, IsSelected: true } && IsSelectionMode)"
-                                              GameInfoParam="viewInfo.Info"
-                                              Class="@(viewInfo.Display ? "card" : "card card-hidden")"
-                                              OnDeleteEventCallback="OnDeleteGameCard">
-                                        </Card>
-                                    }
-                                </MudStack>
-                            </Virtualize>
-                        }
-                    }
-                </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="list-mode-game-name-list">
+                        <MudList T="ViewInfo" Clickable="true" Class="pa-0 overflow-auto"
+                                 SelectedValueChanged="OnSelectedValueChanged">
+                            @foreach (var item in ViewGameInfos)
+                            {
+                                if (!item.Display)
+                                    continue;
+                                <MudListItem T="ViewInfo" Value="@item" Dense="true" Class="pt-0 pb-0">
+                                    <MudMenu AnchorOrigin="Origin.BottomLeft"
+                                             Class="pt-2 pb-2"
+                                             PositionAtCursor="true"
+                                             ActivationEvent="MouseEvent.RightClick">
+                                        <ActivatorContent>
+                                            <div style="width: 100%">@item.Info.GameName</div>
+                                        </ActivatorContent>
+                                        <ChildContent>
+                                            <MudMenuItem
+                                                OnClick="()=> OnDeleteGameCard(item.Info.Id)">@Resources.Common_Delete</MudMenuItem>
+                                        </ChildContent>
+                                    </MudMenu>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    </div>
+                }
+            </div>
+            <div class="list-mode-detail">
+                @if (_selectedViewInfo != null)
+                {
+                    <GameDetail InitGameId="@_selectedViewInfo.Info.Id"></GameDetail>
+                }
             </div>
         </div>
-        @if (IsShowDetail)
-        {
-            <div id="game-detail-container">
-                <GameDetail InitGameId="_showDetailId" OnReturnClick="OnCloseDetail"></GameDetail>
-            </div>
-        }
     }
 </MudLayout>
 
