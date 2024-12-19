@@ -1,5 +1,6 @@
 ﻿@page "/"
 @page "/home/{initFilter}"
+@using GameManager.DB.Enums
 
 <MudLayout Class="@("main-mud-layout")">
     @if (IsLoading)
@@ -11,7 +12,7 @@
             </MudProgressCircular>
         </div>
     }
-    else
+    else if (DisplayMode == DisplayMode.GRID)
     {
         <div class="@ListContainerClass">
             <div id="game-list-container">
@@ -27,7 +28,8 @@
                                  Class="ml-2 mr-2">
                         @Resources.Home_SelectionMode
                     </MudCheckBox>
-                    <MudButton OnClick="OnSelectAllClick" Variant="Variant.Outlined">@Resources.Home_SelectAll</MudButton>
+                    <MudButton OnClick="OnSelectAllClick"
+                               Variant="Variant.Outlined">@Resources.Home_SelectAll</MudButton>
                     <MudSpacer/>
                     <MudButton Variant="Variant.Outlined"
                                OnClick="OnEnableSyncClick">
@@ -81,6 +83,13 @@
                 <GameDetail InitGameId="_showDetailId" OnReturnClick="OnCloseDetail"></GameDetail>
             </div>
         }
+    }
+    else
+    {
+    <div id="list-mode-container" class="d-flex flex-row">
+        <div class="list-mode-list-container"></div>
+        <div class="list-mode-detail flex-grow-1"></div>
+    </div>
     }
 </MudLayout>
 

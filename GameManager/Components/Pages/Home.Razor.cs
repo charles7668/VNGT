@@ -1,4 +1,5 @@
 ﻿using GameManager.Components.Pages.components;
+using GameManager.DB.Enums;
 using GameManager.DTOs;
 using GameManager.Enums;
 using GameManager.Modules.TaskManager;
@@ -44,7 +45,7 @@ namespace GameManager.Components.Pages
 
         [Inject]
         private ILogger<Home> Logger { get; set; } = null!;
-
+        
         private bool IsSelectionMode { get; set; }
 
         [Inject]
@@ -62,6 +63,8 @@ namespace GameManager.Components.Pages
         private bool IsDeleting { get; set; }
 
         private bool IsLoading { get; set; } = true;
+
+        private DisplayMode DisplayMode { get; set; } = DisplayMode.LIST;
 
         private Virtualize<IEnumerable<ViewInfo>>? VirtualizeComponent { get; set; }
 
@@ -553,6 +556,8 @@ namespace GameManager.Components.Pages
             try
             {
                 base.OnInitializedAsync();
+                AppSettingDTO appSettingDTO = ConfigService.GetAppSettingDTO();
+                // DisplayMode = appSettingDTO.DisplayMode;
                 _loadingCancellationTokenSource = new CancellationTokenSource();
                 _ = Task.Run(async () =>
                 {
