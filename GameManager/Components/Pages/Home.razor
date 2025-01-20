@@ -111,18 +111,18 @@
                         }
                     </MudMenu>
                 </MudToolBar>
-                @if (IsLoading)
-                {
-                    <div class="justify-center align-center d-flex">
-                        <MudProgressCircular Color="Color.Primary"
-                                             Indeterminate="true"
-                                             Style="width:500px; height: 500px; ">
-                        </MudProgressCircular>
-                    </div>
-                }
-                else
-                {
-                    <div class="list-mode-game-name-list">
+                <div class="list-mode-game-name-list">
+                    @if (IsLoading)
+                    {
+                        <div class="justify-center align-center d-flex">
+                            <MudProgressCircular Color="Color.Primary"
+                                                 Indeterminate="true"
+                                                 Style="width:200px; height: 200px; ">
+                            </MudProgressCircular>
+                        </div>
+                    }
+                    else
+                    {
                         <MudList T="ViewInfo" Clickable="true" Class="pa-0 overflow-auto"
                                  SelectedValueChanged="OnSelectedValueChanged">
                             @foreach (var item in ViewGameInfos)
@@ -145,8 +145,8 @@
                                 </MudListItem>
                             }
                         </MudList>
-                    </div>
-                }
+                    }
+                </div>
             </div>
             <div class="list-mode-detail">
                 @if (_selectedViewInfo != null)
