@@ -106,6 +106,10 @@ namespace GameManager.Database
                     continue;
                 }
 
+                // if already exists in the list, skip
+                if (gameInfo.Staffs.Any(x => x.Name == staff.Name && x.StaffRole.Id == staff.StaffRole.Id))
+                    continue;
+
                 var newStaff = new Staff
                 {
                     Id = 0,
