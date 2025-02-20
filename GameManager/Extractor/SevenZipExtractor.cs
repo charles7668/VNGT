@@ -48,7 +48,7 @@ namespace GameManager.Extractor
                         await Task.Delay(10);
                     }
 
-                    if (!hasProgress)
+                    if (!hasProgress && !finish)
                         throw new InvalidOperationException(Resources.Message_UnableToDecompress);
 
                     extractor.Dispose();
