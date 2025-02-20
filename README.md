@@ -13,6 +13,7 @@ Game management tool: easily manage your games and integrate various assistive t
 ![screenshot](./Docs/img/screenshot1.jpg)
 ![screenshot](./Docs/img/screenshot2.jpg)
 ![screenshot](./Docs/img/screenshot3.jpg)
+![screenshot](./Docs/img/screenshot4.jpg)
 
 - Automatically scan folders for games
 - Automatically download game information (currently supported: [vndb](https://vndb.org/) , [DLSite](https://www.dlsite.com) , [ymgal](https://www.ymgal.games/developer#%E6%90%9C%E7%B4%A2%E6%B8%B8%E6%88%8F%E5%88%97%E8%A1%A8))

@@ -13,6 +13,7 @@
 ![screenshot](./img/screenshot1.jpg)
 ![screenshot](./img/screenshot2.jpg)
 ![screenshot](./img/screenshot3.jpg)
+![screenshot](./img/screenshot4.jpg)
 
 - 自動掃描資料夾以查找遊戲
 - 自動下載遊戲資訊（目前支援：[vndb](https://vndb.org/) , [DLSite](https://www.dlsite.com) , [ymgal](https://www.ymgal.games/developer#%E6%90%9C%E7%B4%A2%E6%B8%B8%E6%88%8F%E5%88%97%E8%A1%A8)）
