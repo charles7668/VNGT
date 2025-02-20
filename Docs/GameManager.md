@@ -13,6 +13,7 @@
     - [Backup and restore save file](#backup-and-restore-save-file)
       - [Backup](#backup)
       - [Restore](#restore)
+    - [Change display mode](#change-display-mode)
   - [Develop](#develop)
     - [Requirement](#requirement)
     - [Database Model Change](#database-model-change)
@@ -119,6 +120,16 @@ There are two ways to integrate Locale Emulator:
 - Click `MANAGE SAVE`.
 - Click `SAVE RESTORE`.
 - Select a date to restore. Be careful, as this action will replace the original data.
+
+### Change display mode
+
+- Go to setting page , set DisplayMode to `List` or `Grid`
+
+Grid mode preview:
+![main](./img/main.jpg)
+
+List mode preview:
+![screenshot](./img/screenshot1.jpg)
 
 ## Develop
 

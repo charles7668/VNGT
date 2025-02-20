@@ -13,6 +13,7 @@
 ![screenshot](./img/screenshot1.jpg)
 ![screenshot](./img/screenshot2.jpg)
 ![screenshot](./img/screenshot3.jpg)
+![screenshot](./img/screenshot4.jpg)
 
 - 自动扫描文件夹以查找游戏
 - 自动下载游戏信息（目前支持：[vndb](https://vndb.org/) , [DLSite](https://www.dlsite.com) , [ymgal](https://www.ymgal.games/developer#%E6%90%9C%E7%B4%A2%E6%B8%B8%E6%88%8F%E5%88%97%E8%A1%A8)）
