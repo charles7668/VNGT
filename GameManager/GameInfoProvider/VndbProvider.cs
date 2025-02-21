@@ -257,6 +257,7 @@ namespace GameManager.GameInfoProvider
                 { "scenario", await staffService.GetStaffRoleAsync(StaffRoleEnum.SCENARIO) },
                 { "music", await staffService.GetStaffRoleAsync(StaffRoleEnum.MUSIC) },
                 { "artist", await staffService.GetStaffRoleAsync(StaffRoleEnum.ARTIST) },
+                { "art", await staffService.GetStaffRoleAsync(StaffRoleEnum.ARTIST) },
                 { "songs", await staffService.GetStaffRoleAsync(StaffRoleEnum.SONG) },
                 { "director", await staffService.GetStaffRoleAsync(StaffRoleEnum.DIRECTOR) },
                 { "chardesign", await staffService.GetStaffRoleAsync(StaffRoleEnum.CHARACTER_DESIGN) },
