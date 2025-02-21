@@ -200,7 +200,7 @@ namespace GameManager.Database
             }
         }
 
-        public Task UpdateTagsAsync(GameInfo entity, List<Tag> tags)
+        public async Task UpdateTagsAsync(GameInfo entity, List<Tag> tags)
         {
             GameInfo gameInfo = context.Entry(entity).Entity;
             var tagNames = tags.Select(t => t.Name).Distinct().ToHashSet();
@@ -229,7 +229,14 @@ namespace GameManager.Database
                 existingTags[tag] = entry.Entity;
             }
 
-            return Task.CompletedTask;
+            await context.GameInfoTags.Where(x => x.GameInfoId == gameInfo.Id)
+                .ExecuteDeleteAsync();
+            await context.GameInfoTags.AddRangeAsync(gameInfo.Tags.Select(tag =>
+                new GameInfoTag
+                {
+                    GameInfoId = gameInfo.Id,
+                    TagId = tag.Id
+                }));
         }
 
         public Task UpdateLaunchOption(GameInfo entity, LaunchOption launchOption)
