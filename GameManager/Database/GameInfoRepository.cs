@@ -200,22 +200,25 @@ namespace GameManager.Database
             }
         }
 
-        public Task UpdateTagsAsync(GameInfo entity, List<Tag> tags)
+        public async Task UpdateTagsAsync(GameInfo entity, List<Tag> tags)
         {
             GameInfo gameInfo = context.Entry(entity).Entity;
+            await context.Entry(gameInfo).Collection(x => x.Tags).LoadAsync();
+            gameInfo.Tags.Clear();
             var tagNames = tags.Select(t => t.Name).Distinct().ToHashSet();
             var existingTags = gameInfo.Tags
                 .ToDictionary(key => key.Name, value => value);
-            var existInDb = context.Tags.AsNoTracking()
+            var existInDb = context.Tags
                 .Where(x => tagNames.Contains(x.Name))
                 .ToDictionary(x => x.Name, x => x);
+            var updateTags = new List<Tag>();
             foreach (string tag in tagNames)
             {
                 if (existingTags.ContainsKey(tag))
                     continue;
                 if (existInDb.TryGetValue(tag, out Tag? existingTag))
                 {
-                    gameInfo.Tags.Add(existingTag);
+                    updateTags.Add(existingTag);
                     existingTags[tag] = existingTag;
                     continue;
                 }
@@ -224,12 +227,15 @@ namespace GameManager.Database
                 {
                     Name = tag
                 };
-                EntityEntry<Tag> entry = context.Tags.Add(newTag);
-                gameInfo.Tags.Add(entry.Entity);
+                EntityEntry<Tag> entry = await context.Tags.AddAsync(newTag);
+                updateTags.Add(entry.Entity);
                 existingTags[tag] = entry.Entity;
             }
 
-            return Task.CompletedTask;
+            await context.GameInfoTags.Where(x => x.GameInfoId == gameInfo.Id)
+                .ExecuteDeleteAsync();
+            gameInfo.Tags.AddRange(updateTags);
+            context.Entry(gameInfo).Collection(x => x.Tags).IsModified = true;
         }
 
         public Task UpdateLaunchOption(GameInfo entity, LaunchOption launchOption)
