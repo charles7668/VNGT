@@ -773,16 +773,25 @@ namespace GameManager.Services
 
         public async Task<bool> CheckGameInfoHasTag(int gameId, string tagName)
         {
-            AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            Tag? tag = await unitOfWork.TagRepository.GetAsync(x => x.Name == tagName);
-            if (tag == null)
+            Monitor.Enter(_DatabaseLock);
+            try
             {
-                return false;
-            }
+                AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                Tag? tag = await unitOfWork.TagRepository.GetAsync(x => x.Name == tagName);
+                if (tag == null)
+                {
+                    return false;
+                }
 
-            bool hasTag = await _unitOfWork.GameInfoTagRepository.CheckGameHasTag(tag.Id, gameId);
-            return hasTag;
+                bool hasTag = await _unitOfWork.GameInfoTagRepository.CheckGameHasTag(tag.Id, gameId);
+                return hasTag;
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_DatabaseLock))
+                    Monitor.Exit(_DatabaseLock);
+            }
         }
 
         public async Task<List<string>> GetTagsAsync()
