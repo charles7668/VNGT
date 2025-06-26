@@ -34,6 +34,8 @@ namespace GameManager.DB
         public DbSet<ExternalLink> ExternalLinks { get; set; }
         
         public DbSet<PendingGameInfoDeletion> PendingGameInfoDeletions { get; set; }
+        
+        public DbSet<SearchHistory> SearchHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
