@@ -13,7 +13,7 @@ namespace GameManager.Components.Pages.components
         private string? InputUrlError { get; set; }
 
         [CascadingParameter]
-        public MudDialogInstance? MudDialog { get; set; }
+        public IMudDialogInstance? MudDialog { get; set; }
 
         [Inject]
         private IImageService ImageService { get; set; } = null!;

@@ -9,7 +9,7 @@ namespace GameManager.Components.Pages.components
         public string? Content { get; set; }
 
         [CascadingParameter]
-        private MudDialogInstance DialogInstance { get; set; } = null!;
+        private IMudDialogInstance DialogInstance { get; set; } = null!;
 
         public Task OnOk()
         {

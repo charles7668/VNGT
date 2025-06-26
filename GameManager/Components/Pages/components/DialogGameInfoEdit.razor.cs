@@ -47,7 +47,7 @@ namespace GameManager.Components.Pages.components
         private string CoverPath => ImageService.UriResolve(Model.Cover);
 
         [CascadingParameter]
-        public MudDialogInstance? MudDialog { get; set; }
+        public IMudDialogInstance? MudDialog { get; set; }
 
         private List<string> LeConfigs { get; set; } = [];
 

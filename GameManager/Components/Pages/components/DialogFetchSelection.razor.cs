@@ -19,7 +19,7 @@ namespace GameManager.Components.Pages.components
         private GameInfoProviderFactory GameInfoProviderFactory { get; set; } = null!;
 
         [CascadingParameter]
-        public MudDialogInstance MudDialog { get; set; } = null!;
+        public IMudDialogInstance MudDialog { get; set; } = null!;
 
         [Inject]
         private IDialogService DialogService { get; set; } = null!;

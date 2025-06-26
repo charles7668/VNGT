@@ -13,7 +13,7 @@ namespace GameManager.Components.Pages.components
         private MudForm Form { get; set; } = null!;
 
         [CascadingParameter]
-        private MudDialogInstance DialogInstance { get; set; } = null!;
+        private IMudDialogInstance DialogInstance { get; set; } = null!;
 
         private async Task OnOk()
         {

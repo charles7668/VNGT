@@ -12,7 +12,7 @@ namespace GameManager.Components.Pages.components
         public string InputText { get; set; } = "";
 
         [CascadingParameter]
-        private MudDialogInstance DialogInstance { get; set; } = null!;
+        private IMudDialogInstance DialogInstance { get; set; } = null!;
 
         private Task OnOk(MouseEventArgs obj)
         {

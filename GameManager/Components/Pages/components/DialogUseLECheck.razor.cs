@@ -14,7 +14,7 @@ namespace GameManager.Components.Pages.components
         private List<string> LeConfigs { get; set; } = null!;
 
         [CascadingParameter]
-        public MudDialogInstance? MudDialog { get; set; }
+        public IMudDialogInstance? MudDialog { get; set; }
 
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;

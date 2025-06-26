@@ -8,7 +8,7 @@ namespace GameManager.Components.Pages.components
     public partial class DialogAddFromArchive
     {
         [CascadingParameter]
-        private MudDialogInstance DialogInstance { get; set; } = null!;
+        private IMudDialogInstance DialogInstance { get; set; } = null!;
 
         [Inject]
         private IConfigService ConfigService { get; set; } = null!;

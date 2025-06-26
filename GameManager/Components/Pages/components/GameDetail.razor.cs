@@ -46,7 +46,7 @@ namespace GameManager.Components.Pages.components
         private bool IsLoading { get; set; } = true;
 
         [CascadingParameter]
-        private MudDialogInstance MudDialog { get; set; } = null!;
+        private IMudDialogInstance MudDialog { get; set; } = null!;
 
         [Parameter]
         public EventCallback OnReturnClick { get; set; }
