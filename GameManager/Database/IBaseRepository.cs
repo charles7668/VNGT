@@ -6,33 +6,17 @@ namespace GameManager.Database
     public interface IBaseRepository<TEntity>
     {
         [UsedImplicitly]
-        Task<IEnumerable<TEntity>> GetManyAsync(Expression<Func<TEntity, bool>> query,
-            Func<IQueryable<TEntity>, IQueryable<TEntity>>? includeFunc = null);
+        Task<IEnumerable<TEntity>> GetManyAsync(Expression<Func<TEntity, bool>> query);
 
         [UsedImplicitly]
-        Task<IEnumerable<TSelect>> GetManyAsync<TSelect>(Expression<Func<TEntity, bool>> query,
-            Func<IQueryable<TEntity>, IQueryable<TEntity>> includeFunc,
-            Func<IQueryable<TEntity>, IEnumerable<TSelect>> selectFunc);
-
+        Task<IQueryable<TEntity>> GetAsQueryableAsync(Expression<Func<TEntity, bool>> query);
 
         [UsedImplicitly]
-        Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> query,
-            Func<IQueryable<TEntity>, IQueryable<TEntity>>? includeFunc = null);
-
+        Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> query);
+        
         [UsedImplicitly]
-        Task<TSelect?> GetAsync<TSelect>(Expression<Func<TEntity, bool>> query,
-            Func<IQueryable<TEntity>, IQueryable<TEntity>>? includeFunc,
-            Func<IQueryable<TEntity>, IQueryable<TSelect>> selectFunc);
-
-        [UsedImplicitly]
-        Task<TEntity?> GetAsync(int id,
-            Func<IQueryable<TEntity>, IQueryable<TEntity>>? includeFunc = null);
-
-        [UsedImplicitly]
-        Task<TSelect?> GetAsync<TSelect>(int id,
-            Func<IQueryable<TEntity>, IQueryable<TEntity>>? includeFunc,
-            Func<IQueryable<TEntity>, IQueryable<TSelect>> selectFunc);
-
+        Task<TEntity?> GetAsync(int id);
+        
         [UsedImplicitly]
         Task<TEntity> AddAsync(TEntity entity);
 
@@ -56,5 +40,8 @@ namespace GameManager.Database
 
         [UsedImplicitly]
         Task<int> CountAsync(Expression<Func<TEntity, bool>> queryExpression);
+
+        [UsedImplicitly]
+        Task<int> CountAsync();
     }
 }

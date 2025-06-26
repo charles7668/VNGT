@@ -4,6 +4,7 @@ using GameManager.DB.Models;
 using GameManager.DTOs;
 using Helper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Caching.Memory;
 using System.Linq.Expressions;
 using System.Text.Json;
@@ -77,8 +78,8 @@ namespace GameManager.Services
 
         public async Task<string?> GetScreenShotsDirPath(int gameId)
         {
-            string? uniqueId =
-                await _unitOfWork.GameInfoRepository.GetAsync(gameId, q => q, q => q.Select(x => x.GameUniqueId));
+            GameInfo? gameInfo = await _unitOfWork.GameInfoRepository.GetAsync(gameId);
+            string? uniqueId = gameInfo?.GameUniqueId;
             if (uniqueId == null)
                 return null;
             string fullPath = Path.Combine(_appPathService.ScreenShotsDirPath, uniqueId);
@@ -106,13 +107,10 @@ namespace GameManager.Services
                 await ExceptionHelper.ExecuteWithExceptionHandlingAsync(async () =>
                 {
                     IGameInfoRepository gameInfoRepo = unitOfWork.GameInfoRepository;
-                    string? cover = await gameInfoRepo.GetAsync(id,
-                        q => q,
-                        q => q.Select(x => x.CoverPath));
+                    GameInfo? gameInfo = await gameInfoRepo.GetAsync(id);
+                    string? cover = gameInfo?.CoverPath;
                     if (cover != null)
-                    {
                         await DeleteCoverImage(cover);
-                    }
 
                     deletedInfo = await unitOfWork.GameInfoRepository.DeleteAsync(id);
                     if (deletedInfo == null)
@@ -156,13 +154,10 @@ namespace GameManager.Services
                     await using AsyncServiceScope subScope = _serviceProvider.CreateAsyncScope();
                     IUnitOfWork subUnitOfWork = subScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                     IGameInfoRepository gameInfoRepo = subUnitOfWork.GameInfoRepository;
-                    string? cover = await gameInfoRepo.GetAsync(id,
-                        q => q,
-                        q => q.Select(x => x.CoverPath));
+                    GameInfo? gameInfo = await gameInfoRepo.GetAsync(id);
+                    string? cover = gameInfo?.CoverPath;
                     if (cover != null)
-                    {
                         await DeleteCoverImage(cover);
-                    }
 
                     Monitor.Enter(_DatabaseLock);
                     GameInfo? deletedEntity = unitOfWork.GameInfoRepository.DeleteAsync(id).Result;
@@ -212,11 +207,12 @@ namespace GameManager.Services
         public async Task<GameInfoDTO?> GetGameInfoDTOAsync(Expression<Func<GameInfo, bool>> queryExpression,
             Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeQuery)
         {
-            GameInfo? entity = await _unitOfWork.GameInfoRepository.GetAsync(queryExpression,
-                includeQuery);
+            IQueryable<GameInfo> queryable = await _unitOfWork.GameInfoRepository.GetAsQueryableAsync(queryExpression);
+            GameInfo? entity = null;
+            if (includeQuery != null)
+                entity = await includeQuery(queryable).FirstOrDefaultAsync();
             if (entity == null)
                 return null;
-            _unitOfWork.DetachEntity(entity);
             var dto = GameInfoDTO.Create(entity);
             return dto;
         }
@@ -225,8 +221,9 @@ namespace GameManager.Services
         {
             AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            GameInfo? entity = await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == id,
-                q => q.Include(x => x.LaunchOption));
+            IQueryable<GameInfo> queryable = await unitOfWork.GameInfoRepository.GetAsQueryableAsync(x => x.Id == id);
+            queryable = queryable.Include(x => x.LaunchOption);
+            GameInfo? entity = await queryable.FirstOrDefaultAsync();
             if (entity == null)
                 return null;
 
@@ -237,19 +234,17 @@ namespace GameManager.Services
 
         public async Task<List<int>> GetGameInfoIdCollectionAsync(Expression<Func<GameInfo, bool>> queryExpression)
         {
-            IEnumerable<int> result = await _unitOfWork.GameInfoRepository.GetManyAsync(queryExpression, q => q, q =>
-            {
-                return q.Select(x => x.Id);
-            });
+            IQueryable<GameInfo> queryable = await _unitOfWork.GameInfoRepository.GetAsQueryableAsync(queryExpression);
+            IEnumerable<int> result = queryable.Select(x => x.Id);
             return result.ToList();
         }
 
         public async Task<List<GameInfoDTO>> GetGameInfoDTOsAsync(List<int> ids, int start, int count,
             Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeFunc = null)
         {
-            IEnumerable<GameInfo> entities = await _unitOfWork.GameInfoRepository.GetManyAsync(
-                x => ids.Contains(x.Id),
-                includeFunc);
+            IQueryable<GameInfo> queryable =
+                await _unitOfWork.GameInfoRepository.GetAsQueryableAsync(x => ids.Contains(x.Id));
+            IEnumerable<GameInfo> entities = includeFunc != null ? includeFunc(queryable) : queryable;
             return entities.Select(GameInfoDTO.Create).ToList();
         }
 
@@ -286,8 +281,9 @@ namespace GameManager.Services
         {
             AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            IEnumerable<GameInfo> entities =
-                await unitOfWork.GameInfoRepository.GetManyAsync(x => true, q => q.Include(x => x.LaunchOption));
+            IIncludableQueryable<GameInfo, LaunchOption?> queryable =
+                (await unitOfWork.GameInfoRepository.GetAsQueryableAsync(x => true)).Include(x => x.LaunchOption);
+            IEnumerable<GameInfo> entities = queryable.OrderByDescending(x => x.UploadTime);
             foreach (GameInfo entity in entities)
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -305,13 +301,8 @@ namespace GameManager.Services
         public async Task<List<string>> GetUniqueIdCollection(Expression<Func<GameInfo, bool>> queryExpression,
             int start, int count)
         {
-            IEnumerable<string> result = await _unitOfWork.GameInfoRepository.GetManyAsync(
-                queryExpression,
-                q => q,
-                q =>
-                {
-                    return q.Select(x => x.GameUniqueId);
-                });
+            IQueryable<GameInfo> queryable = await _unitOfWork.GameInfoRepository.GetAsQueryableAsync(queryExpression);
+            IEnumerable<string> result = queryable.Select(x => x.GameUniqueId);
             return result.ToList();
         }
 
@@ -480,9 +471,8 @@ namespace GameManager.Services
                 await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
                 IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 IGameInfoRepository gameInfoRepository = unitOfWork.GameInfoRepository;
-                double playTime = await gameInfoRepository.GetAsync(gameId,
-                    q => q,
-                    q => q.Select(x => x.PlayTime));
+                IQueryable<GameInfo> queryable = await gameInfoRepository.GetAsQueryableAsync(x => x.Id == gameId);
+                double playTime = await queryable.Select(x => x.PlayTime).FirstOrDefaultAsync();
                 await gameInfoRepository.UpdatePropertiesAsync(new GameInfo
                 {
                     Id = gameId,
@@ -552,33 +542,33 @@ namespace GameManager.Services
 
         public async Task<List<StaffDTO>> GetGameInfoStaffDTOs(Expression<Func<GameInfo, bool>> query)
         {
-            IEnumerable<Staff>? result = await _unitOfWork.GameInfoRepository.GetAsync(query,
-                q => q.Include(x => x.Staffs).ThenInclude(x => x.StaffRole)
-                , q => q.Select(x => x.Staffs).Select(x => x));
+            IQueryable<GameInfo> queryable = await _unitOfWork.GameInfoRepository.GetAsQueryableAsync(query);
+            queryable = queryable.Include(x => x.Staffs).ThenInclude(x => x.StaffRole);
+            IEnumerable<Staff>? result = await queryable.Select(x => x.Staffs).FirstOrDefaultAsync();
             return result == null ? [] : result.Select(StaffDTO.Create).ToList();
         }
 
         public async Task<List<CharacterDTO>> GetGameInfoCharacters(Expression<Func<GameInfo, bool>> query)
         {
-            IEnumerable<Character>? result = await _unitOfWork.GameInfoRepository.GetAsync(query,
-                q => q.Include(x => x.Characters),
-                q => q.Select(x => x.Characters));
+            IIncludableQueryable<GameInfo, List<Character>> queryable =
+                (await _unitOfWork.GameInfoRepository.GetAsQueryableAsync(query)).Include(x => x.Characters);
+            IEnumerable<Character>? result = await queryable.Select(x => x.Characters).FirstOrDefaultAsync();
             return result == null ? [] : result.Select(CharacterDTO.Create).ToList();
         }
 
         public async Task<List<ReleaseInfoDTO>> GetGameInfoReleaseInfos(Expression<Func<GameInfo, bool>> query)
         {
-            IEnumerable<ReleaseInfo>? result = await _unitOfWork.GameInfoRepository.GetAsync(query,
-                q => q.Include(x => x.ReleaseInfos).ThenInclude(x => x.ExternalLinks),
-                q => q.Select(x => x.ReleaseInfos));
+            IQueryable<GameInfo> queryable = await _unitOfWork.GameInfoRepository.GetAsQueryableAsync(query);
+            queryable = queryable.Include(x => x.ReleaseInfos).ThenInclude(x => x.ExternalLinks);
+            IEnumerable<ReleaseInfo>? result = await queryable.Select(x => x.ReleaseInfos).FirstOrDefaultAsync();
             return result == null ? [] : result.Select(ReleaseInfoDTO.Create).ToList();
         }
 
         public async Task<List<RelatedSiteDTO>> GetGameInfoRelatedSites(Expression<Func<GameInfo, bool>> query)
         {
-            IEnumerable<RelatedSite>? result = await _unitOfWork.GameInfoRepository.GetAsync(query,
-                q => q.Include(x => x.RelatedSites),
-                q => q.Select(x => x.RelatedSites));
+            IQueryable<GameInfo> queryable = await _unitOfWork.GameInfoRepository.GetAsQueryableAsync(query);
+            queryable = queryable.Include(x => x.RelatedSites);
+            IEnumerable<RelatedSite>? result = await queryable.Select(x => x.RelatedSites).FirstOrDefaultAsync();
             return result == null ? [] : result.Select(RelatedSiteDTO.Create).ToList();
         }
 
@@ -650,9 +640,9 @@ namespace GameManager.Services
         {
             AsyncServiceScope asyncScope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = asyncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            string? gameInfoUniqueId = await unitOfWork.GameInfoRepository.GetAsync(x => x.Id == gameInfoId,
-                query => query
-                , query => query.Select(x => x.GameUniqueId));
+            IQueryable<GameInfo> queryable =
+                await unitOfWork.GameInfoRepository.GetAsQueryableAsync(x => x.Id == gameInfoId);
+            string? gameInfoUniqueId = await queryable.Select(x => x.GameUniqueId).FirstOrDefaultAsync();
             if (string.IsNullOrEmpty(gameInfoUniqueId))
                 return;
             string targetDir = Path.Combine(_appPathService.ScreenShotsDirPath, gameInfoUniqueId);
@@ -765,9 +755,10 @@ namespace GameManager.Services
 
         public async Task<List<string>> GetGameTagsAsync(int gameId)
         {
-            List<Tag>? tagEntities = await _unitOfWork.GameInfoRepository.GetAsync(gameId,
-                q => q.Include(x => x.Tags),
-                q => q.Select(x => x.Tags));
+            IQueryable<GameInfo> queryable =
+                await _unitOfWork.GameInfoRepository.GetAsQueryableAsync(x => x.Id == gameId);
+            queryable = queryable.Include(x => x.Tags);
+            List<Tag>? tagEntities = await queryable.Select(x => x.Tags).FirstOrDefaultAsync();
             return tagEntities == null ? [] : tagEntities.Select(x => x.Name).ToList();
         }
 
@@ -913,8 +904,9 @@ namespace GameManager.Services
         {
             AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
             IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            var entities =
-                (await unitOfWork.GameInfoRepository.GetManyAsync(query, q => q.Include(x => x.LaunchOption))).ToList();
+            IQueryable<GameInfo> queryable = await unitOfWork.GameInfoRepository.GetAsQueryableAsync(query);
+            queryable = queryable.Include(x => x.LaunchOption);
+            var entities = queryable.ToList();
 
             foreach (GameInfo entity in entities)
             {
@@ -936,11 +928,10 @@ namespace GameManager.Services
             {
                 await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
                 IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                GameInfo? currentEntity = await unitOfWork.GameInfoRepository.GetAsync(info.Id,
-                    q =>
-                    {
-                        return q.Include(x => x.LaunchOption);
-                    });
+                IQueryable<GameInfo> queryable =
+                    await unitOfWork.GameInfoRepository.GetAsQueryableAsync(x => x.Id == info.Id);
+                queryable = queryable.Include(x => x.LaunchOption);
+                GameInfo? currentEntity = await queryable.FirstOrDefaultAsync();
 
                 if (currentEntity == null)
                     throw new ArgumentException($"GameInfo of id {info.Id} not found");

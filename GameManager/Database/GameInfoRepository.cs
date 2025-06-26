@@ -8,66 +8,62 @@ namespace GameManager.Database
 {
     public class GameInfoRepository(AppDbContext context) : IGameInfoRepository
     {
-        public async Task<GameInfo> AddAsync(GameInfo entity)
+        private readonly BaseRepoController<GameInfo> _baseRepoController = new(context.Set<GameInfo>());
+
+        public Task<IEnumerable<GameInfo>> GetManyAsync(Expression<Func<GameInfo, bool>> query)
         {
-            EntityEntry<GameInfo> entityEntry = await context.GameInfos.AddAsync(entity);
-            return entityEntry.Entity;
+            return _baseRepoController.GetManyAsync(query);
+        }
+
+        public Task<IQueryable<GameInfo>> GetAsQueryableAsync(Expression<Func<GameInfo, bool>> query)
+        {
+            return _baseRepoController.GetAsQueryableAsync(query);
+        }
+
+        public Task<GameInfo?> GetAsync(Expression<Func<GameInfo, bool>> query)
+        {
+            return _baseRepoController.GetAsync(query);
+        }
+
+        public Task<GameInfo?> GetAsync(int id)
+        {
+            return _baseRepoController.GetAsync(id);
+        }
+
+        public Task<GameInfo> AddAsync(GameInfo entity)
+        {
+            return _baseRepoController.AddAsync(entity);
         }
 
         public Task AddManyAsync(List<GameInfo> entities)
         {
-            context.GameInfos.AddRange(entities);
-            return Task.CompletedTask;
+            return _baseRepoController.AddManyAsync(entities);
         }
 
         public Task<bool> AnyAsync(Expression<Func<GameInfo, bool>> query)
         {
-            return context.GameInfos.AnyAsync(query);
+            return _baseRepoController.AnyAsync(query);
         }
 
         public Task<GameInfo> UpdateAsync(GameInfo originEntity, GameInfo info)
         {
-            context.Entry(originEntity).CurrentValues.SetValues(info);
-            context.Entry(originEntity).State = EntityState.Modified; // 強制標記為已修改
-
-            return Task.FromResult(originEntity);
+            return _baseRepoController.UpdateAsync(originEntity, info);
         }
 
-        public async Task<GameInfo?> DeleteAsync(int id)
+        public Task<GameInfo?> DeleteAsync(int id)
         {
-            GameInfo? entity = await GetAsync(id,
-                q =>
-                {
-                    return q.Include(x => x.LaunchOption);
-                });
-            if (entity == null)
-                return null;
-
-            context.GameInfos.Remove(entity);
-            if (entity.LaunchOption != null)
-                context.LaunchOptions.Remove(entity.LaunchOption);
-            return entity;
+            return _baseRepoController.DeleteAsync(id);
         }
 
         public Task<GameInfo?> DeleteAsync(Expression<Func<GameInfo, bool>> query)
         {
-            GameInfo? entity = context.GameInfos.FirstOrDefault(query);
-            if (entity == null)
-                return Task.FromResult<GameInfo?>(null);
-            context.GameInfos.Remove(entity);
-            return Task.FromResult<GameInfo?>(entity);
+            return _baseRepoController.DeleteAsync(query);
         }
 
         public Task UpdatePropertiesAsync(GameInfo entity,
             params Expression<Func<GameInfo, object?>>[] properties)
         {
-            context.Attach(entity);
-            foreach (Expression<Func<GameInfo, object?>> prop in properties)
-            {
-                context.Entry(entity).Property(prop).IsModified = true;
-            }
-
-            return Task.CompletedTask;
+            return _baseRepoController.UpdatePropertiesAsync(entity, properties);
         }
 
         public async Task UpdateStaffsAsync(GameInfo entity, List<Staff> staffs)
@@ -261,7 +257,8 @@ namespace GameManager.Database
         {
             IQueryable<int> staffList = context.GameInfoStaffs
                 .Where(x => x.GameInfoId == gameInfoId).Select(x => x.StaffId);
-            return Task.FromResult<IEnumerable<Staff>>(context.Staffs.Include(x => x.StaffRole).Where(x => staffList.Contains(x.Id)));
+            return Task.FromResult<IEnumerable<Staff>>(context.Staffs.Include(x => x.StaffRole)
+                .Where(x => staffList.Contains(x.Id)));
         }
 
         public Task<IEnumerable<Character>> GetCharacters(int gameInfoId)
@@ -292,76 +289,12 @@ namespace GameManager.Database
 
         public Task<int> CountAsync(Expression<Func<GameInfo, bool>> queryExpression)
         {
-            return context.GameInfos.CountAsync(queryExpression);
+            return _baseRepoController.CountAsync(queryExpression);
         }
 
-        public Task<IEnumerable<GameInfo>> GetManyAsync(Expression<Func<GameInfo, bool>> query,
-            Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeFunc = null)
+        public Task<int> CountAsync()
         {
-            IQueryable<GameInfo> queryable = context.GameInfos
-                .AsNoTracking();
-            queryable = queryable.Where(query);
-            if (includeFunc != null)
-                queryable = includeFunc(queryable);
-            queryable = queryable.OrderByDescending(x => x.UploadTime);
-            return Task.FromResult(queryable.AsEnumerable());
-        }
-
-        public Task<IEnumerable<TEntity>> GetManyAsync<TEntity>(Expression<Func<GameInfo, bool>> query,
-            Func<IQueryable<GameInfo>, IQueryable<GameInfo>> includeFunc,
-            Func<IQueryable<GameInfo>, IEnumerable<TEntity>> selectFunc)
-        {
-            IQueryable<GameInfo> queryable = context.GameInfos
-                .AsNoTracking();
-            queryable = queryable.Where(query);
-            queryable = includeFunc(queryable);
-            queryable = queryable.OrderByDescending(x => x.UploadTime);
-            return Task.FromResult(selectFunc(queryable));
-        }
-
-        public Task<GameInfo?> GetAsync(Expression<Func<GameInfo, bool>> query,
-            Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeFunc = null)
-        {
-            IQueryable<GameInfo> queryable = context.GameInfos
-                .AsNoTracking();
-            queryable = queryable.Where(query);
-            if (includeFunc != null)
-                queryable = includeFunc(queryable);
-            return queryable.FirstOrDefaultAsync();
-        }
-
-        public Task<TEntity?> GetAsync<TEntity>(Expression<Func<GameInfo, bool>> query,
-            Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeFunc,
-            Func<IQueryable<GameInfo>, IQueryable<TEntity>> selectFunc)
-        {
-            IQueryable<GameInfo> queryable = context.GameInfos
-                .AsNoTracking();
-            queryable = queryable.Where(query);
-            if (includeFunc != null)
-                queryable = includeFunc(queryable);
-            return Task.FromResult(selectFunc(queryable).FirstOrDefault());
-        }
-
-        public Task<GameInfo?> GetAsync(int id, Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeFunc = null)
-        {
-            IQueryable<GameInfo> queryable = context.GameInfos
-                .AsNoTracking();
-            queryable = queryable.Where(x => x.Id == id);
-            if (includeFunc != null)
-                queryable = includeFunc(queryable);
-            return queryable.FirstOrDefaultAsync();
-        }
-
-        public Task<TEntity?> GetAsync<TEntity>(int id,
-            Func<IQueryable<GameInfo>, IQueryable<GameInfo>>? includeFunc,
-            Func<IQueryable<GameInfo>, IQueryable<TEntity>> selectFunc)
-        {
-            IQueryable<GameInfo> queryable = context.GameInfos
-                .AsNoTracking();
-            queryable = queryable.Where(x => x.Id == id);
-            if (includeFunc != null)
-                queryable = includeFunc(queryable);
-            return Task.FromResult(selectFunc(queryable).FirstOrDefault());
+            return _baseRepoController.CountAsync();
         }
     }
 }
