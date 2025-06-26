@@ -982,5 +982,57 @@ namespace GameManager.Services
                     Monitor.Exit(_DatabaseLock);
             }
         }
+
+        public async Task AddSearchHistoryAsync(string searchText)
+        {
+             Monitor.Enter(_DatabaseLock);
+            try
+            {
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+                IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                await unitOfWork.SearchHistoryRepository.AddAsync(new SearchHistory()
+                {
+                    SearchText = searchText,
+                    SearchTime = DateTime.Now
+                });
+                await unitOfWork.SaveChangesAsync();
+                
+                // remove old search history if the count exceeds 500
+                int recordCount = await unitOfWork.SearchHistoryRepository.CountAsync(x => true);
+                if (recordCount > 500)
+                {
+                    IEnumerable<SearchHistory> queries =
+                        await unitOfWork.SearchHistoryRepository.GetManyAsync(q => true);
+                    IEnumerable<SearchHistory> deletePending =
+                        queries.OrderByDescending(x => x.SearchTime).Take(new Range(500, recordCount));
+                    foreach (SearchHistory deleteItem in deletePending)
+                    {
+                        await unitOfWork.SearchHistoryRepository.DeleteAsync(deleteItem.Id);
+                    }
+                }
+
+                await unitOfWork.SaveChangesAsync();
+            }
+            finally
+            {
+                if (Monitor.IsEntered(_DatabaseLock))
+                    Monitor.Exit(_DatabaseLock);
+            } 
+        }
+
+        public async Task<IEnumerable<string>> GetSearchHistoryAsync(string prefix, int count)
+        {
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            IEnumerable<SearchHistory> query =
+                await unitOfWork.SearchHistoryRepository.GetManyAsync(s =>
+                    EF.Functions.Like(s.SearchText, prefix + "%"));
+            IEnumerable<string> result = query.OrderByDescending(x => x.SearchTime)
+                .DistinctBy(x => x.SearchText)
+                .Take(count)
+                .Select(x => x.SearchText);
+
+            return result;
+        }
     }
 }

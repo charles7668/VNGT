@@ -29,6 +29,9 @@ namespace GameManager.Components.Pages.components
         
         [Parameter]
         public EventCallback<SearchParameter> SearchEvent { get; set; }
+        
+        [Parameter]
+        public Func<string, CancellationToken, Task<List<string>>>? SearchSuggestionFunc { get; set; }
 
         [Parameter]
         public EventCallback OnDeleteEvent { get; set; }
@@ -60,6 +63,10 @@ namespace GameManager.Components.Pages.components
         [Inject]
         private new ILogger<ActionBar> Logger { get; set; } = null!;
 
+        private MudAutocomplete<string> SearchAutoCompleteRef { get; set; } = null!;
+
+        private List<string> suggestions = [];
+            
         protected override void OnInitialized()
         {
             SortOrderDict = new Dictionary<SortOrder, string>
@@ -384,8 +391,16 @@ namespace GameManager.Components.Pages.components
 
         private async Task OnKeyDown(KeyboardEventArgs key)
         {
-            if (key.Key == "Enter")
-                await OnSearch();
+            if (key.Key != "Enter" || (suggestions.Count > 0 && SearchAutoCompleteRef.Open))
+                return;
+            await OnSearch();
+        }
+
+        private async Task<IEnumerable<string>> TriggerSearchSuggestions(string searchText, CancellationToken token)
+        {
+            if (SearchSuggestionFunc != null)
+                suggestions = await SearchSuggestionFunc(searchText ?? "", token);
+            return suggestions;
         }
 
         private async Task OnSearch()

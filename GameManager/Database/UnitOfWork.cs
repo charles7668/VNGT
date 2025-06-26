@@ -16,6 +16,7 @@ namespace GameManager.Database
             TagRepository = new TagRepository(Context);
             GameInfoTagRepository = new GameInfoTagRepository(Context);
             PendingGameInfoDeletionRepository = new PendingGameInfoDeletionRepository(Context);
+            SearchHistoryRepository = new SearchHistoryRepository(Context);
         }
 
         public AppDbContext Context { get; }
@@ -35,6 +36,8 @@ namespace GameManager.Database
         public IGameInfoTagRepository GameInfoTagRepository { get; }
 
         public IPendingGameInfoDeletionRepository PendingGameInfoDeletionRepository { get; }
+        
+        public ISearchHistoryRepository SearchHistoryRepository { get; }
 
         public Task<int> SaveChangesAsync()
         {

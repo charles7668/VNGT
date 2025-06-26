@@ -31,15 +31,18 @@
                 </MudCheckBox>
             </MudMenuItem>
         </MudMenu>
-        <MudTextField T="string"
-                      @bind-Value="SearchText"
-                      Immediate="true"
-                      OnKeyDown="OnKeyDown"
-                      Adornment="Adornment.End"
-                      AdornmentIcon="@Icons.Material.Filled.Close"
-                      OnAdornmentClick="() => { SearchText = string.Empty; }"
-                      Placeholder="Search">
-        </MudTextField>
+        <MudAutocomplete T="string"
+                         @ref="SearchAutoCompleteRef"
+                         @bind-Value="SearchText"
+                         SearchFunc="@TriggerSearchSuggestions"
+                         Immediate="true"
+                         OnKeyDown="OnKeyDown"
+                         CoerceValue="true"
+                         Adornment="Adornment.End"
+                         AdornmentIcon="@Icons.Material.Filled.Close"
+                         OnAdornmentClick="() => { SearchText = string.Empty; }"
+                         Placeholder="Search">
+        </MudAutocomplete>
         <MudButton Class="ml-2"
                    Variant="Variant.Outlined"
                    StartIcon="@Icons.Material.Filled.Search"

@@ -106,5 +106,9 @@ namespace GameManager.Services
         Task<List<PendingGameInfoDeletionDTO>> GetPendingGameInfoDeletionUniqueIdsAsync();
 
         Task RemovePendingGameInfoDeletionsAsync(List<PendingGameInfoDeletionDTO> pendingGameInfoDeletionDTOs);
+
+        Task AddSearchHistoryAsync(string searchText);
+        
+        Task<IEnumerable<string>> GetSearchHistoryAsync(string prefix, int count);
     }
 }

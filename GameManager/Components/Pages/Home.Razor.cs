@@ -306,10 +306,35 @@ namespace GameManager.Components.Pages
 
                 viewInfo.Display = display;
             });
-
+            if (!string.IsNullOrWhiteSpace(parameter.SearchText))
+            {
+                try
+                {
+                    await ConfigService.AddSearchHistoryAsync(parameter.SearchText);
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
+            
             _ = VirtualizeComponent?.RefreshDataAsync();
             IsLoading = false;
             _ = InvokeAsync(StateHasChanged);
+        }
+
+        private async Task<List<string>> SearchSuggestionsFunc(string searchText, CancellationToken token)
+        {
+            try
+            {
+                IEnumerable<string> suggestions = await ConfigService.GetSearchHistoryAsync(searchText, 50);
+                return suggestions.ToList();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error occurred when getting search suggestions : {Exception}", ex.ToString());
+                return [];
+            }
         }
 
         private async Task ShowConfirmDialogAsync(string message)
