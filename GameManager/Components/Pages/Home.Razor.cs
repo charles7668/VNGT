@@ -22,6 +22,15 @@ namespace GameManager.Components.Pages
     {
         private static bool _IsVersionChecked;
 
+        private readonly Dictionary<SortOrder, string> _sortOrderDict = new Dictionary<SortOrder, string>
+        {
+            { SortOrder.NAME, Resources.Home_SortBy_GameName },
+            { SortOrder.UPLOAD_TIME, Resources.Home_SortBy_UploadTime },
+            { SortOrder.DEVELOPER, Resources.Home_SortBy_Developer },
+            { SortOrder.FAVORITE, Resources.Home_SortBy_Favorite },
+            { SortOrder.LAST_PLAYED, Resources.Home_SortBy_LastPlayed }
+        };
+
         private SortOrder _currentOrder = SortOrder.UPLOAD_TIME;
         private CancellationTokenSource _deleteTaskCancellationTokenSource = new();
         private CancellationTokenSource _loadingCancellationTokenSource = new();
@@ -73,14 +82,7 @@ namespace GameManager.Components.Pages
 
         private Virtualize<IEnumerable<ViewInfo>>? VirtualizeComponent { get; set; }
 
-        private readonly Dictionary<SortOrder, string> _sortOrderDict = new Dictionary<SortOrder, string>
-        {
-            { SortOrder.NAME, Resources.Home_SortBy_GameName },
-            { SortOrder.UPLOAD_TIME, Resources.Home_SortBy_UploadTime },
-            { SortOrder.DEVELOPER, Resources.Home_SortBy_Developer },
-            { SortOrder.FAVORITE, Resources.Home_SortBy_Favorite },
-            { SortOrder.LAST_PLAYED, Resources.Home_SortBy_LastPlayed }
-        };
+        private ActionBar _actionBar { get; set; } = null!;
 
         private string CardListCss => CssBuilder
             .Default(IsDeleting ? "deleting justify-center align-center d-flex" : "" + " flex-grow-1")
@@ -486,17 +488,6 @@ namespace GameManager.Components.Pages
             }, _loadingCancellationTokenSource.Token);
         }
 
-        [JSInvokable("OnResizeEvent")]
-        public async Task OnResizeEvent(int width, int height)
-        {
-            ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
-            ValueTask<float> getRemToPixels = JsRuntime.InvokeAsync<float>("remToPixels", 0.5);
-            CardListWidth = await getWidthTask;
-            CardGapPixel = (int)Math.Ceiling(await getRemToPixels);
-            _ = VirtualizeComponent?.RefreshDataAsync();
-            _ = InvokeAsync(StateHasChanged);
-        }
-
         private ValueTask<ItemsProviderResult<IEnumerable<ViewInfo>>> CardItemProvider(
             ItemsProviderRequest request)
         {
@@ -610,6 +601,27 @@ namespace GameManager.Components.Pages
             public bool IsSelected { get; set; }
         }
 
+        #region JavaScript Interop
+
+        [JSInvokable("OnResizeEvent")]
+        public async Task OnResizeEvent(int width, int height)
+        {
+            ValueTask<int> getWidthTask = JsRuntime.InvokeAsync<int>("getCardListWidth");
+            ValueTask<float> getRemToPixels = JsRuntime.InvokeAsync<float>("remToPixels", 0.5);
+            CardListWidth = await getWidthTask;
+            CardGapPixel = (int)Math.Ceiling(await getRemToPixels);
+            _ = VirtualizeComponent?.RefreshDataAsync();
+            _ = InvokeAsync(StateHasChanged);
+        }
+
+        [JSInvokable("OnSearchHotkeyTriggered")]
+        public async Task OnSearchHotkeyTriggered()
+        {
+            await _actionBar.FocusSearchInputAsync();
+        }
+
+        #endregion
+
         #region Lifecycle
 
         protected override Task OnInitializedAsync()
@@ -666,6 +678,7 @@ namespace GameManager.Components.Pages
 
                 _objRef = DotNetObjectReference.Create(this);
                 await JsRuntime.InvokeVoidAsync("resizeHandlers.addResizeListener", _objRef);
+                await JsRuntime.InvokeVoidAsync("hotkeyHandlers.registerMainPageHotkey", _objRef);
                 _ = DetectNewerVersion();
             }
             catch (Exception ex)

@@ -62,7 +62,7 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private new ILogger<ActionBar> Logger { get; set; } = null!;
-
+        
         private MudAutocomplete<string> SearchAutoCompleteRef { get; set; } = null!;
 
         private List<string> suggestions = [];
@@ -590,6 +590,11 @@ namespace GameManager.Components.Pages.components
             public string? SearchText { get; set; } = searchText;
 
             public SearchFilter SearchFilter { get; set; } = filter;
+        }
+
+        public async Task FocusSearchInputAsync()
+        {
+            await SearchAutoCompleteRef.FocusAsync();
         }
     }
 }

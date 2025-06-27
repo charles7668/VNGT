@@ -1,4 +1,5 @@
 window.resizeHandlers = {};
+window.hotkeyHandlers = {};
 
 let observer = null;
 
@@ -34,3 +35,12 @@ function getCardListWidth() {
 function remToPixels(rem) {
     return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
 }
+
+window.hotkeyHandlers.registerMainPageHotkey = (dotNetHelper) => {
+    document.addEventListener('keydown', function (e) {
+        if (e.ctrlKey && e.key === 'f') {
+            e.preventDefault();
+            dotNetHelper.invokeMethodAsync('OnSearchHotkeyTriggered');
+        }
+    });
+};
