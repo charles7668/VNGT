@@ -36,5 +36,10 @@ namespace Helper
 
             return false;
         }
+
+        public static string? ToUnixPath(this string? input)
+        {
+            return input?.Replace("\\", "/");
+        }
     }
 }

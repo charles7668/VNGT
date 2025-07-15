@@ -16,6 +16,7 @@ using MudBlazor;
 using System.Diagnostics;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using FileInfo = GameManager.Models.FileInfo;
 
 namespace GameManager.Components.Pages.components
 {
@@ -26,10 +27,10 @@ namespace GameManager.Components.Pages.components
 
         [Parameter]
         public EventCallback<string> AddNewGameEvent { get; set; }
-        
+
         [Parameter]
         public EventCallback<SearchParameter> SearchEvent { get; set; }
-        
+
         [Parameter]
         public Func<string, CancellationToken, Task<List<string>>>? SearchSuggestionFunc { get; set; }
 
@@ -38,7 +39,7 @@ namespace GameManager.Components.Pages.components
 
         [Parameter]
         public EventCallback OnRefreshEvent { get; set; }
-        
+
         private Dictionary<SortOrder, string> SortOrderDict { get; set; } = null!;
 
         private SortOrder SortBy { get; set; } = SortOrder.UPLOAD_TIME;
@@ -62,11 +63,11 @@ namespace GameManager.Components.Pages.components
 
         [Inject]
         private new ILogger<ActionBar> Logger { get; set; } = null!;
-        
+
         private MudAutocomplete<string> SearchAutoCompleteRef { get; set; } = null!;
 
         private List<string> suggestions = [];
-            
+
         protected override void OnInitialized()
         {
             SortOrderDict = new Dictionary<SortOrder, string>
@@ -105,7 +106,7 @@ namespace GameManager.Components.Pages.components
                 .AddYamlFile(confFileName, false, false)
                 .Build();
             string version = configuration.GetValue("Version", "") ?? "";
-            if (string.IsNullOrWhiteSpace(version) || new Version(version) < new Version("0.4.0"))
+            if (string.IsNullOrWhiteSpace(version) || new Version(version) < new Version("1.0.0"))
             {
                 Snackbar.Add(reinstallMessage, Severity.Warning);
                 return;
@@ -166,8 +167,8 @@ namespace GameManager.Components.Pages.components
             string tempPath =
                 Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetTempFileName()));
             Directory.CreateDirectory(tempPath);
-            string tempConsoleOutputPath = Path.Combine(tempPath, "output.txt");
-            string tempConsoleErrorPath = Path.Combine(tempPath, "error.txt");
+            string tempOutputPath = Path.Combine(tempPath, "output.txt");
+            string tempErrorPath = Path.Combine(tempPath, "error.txt");
 
             IDialogReference dialogReferenceProgress = await DialogService.ShowAsync<ProgressDialog>("Installing",
                 new DialogOptions
@@ -175,185 +176,120 @@ namespace GameManager.Components.Pages.components
                     FullWidth = true,
                     MaxWidth = MaxWidth.Small
                 });
-            DateTime showProgressDialogTimeStamp = DateTime.UtcNow;
             try
             {
-                Process? installProc = null;
+                if (!Directory.Exists(tempPath))
+                    Directory.CreateDirectory(tempPath);
+                ProcessStartInfo processTracerStartInfo;
                 if (!string.IsNullOrEmpty(guid))
                 {
-                    var leProcessStartInfo = new ProcessStartInfo
+                    string[] args =
+                    [
+                        $"-f\"{leExePath.ToUnixPath()}\"",
+                        $"-a\"-runas {guid} \\\"{installFileResult.FullPath.ToUnixPath()}\\\"\"",
+                        $"-o\"{tempOutputPath.ToUnixPath()}\"",
+                        $"-e\"{tempErrorPath.ToUnixPath()}\"",
+                        "--hide"
+                    ];
+                    processTracerStartInfo = new ProcessStartInfo()
                     {
-                        FileName = leExePath,
-                        Arguments = $"-runas \"{guid}\" \"{installFileResult.FullPath}\"",
-                        UseShellExecute = false
+                        FileName = processTracingToolPath,
+                        WorkingDirectory = AppPathService.AppDirPath,
+                        Arguments = string.Join(' ', args),
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
                     };
-                    var leProc = Process.Start(leProcessStartInfo);
-                    await Task.Delay(500);
-                    DateTime timeStamp = DateTime.UtcNow;
-                    while (leProc != null)
-                    {
-                        List<Process> childList = ProcessHelper.GetChildProcessesByParentPid(leProc.Id);
-                        Process? childLeProc = childList.FirstOrDefault(x =>
-                        {
-                            try
-                            {
-                                return x.ProcessName == "LEProc";
-                            }
-                            catch
-                            {
-                                return false;
-                            }
-                        });
-                        try
-                        {
-                            if (childLeProc == null)
-                            {
-                                Process? firstProc = childList.FirstOrDefault();
-                                installProc = firstProc ?? throw new Exception();
-                                break;
-                            }
-
-                            leProc = childLeProc;
-                        }
-                        catch
-                        {
-                            installProc = null;
-                            if (DateTime.UtcNow - timeStamp <= TimeSpan.FromSeconds(5))
-                            {
-                                await Task.Delay(500);
-                                continue;
-                            }
-
-                            break;
-                        }
-                    }
                 }
                 else
                 {
-                    try
+                    string[] args =
+                    [
+                        $"-f\"{installFileResult.FullPath.ToUnixPath()}\"",
+                        $"-o\"{tempOutputPath.ToUnixPath()}\"",
+                        $"-e\"{tempErrorPath.ToUnixPath()}\"",
+                        "--hide"
+                    ];
+                    processTracerStartInfo = new ProcessStartInfo()
                     {
-                        bool isRunAsAdmin = UACChecker.RequiresElevation(installFileResult.FullPath);
-                        var processStartInfo = new ProcessStartInfo
-                        {
-                            FileName = installFileResult.FullPath,
-                            UseShellExecute = isRunAsAdmin,
-                            Verb = isRunAsAdmin ? "runas" : ""
-                        };
-                        var proc = Process.Start(processStartInfo);
-                        proc?.WaitForInputIdle();
-                        // get process again
-                        installProc = proc != null ? Process.GetProcessById(proc.Id) : null;
-                    }
-                    catch (Exception e)
-                    {
-                        installProc = null;
-                        Logger.LogError(e, "Failed to start install program");
-                    }
+                        FileName = processTracingToolPath,
+                        WorkingDirectory = AppPathService.AppDirPath,
+                        Arguments = string.Join(' ', args),
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                    };
                 }
 
-                Process? processTracerProc = null;
-                if (installProc != null)
+                var procTracerProc = Process.Start(processTracerStartInfo);
+                if (procTracerProc != null)
                 {
-                    var processTracerStartInfo = new ProcessStartInfo
+                    await procTracerProc.WaitForExitAsync();
+                    var stdOutput = await procTracerProc.StandardOutput.ReadToEndAsync();
+                    var stdErr= await procTracerProc.StandardError.ReadToEndAsync();
+                    Logger.LogInformation("ProcessTracer output: {StdOutput}", stdOutput);
+                    if(!string.IsNullOrEmpty(stdErr))
                     {
-                        FileName = "cmd.exe",
-                        WorkingDirectory = AppPathService.AppDirPath,
-                        Arguments =
-                            $"/c {processTracingToolPath} --hide --pid {installProc.Id} --file \"{installFileResult.FullPath}\" --disable-registry > \"{tempConsoleOutputPath}\" 2>\"{tempConsoleErrorPath}\" --wait 5000",
-                        RedirectStandardOutput = false,
-                        RedirectStandardError = false,
-                        UseShellExecute = true,
-                        CreateNoWindow = true,
-                        Verb = "runas"
-                    };
-
-                    try
-                    {
-                        processTracerProc = Process.Start(processTracerStartInfo);
-                        if (processTracerProc == null)
-                        {
-                            Snackbar.Add("Failed to start ProcessTracer tool", Severity.Error);
-                            return;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.LogError(e, "Failed to start ProcessTracer tool : {Exception}", e.ToString());
-                        Snackbar.Add("Failed to start ProcessTracer tool", Severity.Error);
+                        Snackbar.Add(stdErr, Severity.Error);
+                        Logger.LogError("ProcessTracer error: {StdErr}", stdErr);
                         return;
                     }
-
-                    IntPtr hwnd = installProc.MainWindowHandle;
-                    WindowsAPI.SetForegroundWindow(hwnd);
                 }
 
-                if (processTracerProc != null)
-                    await processTracerProc.WaitForExitAsync();
+                if (File.Exists(tempErrorPath))
+                {
+                    var error = await File.ReadAllTextAsync(tempErrorPath);
+                    if (!string.IsNullOrWhiteSpace(error))
+                    {
+                        Snackbar.Add(error, Severity.Error);
+                        return;
+                    }
+                }
+
+                IGameInstallAnalyzer gameInstallAnalyzer =
+                    App.ServiceProvider.GetRequiredService<IGameInstallAnalyzer>();
+                Result<string?> analyzeResult =
+                    await gameInstallAnalyzer.AnalyzeFromFileAsync(tempOutputPath,
+                        installFileResult.FullPath);
                 string target = "";
-                string errors = "";
-                if (File.Exists(tempConsoleErrorPath))
+                if (!analyzeResult.Success)
                 {
-                    errors = await File.ReadAllTextAsync(tempConsoleErrorPath);
+                    Snackbar.Add(analyzeResult.Message, Severity.Error);
+                    return;
+                }
+                else if (analyzeResult.Value == null)
+                {
+                    Snackbar.Add("Can't find the executable file of game", Severity.Error);
+                    return;
+                }
+                else
+                {
+                    target = analyzeResult.Value;
                 }
 
-                try
-                {
-                    if (!string.IsNullOrEmpty(errors))
-                    {
-                        Snackbar.Add(errors, Severity.Error);
-                    }
-                    else
-                    {
-                        IGameInstallAnalyzer gameInstallAnalyzer =
-                            App.ServiceProvider.GetRequiredService<IGameInstallAnalyzer>();
-                        Result<string?> analyzeResult =
-                            await gameInstallAnalyzer.AnalyzeFromFileAsync(tempConsoleOutputPath,
-                                installFileResult.FullPath);
-                        if (!analyzeResult.Success)
-                        {
-                            Snackbar.Add(analyzeResult.Message, Severity.Error);
-                            return;
-                        }
-                        else if (analyzeResult.Value == null)
-                        {
-                            Snackbar.Add("Can't find the executable file of game", Severity.Error);
-                            return;
-                        }
-                        else
-                        {
-                            target = analyzeResult.Value;
-                        }
-                    }
-                }
-                finally
-                {
-                    try
-                    {
-                        Directory.Delete(tempPath);
-                    }
-                    catch (Exception)
-                    {
-                        // ignore
-                    }
-                }
-
-                // if the target is empty, return
                 if (string.IsNullOrEmpty(target))
                     return;
 
                 if (AddNewGameEvent.HasDelegate)
                     await AddNewGameEvent.InvokeAsync(target);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Logger.LogError(e, "Failed to install game");
+                Logger.LogError(ex, "Failed to install game");
                 Snackbar.Add(Resources.Message_DetectGameInstallError, Severity.Error);
             }
             finally
             {
-                // dialog progress should be shown at least 1 second for avoid crash
-                TimeSpan waitingTime = TimeSpan.FromSeconds(1) - (DateTime.UtcNow - showProgressDialogTimeStamp);
-                await Task.Delay(waitingTime.Milliseconds > 0 ? waitingTime : TimeSpan.Zero);
+                try
+                {
+                    Directory.Delete(tempPath);
+                }
+                catch
+                {
+                    // ignore
+                }
                 dialogReferenceProgress.Close();
             }
         }

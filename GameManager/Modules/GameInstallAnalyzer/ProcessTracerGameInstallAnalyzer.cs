@@ -1,15 +1,21 @@
 ﻿using GameManager.Models;
 using System.Text;
+using System.Text.RegularExpressions;
+using FileInfo = System.IO.FileInfo;
 
 namespace GameManager.Modules.GameInstallAnalyzer
 {
     public class ProcessTracerGameInstallAnalyzer : IGameInstallAnalyzer
     {
-        private readonly string[] _globalExcludePath =
+        // exclude uninstaller file name
+        private readonly HashSet<string> _globalExcludeFileName = ["uninst.exe"];
+
+        private readonly HashSet<string> _globalExcludePath =
         [
             Environment.GetFolderPath(Environment.SpecialFolder.Windows),
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-            Path.GetTempPath(),
+            Path.GetTempPath().TrimEnd('\\'),
+            "C:\\Windows\\Temp",
             "C:\\Program Files\\Sandboxie-Plus"
         ];
 
@@ -19,81 +25,83 @@ namespace GameManager.Modules.GameInstallAnalyzer
                 return Result<string?>.Ok(null);
             if (!File.Exists(traceDataFilePath))
                 return Result<string?>.Ok(null);
-            Dictionary<FileIOType, HashSet<string>> candidateFilePaths = [];
-            var excludePath = new List<string>(_globalExcludePath)
+            Dictionary<string, int> candidateFilePaths = [];
+            var excludePath = new HashSet<string>(_globalExcludePath)
             {
                 Path.GetDirectoryName(installFilePath)!
             };
-            Dictionary<string, int> pathCounter = new();
+            string? target = null;
             using (var sr = new StreamReader(traceDataFilePath, Encoding.UTF8))
             {
                 do
                 {
                     string? line = await sr.ReadLineAsync();
-                    // Find FileIOCreate or FileIOWrite
-                    if (line == null ||
-                        (!line.StartsWith("[FileIOWrite]") && !line.StartsWith("[FileIOCreate]")))
+                    if (line == null || !line.Contains("[Hook] NtCreateFile"))
+                        continue;
+                    string filePath = SolveNtCreateFile(line);
+                    string extension = Path.GetExtension(filePath).ToLower();
+                    if (string.IsNullOrWhiteSpace(filePath) || extension != ".exe")
+                        continue;
+                    if (excludePath.Contains(Path.GetDirectoryName(filePath) ?? ""))
                     {
                         continue;
                     }
 
-                    FileIOType type = line.StartsWith("[FileIOWrite]") ? FileIOType.WRITE : FileIOType.CREATE;
-
-                    int startIndex = line.LastIndexOf(", File: ", StringComparison.Ordinal);
-                    string filePath = line.Substring(startIndex + 8);
-                    // if the file path is in the exclude path, skip it
-                    if (excludePath.Any(p => filePath.ToLower().StartsWith(p.ToLower())))
-                    {
+                    if (_globalExcludeFileName.Contains(Path.GetFileName(filePath)))
                         continue;
+
+                    if (!candidateFilePaths.TryAdd(filePath, 1))
+                    {
+                        candidateFilePaths[filePath]++;
                     }
-
-
-                    string? dirPath = Path.GetDirectoryName(filePath);
-                    if (filePath.EndsWith('\\'))
-                        dirPath = filePath;
-                    string ext = Path.GetExtension(filePath);
-                    // only find for exe path
-                    if (dirPath == null || ext != ".exe") continue;
-                    pathCounter[dirPath] = pathCounter.GetValueOrDefault(dirPath) + 1;
-                    if (!candidateFilePaths.ContainsKey(type))
-                        candidateFilePaths[type] = [];
-                    candidateFilePaths[type].Add(filePath);
                 } while (!sr.EndOfStream);
             }
 
-            int totalCount = 0;
-            foreach (KeyValuePair<FileIOType, HashSet<string>> candidateFilePath in candidateFilePaths)
-            {
-                totalCount += candidateFilePath.Value.Count;
-            }
+            if (candidateFilePaths.Count == 0)
+                return Result<string?>.Ok(target);
 
-            if (totalCount == 0)
+            // Use the largest file size as the target
+            long maxFileSize = 0;
+            foreach (KeyValuePair<string, int> candidateFile in candidateFilePaths)
             {
-                return Result<string?>.Ok(null);
-            }
-
-            // find candidate , prefer write over create
-            List<string> candidates =
-                candidateFilePaths.ContainsKey(FileIOType.WRITE) && candidateFilePaths[FileIOType.WRITE].Count > 0
-                    ? candidateFilePaths[FileIOType.WRITE].ToList()
-                    : candidateFilePaths[FileIOType.CREATE].ToList();
-            string? target = candidates.FirstOrDefault();
-            int targetCount = pathCounter!.GetValueOrDefault(Path.GetDirectoryName(candidates[0]));
-            for (int i = 1; i < candidates.Count; ++i)
-            {
-                string? dirPath = Path.GetDirectoryName(candidates[i]);
-                if (string.IsNullOrEmpty(dirPath) || pathCounter[dirPath] <= targetCount) continue;
-                targetCount = pathCounter[dirPath];
-                target = candidates[i];
+                var fileInfo = new FileInfo(candidateFile.Key);
+                if (fileInfo.Length <= maxFileSize)
+                    continue;
+                maxFileSize = fileInfo.Length;
+                target = candidateFile.Key;
             }
 
             return Result<string?>.Ok(target);
         }
 
-        private enum FileIOType
+        private string SolveNtCreateFile(string line)
         {
-            WRITE,
-            CREATE
+            string pattern = @"\[DesiredAccess\]\s+(?<access>[0-9A-Fa-f]+),\s+\[FileName\]\s+(?<filename>.+)";
+
+            Match match = Regex.Match(line, pattern);
+
+            if (!match.Success)
+                return "";
+            string desiredAccessBinary = match.Groups["access"].Value;
+            string fileName = match.Groups["filename"].Value;
+            ulong desiredAccess = Convert.ToUInt64(desiredAccessBinary, 2);
+
+            if ((desiredAccess & (ulong)DesiredAccessFlag.GENERIC_WRITE) != 0 ||
+                (desiredAccess & (ulong)DesiredAccessFlag.GENERIC_ALL) != 0)
+            {
+                return fileName.Replace("\\??\\", "");
+            }
+
+            return "";
+        }
+
+        [Flags]
+        private enum DesiredAccessFlag : uint
+        {
+            GENERIC_READ = 0x80000000,
+            GENERIC_WRITE = 0x40000000,
+            GENERIC_EXECUTE = 0x20000000,
+            GENERIC_ALL = 0x10000000
         }
     }
 }

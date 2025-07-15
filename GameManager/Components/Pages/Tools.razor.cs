@@ -29,7 +29,7 @@ namespace GameManager.Components.Pages
                 _Is64Bit ? "VNGTTranslator.x86.7z" : "VNGTTranslator.x64.7z", "0.1.1"),
             new("ProcessTracer", "ProcessTracer.exe",
                 "https://api.github.com/repos/charles7668/ProcessTracer/releases",
-                _Is64Bit ? "ProcessTracer.x86.7z" : "ProcessTracer.7z", "0.4.0"),
+                "ProcessTracer.7z", "1.0.0"),
             new("Locale-Emulator", "LEGUI.exe",
                 "https://api.github.com/repos/xupefei/Locale-Emulator/releases",
                 "Locale.Emulator.2.5.0.1.zip", "v2.5.0.1")
