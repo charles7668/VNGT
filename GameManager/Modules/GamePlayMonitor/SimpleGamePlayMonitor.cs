@@ -8,7 +8,7 @@ using ProcessInfo = Helper.Models.ProcessInfo;
 
 namespace GameManager.Modules.GamePlayMonitor
 {
-    public class GamePlayMonitor(ILogger<GamePlayMonitor> logger) : IGamePlayMonitor
+    public class SimpleGamePlayMonitor(ILogger<SimpleGamePlayMonitor> logger) : IGamePlayMonitor
     {
         private readonly ConcurrentDictionary<int, HashSet<int>> _childMap = new();
         private readonly ConcurrentDictionary<int, int> _gameIdPidMap = [];

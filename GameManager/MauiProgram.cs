@@ -86,7 +86,7 @@ namespace GameManager
             builder.Services.AddScoped<IVersionService, VersionService>();
 
             builder.Services.AddScoped<IGameInstallAnalyzer, ProcessTracerGameInstallAnalyzer>();
-            builder.Services.AddSingleton<IGamePlayMonitor, GamePlayMonitor>();
+            builder.Services.AddSingleton<GamePlayMonitorFactory, GamePlayMonitorFactory>();
 
             builder.Services.AddExtractors();
             builder.Services.AddSynchronizers();

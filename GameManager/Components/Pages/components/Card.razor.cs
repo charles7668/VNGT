@@ -60,7 +60,7 @@ namespace GameManager.Components.Pages.components
         private ISaveDataManager SaveDataManager { get; set; } = null!;
 
         [Inject]
-        private IGamePlayMonitor GamePlayMonitor { get; set; } = null!;
+        private GamePlayMonitorFactory GamePlayMonitorFactory { get; set; } = null!;
 
         [Parameter]
         [EditorRequired]
@@ -302,10 +302,11 @@ namespace GameManager.Components.Pages.components
             IStrategy launchStrategy = LaunchProgramStrategyFactory.Create(GameInfoParam, TryStartVNGTTranslator);
             try
             {
+                IGamePlayMonitor gamePlayMonitor = GamePlayMonitorFactory.GetMonitor(false);
                 int pid = await launchStrategy.ExecuteAsync();
                 GameInfoParam.LastPlayed = DateTime.UtcNow;
                 await TryUpdateLastPlayTime();
-                Result addResult = await GamePlayMonitor.AddMonitorItem(GameInfoParam.Id, GameInfoParam.GameName ?? "",
+                Result addResult = await gamePlayMonitor.AddMonitorItem(GameInfoParam.Id, GameInfoParam.GameName ?? "",
                     pid,
                     e =>
                     {
@@ -314,7 +315,7 @@ namespace GameManager.Components.Pages.components
                     });
                 if (addResult.Success)
                 {
-                    GamePlayMonitor.RegisterCallback(GameInfoParam.Id, OnMonitorStop);
+                    gamePlayMonitor.RegisterCallback(GameInfoParam.Id, OnMonitorStop);
                     IsMonitoring = true;
                     _ = InvokeAsync(StateHasChanged);
                 }
