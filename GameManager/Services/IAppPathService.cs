@@ -10,6 +10,7 @@
         string LogDirPath { get; }
         string SaveFileBackupDirPath { get; }
         string ScreenShotsDirPath { get; }
+        string ProcessTracerDirPath { get; }
 
         void CreateAppPath();
     }
