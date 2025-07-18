@@ -16,6 +16,7 @@ namespace GameManager.Services
             LogDirPath = Path.Combine(ConfigDirPath, "logs");
             SaveFileBackupDirPath = Path.Combine(ConfigDirPath, "save-file-backup");
             ScreenShotsDirPath = Path.Combine(ConfigDirPath, "screenshots");
+            ProcessTracerDirPath = Path.GetFullPath("ProcessTracer");
         }
 
         public string AppDirPath { get; protected init; }
@@ -26,6 +27,7 @@ namespace GameManager.Services
         public string LogDirPath { get; protected init; }
         public string SaveFileBackupDirPath { get; protected init; }
         public string ScreenShotsDirPath { get; protected init; }
+        public string ProcessTracerDirPath { get; protected init; }
 
         public void CreateAppPath()
         {
