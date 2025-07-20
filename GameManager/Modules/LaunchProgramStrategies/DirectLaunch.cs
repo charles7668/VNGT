@@ -1,5 +1,7 @@
 ﻿using GameManager.DTOs;
 using GameManager.Models;
+using GameManager.Services;
+using Helper;
 using System.Diagnostics;
 
 namespace GameManager.Modules.LaunchProgramStrategies
@@ -13,17 +15,27 @@ namespace GameManager.Modules.LaunchProgramStrategies
                 throw new Exception("Execution file not set");
             }
 
+            IAppPathService appPathService = App.ServiceProvider.GetRequiredService<IAppPathService>();
+            string processTracerPath = Path.Combine(appPathService.ProcessTracerDirPath, "ProcessTracer.exe");
+            if (string.IsNullOrEmpty(processTracerPath))
+            {
+                throw new FileNotFoundException("ProcessTracer not found");
+            }
+
             string executionFile = Path.Combine(gameInfo.ExePath, gameInfo.ExeFile);
+            executionFile = executionFile.ToUnixPath()!;
+            List<string> args = ["-f\"" + executionFile + "\"", "--hide"];
             var proc = new Process();
-            proc.StartInfo.FileName = executionFile;
-            proc.StartInfo.WorkingDirectory = gameInfo.ExePath;
+            proc.StartInfo.FileName = processTracerPath;
             proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.CreateNoWindow = true;
             bool runAsAdmin = gameInfo.LaunchOption is { RunAsAdmin: true };
             if (runAsAdmin)
             {
-                proc.StartInfo.UseShellExecute = true;
-                proc.StartInfo.Verb = "runas";
+                args.Add("--runas");
             }
+
+            proc.StartInfo.Arguments = string.Join(" ", args);
 
             proc.Start();
 
