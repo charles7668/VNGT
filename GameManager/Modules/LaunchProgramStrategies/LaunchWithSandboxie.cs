@@ -2,6 +2,7 @@
 using GameManager.Models;
 using GameManager.Properties;
 using GameManager.Services;
+using Helper;
 using Helper.Models;
 using Helper.Sandboxie;
 using System.Diagnostics;
@@ -17,6 +18,13 @@ namespace GameManager.Modules.LaunchProgramStrategies
             if (gameInfo.ExePath == null || gameInfo.ExeFile == null || gameInfo.ExeFile == "Not Set")
             {
                 throw new Exception("Execution file not set");
+            }
+
+            IAppPathService appPathService = App.ServiceProvider.GetRequiredService<IAppPathService>();
+            string processTracerPath = Path.Combine(appPathService.ProcessTracerDirPath, "ProcessTracer.exe");
+            if (string.IsNullOrEmpty(processTracerPath))
+            {
+                throw new FileNotFoundException("ProcessTracer not found");
             }
 
             string executionFile = Path.Combine(gameInfo.ExePath, gameInfo.ExeFile);
@@ -59,24 +67,33 @@ namespace GameManager.Modules.LaunchProgramStrategies
                 string guid = guidAttr.Value;
                 string leExePath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEProc.exe");
                 string elevate = gameInfo.LaunchOption?.RunAsAdmin ?? false ? "/elevate" : "";
+                List<string> args =
+                [
+                    $"-f\"{leExePath.ToUnixPath()}\"", $"-a\"-runas {guid} \\\"{executionFile.ToUnixPath()}\\\"\"",
+                    "--hide"
+                ];
 
                 var proc = new Process();
                 proc.StartInfo.FileName = sandboxieFilePath;
                 proc.StartInfo.WorkingDirectory = gameInfo.ExePath;
                 proc.StartInfo.Arguments =
-                    $"/Box:{sandboxieBoxName} {elevate} {leExePath} -runas \"{guid}\" \"{executionFile}\"";
+                    $"/Box:{sandboxieBoxName} {elevate} /hide_window {processTracerPath} {string.Join(" ", args)}";
                 proc.StartInfo.UseShellExecute = false;
+                proc.StartInfo.CreateNoWindow = true;
                 proc.Start();
                 resultPid = proc.Id;
             }
             else
             {
                 string elevate = gameInfo.LaunchOption?.RunAsAdmin ?? false ? "/elevate" : "";
+                List<string> args = [$"-f\"{executionFile.ToUnixPath()}\"", "--hide"];
                 var proc = new Process();
                 proc.StartInfo.FileName = sandboxieFilePath;
                 proc.StartInfo.WorkingDirectory = gameInfo.ExePath;
-                proc.StartInfo.Arguments = $"/Box:{sandboxieBoxName} {elevate} \"{executionFile}\"";
+                proc.StartInfo.Arguments =
+                    $"/Box:{sandboxieBoxName} {elevate} /hide_window \"{processTracerPath}\" {string.Join(" ", args)}";
                 proc.StartInfo.UseShellExecute = false;
+                proc.StartInfo.CreateNoWindow = true;
                 proc.Start();
                 resultPid = proc.Id;
             }
@@ -100,7 +117,7 @@ namespace GameManager.Modules.LaunchProgramStrategies
                 processesAfterStart = processesAfterStart.Where(x => !processesBeforeStart.Contains(x.Id)).ToList();
                 foreach (ProcessInfo p in processesAfterStart)
                 {
-                    if (p.ExecutablePath == executionFile)
+                    if (p.ExecutablePath == processTracerPath)
                     {
                         resultPid = p.Id;
                         isFind = true;
