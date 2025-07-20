@@ -11,11 +11,18 @@ namespace GameManager.Modules.LaunchProgramStrategies
 {
     public class LaunchWithLocaleEmulator(GameInfoDTO gameInfo, Action<int>? tryLaunchVNGTTranslator = null) : IStrategy
     {
-        public async Task<int> ExecuteAsync()
+        public Task<int> ExecuteAsync()
         {
             if (gameInfo.ExePath == null || gameInfo.ExeFile == null)
             {
                 throw new Exception("Execution file not set");
+            }
+
+            IAppPathService appPathService = App.ServiceProvider.GetRequiredService<IAppPathService>();
+            string processTracerPath = Path.Combine(appPathService.ProcessTracerDirPath, "ProcessTracer.exe");
+            if (string.IsNullOrEmpty(processTracerPath))
+            {
+                throw new FileNotFoundException("ProcessTracer not found");
             }
 
             string executionFile = Path.Combine(gameInfo.ExePath, gameInfo.ExeFile);
@@ -42,25 +49,21 @@ namespace GameManager.Modules.LaunchProgramStrategies
             string guid = guidAttr.Value;
             string leExePath = Path.Combine(appSetting.LocaleEmulatorPath!, "LEProc.exe");
             var proc = new Process();
-            proc.StartInfo.FileName = leExePath;
+            List<string> args = [$"-f\"{leExePath}\"" , $"-a\"-runas {guid} \\\"{executionFile}\\\"\"", "--hide"];
+            proc.StartInfo.FileName = processTracerPath;
             proc.StartInfo.WorkingDirectory = gameInfo.ExePath;
-            proc.StartInfo.Arguments = $"-runas \"{guid}\" \"{executionFile}\"";
             proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.CreateNoWindow = true;
             bool runAsAdmin = gameInfo.LaunchOption is { RunAsAdmin: true };
             if (runAsAdmin)
             {
-                proc.StartInfo.UseShellExecute = true;
-                proc.StartInfo.Verb = "runas";
+                args.Add("--runas");
             }
+            proc.StartInfo.Arguments = string.Join(" ", args);
 
             proc.Start();
-            int leProcId = proc.Id;
-            await Task.Delay(100);
-            Process? targetProc = ProcessHelper.GetChildProcessesByParentPid(leProcId).FirstOrDefault();
 
-            tryLaunchVNGTTranslator?.Invoke(targetProc?.Id ?? 0);
-
-            return targetProc?.Id ?? proc.Id;
+            return Task.FromResult(proc.Id);
         }
     }
 }
