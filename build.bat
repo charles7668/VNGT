@@ -20,6 +20,7 @@ echo Full vcvars64.bat path: %VCVARS%
 call "%VCVARS%"
 
 cd ProcessTracer
+dotnet restore
 call build.bat
 cd ..
 
