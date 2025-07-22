@@ -264,7 +264,7 @@ namespace GameManager.Components.Pages.components
             {
                 try
                 {
-                    Directory.Delete(tempPath);
+                    Directory.Delete(tempPath, true);
                 }
                 catch
                 {
