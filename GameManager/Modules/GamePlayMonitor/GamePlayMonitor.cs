@@ -3,6 +3,7 @@ using GameManager.Models.EventArgs;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.IO.Pipes;
 
 namespace GameManager.Modules.GamePlayMonitor
 {
@@ -159,6 +160,45 @@ namespace GameManager.Modules.GamePlayMonitor
             _monitorCts.Dispose();
             _monitorCts = new CancellationTokenSource();
             _monitorTask = MonitorGamePlay(_monitorCts.Token);
+        }
+
+        public void SendStopRequest(int gameId)
+        {
+            var exist = _gameIdPidMap.TryGetValue(gameId, out int pid);
+            if (!exist)
+                return;
+            bool isAlive;
+            try
+            {
+                var proc = Process.GetProcessById(pid);
+                isAlive = proc is { HasExited: false, ProcessName: "ProcessTracer" };
+            }
+            catch
+            {
+                return;
+            }
+
+            if (!isAlive)
+                return;
+
+            using var pipeClient =
+                new NamedPipeClientStream(".", "ProcessTracerPipe:" + pid, PipeDirection.Out,
+                    PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+            try
+            {
+                pipeClient.Connect(100);
+                if (pipeClient.IsConnected)
+                {
+                    using var writer = new StreamWriter(pipeClient);
+                    writer.AutoFlush = true;
+                    writer.WriteLine("[CloseApp]");
+                }
+            }
+            catch
+            {
+                logger.Log(LogLevel.Warning, "Failed to send stop request to game {GameId} with PID {Pid}",
+                    gameId, pid);
+            }
         }
 
         private sealed class MonitorItem

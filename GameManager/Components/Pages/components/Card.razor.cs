@@ -357,6 +357,11 @@ namespace GameManager.Components.Pages.components
             }
         }
 
+        private void OnStopClick()
+        {
+            GamePlayMonitor.SendStopRequest(GameInfoParam.Id);
+        }
+
         private void OnOpenInExplorer()
         {
             if (string.IsNullOrEmpty(GameInfoParam.ExePath))

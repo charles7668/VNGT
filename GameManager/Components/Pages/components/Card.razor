@@ -41,9 +41,11 @@
             <MudToolBar Class="pa-0">
                 @if (IsMonitoring)
                 {
-                    <MudButton Disabled="true"
-                               Variant="Variant.Outlined">
-                        @Resources.Common_Running
+                    <MudButton OnClick="OnStopClick"
+                               Variant="Variant.Outlined"
+                               Color="Color.Error"
+                               StartIcon="@Icons.Material.Filled.StopCircle">
+                        @Resources.Common_Stop
                     </MudButton>
                 }
                 else

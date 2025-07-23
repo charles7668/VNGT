@@ -41,5 +41,11 @@ namespace GameManager.Modules.GamePlayMonitor
         /// <param name="gameId">The ID of the game to check.</param>
         /// <returns>True if the game is being monitored, otherwise false.</returns>
         bool IsMonitoring(int gameId);
+
+        /// <summary>
+        /// Sends a stop request for a specific game.
+        /// </summary>
+        /// <param name="gameId"></param>
+        public void SendStopRequest(int gameId);
     }
 }
