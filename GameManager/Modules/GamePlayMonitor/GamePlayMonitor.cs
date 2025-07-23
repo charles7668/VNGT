@@ -1,16 +1,13 @@
 ﻿using GameManager.Models;
 using GameManager.Models.EventArgs;
-using Helper;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
-using System.Management;
-using ProcessInfo = Helper.Models.ProcessInfo;
+using System.Diagnostics;
 
 namespace GameManager.Modules.GamePlayMonitor
 {
     public class GamePlayMonitor(ILogger<GamePlayMonitor> logger) : IGamePlayMonitor
     {
-        private readonly ConcurrentDictionary<int, HashSet<int>> _childMap = new();
         private readonly ConcurrentDictionary<int, int> _gameIdPidMap = [];
         private readonly ConcurrentDictionary<int, MonitorItem> _monitorItems = new();
         private readonly object _removingLock = new();
@@ -43,15 +40,10 @@ namespace GameManager.Modules.GamePlayMonitor
                 return Task.FromResult(Result.Ok());
             if (_monitorTask != Task.CompletedTask && _monitorCts.IsCancellationRequested)
             {
-                _ = _monitorTask.ContinueWith(_ =>
-                {
-                    StartNewMonitorTask();
-                });
+                _monitorTask.Wait();
             }
-            else
-            {
-                StartNewMonitorTask();
-            }
+
+            StartNewMonitorTask();
 
             return Task.FromResult(Result.Ok());
         }
@@ -102,8 +94,6 @@ namespace GameManager.Modules.GamePlayMonitor
                 {
                     _gameIdPidMap.TryRemove(monitorItem.GameId, out _);
                 }
-
-                _childMap.TryRemove(pid, out _);
             }
 
             await Task.Run(() =>
@@ -116,73 +106,10 @@ namespace GameManager.Modules.GamePlayMonitor
             }, CancellationToken.None);
         }
 
-        /// <summary>
-        /// Monitors the target process and its child processes to determine if they are alive.
-        /// </summary>
-        /// <param name="monitorItemPid">The process ID of the target process to monitor.</param>
-        /// <param name="childMap">A dictionary mapping process IDs to their child process IDs.</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation. The task result contains a boolean indicating whether any
-        /// processes are alive.
-        /// </returns>
-        private static async Task<bool> MonitorTargetPid(int monitorItemPid,
-            ConcurrentDictionary<int, HashSet<int>> childMap)
-        {
-            int aliveCount = 0;
-            for (int i = 0; i < 6; ++i)
-            {
-                if (aliveCount > 0)
-                    break;
-                List<ProcessInfo> processInfos = ProcessHelper.GetProcessInfos();
-                aliveCount = 0;
-                if (processInfos.Find(x => x.Id == monitorItemPid) != null)
-                    aliveCount = 1;
-                if (!childMap.TryRemove(monitorItemPid, out HashSet<int>? oldChildSet))
-                    oldChildSet = [];
-                childMap.TryAdd(monitorItemPid, []);
-                foreach (int oldChild in oldChildSet)
-                {
-                    var childListOfItem =
-                        processInfos.Where(x => x.ParentId == oldChild).ToList();
-                    childMap[monitorItemPid].Add(oldChild);
-                    aliveCount += childListOfItem.Count;
-                    foreach (int childId in childListOfItem.Select(x => x.Id))
-                        childMap[monitorItemPid].Add(childId);
-                }
-
-                await Task.Delay(50);
-            }
-
-            return aliveCount != 0;
-        }
-
-        private void OnProcessChangedEvent(object sender, EventArrivedEventArgs args)
-        {
-            var process = (ManagementBaseObject)args.NewEvent["TargetInstance"];
-            ProcessInfo processInfo = process.ParseProcessInfo();
-            foreach (int pid in _monitorItems.Select(x => x.Key))
-            {
-                _childMap.TryAdd(pid, []);
-                if (processInfo.ParentId == pid)
-                {
-                    _childMap[pid].Add(processInfo.Id);
-                    return;
-                }
-
-                if (!_childMap.TryGetValue(pid, out HashSet<int>? childSet) ||
-                    !childSet.Contains(processInfo.ParentId))
-                    continue;
-                _childMap[pid].Add(processInfo.Id);
-                return;
-            }
-        }
-
         private Task MonitorGamePlay(CancellationToken cancellationToken)
         {
-            return Task.Run(async () =>
+            return Task.Factory.StartNew(async () =>
             {
-                ProcessHelper.StartProcessStartWatcher();
-                ProcessHelper.RegisterProcessStartCallback(OnProcessChangedEvent);
                 int tryCount = 0;
                 const int maxTryCount = 10;
                 await Task.Delay(500, cancellationToken);
@@ -200,7 +127,16 @@ namespace GameManager.Modules.GamePlayMonitor
                     var monitorPidList = _monitorItems.Keys.ToList();
                     foreach (int monitorItemPid in monitorPidList)
                     {
-                        bool isAlive = await MonitorTargetPid(monitorItemPid, _childMap);
+                        bool isAlive = false;
+                        try
+                        {
+                            var monitorProc = Process.GetProcessById(monitorItemPid);
+                            isAlive = monitorProc is { HasExited: false, ProcessName: "ProcessTracer" };
+                        }
+                        catch
+                        {
+                            // ignore
+                        }
 
                         // if no child process alive, invoke the callback
                         if (!isAlive)
@@ -215,9 +151,7 @@ namespace GameManager.Modules.GamePlayMonitor
                 }
 
                 logger.LogDebug("Monitor task stopped");
-                ProcessHelper.StopProcessStartWatcher();
-                _childMap.Clear();
-            }, cancellationToken);
+            }, TaskCreationOptions.LongRunning).Unwrap();
         }
 
         private void StartNewMonitorTask()
