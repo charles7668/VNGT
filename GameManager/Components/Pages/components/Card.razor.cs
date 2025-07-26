@@ -85,7 +85,7 @@ namespace GameManager.Components.Pages.components
 
         private AppSettingDTO? AppSetting { get; set; }
 
-        public bool IsMonitoring { get; set; }
+        private bool IsMonitoring { get; set; }
 
         private IList<GuideSiteDTO> GuideSites
         {
@@ -249,6 +249,7 @@ namespace GameManager.Components.Pages.components
             try
             {
                 base.OnInitialized();
+                IsMonitoring = GamePlayMonitor.IsMonitoring(GameInfoParam.Id);
             }
             catch (Exception e)
             {
