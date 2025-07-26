@@ -91,7 +91,7 @@ namespace GameManager.Components.Pages.components
                 Snackbar.Add("The program is missing a required tool: ProcessTracer.\r\nPlease consider reinstalling it.", Severity.Warning);
                 return;
             }
-
+            
             AppSettingDTO appSetting = ConfigService.GetAppSettingDTO();
             string? lePath = appSetting.LocaleEmulatorPath;
             string leExePath = string.IsNullOrEmpty(lePath) ? "" : Path.Combine(lePath, "LEProc.exe");
@@ -114,7 +114,7 @@ namespace GameManager.Components.Pages.components
                         Snackbar.Add(Resources.Message_LENotFound, Severity.Error);
                         return;
                     }
-
+            
                     var xmlDoc = XDocument.Load(leConfigPath);
                     XElement? node =
                         xmlDoc.XPathSelectElement(
@@ -126,30 +126,30 @@ namespace GameManager.Components.Pages.components
                     }
                 }
             }
-
+            
             var customFileType = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
             {
                 { DevicePlatform.WinUI, [".exe"] }
             });
-
+            
             var options = new PickOptions
             {
                 PickerTitle = "Please select install file",
                 FileTypes = customFileType
             };
-
+            
             FileResult? installFileResult = await FilePicker.PickAsync(options);
             if (installFileResult == null)
             {
                 return;
             }
-
+            
             string tempPath =
                 Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetTempFileName()));
             Directory.CreateDirectory(tempPath);
             string tempOutputPath = Path.Combine(tempPath, "output.txt");
             string tempErrorPath = Path.Combine(tempPath, "error.txt");
-
+            
             IDialogReference dialogReferenceProgress = await DialogService.ShowAsync<ProgressDialog>("Installing",
                 new DialogOptions
                 {
@@ -202,7 +202,7 @@ namespace GameManager.Components.Pages.components
                         CreateNoWindow = true,
                     };
                 }
-
+            
                 var procTracerProc = Process.Start(processTracerStartInfo);
                 if (procTracerProc != null)
                 {
@@ -214,16 +214,6 @@ namespace GameManager.Components.Pages.components
                     {
                         Snackbar.Add(stdErr, Severity.Error);
                         Logger.LogError("ProcessTracer error: {StdErr}", stdErr);
-                        return;
-                    }
-                }
-
-                if (File.Exists(tempErrorPath))
-                {
-                    var error = await File.ReadAllTextAsync(tempErrorPath);
-                    if (!string.IsNullOrWhiteSpace(error))
-                    {
-                        Snackbar.Add(error, Severity.Error);
                         return;
                     }
                 }
@@ -248,10 +238,10 @@ namespace GameManager.Components.Pages.components
                 {
                     target = analyzeResult.Value;
                 }
-
+            
                 if (string.IsNullOrEmpty(target))
                     return;
-
+            
                 if (AddNewGameEvent.HasDelegate)
                     await AddNewGameEvent.InvokeAsync(target);
             }
