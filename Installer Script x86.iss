@@ -9,7 +9,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{{#id}}
 AppName=VNGT
-AppVersion=0.9.1
+AppVersion=0.10.0
 AppPublisher=charles
 AppPublisherURL=https://github.com/charles7668
 AppSupportURL=https://github.com/charles7668/VNGT
