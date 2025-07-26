@@ -1,3 +1,8 @@
+div {
+    height: 100vh;
+    overflow: auto;
+}
+
 div ::deep .mud-icon-size-large {
     font-size: 80px;
 }
