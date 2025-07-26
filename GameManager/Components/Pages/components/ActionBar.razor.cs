@@ -125,6 +125,10 @@ namespace GameManager.Components.Pages.components
                         guid = guidAttr.Value;
                     }
                 }
+                else
+                {
+                    return;
+                }
             }
             
             var customFileType = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
