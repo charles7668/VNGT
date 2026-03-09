@@ -32,6 +32,7 @@
             btnPatch = new Button();
             txtLog = new TextBox();
             btnOpenConfigFolder = new Button();
+            btnRefreshConfigs = new Button();
             SuspendLayout();
             // 
             // cmbConfigList
@@ -39,7 +40,7 @@
             cmbConfigList.Font = new Font("Microsoft JhengHei UI", 24F, FontStyle.Bold, GraphicsUnit.Point, 136);
             cmbConfigList.FormattingEnabled = true;
             cmbConfigList.Location = new Point(46, 118);
-            cmbConfigList.Margin = new Padding(5, 5, 5, 5);
+            cmbConfigList.Margin = new Padding(5);
             cmbConfigList.Name = "cmbConfigList";
             cmbConfigList.Size = new Size(882, 69);
             cmbConfigList.TabIndex = 0;
@@ -48,7 +49,7 @@
             // 
             btnPatch.Font = new Font("Microsoft JhengHei UI", 24F, FontStyle.Bold, GraphicsUnit.Point, 136);
             btnPatch.Location = new Point(959, 118);
-            btnPatch.Margin = new Padding(5, 5, 5, 5);
+            btnPatch.Margin = new Padding(5);
             btnPatch.Name = "btnPatch";
             btnPatch.Size = new Size(244, 74);
             btnPatch.TabIndex = 1;
@@ -59,7 +60,7 @@
             // txtLog
             // 
             txtLog.Location = new Point(46, 233);
-            txtLog.Margin = new Padding(5, 5, 5, 5);
+            txtLog.Margin = new Padding(5);
             txtLog.Multiline = true;
             txtLog.Name = "txtLog";
             txtLog.Size = new Size(1154, 378);
@@ -77,6 +78,18 @@
             btnOpenConfigFolder.UseVisualStyleBackColor = true;
             btnOpenConfigFolder.Click += btnOpenConfigFolder_Click;
             // 
+            // btnRefreshConfigs
+            // 
+            btnRefreshConfigs.Font = new Font("Microsoft JhengHei UI", 24F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            btnRefreshConfigs.Location = new Point(673, 25);
+            btnRefreshConfigs.Margin = new Padding(5);
+            btnRefreshConfigs.Name = "btnRefreshConfigs";
+            btnRefreshConfigs.Size = new Size(244, 74);
+            btnRefreshConfigs.TabIndex = 1;
+            btnRefreshConfigs.Text = "Refresh";
+            btnRefreshConfigs.UseVisualStyleBackColor = true;
+            btnRefreshConfigs.Click += btnRefreshConfigs_Click;
+            // 
             // FrmMain
             // 
             AutoScaleDimensions = new SizeF(11F, 23F);
@@ -84,9 +97,10 @@
             ClientSize = new Size(1315, 726);
             Controls.Add(txtLog);
             Controls.Add(btnOpenConfigFolder);
+            Controls.Add(btnRefreshConfigs);
             Controls.Add(btnPatch);
             Controls.Add(cmbConfigList);
-            Margin = new Padding(5, 5, 5, 5);
+            Margin = new Padding(5);
             Name = "FrmMain";
             Text = "Save Patcher";
             Load += Form1_Load;
@@ -100,5 +114,6 @@
         private Button btnPatch;
         private TextBox txtLog;
         private Button btnOpenConfigFolder;
+        private Button btnRefreshConfigs;
     }
 }

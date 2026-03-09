@@ -129,5 +129,12 @@ namespace SavePatcher
             // open config folder
             Process.Start("explorer.exe", Program.ConfigPath);
         }
+
+        private void btnRefreshConfigs_Click(object sender, EventArgs e)
+        {
+            cmbConfigList.Items.Clear();
+            _configCache.Clear();
+            LoadAllConfigFileName();
+        }
     }
 }
