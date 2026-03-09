@@ -17,13 +17,19 @@
 ### 简单范例
 
 ```yaml
-ConfigName: game1 # 设置名称。此设置指定您将修补的游戏。
-FilePath: save.zip # 存档文件路径。此设置可以使用 HTTP 路径，例如：https://test.com/test.zip
-ZipPassword: password # 如果 zip 文件需要密码，请在此处输入密码。如果不需要，将此设置保留为空字符串 ('')。
-PatchFiles: # 指定 zip 文件中将被复制到 DestinationPath 的文件。如果应该复制所有文件，请将此设置保留为空列表。
-  - file1
-  - file2
-DestinationPath: destinationPath # 目标路径。指定保存数据文件夹的路径。如果设置为空字符串 ('')，将弹出窗口进行选择。此设置可以通过使用 %variable_name% 使用环境变量路径。
+- ConfigName: game1 # 设置名称。此设置指定您将修补的游戏。
+  FilePath: save.zip # 存档文件路径。此设置可以使用 HTTP 路径，例如：https://test.com/test.zip
+  ZipPassword: password # 如果 zip 文件需要密码，请在此处输入密码。如果不需要，将此设置保留为空字符串 ('')。
+  PatchFiles: # 指定 zip 文件中将被复制到 DestinationPath 的文件。如果应该复制所有文件，请将此设置保留为空列表。
+    - file1
+    - file2
+  DestinationPath: destinationPath # 目标路径。指定保存数据文件夹的路径。如果设置为空字符串 ('')，将弹出窗口进行选择。此设置可以通过使用 %variable_name% 使用环境变量路径。
+
+- ConfigName: game2
+  FilePath: https://example.com/save2.zip
+  ZipPassword: ""
+  PatchFiles: []
+  DestinationPath: ""
 ```
 
 ### 将补丁文件存至不同文件夹的范例

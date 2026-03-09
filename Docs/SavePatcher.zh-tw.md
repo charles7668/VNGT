@@ -17,13 +17,19 @@
 ### 簡單範例
 
 ```yaml
-ConfigName: game1 # 設定名稱。此設定指定您將修補的遊戲。
-FilePath: save.zip # 存檔文件路徑。此設置可以使用 HTTP 路徑，例如：https://test.com/test.zip
-ZipPassword: password # 如果 zip 文件需要密碼，請在此處輸入密碼。如果不需要，將此設置保留為空字符串 ('')。
-PatchFiles: # 指定 zip 文件中將被複製到 DestinationPath 的文件。如果應該複製所有文件，請將此設置保留為空列表。
-  - file1
-  - file2
-DestinationPath: destinationPath # 目標路徑。指定保存數據文件夾的路徑。如果設置為空字符串 ('')，將彈出窗口進行選擇。此設置可以通過使用 %variable_name% 使用環境變量路徑。
+- ConfigName: game1 # 設定名稱。此設定指定您將修補的遊戲。
+  FilePath: save.zip # 存檔文件路徑。此設置可以使用 HTTP 路徑，例如：https://test.com/test.zip
+  ZipPassword: password # 如果 zip 文件需要密碼，請在此處輸入密碼。如果不需要，將此設置保留為空字符串 ('')。
+  PatchFiles: # 指定 zip 文件中將被複製到 DestinationPath 的文件。如果應該複製所有文件，請將此設置保留為空列表。
+    - file1
+    - file2
+  DestinationPath: destinationPath # 目標路徑。指定保存數據文件夾的路徑。如果設置為空字符串 ('')，將彈出窗口進行選擇。此設置可以通過使用 %variable_name% 使用環境變量路徑。
+
+- ConfigName: game2
+  FilePath: https://example.com/save2.zip
+  ZipPassword: ""
+  PatchFiles: []
+  DestinationPath: ""
 ```
 
 ### 將補丁文件存至不同文件夾的範例

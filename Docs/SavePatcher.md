@@ -1,6 +1,6 @@
 # SavePatcher
 
-[繁体中文](./SavePatcher.zh-tw.md.md) | [简体中文](./SavePatcher.zh-cn.md)
+[繁体中文](./SavePatcher.zh-tw.md) | [简体中文](./SavePatcher.zh-cn.md)
 
 - [SavePatcher](#savepatcher)
   - [User Guide](#user-guide)
@@ -17,13 +17,19 @@ Example of a configuration file in YAML format:
 ### Simple Example
 
 ```yaml
-ConfigName: game1 # Setting name. This setting specifies which game you will patch.
-FilePath: save.zip # Save file path. This setting can use an HTTP path like: https://test.com/test.zip
-ZipPassword: password # If the zip file requires a password, enter the password here. If not, leave this setting as an empty string ('').
-PatchFiles: # Specify which files in the zip file will be copied to the DestinationPath. If all files should be copied, leave this setting as an empty list.
-  - file1
-  - file2
-DestinationPath: destinationPath # Destination path. Specify the path to save the data folder. If set to an empty string (''), a window will prompt for selection. this setting can use environment path by using %variable_name%
+- ConfigName: game1 # Setting name. This setting specifies which game you will patch.
+  FilePath: save.zip # Save file path. This setting can use an HTTP path like: https://test.com/test.zip
+  ZipPassword: password # If the zip file requires a password, enter the password here. If not, leave this setting as an empty string ('').
+  PatchFiles: # Specify which files in the zip file will be copied to the DestinationPath. If all files should be copied, leave this setting as an empty list.
+    - file1
+    - file2
+  DestinationPath: destinationPath # Destination path. Specify the path to save the data folder. If set to an empty string (''), a window will prompt for selection. this setting can use environment path by using %variable_name%
+
+- ConfigName: game2
+  FilePath: https://example.com/save2.zip
+  ZipPassword: ""
+  PatchFiles: []
+  DestinationPath: ""
 ```
 
 ### Patch File To Difference Folder Example
