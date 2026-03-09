@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using SavePatcher.Configs;
 using SavePatcher.Logs;
 using SavePatcher.Models;
@@ -16,8 +16,8 @@ namespace SavePatcher
 
         private const string CHANGE_LINE = "\r\n";
 
-        // config name cache to avoid duplicate config name and find origin file path
-        private readonly Dictionary<string, string> _configNameCache = new();
+        // config cache
+        private readonly Dictionary<string, SavePatcherConfig> _configCache = new();
 
         // config reader
         private readonly IConfigReader<SavePatcherConfig[]> _configReader;
@@ -27,9 +27,6 @@ namespace SavePatcher
             LoadAllConfigFileName();
         }
 
-        /// <summary>
-        /// load all config file name from <see cref="Program.ConfigPath" />
-        /// </summary>
         private void LoadAllConfigFileName()
         {
             Directory.CreateDirectory(Program.ConfigPath);
@@ -62,14 +59,17 @@ namespace SavePatcher
                     continue;
                 }
 
-                string configName = configResult.Value![0].ConfigName;
-                if (_configNameCache.ContainsKey(configName) || string.IsNullOrEmpty(configName.Trim()))
+                foreach (SavePatcherConfig config in configResult.Value)
                 {
-                    continue;
-                }
+                    string configName = config.ConfigName;
+                    if (_configCache.ContainsKey(configName) || string.IsNullOrEmpty(configName.Trim()))
+                    {
+                        continue;
+                    }
 
-                cmbConfigList.Items.Add(configResult.Value[0].ConfigName);
-                _configNameCache[configName] = file;
+                    cmbConfigList.Items.Add(configName);
+                    _configCache[configName] = config;
+                }
             }
         }
 
@@ -77,36 +77,25 @@ namespace SavePatcher
         {
             ClearLogText();
             string configName = cmbConfigList.Text;
-            if (!_configNameCache.TryGetValue(configName, out string? configFilePath)
-                || !File.Exists(configFilePath))
+            if (!_configCache.TryGetValue(configName, out SavePatcherConfig? config))
             {
-                ErrorMessage("config file not found");
+                ErrorMessage("config not found");
                 return;
             }
 
-            InfoMessage("start load config file...");
-            string content = await File.ReadAllTextAsync(configFilePath);
-            Result<SavePatcherConfig[]> configResult = _configReader.Read(content);
-            if (!configResult.Success)
-            {
-                ErrorMessage(configResult.Message);
-                return;
-            }
+            InfoMessage("start patch...");
 
-            InfoMessage("end log config file");
-            SavePatcherConfig[] configs = configResult.Value!;
-            foreach (SavePatcherConfig config in configs)
-            {
-                Patcher.SavePatcher savePatcher = Program.ServiceProvider.GetRequiredService<Patcher.SavePatcher>();
-                savePatcher.FilePath = config.FilePath;
-                savePatcher.DestinationPath = config.DestinationPath;
-                savePatcher.PatchFiles = config.PatchFiles;
-                savePatcher.ZipPassword = config.ZipPassword;
-                savePatcher.LogCallbacks = new LogCallbacks();
-                savePatcher.LogCallbacks.LogInfoEvent += (_, args) => InfoMessage(args.Message);
-                savePatcher.LogCallbacks.LogErrorEvent += (_, args) => ErrorMessage(args.Message);
-                await savePatcher.PatchAsync();
-            }
+            Patcher.SavePatcher savePatcher = Program.ServiceProvider.GetRequiredService<Patcher.SavePatcher>();
+            savePatcher.FilePath = config.FilePath;
+            savePatcher.DestinationPath = config.DestinationPath;
+            savePatcher.PatchFiles = config.PatchFiles;
+            savePatcher.ZipPassword = config.ZipPassword;
+            savePatcher.LogCallbacks = new LogCallbacks();
+            savePatcher.LogCallbacks.LogInfoEvent += (_, args) => InfoMessage(args.Message);
+            savePatcher.LogCallbacks.LogErrorEvent += (_, args) => ErrorMessage(args.Message);
+            await savePatcher.PatchAsync();
+
+            InfoMessage("end patch");
         }
 
         /// <summary>
