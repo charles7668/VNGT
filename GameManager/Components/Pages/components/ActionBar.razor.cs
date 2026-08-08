@@ -158,6 +158,7 @@ namespace GameManager.Components.Pages.components
                 new DialogOptions
                 {
                     FullWidth = true,
+                    BackdropClick = false,
                     MaxWidth = MaxWidth.Small
                 });
             try
