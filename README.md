@@ -21,7 +21,6 @@ Game management tool: easily manage your games and integrate various assistive t
 - Integrate Locale Emulator to support non-Japanese OS
 - Integrate [VNGTTranslator](https://github.com/charles7668/VNGTTranslator) to help users translate game text
 - Integrate [GameKeeper](https://github.com/charles7668/GameKeeper) to keep selected games or apps running in the background and capture game windows for scalable viewing
-- Save patcher can replace save data to unlock game CG
 - Support execution of your game tool
 - Support backup and restore of save files (up to 10 backup files)
 - Support tracing game installation
@@ -33,7 +32,6 @@ Game management tool: easily manage your games and integrate various assistive t
 ## Guide
 
 - [Game Manager](./Docs/GameManager.md)
-- [Save Patcher](./Docs/SavePatcher.md)
 
 ## Build
 

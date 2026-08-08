@@ -1,12 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.3.11520.95 d18.3
+VisualStudioVersion = 18.3.11520.95
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SavePatcher", "SavePatcher\SavePatcher.csproj", "{5A7DFD21-E33B-4095-87DB-CB89B37841B6}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SavePatcherTest", "SavePatcherTest\SavePatcherTest.csproj", "{611B106E-112A-4EA6-8307-2D1B5EC3861D}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helper", "Helper\Helper.csproj", "{E8DEBB0B-1181-49A0-B4F3-EF5119BED5D9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameManager", "GameManager\GameManager.csproj", "{8FAFCC2E-13E3-42DB-89E2-BBFAD3E433C2}"
@@ -23,22 +19,6 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Debug|x64.ActiveCfg = Debug|x64
-		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Debug|x64.Build.0 = Debug|x64
-		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Release|x64.ActiveCfg = Release|x64
-		{5A7DFD21-E33B-4095-87DB-CB89B37841B6}.Release|x64.Build.0 = Release|x64
-		{611B106E-112A-4EA6-8307-2D1B5EC3861D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{611B106E-112A-4EA6-8307-2D1B5EC3861D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{611B106E-112A-4EA6-8307-2D1B5EC3861D}.Debug|x64.ActiveCfg = Debug|x64
-		{611B106E-112A-4EA6-8307-2D1B5EC3861D}.Debug|x64.Build.0 = Debug|x64
-		{611B106E-112A-4EA6-8307-2D1B5EC3861D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{611B106E-112A-4EA6-8307-2D1B5EC3861D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{611B106E-112A-4EA6-8307-2D1B5EC3861D}.Release|x64.ActiveCfg = Release|x64
-		{611B106E-112A-4EA6-8307-2D1B5EC3861D}.Release|x64.Build.0 = Release|x64
 		{E8DEBB0B-1181-49A0-B4F3-EF5119BED5D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E8DEBB0B-1181-49A0-B4F3-EF5119BED5D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8DEBB0B-1181-49A0-B4F3-EF5119BED5D9}.Debug|x64.ActiveCfg = Debug|x64
@@ -74,7 +54,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		RESX_SortFileContentOnSave = True
 		SolutionGuid = {89D99240-D609-4757-BAD5-E960EA1DE2E0}
+		RESX_SortFileContentOnSave = True
 	EndGlobalSection
 EndGlobal
