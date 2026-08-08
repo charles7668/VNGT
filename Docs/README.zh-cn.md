@@ -20,6 +20,7 @@
 - 支持多种语言 (英文 , 简体中文 , 繁體中文)
 - 集成 Locale Emulator 以支持非日文操作系统
 - 集成[VNGTTranslator](https://github.com/charles7668/VNGTTranslator)以帮助用户翻译游戏文本
+- 集成[GameKeeper](https://github.com/charles7668/GameKeeper)以让指定游戏或应用程序在后台持续运行，并捕获游戏窗口以达到画面缩放效果
 - 存档修改器可以替换存档以解锁游戏 CG 或替换存档
 - 支持加入自定义的游戏工具
 - 支持备份和还原存档文件（最多可备份 10 个文件）
