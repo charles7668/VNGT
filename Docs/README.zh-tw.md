@@ -38,7 +38,7 @@
 
 ### 要求
 
-- [.NET 8](https://dotnet.microsoft.com/en-us/download)
+- [.NET 10](https://dotnet.microsoft.com/en-us/download)
 
 運行`build.bat`文件以構建專案。
 

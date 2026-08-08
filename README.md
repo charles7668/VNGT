@@ -38,7 +38,7 @@ Game management tool: easily manage your games and integrate various assistive t
 
 ### Requirement
 
-- [.NET 8](https://dotnet.microsoft.com/en-us/download)
+- [.NET 10](https://dotnet.microsoft.com/en-us/download)
 
 Run the `build.bat` file to build the project.
 
