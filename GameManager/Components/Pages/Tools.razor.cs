@@ -27,6 +27,9 @@ namespace GameManager.Components.Pages
             new("VNGTTranslator", "VNGTTranslator.exe",
                 "https://api.github.com/repos/charles7668/VNGTTranslator/releases",
                 _Is64Bit ? "VNGTTranslator.x86.7z" : "VNGTTranslator.x64.7z", "0.1.1"),
+            new("GameKeeper", "GameKeeper.exe",
+                "https://api.github.com/repos/charles7668/GameKeeper/releases",
+                "GameKeeper-v0.1.0.zip", "0.1.0"),
             new("Locale-Emulator", "LEGUI.exe",
                 "https://api.github.com/repos/xupefei/Locale-Emulator/releases",
                 "Locale.Emulator.2.5.0.1.zip", "v2.5.0.1")
